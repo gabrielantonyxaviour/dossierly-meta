@@ -8,6 +8,7 @@ import { ago, dateParts, relDays, timeLabel } from "../format";
 import { eventTitle } from "../notifications/derive";
 import { useCaseData } from "../shell/case-data";
 import { isPhotoTask, photoCheckHref } from "../photo-link";
+import { isProposal } from "../review/derive";
 
 const ACTIONS: { href: string; icon: IconName; title: string; sub: string }[] = [
   { href: "/app/look", icon: "scan", title: "Look", sub: "Photo of a letter or screen" },
@@ -56,7 +57,7 @@ export function UpcomingAppointment({ c }: { c: CaseSnapshot }) {
 export function OpenTasks({ c }: { c: CaseSnapshot }) {
   const { patchItem } = useCaseData();
   const { toast } = useToast();
-  const open = c.tasks.filter((t) => t.status === "open").slice(0, 4);
+  const open = c.tasks.filter((t) => t.status === "open" && !isProposal(t)).slice(0, 4);
   if (!open.length) return null;
   const done = async (id: string, title: string) => {
     const ok = await patchItem("tasks", id, { status: "done" });
