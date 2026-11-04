@@ -1,0 +1,42 @@
+/* Case review (Muse Wonder). Phone first; cards readable at 45% scale. */
+.rv-list { display: grid; gap: 10px; }
+.rv-card { display: grid; gap: 8px; padding: 16px 18px; border-radius: var(--r-lg); background: var(--card); box-shadow: var(--e-1); }
+.rv-card h3 { margin: 0; font-size: 1.0625rem; font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; }
+.rv-card p { margin: 0; font-size: 0.9375rem; line-height: 1.5; color: var(--ink-2); }
+.rv-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.rv-date { font-size: var(--t-sm); font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.rv-risk--critical, .rv-risk--high { box-shadow: inset 3px 0 0 var(--deadline), var(--e-1); }
+.rv-risk--medium { box-shadow: inset 3px 0 0 var(--warn), var(--e-1); }
+.rv-impact { color: var(--ink) !important; font-weight: 500; }
+.rv-law { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--r-md); background: var(--official-soft); color: var(--ink) !important; }
+.rv-law svg { color: var(--official); flex: none; margin-top: 2px; }
+.rv-fix { display: grid; gap: 2px; color: var(--ink) !important; }
+.rv-fix b { font-size: var(--t-sm); font-weight: 600; color: var(--ok); }
+.rv-evidence { display: flex; flex-wrap: wrap; gap: 6px; }
+.rv-chip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-height: 32px; padding: 4px 10px; border-radius: 10px; background: var(--surface-2); color: var(--ink-2); font-size: var(--t-sm); text-decoration: none; }
+.rv-chip svg { flex: none; color: var(--ink-3); }
+.rv-prop { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--agent-a) 35%, transparent), var(--e-1); }
+.rv-prop-actions { display: flex; gap: 8px; margin-top: 4px; }
+.rv-prop-actions .ui-btn { flex: 1; }
+
+.rv-plan { list-style: none; margin: 0; padding: 0; display: grid; border-radius: var(--r-lg); background: var(--card); box-shadow: var(--e-1); overflow: hidden; }
+.rv-plan li { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 12px; padding: 14px 16px; }
+.rv-plan li + li { box-shadow: inset 0 1px 0 var(--line); }
+.rv-plan-when { font-size: var(--t-sm); font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums; padding-top: 2px; }
+.rv-plan-main { display: grid; gap: 6px; min-width: 0; }
+.rv-plan-main p { margin: 0; font-size: 0.9375rem; line-height: 1.45; }
+.rv-plan-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: var(--t-sm); color: var(--ink-3); }
+
+.rv-questions { display: grid; border-radius: var(--r-lg); background: var(--card); box-shadow: var(--e-1); overflow: hidden; }
+.rv-q { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 56px; padding: 12px 16px; color: var(--ink); text-decoration: none; font-size: 0.9375rem; line-height: 1.4; }
+.rv-q + .rv-q { box-shadow: inset 0 1px 0 var(--line); }
+.rv-q svg { color: var(--ink-3); }
+.rv-q:active { background: var(--surface-2); }
+
+/* Entry cards (Case, Home) */
+.rv-entry { display: flex; align-items: center; gap: 14px; min-height: 68px; padding: 14px 16px; border-radius: var(--r-lg); background: var(--card); box-shadow: var(--e-1); color: var(--ink); text-decoration: none; }
+.rv-entry-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--agent-soft); color: var(--agent-ink); flex: none; }
+.rv-entry-main { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.rv-entry-main b { font-size: 1rem; font-weight: 600; }
+.rv-entry-main span { font-size: 0.9375rem; color: var(--ink-2); }
+.rv-entry > svg { color: var(--ink-3); flex: none; }

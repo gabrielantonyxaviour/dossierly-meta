@@ -5,6 +5,7 @@ import { PERMIT_LABEL, STAGE_LABEL } from "../format";
 import { useCaseData } from "../shell/case-data";
 import { CaseHeader } from "./CaseHeader";
 import { KeyCards } from "./KeyCards";
+import { ReviewEntry } from "../review/ReviewEntry";
 import { DatesTab, DocumentsTab, TasksTab } from "./CaseTabs";
 import { TimelineTab } from "./TimelineTab";
 import "./case.css";
@@ -34,6 +35,7 @@ export function CaseScreen() {
       />
       <CaseHeader c={c} />
       <KeyCards c={c} />
+      <ReviewEntry c={c} always />
       <div className="cs-tabs">
         <Segmented label="Case sections" value={tab} onChange={setTab} options={[
           { value: "timeline", label: "Timeline" },

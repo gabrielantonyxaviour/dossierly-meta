@@ -34,9 +34,10 @@ export function deriveNotices(c: CaseSnapshot, now = new Date()): Notice[] {
     // The 24/7 agent's findings: a new office letter, and the call it placed about it, open what it prepared.
     const isReady = !!ready && (e.id === ready.arrival?.id || e.id === ready.call?.id);
     const letter = e.type === "email_received" && e.refs.some((r) => officeLetters.has(r));
-    const title = e.type === "call" && isReady ? "Dossierly called you" : letter ? "New letter from the office" : eventTitle(e.type);
+    const review = e.type === "note" && e.id.startsWith("ev-review-");
+    const title = e.type === "call" && isReady ? "Dossierly called you" : letter ? "New letter from the office" : review ? "Case review ready" : eventTitle(e.type);
     const body = isReady && e.type === "email_received" && ready ? `${e.summary}${ready.drafts.length ? ` Dossierly drafted ${ready.drafts.length === 1 ? "a reply" : `${ready.drafts.length} replies`} for you.` : ""}` : e.summary;
-    out.push({ id: `ev:${e.id}`, at: e.at, icon: EVENT_ICON[e.type] ?? "info", tone: e.type === "call" ? "agent" : letter || e.type === "letter_read" ? "official" : "neutral", title, body, href: isReady ? "/app/ready" : `/app/case?tab=timeline#${e.id}` });
+    out.push({ id: `ev:${e.id}`, at: e.at, icon: EVENT_ICON[e.type] ?? "info", tone: e.type === "call" ? "agent" : letter || e.type === "letter_read" ? "official" : "neutral", title, body, href: isReady ? "/app/ready" : review ? "/app/case/review" : `/app/case?tab=timeline#${e.id}` });
   }
   return out.sort((a, b) => b.at.localeCompare(a.at));
 }

@@ -8,6 +8,7 @@ import { NextStepCard } from "./NextStepCard";
 import { OpenTasks, QuickActions, RecentActivity, UpcomingAppointment } from "./HomeSections";
 import { CaseStrip } from "./CaseStrip";
 import { ReadyCard } from "../ready/ReadyCard";
+import { ReviewEntry } from "../review/ReviewEntry";
 import { SAMPLE_LABEL_ID } from "@/lib/dev/sample-label";
 import "./home.css";
 
@@ -45,6 +46,7 @@ export function CaseHome() {
           <ReadyCard c={snapshot} now={now} />
           <NextStepCard next={next} snapshot={snapshot} />
           <QuickActions />
+          <ReviewEntry c={snapshot} />
           <UpcomingAppointment c={snapshot} />
         </div>
         <div className="hm-col">

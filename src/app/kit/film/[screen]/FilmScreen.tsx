@@ -7,8 +7,9 @@ import { CaseScreen } from "@/components/app/case/CaseScreen";
 import { ReadyScreen } from "@/components/app/ready/ReadyScreen";
 import { NotificationsScreen } from "@/components/app/notifications/NotificationsScreen";
 import { SettingsScreen } from "@/components/app/settings/SettingsScreen";
+import { ReviewScreen } from "@/components/app/review/ReviewScreen";
 
-export function FilmScreen({ screen, snapshot }: { screen: "home" | "case" | "ready" | "notifications" | "settings"; snapshot: CaseSnapshot }) {
+export function FilmScreen({ screen, snapshot }: { screen: "home" | "case" | "ready" | "notifications" | "settings" | "review"; snapshot: CaseSnapshot }) {
   return (
     <StaticAppShell snapshot={snapshot}>
       <Suspense>
@@ -17,6 +18,7 @@ export function FilmScreen({ screen, snapshot }: { screen: "home" | "case" | "re
         {screen === "ready" && <ReadyScreen />}
         {screen === "notifications" && <NotificationsScreen />}
         {screen === "settings" && <SettingsScreen />}
+        {screen === "review" && <ReviewScreen />}
       </Suspense>
     </StaticAppShell>
   );
