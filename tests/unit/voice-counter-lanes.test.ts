@@ -43,7 +43,8 @@ describe("phone call reason", () => {
       { title: "Wezwanie: zaświadczenie o studiach", sender: "Mazowiecki Urząd Wojewódzki", asks: "a certificate of enrolment", dueDate: "2026-11-25", deadlineId: "dl_enrol", draftIds: ["doc_dean"], prepared: ["Request to your dean's office (draft)"] },
       new Date("2026-11-04T17:30:00Z"),
     );
-    expect(r).toContain("2026-11-25 (#dl_enrol)");
+    expect(r).toContain("Wednesday 25 November 2026 (2026-11-25) (#dl_enrol)");
+    expect(r).toContain("Thursday 5 November 2026");
     expect(r).toContain("#doc_dean");
     expect(r).toContain("REMIND: dl_enrol | 2026-11-05 09:00");
   });

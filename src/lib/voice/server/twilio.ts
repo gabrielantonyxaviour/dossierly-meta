@@ -4,6 +4,7 @@
  * demo accounts in DEMO_CALL_EMAILS are called, always at DEMO_CALL_NUMBER.
  */
 import { caseClient } from "../../case/client";
+import { dayLabel } from "../../case/context";
 import type { Env } from "../../server/env";
 import { ApiError } from "../../server/http";
 import { signTicket } from "../token";
@@ -83,9 +84,9 @@ export function letterReason(l: NewLetter, now = new Date()): string {
   const ref = (id?: string) => (id ? ` (#${id})` : "");
   return [
     `A new letter just arrived in their case and you have read it: "${l.title}" from ${l.sender}${ref(l.letterDocId)}.`,
-    `It asks for: ${l.asks}. Deadline: ${l.dueDate}${ref(l.deadlineId)}.`,
+    `It asks for: ${l.asks}. Deadline: ${dayLabel(l.dueDate)}${ref(l.deadlineId)}.`,
     l.prepared.length ? `Already prepared for them: ${l.prepared.join("; ")}${l.draftIds?.length ? ` (${l.draftIds.map((d) => `#${d}`).join(" ")})` : ""}.` : "Nothing is prepared yet.",
-    l.deadlineId ? `Offer a reminder tomorrow at nine (${tomorrow(now)} 09:00 Warsaw). When they agree, confirm it with REMIND: ${l.deadlineId} | ${tomorrow(now)} 09:00.` : "",
+    l.deadlineId ? `Offer a reminder tomorrow at nine (${dayLabel(tomorrow(now))}, 09:00 Warsaw). When they agree, confirm it with REMIND: ${l.deadlineId} | ${tomorrow(now)} 09:00.` : "",
   ].filter(Boolean).join("\n");
 }
 
