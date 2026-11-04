@@ -1,6 +1,7 @@
 import type { VoiceSession, Utterance } from "../session";
 import { AgentMode } from "./agent";
 import { CounterMode } from "./counter";
+import { IntakeMode } from "./intake";
 import { RehearseMode } from "./rehearse";
 
 export interface ModeHandler {
@@ -21,5 +22,6 @@ export interface ModeHandler {
 export function modeHandler(s: VoiceSession): ModeHandler {
   if (s.mode === "counter") return new CounterMode(s);
   if (s.mode === "rehearse") return new RehearseMode(s);
+  if (s.mode === "intake") return new IntakeMode(s);
   return new AgentMode(s);
 }

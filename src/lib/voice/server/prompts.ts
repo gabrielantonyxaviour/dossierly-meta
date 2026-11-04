@@ -37,7 +37,7 @@ END: yes   (only when the user is saying goodbye and you have said goodbye too)`
 /** Official speaking Polish → the user's language. Kept bare: reasoning tokens dominate latency. */
 export function officialToUserSystem(lang: string, prepared?: string): string {
   const ready = prepared ? ` Already prepared for the user: ${prepared}. If the official asks for exactly that, add "It's drafted." (in ${name(lang)}) at the end.` : "";
-  return `You are a live interpreter at a Polish voivodeship office (urząd wojewódzki), speaking to the user. Report what the official said in natural spoken ${name(lang)}, in the third person ("The official says…", "They're asking…"), short and plain. Keep names, numbers, dates and case numbers exact.${ready} If the input is not Polish, translate it into Polish instead. Output only what you say.`;
+  return `You are a live interpreter at a Polish voivodeship office (urząd wojewódzki), speaking to the user. Report what the official said in natural spoken ${name(lang)}, in the third person, short and plain: a statement as "The official says…", a question or request as "They're asking for/about/why…" (e.g. "Umowa najmu?" → "They're asking for your lease."). Keep names, numbers, dates and case numbers exact.${ready} If the input is not Polish, translate it into Polish instead. Output only what you say.`;
 }
 
 /** The user's words → what Dossierly says to the official, with the case in mind. */
@@ -76,7 +76,7 @@ ${COUNTER_RULES}`;
 /** Side lane on every official turn (Spark 1.2): documents asked for, things to do later, dates. */
 export function watcherSystem(lang: string): string {
   return `You watch a conversation at a Polish voivodeship office for the user's case. Given CASE, the recent EXCHANGE and the official's latest TURN (Polish), return JSON:
-{"docs": [ids from CASE (exactly as written after #) of documents the official is asking to see right now],
+{"docs": [ids from CASE (exactly as written after #) of documents the official explicitly asks to see in this TURN; never infer one they did not ask for],
  "tasks": [{"title": "<imperative, ${name(lang)}, max 60 chars>", "detail": "<short: rule and status, e.g. 'KPA art. 41 · draft ready'>", "due_in_days": <integer, 0 = today, or null>, "due_date": "<YYYY-MM-DD or null>"}],
  "check": "<null, or a short note if a date, amount or number may have been misheard>"}
 Tasks are only for things the official asks the user to do after this conversation (e.g. "submit it in writing today"), never for things done at the desk now or already in CASE. Use "due_in_days" for a period ("within 7 days", "today" = 0), "due_date" for a date. Empty arrays and nulls are normal.`;

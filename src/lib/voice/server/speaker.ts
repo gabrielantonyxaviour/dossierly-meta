@@ -113,6 +113,22 @@ export class Speaker {
     this.t.clear();
   }
 
+  private waiting: Array<() => void> = [];
+
+  /** The device finished playing what it had (client "played" event). */
+  played(): void {
+    this.speaking = this.busy;
+    if (!this.busy) for (const f of this.waiting.splice(0)) f();
+  }
+
+  /** Resolves once the device has played everything sent so far (or after timeoutMs). */
+  whenPlayed(timeoutMs: number): Promise<void> {
+    return new Promise((r) => {
+      this.waiting.push(r);
+      setTimeout(r, timeoutMs);
+    });
+  }
+
   get busy(): boolean {
     return this.queue.length > 0;
   }

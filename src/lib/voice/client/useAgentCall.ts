@@ -10,6 +10,8 @@ import { announceCaseChange } from "@/components/app/shell/case-data";
 import { TEST_LINES, TEST_LINES_VERSION } from "../clips";
 import { frames, Mic, Player } from "./audio";
 
+export type IntakeResult = Omit<Extract<ServerEvent, { t: "intake" }>, "t">;
+
 export type CallStatus = "idle" | "connecting" | "live" | "ended" | "error";
 
 export interface AgentCallOptions {
@@ -34,6 +36,8 @@ export interface AgentCall {
   docs: DocCard[];
   captured: CapturedItem[];
   feedback: RehearseFeedback | null;
+  /** Intake mode: what the first spoken words saved to the profile. */
+  intake: IntakeResult | null;
   userName: string | null;
   lang: string;
   clipBusy: boolean;
@@ -65,6 +69,7 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
   const [docs, setDocs] = useState<DocCard[]>([]);
   const [captured, setCaptured] = useState<CapturedItem[]>([]);
   const [feedback, setFeedback] = useState<RehearseFeedback | null>(null);
+  const [intake, setIntake] = useState<IntakeResult | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [lang, setLang] = useState(opts.lang ?? "en");
   const [clipBusy, setClipBusy] = useState(false);
@@ -146,6 +151,10 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
         break;
       case "feedback":
         setFeedback(ev.feedback);
+        break;
+      case "intake":
+        setIntake({ profile: ev.profile, firstName: ev.firstName, language: ev.language });
+        announceCaseChange();
         break;
       case "error":
         if (ev.fatal) setStatus("error");
@@ -287,5 +296,5 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
     teardown();
   }, [teardown]);
 
-  return { status, error, turns, partial, speaking, level, muted, metrics, coach, docs, captured, feedback, userName, lang, clipBusy, micWaiting, start, stop, sendText, setMuted, playClip, dismissDoc };
+  return { status, error, turns, partial, speaking, level, muted, metrics, coach, docs, captured, feedback, intake, userName, lang, clipBusy, micWaiting, start, stop, sendText, setMuted, playClip, dismissDoc };
 }

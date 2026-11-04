@@ -247,7 +247,7 @@ export class VoiceSession {
     const ev = parsed.data;
     if (ev.t === "source") this.source = ev.source;
     else if (ev.t === "interrupt") this.interrupt();
-    else if (ev.t === "played") this.speaker.speaking = this.speaker.busy;
+    else if (ev.t === "played") this.speaker.played();
     else if (ev.t === "finish") void this.finish("user_ended");
     else if (ev.t === "debug" && this.env.APP_ENV !== "production") this.emit({ t: "debug", info: { asr: this.asr?.state, ...this.asr?.stats, audioIn: this.audioIn, source: this.source } });
     else if (ev.t === "text") {

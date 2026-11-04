@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Profile } from "../case/types";
 
 /*
  * Wire contract between the browser (or Twilio) and the VoiceDO relay.
@@ -6,7 +7,7 @@ import { z } from "zod";
  * Binary frames server→client: 16-bit LE mono PCM at 16 kHz for the utterance announced by the last `audio_start`.
  */
 
-export const VOICE_MODES = ["welcome", "agent", "counter", "rehearse"] as const;
+export const VOICE_MODES = ["welcome", "agent", "counter", "rehearse", "intake"] as const;
 export type VoiceMode = (typeof VOICE_MODES)[number];
 
 /** Languages Muse Voice Transcribe hears (no Ukrainian/Russian) that the app offers for voice. */
@@ -100,6 +101,7 @@ export type ServerEvent =
   | { t: "doc"; doc: DocCard }
   | { t: "captured"; item: CapturedItem }
   | { t: "metric"; metric: TurnMetric }
+  | { t: "intake"; profile: Profile; firstName: string | null; language: string }
   | { t: "feedback"; feedback: RehearseFeedback }
   | { t: "ended"; reason: string }
   | { t: "error"; error: string; code?: string; fatal?: boolean }
