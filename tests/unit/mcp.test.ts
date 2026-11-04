@@ -68,6 +68,7 @@ async function rpc(token: string | null, method: string, params?: unknown, deps 
 async function call(token: string, name: string, args: unknown = {}, deps = {}) {
   const res = await rpc(token, "tools/call", { name, arguments: args }, deps);
   expect(res.status).toBe(200);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (await res.json()).result as { isError: boolean; structuredContent?: Record<string, any>; content: Array<{ text: string }> };
 }
 const PNG = (() => {
