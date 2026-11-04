@@ -45,10 +45,10 @@ describe("dossierly-meta Cloudflare environments", () => {
     }
   });
 
-  it("binds the user, case and voice Durable Objects everywhere", () => {
+  it("binds the user, case, voice and model-relay Durable Objects everywhere", () => {
     for (const c of [conf, ...previews.map((p) => conf.env![p])]) {
       const names = c.durable_objects!.bindings.map((b) => b.name).sort();
-      expect(names).toEqual(["CASE_DO", "USER_DO", "VOICE_DO"]);
+      expect(names).toEqual(["CASE_DO", "MODEL_RELAY", "USER_DO", "VOICE_DO"]);
     }
   });
 });

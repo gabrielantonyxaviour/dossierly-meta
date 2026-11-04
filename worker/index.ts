@@ -9,6 +9,7 @@ import { runNightlyReviews } from "../src/lib/strategist";
 export { UserDO } from "./user-do";
 export { CaseDO } from "./case-do";
 export { VoiceDO } from "./voice-do";
+export { ModelRelayDO } from "./model-relay-do";
 export { PrepareFallback, LetterPipeline, NightlyWatch } from "./workflows";
 
 type WorkflowBinding = { create(opts?: { id?: string; params?: unknown }): Promise<{ id: string }> };

@@ -5,51 +5,13 @@
  * Mic → 16 kHz PCM frames → /api/voice/ws (VoiceDO) → Meta ASR + Spark + ElevenLabs → PCM back → speakers.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { CapturedItem, CoachNote, DocCard, RehearseFeedback, ServerEvent, TurnMetric, VoiceMode, VoiceTurn } from "../protocol";
+import type { CapturedItem, CoachNote, DocCard, RehearseFeedback, ServerEvent, TurnMetric, VoiceTurn } from "../protocol";
 import { announceCaseChange } from "@/components/app/shell/case-data";
 import { TEST_LINES, TEST_LINES_VERSION } from "../clips";
 import { frames, Mic, Player } from "./audio";
+import type { AgentCall, AgentCallOptions, CallStatus, IntakeResult } from "./types";
 
-export type IntakeResult = Omit<Extract<ServerEvent, { t: "intake" }>, "t">;
-
-export type CallStatus = "idle" | "connecting" | "live" | "ended" | "error";
-
-export interface AgentCallOptions {
-  mode: VoiceMode;
-  lang?: string;
-  /** welcome: the server-generated opening line, spoken first. */
-  script?: string;
-  onEnd?: () => void;
-}
-
-export interface AgentCall {
-  status: CallStatus;
-  error: string | null;
-  turns: VoiceTurn[];
-  partial: string | null;
-  /** Which half is hearing speech right now (counter): "user" = the user's language, "official" = Polish. */
-  speaking: "user" | "official" | null;
-  level: number;
-  muted: boolean;
-  metrics: TurnMetric[];
-  coach: CoachNote[];
-  docs: DocCard[];
-  captured: CapturedItem[];
-  feedback: RehearseFeedback | null;
-  /** Intake mode: what the first spoken words saved to the profile. */
-  intake: IntakeResult | null;
-  userName: string | null;
-  lang: string;
-  clipBusy: boolean;
-  /** Waiting for the user to allow the microphone. */
-  micWaiting: boolean;
-  start(): Promise<void>;
-  stop(): void;
-  sendText(text: string, as?: "user" | "official"): void;
-  setMuted(m: boolean): void;
-  playClip(i: number): Promise<void>;
-  dismissDoc(docId: string): void;
-}
+export type { AgentCall, AgentCallOptions, CallStatus, IntakeResult } from "./types";
 
 const ERRORS: Record<string, string> = {
   NotAllowedError: "Microphone access was blocked. Allow the microphone for this site, then try again.",
@@ -92,15 +54,22 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
     if (ws.current?.readyState === WebSocket.OPEN) ws.current.send(data);
   };
 
-  const teardown = useCallback(() => {
+  /** `drain`: the call ended on the server side; let queued speech (a goodbye) finish before the audio closes. */
+  const teardown = useCallback((drain = false) => {
     mic.current?.stop();
     mic.current = null;
-    player.current?.flush();
-    void ctx.current?.close().catch(() => undefined);
+    const p = player.current;
+    const ac = ctx.current;
     ctx.current = null;
     ws.current = null;
-    setSpeaking(null);
+    const close = () => {
+      p?.flush();
+      void ac?.close().catch(() => undefined);
+    };
+    if (drain && p) void p.drained(15_000).then(close);
+    else close();
     setLevel(0);
+    if (!drain) setSpeaking(null);
   }, []);
 
   const onEvent = useCallback((ev: ServerEvent) => {
@@ -224,7 +193,7 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
       };
       sock.onclose = () => {
         setStatus((s) => (s === "error" ? s : "ended"));
-        teardown();
+        teardown(true);
         optsRef.current.onEnd?.();
       };
       sock.onerror = () => setError("The voice connection dropped. Check your connection and start again.");
@@ -245,6 +214,7 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
   const stop = useCallback(() => {
     send(JSON.stringify({ t: "finish" }));
     mic.current?.stop();
+    player.current?.flush(); // the user hung up: stop speaking now
     // The server writes the summary (rehearse: feedback), then closes; force-close if it does not.
     const sock = ws.current;
     setTimeout(() => sock?.close(), optsRef.current.mode === "rehearse" ? 25_000 : 8000);
