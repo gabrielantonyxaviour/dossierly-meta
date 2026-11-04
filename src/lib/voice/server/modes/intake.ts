@@ -19,6 +19,12 @@ type Streaming = {
 };
 type OneShot = (e: Env, userId: string, t: string, o?: Defer & { onReply?: (reply: string, language: string) => void }) => ReturnType<typeof intake.intakeTurn>;
 
+/** Worker-tail diagnostics for a reply that produced no speech (error text or the parsed fields, no audio, no PII beyond the transcript's own words). */
+function logMiss(attempt: number, detail: string): void {
+  // eslint-disable-next-line no-console -- worker-tail diagnostics for intake misses (asked for by onboarding)
+  console.warn(JSON.stringify({ at: "voice.intake", attempt, detail: detail.slice(0, 240) }));
+}
+
 /** Not a TTS language code: ElevenLabs detects the reply's language itself (the person may speak any language). */
 const AUTO = "auto";
 
@@ -68,15 +74,27 @@ export class IntakeMode implements ModeHandler {
           },
         },
       );
-    let res = await run().catch(() => null);
-    if (!said && !signal.aborted) res = await run().catch(() => null);
+    let res: Awaited<ReturnType<typeof run>> | null = null;
+    for (let attempt = 1; attempt <= 2 && !said && !signal.aborted; attempt++) {
+      res = await run().catch((e) => (logMiss(attempt, e instanceof Error ? e.message : String(e)), null));
+      if (res && !said && !signal.aborted) logMiss(attempt, `no sentence; fields ${JSON.stringify(res.fields).slice(0, 200)}`);
+    }
     if (signal.aborted) return; // a speculative turn redone with the final transcript stays silent
-    this.s.speaker.end(u.id);
-    const lang = res?.fields.LANG?.trim().slice(0, 8) || null;
-    if (said) this.s.emit({ t: "turn", turn: { id: u.id, who: "agent", text: said, lang: lang ?? this.s.lang } });
-    else this.s.emit({ t: "error", error: "Dossierly could not answer just now. Tap the microphone and say it again.", code: "intake_failed" });
-    const p = await profileP;
-    if (p) this.s.emit({ t: "intake", profile: p.profile, firstName: p.firstName, language: p.profile.preferredLanguage || p.language || lang || "en" });
+    if (said) {
+      this.s.speaker.end(u.id);
+      const lang = res?.fields.LANG?.trim().slice(0, 8) || null;
+      this.s.emit({ t: "turn", turn: { id: u.id, who: "agent", text: said, lang: lang ?? this.s.lang } });
+      const p = await profileP;
+      if (p) this.s.emit({ t: "intake", profile: p.profile, firstName: p.firstName, language: p.profile.preferredLanguage || p.language || lang || "en" });
+      return;
+    }
+    // The stream gave nothing twice: the one-shot JSON path (which also saves the profile) before giving up.
+    try {
+      await this.oneShot(u, signal);
+    } catch (e) {
+      logMiss(3, `one-shot: ${e instanceof Error ? e.message : String(e)}`);
+      if (!signal.aborted) this.s.emit({ t: "error", error: "Dossierly could not answer just now. Tap the microphone and say it again.", code: "intake_failed" });
+    }
   }
 
   /** Older onboarding: intakeTurn speaks from onReply when it can, else on resolve; once either way. */
