@@ -22,7 +22,10 @@
     "db:migrate:preview": "wrangler d1 migrations apply DB --config wrangler.jsonc --remote --env app",
     "db:migrate:local": "wrangler d1 migrations apply DB --config wrangler.jsonc --local",
     "smoke": "tsx scripts/smoke.ts",
-    "smoke:meta": "tsx scripts/meta-smoke.ts"
+    "smoke:meta": "tsx scripts/meta-smoke.ts",
+    "eval": "tsx eval/run.ts",
+    "eval:report": "tsx eval/report.ts eval/results/*.json",
+    "latency": "tsx scripts/latency-report.ts"
   },
   "dependencies": {
     "@meta-sam/parser": "0.1.0",
