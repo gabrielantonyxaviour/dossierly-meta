@@ -14,7 +14,8 @@ export function mergeDocuments(findings: Finding[]): Doc[] {
     if (f.kind !== "document") continue;
     const cur = byId.get(f.id);
     if (!cur) { byId.set(f.id, { best: f, requested: f.status === "requested" ? f : null, fields: { ...f.fields } }); continue; }
-    if (rank[f.status] > rank[cur.best.status]) cur.best = f;
+    const score = (d: Doc) => rank[d.status] * 4 + (d.file ? 2 : 0) + (d.fields && Object.keys(d.fields).length ? 1 : 0);
+    if (score(f) > score(cur.best)) cur.best = f;
     if (f.status === "requested" && !cur.requested) cur.requested = f;
     Object.assign(cur.fields, f.fields);
   }
