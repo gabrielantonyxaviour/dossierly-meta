@@ -173,12 +173,19 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
       setMicWaiting(true);
       const m = new Mic(ac);
       mic.current = m;
-      await m.start((pcm, lvl) => {
-        setLevel(lvl);
-        if (clipping.current) return;
-        const silent = mutedRef.current || (gate && player.current?.active);
-        send(silent ? new ArrayBuffer(pcm.byteLength) : pcm);
-      });
+      try {
+        await m.start((pcm, lvl) => {
+          setLevel(lvl);
+          if (clipping.current) return;
+          const silent = mutedRef.current || (gate && player.current?.active);
+          send(silent ? new ArrayBuffer(pcm.byteLength) : pcm);
+        });
+      } catch (micErr) {
+        // No microphone: keep going with typing and the test official; say why.
+        const name = (micErr as { name?: string })?.name ?? "";
+        mic.current = null;
+        setError(`${ERRORS[name] ?? "The microphone is unavailable."} You can still type.`);
+      }
       setMicWaiting(false);
       const res = await fetch("/api/voice/session", {
         method: "POST",
@@ -223,9 +230,9 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
   const stop = useCallback(() => {
     send(JSON.stringify({ t: "finish" }));
     mic.current?.stop();
-    // The server writes the summary, then closes; force-close if it does not within 8 s.
+    // The server writes the summary (rehearse: feedback), then closes; force-close if it does not.
     const sock = ws.current;
-    setTimeout(() => sock?.close(), 8000);
+    setTimeout(() => sock?.close(), optsRef.current.mode === "rehearse" ? 25_000 : 8000);
   }, []);
 
   const sendText = useCallback((text: string, as?: "user" | "official") => {
