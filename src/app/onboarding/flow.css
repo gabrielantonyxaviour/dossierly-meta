@@ -5,7 +5,7 @@
 .ob-steps { flex: 1; display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; max-width: 280px; margin-inline: auto; }
 .ob-steps span { height: 4px; border-radius: 4px; background: var(--line-strong); transition: background .3s; }
 .ob-steps span[data-on="true"] { background: var(--ink); }
-.ob-who { font-size: 12px; color: var(--ink-3); max-width: 34vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ob-who { margin-left: auto; font-size: 12px; color: var(--ink-3); max-width: 34vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ob-grid { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: 28px 16px 48px; display: grid; gap: 32px; align-items: start; }
 .ob-talk { min-width: 0; max-width: 560px; width: 100%; margin-inline: auto; animation: ob-in .38s cubic-bezier(.2,.7,.2,1) both; }
 @keyframes ob-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -23,7 +23,7 @@
 .ob-hint { color: var(--ink-3); font-size: 13px; }
 
 .ob-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.ob-chip { display: inline-flex; align-items: baseline; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: var(--pill); border: 1px solid var(--line-strong); background: var(--card); color: var(--ink); font: inherit; font-size: 15px; cursor: pointer; transition: border-color .15s, background .15s; }
+.ob-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: var(--pill); border: 1px solid var(--line-strong); background: var(--card); color: var(--ink); font: inherit; font-size: 15px; cursor: pointer; transition: border-color .15s, background .15s; }
 .ob-chip small { font-size: 12px; color: var(--ink-3); }
 .ob-chip:hover { border-color: var(--ink-3); }
 .ob-chip[aria-checked="true"] { background: var(--ink); border-color: var(--ink); color: var(--brand-ink); }

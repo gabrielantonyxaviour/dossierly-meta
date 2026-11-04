@@ -18,7 +18,7 @@ In about 70 to 110 words:
 2. Say what you found, most urgent first: the next appointment (day, time, place) and any deadline (the date, what is needed, and that missing it matters). Only mention facts present in the CASE; never invent. If nothing was found, say their case is set up and the first step for their stage.
 3. Say you added the dates to their Google Calendar only if the CASE shows calendar=added. Say you will message them, or call them if calls are on, when something urgent arrives.
 4. End with one gentle question inviting them to ask anything.
-Dates: say "Thursday the twelfth of November", not ISO. Write the whole script in the requested language.
+Dates: say "Thursday the twelfth of November", not ISO. Money with its currency ("340 złoty"). Addresses as written ("Marszałkowska 3/5"). Write the whole script in the requested language.
 Return only JSON: {"script":"..."}`;
 
 /** The opening lines of the welcome call, written from the server case. The voice engine speaks them, then converses. */

@@ -12,6 +12,7 @@ const warsawToday = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/W
 const daysLeft = (iso: string) => Math.round((Date.parse(`${iso}T00:00:00Z`) - Date.parse(`${warsawToday()}T00:00:00Z`)) / 86_400_000);
 const keyOf = (f: Finding) =>
   f.kind === "fact" ? `fact:${f.key}` : f.kind === "appointment" ? `apt:${f.date}:${f.time}` : f.kind === "deadline" ? `ddl:${f.dueDate}:${f.title.toLowerCase()}`
+  : f.kind === "document" && f.docKind !== "other" && f.docKind !== "letter" ? `document:${f.docKind}`
   : `${f.kind}:${f.title.toLowerCase().replace(/\W+/g, " ").trim()}`;
 
 /** One list across emails: the newest email wins a duplicate (same fact, same appointment, same document). */
@@ -23,7 +24,8 @@ function merge(readings: MailReading[]): Finding[] {
 }
 
 function Source({ f }: { f: Finding }) {
-  return <span className="ob-src">From “{f.source.subject}” · {dayLabel(f.source.receivedAt.slice(0, 10), { day: "numeric", month: "short" })}</span>;
+  const subject = f.source.subject.replace(/\s+[—–-]\s+[A-Z]{2,}-[\w./-]+$/, "");
+  return <span className="ob-src">From “{subject.length > 64 ? `${subject.slice(0, 63)}…` : subject}” · {dayLabel(f.source.receivedAt.slice(0, 10), { day: "numeric", month: "short" })}</span>;
 }
 
 function Item({ f }: { f: Finding }) {
@@ -72,8 +74,7 @@ export function Review({ readings, rows, calendarConnected, onSaved }: { reading
   async function save() {
     setBusy(true); setError("");
     const received = new Map(rows.map((r) => [r.id, r.receivedAt]));
-    const used = new Set(chosen.map((f) => f.source.messageId));
-    const summaries = readings.filter((r) => used.has(r.messageId) && r.summary).map((r) => ({ messageId: r.messageId, summary: r.summary.slice(0, 600), receivedAt: received.get(r.messageId) ?? new Date().toISOString() }));
+    const summaries = readings.filter((r) => r.summary).map((r) => ({ messageId: r.messageId, summary: r.summary.slice(0, 600), receivedAt: received.get(r.messageId) ?? new Date().toISOString() }));
     const r = await flowApi.commit({ findings: chosen, summaries, addToCalendar: toCalendar && dated > 0 });
     setBusy(false);
     if (!r.ok) { setError(failure(r) ?? "Could not save."); return; }
