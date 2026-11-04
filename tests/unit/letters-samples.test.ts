@@ -2,11 +2,13 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { DORM_ADDRESS, FILM_MAILS, FILM_SEED, FLAT_ADDRESS } from "@/lib/features/film-mails";
-import { SAMPLE_CASE_NO, SAMPLE_FOOTER_PL, SAMPLE_LETTERS, SAMPLE_SCREENS, SAMPLE_SENDER } from "@/lib/features/letters-samples";
+import { SAMPLE_CASE_NO, SAMPLE_LETTERS, SAMPLE_SCREENS, SAMPLE_SENDER } from "@/lib/features/letters-samples";
 import { GET, POST } from "@/app/api/letters/samples/route";
 import { getEnv } from "@/lib/server/env";
 
 const pub = (p: string) => existsSync(join(process.cwd(), "public", p));
+/** Words that would give a letter or mail away as a mock-up on film. */
+const MARKER = /przyk[łl]ad|sample|fikcyj|fictional/i;
 const post = (body: unknown, headers: Record<string, string> = {}) =>
   new Request("http://x/api/letters/samples", { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(body) });
 
@@ -17,12 +19,10 @@ describe("sample catalogue", () => {
     for (const l of SAMPLE_LETTERS) for (const p of [l.png, l.pdf, l.phonePhoto]) if (p) expect(pub(p), p).toBe(true);
     for (const s of SAMPLE_SCREENS) expect(pub(s.png), s.png).toBe(true);
   });
-  it("marks every email as a fictional sample with the case number", () => {
-    expect(SAMPLE_SENDER.email).not.toMatch(/gov\.pl/);
+  it("reads like a real letter (no sample marker), from our own domain, with the case number", () => {
+    expect(SAMPLE_SENDER).toEqual({ email: "wsc@dossierly.cosmiclan.com", name: "Wydział Spraw Cudzoziemców" });
     for (const l of SAMPLE_LETTERS) {
-      for (const part of [l.email.subject, l.email.text, l.email.html]) expect(part).toContain("PRZYKŁAD");
-      expect(l.email.subject.startsWith("[PRZYKŁAD]")).toBe(true);
-      expect(l.email.text).toContain(SAMPLE_FOOTER_PL);
+      for (const part of [l.email.subject, l.email.text, l.email.html]) expect(part).not.toMatch(MARKER);
       expect(l.email.text).toContain(SAMPLE_CASE_NO);
       expect(l.email.text).toContain("Mazowiecki Urząd Wojewódzki w Warszawie, Wydział Spraw Cudzoziemców");
     }
@@ -79,12 +79,11 @@ describe("sample email route", () => {
 });
 
 describe("film inbox mails", () => {
-  it("are marked as samples and carry the canonical facts in the body", () => {
+  it("carry no sample marker, come from our own domain and carry the canonical facts in the body", () => {
     for (const id of [...FILM_SEED, "film-enrolment-request"]) {
       const m = FILM_MAILS[id]({ date: "2026-11-04" });
-      expect(m.from.name, id).toContain("(PRZYKŁAD)");
-      expect(m.from.email).not.toMatch(/gov\.pl/);
-      expect(m.text, id).toContain(SAMPLE_FOOTER_PL);
+      for (const part of [m.from.name, m.subject, m.text, m.html]) expect(part, id).not.toMatch(MARKER);
+      expect(m.from.email, id).toMatch(/^(wsc|no-reply)@dossierly\.cosmiclan\.com$/);
       for (const p of m.attachments) expect(pub(p), p).toBe(true);
     }
     const t = (id: string, date = "2026-11-04") => FILM_MAILS[id]({ date }).text;
@@ -109,6 +108,17 @@ describe("film inbox mails", () => {
     expect(res.status).toBe(200);
     const msg = send.mock.calls[0][0] as { subject: string; from: { name: string } };
     expect(msg.subject).toContain("05.11.2026");
-    expect(msg.from.name).toContain("PRZYKŁAD");
+    expect(msg.from).toEqual({ email: "wsc@dossierly.cosmiclan.com", name: "Rezerwacja wizyt WSC" });
+  });
+});
+
+describe("printed test documents", () => {
+  it("carry no sample stamp or fictional-material footer, and no state emblem", async () => {
+    const letters = (await import("../../scripts/samples/letters-html.mjs" as string)) as { LETTERS: Record<string, string> };
+    const screens = (await import("../../scripts/samples/screens-html.mjs" as string)) as { SCREENS: Record<string, string> };
+    for (const [id, html] of Object.entries({ ...letters.LETTERS, ...screens.SCREENS })) {
+      expect(html.replace(/<style>[\s\S]*?<\/style>/g, ""), id).not.toMatch(MARKER);
+      expect(html, id).not.toMatch(/<img|godło|emblem/i);
+    }
   });
 });
