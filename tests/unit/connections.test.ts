@@ -113,7 +113,10 @@ describe("owned provider connections", () => {
     expect(b.event.title).toBe(input.title);
     const stored = await env.DB.prepare("SELECT result FROM connection_event_receipts WHERE account_id='u1'").first<{ result: string }>();
     expect(stored?.result).not.toContain(input.title); expect(stored?.result).not.toContain("title");
-    await expect(createEvent(env, "u1", { ...input, title: "Changed" })).rejects.toMatchObject({ code: "idempotency_conflict" });
+    // The same key with new details updates the event this app created, in place (a re-read email), never a second event.
+    const changed = await createEvent(env, "u1", { ...input, title: "Changed" });
+    expect(changed.replayed).toBe(true); expect(changed.event.title).toBe("Changed");
+    expect(proxyCalls.filter(c => c.method === "POST")).toHaveLength(1); expect(proxyCalls.filter(c => c.method === "PATCH")).toHaveLength(1);
     failWrite = true; const next = { ...input, idempotencyKey: "e52c6b94-cfd5-4393-9c94-0a083c202bdc" };
     await expect(createEvent(env, "u1", next)).rejects.toMatchObject({ code: "calendar_write_uncertain" });
     const calls = proxyCalls.length; await expect(createEvent(env, "u1", next)).rejects.toMatchObject({ code: "calendar_write_uncertain" }); expect(proxyCalls).toHaveLength(calls);
