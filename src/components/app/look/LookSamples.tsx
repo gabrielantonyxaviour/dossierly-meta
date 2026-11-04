@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { LookKind } from "@/lib/look/types";
+import { Sheet, Skeleton } from "@/components/ui";
 
 export interface SamplePick {
   id: string;
@@ -14,11 +15,12 @@ type Catalogue = { letters?: Array<{ id: string; titleEn: string; png: string; p
 
 const FALLBACK: SamplePick[] = [{ id: "wezwanie-sample", title: "Summons for missing documents", src: "/sample/wezwanie-sample.png", kind: "letter" }];
 
-/** Fictional test material for judges and demos. Every file is marked PRZYKŁAD / SAMPLE. */
-export function LookSamples({ onPick, onClose }: { onPick(p: SamplePick): void; onClose(): void }) {
+/** Fictional test material for judges and demos, in a bottom sheet. Every file is marked PRZYKŁAD / SAMPLE. */
+export function LookSamples({ open, onPick, onClose }: { open: boolean; onPick(p: SamplePick): void; onClose(): void }) {
   const [picks, setPicks] = useState<SamplePick[] | null>(null);
 
   useEffect(() => {
+    if (!open || picks) return;
     let live = true;
     fetch("/api/letters/samples")
       .then((r) => (r.ok ? (r.json() as Promise<Catalogue>) : null))
@@ -34,36 +36,21 @@ export function LookSamples({ onPick, onClose }: { onPick(p: SamplePick): void; 
       })
       .catch(() => live && setPicks(FALLBACK));
     return () => { live = false; };
-  }, []);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [open, picks]);
 
   return (
-    <div className="lk-sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="lk-samples-title">
-      <button type="button" className="lk-sheet-backdrop" aria-label="Close" onClick={onClose} />
-      <div className="lk-sheet">
-        <div className="row between">
-          <h3 id="lk-samples-title" style={{ margin: 0 }}>Test material</h3>
-          <button type="button" className="ui-btn ui-btn--ghost ui-btn--sm" onClick={onClose}>Close</button>
-        </div>
-        <p className="small muted">Fictional documents for a fictional student, Arjun Raman. Each is stamped PRZYKŁAD (sample). They run through the same live models as your own photos.</p>
-        {!picks && <div className="lk-sample-grid">{[0, 1, 2, 3].map((i) => <div key={i} className="skeleton" style={{ aspectRatio: "3 / 4" }} />)}</div>}
-        {picks && (
-          <div className="lk-sample-grid">
-            {picks.map((p) => (
-              <button key={p.id} type="button" className="lk-sample" onClick={() => onPick(p)}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- static sample thumbnails */}
-                <img src={p.src} alt="" loading="lazy" />
-                <span>{p.title}</span>
-              </button>
-            ))}
-          </div>
-        )}
+    <Sheet open={open} onClose={onClose} title="Test material" wide>
+      <p className="muted" style={{ marginTop: 0 }}>Fictional documents for a fictional student, Arjun Raman, each stamped PRZYKŁAD (sample). They go through the same live models as your own photos.</p>
+      <div className="lk-sample-grid">
+        {!picks && [0, 1, 2, 3].map((i) => <Skeleton key={i} h={180} />)}
+        {picks?.map((p) => (
+          <button key={p.id} type="button" className="lk-sample" onClick={() => onPick(p)}>
+            {/* eslint-disable-next-line @next/next/no-img-element -- static sample thumbnails */}
+            <img src={p.src} alt="" loading="lazy" />
+            <span>{p.title}</span>
+          </button>
+        ))}
       </div>
-    </div>
+    </Sheet>
   );
 }

@@ -54,11 +54,6 @@ export function VisitPlanView({ plan, onAgain }: { plan: VisitPlan; onAgain(): v
           </li>
         ))}
       </ul>
-      {missing.length > 0 && (
-        <button type="button" className="ui-btn ui-btn--primary" onClick={() => void addTasks()} disabled={saving === "busy" || saving === "done"}>
-          {saving === "done" ? <><Icon name="check" size={16} /> Added to your tasks</> : saving === "busy" ? "Adding…" : `Add ${missing.length} missing item${missing.length === 1 ? "" : "s"} to my tasks`}
-        </button>
-      )}
       {saving === "error" && <p className="small" role="alert">Some tasks could not be added. Try again.</p>}
       {plan.office && (
         <section className="ui-card vp-office">
@@ -81,7 +76,14 @@ export function VisitPlanView({ plan, onAgain }: { plan: VisitPlan; onAgain(): v
         </ol>
       </section>
       <p className="tiny muted">Searched live with Muse Spark&apos;s web search. Office rules change; if a page and this list disagree, the page wins.</p>
-      <button type="button" className="ui-btn ui-btn--ghost ui-btn--sm" style={{ justifySelf: "start" }} onClick={onAgain}>Plan another visit</button>
+      <div className="lk-dock">
+        {missing.length > 0 && (
+          <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={() => void addTasks()} disabled={saving === "busy" || saving === "done"}>
+            {saving === "done" ? <><Icon name="check" size={18} /> Added to your tasks</> : saving === "busy" ? "Adding…" : `Add ${missing.length} missing item${missing.length === 1 ? "" : "s"} to my tasks`}
+          </button>
+        )}
+        <button type="button" className={`ui-btn ui-btn--lg ui-btn--block ${missing.length ? "ui-btn--ghost" : "ui-btn--primary"}`} onClick={onAgain}>Plan another visit</button>
+      </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { LookItem } from "@/lib/look/types";
-import { CopyButton } from "@/components/CopyButton";
+import { CopyValue } from "./CopyValue";
 import { toneOf } from "./LookCanvas";
 
 interface Props {
@@ -44,7 +44,7 @@ export function LookItems({ items, uncertain, active, traced, onSelect }: Props)
                       <span className="tiny muted">Type this</span>
                       <b className="mono">{it.value}</b>
                     </div>
-                    <CopyButton text={it.value} />
+                    <CopyValue text={it.value} />
                   </>
                 ) : (
                   <span className="small muted">Not in your case yet. Take it from your passport or documents.</span>

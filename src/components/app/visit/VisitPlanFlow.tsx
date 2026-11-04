@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Appointment } from "@/lib/case/types";
 import type { VisitEvent, VisitPlan } from "@/lib/visit/types";
 import { Icon } from "@/components/Icon";
-import { TopBar } from "@/components/ui";
+import { Button, InlineError, TopBar } from "@/components/ui";
 import { errorText, readNdjson } from "../look/ndjson";
 import { VisitPlanView } from "./VisitPlanView";
 import "../look/look.css";
@@ -88,9 +88,6 @@ export function VisitPlanFlow() {
               <input className="ui-input" value={purpose} maxLength={200} onChange={(e) => setPurpose(e.target.value)} placeholder="Collecting my residence card in Warsaw" />
             </label>
           )}
-          <button type="button" className="ui-btn ui-btn--primary ui-btn--block" disabled={!canBuild || busy} onClick={() => void build()}>
-            {busy ? <><span className="spinner" aria-hidden="true" /> Building your plan…</> : <><Icon name="globe" size={18} /> Build my checklist</>}
-          </button>
           {busy && (
             <ol className="lk-progress" aria-live="polite">
               <li className={`lk-prog is-${stage === "searching" ? "run" : "ok"}`}><span className="lk-prog-dot">{stage !== "searching" && <Icon name="check" size={13} />}</span><span className="grow">Searching official pages (gov.pl, the Mazowiecki office, MOS)</span><span className="lk-model">Muse Spark · web search{stage === "searching" ? ` · ${elapsed} s` : ""}</span></li>
@@ -98,8 +95,13 @@ export function VisitPlanFlow() {
             </ol>
           )}
           {busy && elapsed > 20 && <p className="tiny muted" style={{ margin: 0 }}>Reading several official pages usually takes about a minute.</p>}
-          {error && <div className="ui-inline-error small" role="alert">{error.message} {error.retryable && <button type="button" className="ui-btn ui-btn--sm" onClick={() => void build()}>Try again</button>}</div>}
+          {error && <InlineError message={error.message} onRetry={error.retryable ? () => void build() : undefined} />}
         </section>
+      )}
+      {!plan && (
+        <div className="lk-dock">
+          <Button variant="primary" size="lg" block icon="globe" loading={busy} disabled={!canBuild || busy} onClick={() => void build()}>{busy ? "Building your plan…" : "Build my checklist"}</Button>
+        </div>
       )}
       {plan && <VisitPlanView plan={plan} onAgain={() => { setPlan(null); setStage("idle"); }} />}
     </div>

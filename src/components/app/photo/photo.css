@@ -21,3 +21,10 @@
 .ph-out-row { display: grid; grid-template-columns: 112px 1fr; gap: 14px; align-items: start; }
 .ph-out-row img { width: 112px; aspect-ratio: 684 / 883; border-radius: var(--radius-sm); box-shadow: var(--ring); }
 .btn.is-disabled { opacity: 0.5; cursor: not-allowed; }
+.ph-spec { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.ph-spec div { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.ph-spec dt { font-size: 0.8125rem; color: var(--ink-3); }
+.ph-spec dd { margin: 0; font-weight: 500; }
+@media (min-width: 768px) { .ph-spec { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.ph-recent { min-height: 44px; align-items: center; font-size: 1rem; }
+@media (max-width: 767px) { .ph-check, .ph-check p { font-size: 1rem; } .ph-stage { --ph-maxh: 52dvh; } }

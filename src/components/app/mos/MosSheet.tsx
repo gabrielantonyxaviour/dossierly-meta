@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { CaseSnapshot } from "@/lib/case/types";
 import { MOS_FORM_SOURCE, MOS_SECTIONS, type MosField } from "@/lib/legal/mos-form";
-import { CopyButton } from "@/components/CopyButton";
+import { CopyValue } from "../look/CopyValue";
 import { Icon } from "@/components/Icon";
 import { TopBar } from "@/components/ui";
 import { EmployerCheck } from "./EmployerCheck";
@@ -22,7 +21,7 @@ function FieldRow({ n, field, value }: { n: number; field: MosField; value: stri
         <small>{field.labelEn}</small>
         {value ? <span className="mos-val mono">{value}</span> : <span className="mos-hint">{field.hint} <span className="muted">e.g. {field.example}</span></span>}
       </div>
-      {value && <CopyButton text={value} />}
+      {value && <CopyValue text={value} />}
     </li>
   );
 }
@@ -44,12 +43,7 @@ export function MosSheet() {
   return (
     <div className="sh-page lk-page mos-page">
       <TopBar title="MOS sheet" back={{ href: "/app/look", label: "Look" }} sub="Every field of the temporary residence application, in the order MOS asks for it. What your case already knows is filled in: tap to copy, then paste it into MOS yourself." />
-      <header>
-        <div className="row">
-          <a className="ui-btn ui-btn--primary" href="https://mos.cudzoziemcy.gov.pl/" target="_blank" rel="noreferrer"><Icon name="external" size={16} /> Open MOS</a>
-          <Link className="ui-btn" href="/app/photo-check"><Icon name="camera" size={16} /> Check my photo</Link>
-        </div>
-      </header>
+
       <section className="ui-card mos-progress" aria-live="polite">
         {!snap && !failed && <div className="skeleton" style={{ height: 40 }} />}
         {failed && <p className="small" style={{ margin: 0 }}>Your case could not be loaded, so nothing is prefilled. The field list below is still complete.</p>}
@@ -81,6 +75,9 @@ export function MosSheet() {
       <MosAttachments snap={snap} />
       <EmployerCheck />
       <p className="tiny muted">Field list from the official form, {MOS_FORM_SOURCE.regulation} (<a href={MOS_FORM_SOURCE.url} target="_blank" rel="noreferrer">Sejm ELI</a>), in force from 27 April 2026, checked {MOS_FORM_SOURCE.verifiedOn}. The MOS screens may word some labels slightly differently. Dossierly never logs in to MOS or files for you.</p>
+      <div className="lk-dock">
+        <a className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" href="https://mos.cudzoziemcy.gov.pl/" target="_blank" rel="noreferrer"><Icon name="external" size={19} /> Open MOS in a new tab</a>
+      </div>
     </div>
   );
 }

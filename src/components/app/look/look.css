@@ -27,19 +27,12 @@
 .lk-kinds .chip { color: var(--ink-2); font-weight: 400; }
 .lk-sample-link { justify-self: start; border: 0; background: none; padding: 4px 0; color: var(--ink-3); font-size: 0.8rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 
-/* Sample sheet */
-.lk-sheet-wrap { position: fixed; inset: 0; z-index: 80; display: grid; align-items: end; }
-.lk-sheet-backdrop { position: absolute; inset: 0; border: 0; background: color-mix(in srgb, var(--bg) 70%, transparent); cursor: pointer; }
-.lk-sheet { position: relative; max-height: 86dvh; overflow: auto; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); border-radius: var(--radius-lg) var(--radius-lg) 0 0; background: var(--surface); box-shadow: var(--shadow-lg); animation: lk-rise 0.22s ease-out; }
-.lk-sample-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.lk-sample { display: grid; gap: 6px; padding: 8px; text-align: left; border: 0; border-radius: var(--radius); background: var(--surface-2); color: var(--ink); cursor: pointer; font-size: 0.82rem; line-height: 1.3; }
+/* Sample sheet (shared Sheet) */
+.lk-sample-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.lk-sample { display: grid; gap: 6px; padding: 8px; text-align: left; border: 0; border-radius: var(--radius); background: var(--surface-2); color: var(--ink); cursor: pointer; font-size: 0.875rem; line-height: 1.3; min-height: 44px; }
 .lk-sample:hover { box-shadow: inset 0 0 0 1.5px var(--official); }
 .lk-sample img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; object-position: top; border-radius: var(--radius-sm); background: var(--surface-2); }
-@media (min-width: 700px) {
-  .lk-sheet-wrap { place-items: center; }
-  .lk-sheet { width: min(720px, calc(100% - 48px)); border-radius: var(--radius-lg); }
-  .lk-sample-grid { grid-template-columns: repeat(4, 1fr); }
-}
+@media (min-width: 700px) { .lk-sample-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @keyframes lk-rise { from { transform: translateY(24px); opacity: 0; } }
 
 /* Stage: image + overlay */
@@ -127,4 +120,33 @@
 @media (prefers-reduced-motion: reduce) {
   .lk-trace { stroke-dashoffset: 0; fill-opacity: 1; }
   .lk-scan { display: none; }
+}
+
+/* Phones (< 768px): dock in the thumb zone above the tab bar, full-screen result, 16px reading text. */
+.lk-capture-copy { margin: 0; color: var(--ink-2); font-size: 1rem; }
+.lk-dock { display: grid; gap: 4px; }
+@media (max-width: 767px) {
+  .lk-home { padding-bottom: 8px; }
+  .lk-capture { padding: 20px 16px; gap: 14px; }
+  .lk-capture-art { width: 96px; height: 120px; }
+  .lk-dock {
+    position: sticky; z-index: 5; bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 8px);
+    margin: 4px calc(-1 * var(--gutter)) 0; padding: 12px var(--gutter) 4px;
+    background: linear-gradient(to bottom, transparent, var(--canvas) 22%);
+  }
+  .lk-phone { --lk-maxh: 56dvh; }
+  .lk-phone .lk-stage { border-radius: var(--radius); }
+  .lk-summary, .lk-meaning, .lk-actions li, .lk-steps, .lk-verbatim, .lk-saved { font-size: 1rem; }
+  .lk-title { font-size: 1.5rem; }
+  .lk-desk-inline { display: none; }
+  .lk-item-head { min-height: 44px; }
+  .lk-pin { width: 30px; height: 30px; margin: -15px 0 0 -15px; }
+}
+.lk-summary { margin: 0; }
+.lk-copy { --h: 44px; padding: 0 14px; flex: none; }
+@media (max-width: 767px) {
+  .mos-labels b, .mos-hint, .mos-val { font-size: 1rem; }
+  .mos-section-head { min-height: 56px; }
+  .check-item, .check-item p { font-size: 1rem; }
+  .vp-sources { font-size: 1rem; }
 }
