@@ -16,6 +16,10 @@ INJ="$HOME/.claude/vault/inject.sh"
 MAP=(
   "MODEL_API_KEY:DOSSIERLY_META_API_KEY"
   "ELEVENLABS_API_KEY:DOSSIERLY_ELEVENLABS_API_KEY"
+  "TWILIO_ACCOUNT_SID:DOSSIERLY_TWILIO_ACCOUNT_SID"
+  "TWILIO_AUTH_TOKEN:DOSSIERLY_TWILIO_AUTH_TOKEN"
+  "TWILIO_FROM_NUMBER:DOSSIERLY_TWILIO_FROM_NUMBER"
+  "DEMO_CALL_NUMBER:DOSSIERLY_DEMO_CALL_NUMBER"
 )
 # Composio connection IDs from the earlier Dossierly build (private file, values never echoed).
 CONN_FILE="/Users/gabrielantonyxaviour/.codex/qa-live/20261101/runtime/connections-private-20261102/dossierly-connection-bindings.env"

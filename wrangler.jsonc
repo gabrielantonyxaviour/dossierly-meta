@@ -98,7 +98,8 @@
   ],
   "vars": {
     "APP_ENV": "production",
-    "APP_URL": "https://dossierly.cosmiclan.com"
+    "APP_URL": "https://dossierly.cosmiclan.com",
+    "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com"
   },
   "env": {
     "onboarding": {
@@ -187,7 +188,8 @@
       ],
       "vars": {
         "APP_ENV": "preview",
-        "APP_URL": "https://dossierly-onboarding.cosmiclan.com"
+        "APP_URL": "https://dossierly-onboarding.cosmiclan.com",
+        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com"
       },
       "assets": {
         "directory": ".open-next/assets",
@@ -280,7 +282,8 @@
       ],
       "vars": {
         "APP_ENV": "preview",
-        "APP_URL": "https://dossierly-app.cosmiclan.com"
+        "APP_URL": "https://dossierly-app.cosmiclan.com",
+        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com"
       },
       "assets": {
         "directory": ".open-next/assets",
@@ -373,7 +376,8 @@
       ],
       "vars": {
         "APP_ENV": "preview",
-        "APP_URL": "https://dossierly-voice.cosmiclan.com"
+        "APP_URL": "https://dossierly-voice.cosmiclan.com",
+        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com"
       },
       "assets": {
         "directory": ".open-next/assets",
@@ -466,7 +470,8 @@
       ],
       "vars": {
         "APP_ENV": "preview",
-        "APP_URL": "https://dossierly-look.cosmiclan.com"
+        "APP_URL": "https://dossierly-look.cosmiclan.com",
+        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com"
       },
       "assets": {
         "directory": ".open-next/assets",
