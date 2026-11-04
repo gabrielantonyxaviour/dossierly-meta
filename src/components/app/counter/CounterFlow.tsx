@@ -11,9 +11,13 @@ import { OfficialHalf, UserHalf } from "./Halves";
 import "@/components/voice/voice.css";
 import "./counter.css";
 
+/** The test kit is opt-in: /app/counter/live?kit=1 (linked from the Counter tab as "No Polish speaker? Try a test official"). */
+const kitRequested = () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("kit") === "1";
+
 /** Counter: phone flat on the desk. Top half turned to the official (Polish), bottom half for the user. */
 export function CounterFlow() {
   const call = useAgentCall({ mode: "counter" });
+  const [kit] = useState(kitRequested);
   const [flat, setFlat] = useState(true);
   const [clip, setClip] = useState(0);
   const live = call.status === "live";
@@ -46,7 +50,6 @@ export function CounterFlow() {
         <ol className="vs-steps">
           <li>The top half speaks Polish to the official. The bottom half is yours, in {LANG_NAME[call.lang] ?? "your language"}.</li>
           <li>When they ask for a document, it opens on their half. Tasks go into your case.</li>
-          <li>No Polish speaker around? The labelled test kit plays a short scene with a synthetic official.</li>
         </ol>
         {call.error && <p className="vc-error" role="alert">{call.error}</p>}
         <p className="vs-fine">Audio goes through our server to Meta&rsquo;s speech model and is not stored. Dossierly interprets and guides; it is not a lawyer and files nothing for you.</p>
@@ -75,7 +78,7 @@ export function CounterFlow() {
       </div>
 
       <div className="ct-dock">
-        {live && (
+        {live && kit && (
           <Button
             className="ct-test"
             icon="speak"

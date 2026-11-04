@@ -83,6 +83,7 @@
 .ch-hero h2 { margin: 2px 0 0; font-size: var(--t-xl); line-height: 1.25; font-weight: 600; letter-spacing: -0.01em; }
 .ch-hero p { margin: 0; font-size: var(--t-base); line-height: 1.5; color: var(--ink-2); }
 .ch-hero .ui-btn--lg { border-radius: var(--r-md); }
+.ch-kit { justify-self: center; display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; font-size: var(--t-sm); color: var(--ink-2); text-decoration: underline; text-underline-offset: 3px; }
 .ch-split { display: grid; border-radius: var(--radius); overflow: hidden; font-weight: 600; font-size: 0.95rem; }
 .ch-half { padding: 14px; }
 .ch-half-off { background: var(--official-soft); color: color-mix(in srgb, var(--official) 70%, var(--ink)); transform: rotate(180deg); text-align: right; }

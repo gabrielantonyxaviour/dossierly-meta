@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button, ButtonLink, Card, Pill, Row, Section, TopBar, useToast } from "@/components/ui";
 import { useCaseData } from "../shell/case-data";
@@ -48,6 +49,7 @@ export function CounterHub() {
         <h2>At the counter</h2>
         <p>Phone flat between you and the official: Polish on top for them, your language below for you. Documents and next steps come up as you talk.</p>
         <ButtonLink href="/app/counter/live" variant="agent" size="lg" icon="mic" block>Start at the counter</ButtonLink>
+        <Link className="ch-kit" href="/app/counter/live?kit=1">No Polish speaker? Try a test official</Link>
       </Card>
 
       <Section title="Before and after">
