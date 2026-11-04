@@ -5,7 +5,7 @@ import { maskerFor } from "../mask";
 import { runModel } from "../model";
 import { LANGUAGES, type Language } from "../schemas";
 import type { Env } from "../server/env";
-import { speakAll } from "../voice/server/tts";
+import { speak } from "../voice/server/tts";
 import { retryTransient } from "./retry";
 
 /* Voice-first setup: the person says who they are in their own words; Spark pulls out the profile and answers out loud. */
@@ -36,7 +36,7 @@ Return only JSON: {"firstName":null,"fullName":null,"language":"en","reason":"un
 
 const PERMIT: Record<string, Profile["permitType"]> = { study: "temporary_residence_study", work: "temporary_residence_work", family: "other", other: "other" };
 
-export type IntakeResult = { reply: string; language: string; audio: string | null; profile: Profile; firstName: string | null };
+export type IntakeResult = { reply: string; language: string; speechId: string | null; profile: Profile; firstName: string | null };
 
 /** Reads the transcript, saves what it states to the profile, and returns the spoken reply (PCM16 16 kHz, base64). */
 export async function runIntake(env: Env, userId: string, transcript: string): Promise<IntakeResult> {
@@ -58,18 +58,35 @@ export async function runIntake(env: Env, userId: string, transcript: string): P
   if (PERMIT[x.reason]) patch.permitType = PERMIT[x.reason];
   if (x.city) patch.city = x.city;
   const profile = await c.patchProfile(patch);
-  return { reply: x.reply, language: lang ?? "en", audio: await speech(env, x.reply, lang ?? "en"), profile, firstName: x.firstName };
+  return { reply: x.reply, language: lang ?? "en", speechId: await queueSpeech(env, userId, x.reply, lang ?? "en"), profile, firstName: x.firstName };
 }
 
-async function speech(env: Env, text: string, lang: string): Promise<string | null> {
+const speechKey = (userId: string, id: string) => `obvoice:${userId}:${id}`;
+const hasTts = (env: Env) => !!String((env as unknown as Record<string, unknown>).ELEVENLABS_API_KEY ?? "");
+
+/** The reply is spoken by a separate streamed request (first audio in ~0.3 s); only this user can fetch it, for 5 minutes. */
+async function queueSpeech(env: Env, userId: string, text: string, lang: string): Promise<string | null> {
+  if (!hasTts(env)) return null;
+  const id = crypto.randomUUID();
+  await env.CACHE.put(speechKey(userId, id), JSON.stringify({ text, lang }), { expirationTtl: 300 });
+  return id;
+}
+
+/** Raw PCM16 16 kHz mono, streamed from ElevenLabs as it is produced. */
+export async function speechStream(env: Env, userId: string, id: string): Promise<ReadableStream<Uint8Array> | null> {
+  const raw = await env.CACHE.get(speechKey(userId, id));
+  if (!raw) return null;
+  const { text, lang } = z.object({ text: z.string().max(400), lang: z.string().max(8) }).parse(JSON.parse(raw));
   const key = String((env as unknown as Record<string, unknown>).ELEVENLABS_API_KEY ?? "");
-  if (!key) return null;
-  try {
-    const pcm = await speakAll(key, { text, lang, voice: "dossierly", format: "pcm_16000" });
-    let bin = "";
-    for (let i = 0; i < pcm.length; i += 0x8000) bin += String.fromCharCode(...pcm.subarray(i, i + 0x8000));
-    return btoa(bin);
-  } catch {
-    return null; // the reply still shows as text
-  }
+  const parts = speak(key, { text, lang, voice: "dossierly", format: "pcm_16000" });
+  return new ReadableStream<Uint8Array>({
+    async pull(ctrl) {
+      try {
+        const { done, value } = await parts.next();
+        if (done) ctrl.close(); else ctrl.enqueue(value);
+      } catch {
+        ctrl.close(); // the caption is already on screen
+      }
+    },
+  });
 }

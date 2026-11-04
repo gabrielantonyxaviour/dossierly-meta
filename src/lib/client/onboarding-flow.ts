@@ -24,7 +24,7 @@ export const flowApi = {
   read: (messageId: string, fresh = false) => call<MailReading>("/api/onboarding/inbox/read", json("POST", { messageId, ...(fresh ? { fresh } : {}) })),
   commit: (body: { findings: Finding[]; summaries: { messageId: string; summary: string; receivedAt: string }[]; addToCalendar: boolean }) =>
     call<{ saved: number; calendar: CalendarResult[] }>("/api/onboarding/inbox/commit", json("POST", body)),
-  intake: (transcript: string) => call<{ reply: string; language: string; audio: string | null; profile: Profile; firstName: string | null }>("/api/onboarding/intake", json("POST", { transcript })),
+  intake: (transcript: string) => call<{ reply: string; language: string; speechId: string | null; profile: Profile; firstName: string | null }>("/api/onboarding/intake", json("POST", { transcript })),
   welcome: (calendarAdded: boolean) => call<{ script: string; language: string }>("/api/onboarding/welcome", json("POST", { calendarAdded })),
 };
 

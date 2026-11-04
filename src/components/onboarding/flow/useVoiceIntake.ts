@@ -12,7 +12,7 @@ const RATE = 16000;
 const SPEECH_LEVEL = 0.025;
 const END_SILENCE_MS = 1700;
 const MAX_MS = 16_000;
-const PARTIAL_EVERY_MS = 400; // checked often; one request in flight at a time
+const PARTIAL_EVERY_MS = 400; // a new partial at most every 1.1 s, up to three in flight (each takes a few seconds)
 const ASR_LANGS = ["pl", "en", "uk", "hi", "ta"] as const;
 
 function wav(chunks: Int16Array[]): string {
@@ -30,7 +30,23 @@ function wav(chunks: Int16Array[]): string {
   for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
   return btoa(bin);
 }
-const fromB64 = (b64: string) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)).buffer;
+/** Plays streamed PCM16 as it arrives (first sound ~0.3 s after the request) and calls `done` when it has played out. */
+async function playStream(ctx: AudioContext, url: string, done: () => void) {
+  const res = await fetch(url, { credentials: "same-origin" });
+  if (!res.ok || !res.body) throw new Error("no audio");
+  const player = new Player(ctx, () => done(), () => undefined);
+  const reader = res.body.getReader();
+  let carry: Uint8Array | null = null;
+  for (;;) {
+    const { done: end, value } = await reader.read();
+    if (end) break;
+    let bytes: Uint8Array = carry ? new Uint8Array([...carry, ...value]) : value;
+    carry = bytes.length % 2 ? bytes.slice(-1) : null;
+    if (carry) bytes = bytes.slice(0, -1);
+    if (bytes.length) player.play(bytes.slice().buffer, RATE);
+  }
+  player.end("reply");
+}
 const asrLang = () => {
   const l = (typeof navigator !== "undefined" ? navigator.language : "en").slice(0, 2).toLowerCase();
   return (ASR_LANGS as readonly string[]).includes(l) && l !== "pl" ? (l as (typeof ASR_LANGS)[number]) : "en";
@@ -48,10 +64,12 @@ export function useVoiceIntake(onResult: (r: Result) => void) {
   const ctx = useRef<AudioContext | null>(null);
   const mic = useRef<Mic | null>(null);
   const chunks = useRef<Int16Array[]>([]);
-  const timing = useRef({ started: 0, lastVoice: 0, voiceFrames: 0, spoke: false, finishing: false, partialBusy: false });
+  const timing = useRef({ started: 0, lastVoice: 0, voiceFrames: 0, spoke: false, finishing: false});
   /** Partial transcripts: the newest result and the request in flight, each with how many frames of audio it covers. */
   const partial = useRef<{ done: { frames: number; text: string } | null; flight: { frames: number; result: Promise<string> } | null }>({ done: null, flight: null });
   const ticker = useRef<ReturnType<typeof setInterval> | null>(null);
+  const inFlight = useRef(0);
+  const lastSent = useRef(0);
   const result = useRef(onResult);
   useEffect(() => { result.current = onResult; }, [onResult]);
 
@@ -69,11 +87,13 @@ export function useVoiceIntake(onResult: (r: Result) => void) {
     if (!r.ok) { setError(failure(r) ?? "I couldn’t catch that. Try again, or type it."); setState("idle"); return; }
     setReply(r.data.reply);
     const done = () => { setState("done"); result.current(r.data); };
-    if (!r.data.audio || !ctx.current) return done();
+    if (!r.data.speechId || !ctx.current) return done();
     setState("speaking");
-    const player = new Player(ctx.current, () => done(), () => undefined);
-    player.play(fromB64(r.data.audio), RATE);
-    player.end("reply");
+    try {
+      await playStream(ctx.current, `/api/onboarding/intake/speech?id=${encodeURIComponent(r.data.speechId)}`, done);
+    } catch {
+      done(); // the reply stays on screen as text
+    }
   }, []);
 
   const finish = useCallback(async () => {
@@ -101,8 +121,9 @@ export function useVoiceIntake(onResult: (r: Result) => void) {
   const start = useCallback(async () => {
     setError(""); setHeard(""); setReply(""); setState("starting");
     chunks.current = [];
-    timing.current = { started: Date.now(), lastVoice: 0, voiceFrames: 0, spoke: false, finishing: false, partialBusy: false };
+    timing.current = { started: Date.now(), lastVoice: 0, voiceFrames: 0, spoke: false, finishing: false };
     partial.current = { done: null, flight: null };
+    inFlight.current = 0; lastSent.current = 0;
     try {
       ctx.current ??= new AudioContext();
       await Promise.race([ctx.current.resume(), new Promise((r) => setTimeout(r, 700))]);
@@ -119,16 +140,17 @@ export function useVoiceIntake(onResult: (r: Result) => void) {
       setState("listening");
       ticker.current = setInterval(async () => {
         const t = timing.current;
-        if (!t.spoke || t.partialBusy || t.finishing) return;
-        t.partialBusy = true;
+        if (!t.spoke || t.finishing || inFlight.current >= 3 || Date.now() - lastSent.current < 1100) return;
+        inFlight.current += 1; lastSent.current = Date.now();
         const frames = chunks.current.length;
         const result = api.asrTranscribe(wav(chunks.current), asrLang()).then((r) => (r.ok ? r.data.text.trim() : ""));
         partial.current.flight = { frames, result };
         const text = await result;
-        t.partialBusy = false;
+        inFlight.current -= 1;
         if (partial.current.flight?.result === result) partial.current.flight = null;
-        if (text && (!partial.current.done || partial.current.done.frames < frames)) partial.current.done = { frames, text };
-        if (text && !timing.current.finishing) setHeard(text);
+        if (!text || (partial.current.done && partial.current.done.frames >= frames)) return; // an older request came back late
+        partial.current.done = { frames, text };
+        if (!timing.current.finishing) setHeard(text);
       }, PARTIAL_EVERY_MS);
     } catch (e) {
       stopMic();
