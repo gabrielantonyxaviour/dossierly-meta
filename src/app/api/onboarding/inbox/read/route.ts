@@ -12,7 +12,7 @@ const bodySchema = z.object({ messageId: z.string().regex(/^[A-Za-z0-9_-]{1,64}$
 /** Reads one email with Muse Spark and returns reviewable findings. Cached for a day so a reload costs nothing. */
 export const POST = (req: Request) => withOnboarding(req, async ({ env, userId, accountId }) => {
   const { messageId, fresh } = await readJson(req, bodySchema);
-  const key = `obscan:v2:${userId}:${messageId}`;
+  const key = `obscan:v3:${userId}:${messageId}`;
   if (!fresh) {
     const hit = await env.CACHE.get(key);
     if (hit) return JSON.parse(hit) as MailReading;

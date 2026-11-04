@@ -57,3 +57,5 @@
 .ob-note p { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.5; }
 .ob-note-ok { background: var(--ok-soft); box-shadow: none; }
 .ob-more-note { margin: 0; font-size: 13px; color: var(--ink-3); text-align: center; }
+.ob-top > a { text-decoration: none; }
+@media (max-width: 480px) { .ob-who { display: none; } .ob-steps { max-width: none; margin-inline: 8px 0; } }
