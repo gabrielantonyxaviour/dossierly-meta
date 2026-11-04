@@ -44,7 +44,7 @@ export const CaseContextSchema = z
   .passthrough();
 export type CaseContext = z.infer<typeof CaseContextSchema>;
 
-/** A retrieved hub passage the agent may cite. Builder C's hub retrieval fills these. */
+/** A retrieved hub passage the agent may cite. The hub pipeline fills these. */
 export const PassageSchema = z.object({
   url: z.string().url().max(500),
   title: str(300),
@@ -141,64 +141,5 @@ export type TaskResult = PrepareResult | AskResult | FileResult;
 export const TraceStepSchema = z.object({ step: str(200), tool: z.string().max(80).optional(), ms: z.number().min(0).max(3_600_000) });
 export type TraceStep = z.infer<typeof TraceStepSchema>;
 
-export const BridgeResultSchema = z.object({
-  taskId: str(80),
-  ok: z.boolean(),
-  sandbox: str(80),
-  result: z.unknown().optional(),
-  error: z.string().max(500).optional(),
-  trace: z.array(TraceStepSchema).max(40).default([]),
-  durationMs: z.number().min(0).max(3_600_000).default(0),
-  /** GLiNER-PII before/after counts when the bridge masked the input (stretch). */
-  masked: z.number().int().min(0).max(10_000).optional(),
-  /** Approximate token use (characters / 4); the sandbox does not report exact usage. */
-  tokensIn: z.number().int().min(0).default(0),
-  tokensOut: z.number().int().min(0).default(0),
-});
-export type BridgeResult = z.infer<typeof BridgeResultSchema>;
-
-export const EgressRowSchema = z.object({
-  ts: z.number().int().positive(),
-  domain: str(253),
-  port: z.number().int().min(0).max(65535).optional(),
-  action: z.enum(["Allowed", "Denied"]),
-  method: z.string().max(12).optional(),
-  process: z.string().max(200).optional(),
-  reason: z.string().max(300).optional(),
-});
-export type EgressRow = z.infer<typeof EgressRowSchema>;
-export const BridgeEgressSchema = z.object({
-  sandbox: str(80),
-  userId: z.string().max(80).nullable().default(null),
-  policySha256: z.string().regex(/^[0-9a-f]{64}$/).optional(),
-  rows: z.array(EgressRowSchema).max(300),
-});
-export type BridgeEgress = z.infer<typeof BridgeEgressSchema>;
-
 export const AskRequestSchema = z.object({ question: str(1500), case: CaseContextSchema, language: LanguageSchema });
 export const FileRequestSchema = z.object({ event: FileInputSchema.shape.event, case: CaseContextSchema });
-
-// ---- Nebius Serverless Job results (guardrails audit) ------------------------
-
-const Rate = z.number().min(0).max(1);
-export const JobResultSchema = z.object({
-  job: z.string().regex(/^(settla|dossierly)-[a-z0-9-]{1,60}$/),
-  /** The Nebius Serverless Job id, added by launch.sh when it relays the result. */
-  jobId: z.string().regex(/^[a-z0-9-]{4,80}$/).optional(),
-  /** Optional held-out split: prompts written after the rail was tuned. */
-  heldOut: z.object({ total: z.number().int().min(1), harmfulBlockRate: z.number().min(0).max(1), benignAllowRate: z.number().min(0).max(1) }).optional(),
-  ranAt: z.string().max(40),
-  region: z.string().max(40),
-  platform: z.string().max(60),
-  tool: z.literal("nemoguardrails"),
-  toolVersion: z.string().max(20),
-  model: z.string().max(80),
-  total: z.number().int().min(1).max(5000),
-  categories: z.record(z.string().max(40), z.object({ n: z.number().int().min(0), correct: z.number().int().min(0) })),
-  harmfulBlockRate: Rate,
-  benignAllowRate: Rate,
-  p50Ms: z.number().min(0),
-  p95Ms: z.number().min(0),
-  failures: z.array(z.object({ category: z.string().max(40), id: z.string().max(40) })).max(100).default([]),
-});
-export type JobResult = z.infer<typeof JobResultSchema>;

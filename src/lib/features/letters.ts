@@ -1,6 +1,7 @@
 import { maskerFor } from "../mask";
 import { runModel, sumRuns, type Ctx, type Run } from "../model";
 import { ModelError } from "../model/types";
+import { z } from "zod";
 import { LetterSchema, type Case, type Letter, type LettersLinkRequest, type LettersReadRequest } from "../schemas";
 import { lowConfidenceFields } from "./confidence";
 import { computeDeadline } from "./deadline";
@@ -8,9 +9,9 @@ import { letterFixture, linkFixture } from "./fixtures";
 import { LinkOut } from "./outputs";
 import { DATA_RULE, JSON_ONLY, NO_ADVICE, langName } from "./prompts";
 
-export const LETTER_SCHEMA_TEXT = `{"transcript": string (the page text transcribed verbatim in Polish, line breaks as spaces; write this FIRST and base every other field on it), "readable": boolean, "title": string (the letter's subject in the reader's language), "kind": "wezwanie_braki_formalne"|"decision"|"card_collection"|"fingerprint_appointment"|"proceedings_extension"|"other", "office": string|null (as printed), "caseNumber": string|null (exactly as printed), "dateOnLetter": "YYYY-MM-DD"|null, "asks": string[] (what the letter asks the person to do or provide, in the reader's language), "asksLocal": string[] (the same asks quoted in the letter's own Polish words, same order), "deadlineRule": {"days": integer|null, "from": "delivery"|"letter_date"|null, "quote": string (the exact Polish sentence that sets the deadline, "" if none)}, "fields": [{"label": string (Polish label exactly as printed), "meaning": string, "howToFill": string}]}`;
+export const LETTER_SCHEMA_TEXT = `{"transcript": string (the page text transcribed verbatim in Polish, line breaks as spaces; write this FIRST and base every other field on it), "readable": boolean, "title": string (the letter's subject in the reader's language), "kind": "wezwanie_braki_formalne"|"decision"|"card_collection"|"fingerprint_appointment"|"proceedings_extension"|"other", "office": string|null (as printed), "caseNumber": string|null (exactly as printed), "dateOnLetter": "YYYY-MM-DD"|null, "asks": string[] (what the letter asks the person to do or provide, in the reader's language), "asksLocal": string[] (the same asks quoted in the letter's own Polish words, same order), "deadlineRule": {"days": integer|null, "from": "delivery"|"letter_date"|null, "quote": string (the exact Polish sentence that sets the deadline, "" if none)}, "fields": [{"label": string (Polish label exactly as printed), "meaning": string, "howToFill": string}], "uncertain": string[] (names of the fields above you are not sure you read correctly, for example "dateOnLetter", "deadlineRule.days", "caseNumber"; [] when you are sure of all)}`;
 
-const ReadOut = LetterSchema.omit({ lowConfidence: true });
+const ReadOut = LetterSchema.omit({ lowConfidence: true }).extend({ uncertain: z.array(z.string().max(80)).max(20).optional() });
 
 function mergeLetters(parts: Letter[]): Letter {
   const first = parts.find((p) => p.readable) ?? parts[0];
@@ -32,7 +33,7 @@ function mergeLetters(parts: Letter[]): Letter {
   };
 }
 
-/** One image per model call (Super VL vision); pages are merged in code. */
+/** One image per model call (vision role); pages are merged in code. */
 export async function readLetter(ctx: Ctx, r: LettersReadRequest) {
   const lang = langName(r.language);
   const system = `You read photographed Polish official letters for a foreigner and explain them in ${lang}. Be accurate; copy numbers, dates and case numbers exactly as printed; if something is illegible say so rather than guessing. ${NO_ADVICE} ${DATA_RULE} ${JSON_ONLY}
@@ -46,14 +47,14 @@ Write every value except "transcript", "asksLocal", "office", "caseNumber", fiel
         input: "Read this letter page and fill the schema.",
         images: [page],
         schema: ReadOut,
-        maxTokens: 2800,
-        logprobs: true,
+        maxTokens: 6000,
+        effort: "low",
         masker: maskerFor(),
         replay: () => letterFixture(r, r.language),
       }),
     ),
   );
-  const letters = pages.map((p) => ({ ...p.data, lowConfidence: p.run.ranOn === "replay" ? [] : lowConfidenceFields(p.raw, p.logprobs) }));
+  const letters = pages.map(({ data: { uncertain, ...letter }, run }) => ({ ...letter, lowConfidence: run.ranOn === "replay" ? [] : lowConfidenceFields(uncertain) }));
   const run = sumRuns(pages.map((p) => p.run));
   return { letter: mergeLetters(letters), run, runs: pages.map((p) => p.run) };
 }
@@ -77,13 +78,13 @@ Never invent facts, documents or dates. Write "______" where information is miss
   let data;
   let fallbackModel: string | undefined;
   try {
-    const out = await runModel(ctx, { ...base, task: "link", system, maxTokens: 4000, thinking: true });
+    const out = await runModel(ctx, { ...base, task: "link", system, maxTokens: 8000, effort: "high" });
     data = out.data;
     runs = [out.run];
   } catch (err) {
     if (err instanceof ModelError && ["no_key", "over_budget", "models_disabled"].includes(err.code)) throw err;
-    // Ultra unavailable or invalid twice: Super VL reasons over the same masked case and the run says so.
-    const out = await runModel(ctx, { ...base, task: "link_fallback", system, maxTokens: 2500 });
+    // The reasoning call failed or was invalid twice: the draft role answers over the same masked case and the run says so.
+    const out = await runModel(ctx, { ...base, task: "link_fallback", system, maxTokens: 5000 });
     data = out.data;
     runs = [out.run];
     fallbackModel = out.run.model;
@@ -101,7 +102,7 @@ Never invent facts, documents or dates. Write "______" where information is miss
     draftUser: data.draftUser,
     run: sumRuns(runs),
     runs,
-    ...(fallbackModel ? { fallbackModel, fallbackLabel: "Answered by Super VL because Ultra was unavailable" } : {}),
+    ...(fallbackModel ? { fallbackModel, fallbackLabel: "Answered by the faster model because deeper reasoning was unavailable" } : {}),
   };
 }
 

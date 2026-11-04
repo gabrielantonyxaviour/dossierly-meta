@@ -1,15 +1,19 @@
+import type { ChatClient } from "../model/types";
 import type { Env } from "../server/env";
+import { runInBackground } from "./background";
+import { runCloudTask } from "./fallback";
 import { randomId } from "../server/util";
 import { InputSchemas, TraceStepSchema, type TaskInput, type TaskKind, type TraceStep } from "./schemas";
 import { z } from "zod";
 
-/** A queued task unclaimed this long is run in the cloud with Super VL instead. */
+/** A queued task whose in-Worker run never started (the isolate was evicted) is picked up by the next poll after this. */
 export const FALLBACK_AFTER_MS = 20_000;
-/** A sandbox claim with no result this long is taken over by the cloud. */
+/** A running task with no result this long is taken over and run again. */
 export const STALE_CLAIM_MS = 180_000;
 const MAX_INPUT_BYTES = 250_000;
 
 export type TaskStatus = "queued" | "running" | "done" | "failed";
+/** "sandbox" only appears on rows written before the agent moved into the Worker. */
 export type RanOn = "cloud" | "sandbox";
 export type TaskRow = {
   id: string;
@@ -30,20 +34,28 @@ export type StoredResult = { data: unknown; run?: unknown };
 
 const COLS = "id, user_id, kind, status, ran_on, sandbox, input, trace, result, error, created_at, claimed_at, updated_at";
 
-/** Called by POST /api/prepare (builder C) and by /api/agent/{ask,file}. Validates the input per kind. */
+/** Called by POST /api/prepare and by /api/agent/{ask,file}. Validates the input per kind and starts the run in the Worker. */
 export async function enqueueAgentTask(
   env: Env,
   t: { userId: string; kind: TaskKind; input: unknown },
+  opts: { start?: boolean; schedule?: (work: () => Promise<unknown>) => void; client?: ChatClient } = {},
 ): Promise<{ taskId: string }> {
   const input = InputSchemas[t.kind].parse(t.input) as TaskInput;
   const json = JSON.stringify(input);
   if (json.length > MAX_INPUT_BYTES) throw new z.ZodError([{ code: "custom", message: "input too large", path: ["input"] }]);
   const now = Date.now();
   const taskId = randomId("t", 12);
-  const trace: TraceStep[] = [{ step: "queued for the personal agent", ms: 0 }];
+  const trace: TraceStep[] = [{ step: "queued for your agent", ms: 0 }];
   await env.DB.prepare(
     "INSERT INTO tasks (id, user_id, kind, status, input, trace, created_at, updated_at) VALUES (?,?,?,'queued',?,?,?,?)",
   ).bind(taskId, t.userId, t.kind, json, JSON.stringify(trace), now, now).run();
+  if (opts.start !== false) {
+    const row = await getTask(env, taskId);
+    if (row && (await claimForCloud(env, row, now))) {
+      const taken = (await getTask(env, taskId)) ?? row;
+      (opts.schedule ?? runInBackground)(() => runCloudTask(env, taken, { client: opts.client, reason: "running in your agent" }));
+    }
+  }
   return { taskId };
 }
 
@@ -51,26 +63,12 @@ export async function getTask(env: Env, id: string): Promise<TaskRow | null> {
   return env.DB.prepare(`SELECT ${COLS} FROM tasks WHERE id = ?`).bind(id).first<TaskRow>();
 }
 
-/**
- * Atomically hands the oldest unclaimed task to the bridge. One statement, so two pollers never
- * receive the same task and a task the cloud already took (ran_on set) is skipped.
- */
-export async function claimNextTask(env: Env, now = Date.now()): Promise<TaskRow | null> {
-  const { results } = await env.DB.prepare(
-    `UPDATE tasks SET status = 'running', ran_on = 'sandbox', claimed_at = ?, updated_at = ?
-     WHERE id = (SELECT id FROM tasks WHERE status = 'queued' AND ran_on IS NULL ORDER BY created_at LIMIT 1)
-       AND status = 'queued' AND ran_on IS NULL
-     RETURNING ${COLS}`,
-  ).bind(now, now).all<TaskRow>();
-  return results[0] ?? null;
-}
-
-/** Cloud takes a task the bridge did not claim in time. True only for the caller that wins the race. */
+/** Takes a queued task (or a stale running one) for the Worker run. True only for the caller that wins the race. */
 export async function claimForCloud(env: Env, row: Pick<TaskRow, "id" | "status" | "claimed_at">, now = Date.now()): Promise<boolean> {
   const stale = row.status === "running";
   const res = await env.DB.prepare(
     stale
-      ? "UPDATE tasks SET ran_on = 'cloud', claimed_at = ?, updated_at = ? WHERE id = ? AND status = 'running' AND ran_on = 'sandbox' AND claimed_at = ?"
+      ? "UPDATE tasks SET ran_on = 'cloud', claimed_at = ?, updated_at = ? WHERE id = ? AND status = 'running' AND claimed_at = ?"
       : "UPDATE tasks SET status = 'running', ran_on = 'cloud', claimed_at = ?, updated_at = ? WHERE id = ? AND status = 'queued' AND ran_on IS NULL",
   ).bind(...(stale ? [now, now, row.id, row.claimed_at] : [now, now, row.id])).run();
   return (res.meta?.changes ?? 0) > 0;
@@ -120,7 +118,6 @@ export function taskView(row: TaskRow) {
     kind: row.kind,
     status: row.status,
     ranOn: row.ran_on,
-    ...(row.sandbox && row.ran_on === "sandbox" ? { sandbox: row.sandbox } : {}),
     trace: parseTrace(row.trace),
     ...(row.status === "done" && stored ? { result: stored.data, ...(stored.run ? { run: stored.run } : {}) } : {}),
     ...(row.status === "failed" ? { error: row.error ?? "The agent could not finish this task" } : {}),

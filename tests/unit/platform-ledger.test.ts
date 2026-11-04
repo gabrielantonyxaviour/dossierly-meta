@@ -6,7 +6,7 @@ describe("ledger hash chain", () => {
   it("chains entries and verifies", async () => {
     const env = freshLocalEnv();
     await recordLedger(env, { userId: "u1", kind: "model", what: "interpret via Nemotron Lightning", region: "eu-north1", action: "allowed", bytes: 812, masked: 2 });
-    await recordLedger(env, { userId: "u1", kind: "egress", what: "tavily search", action: "denied", detail: { reason: "cap" } });
+    await recordLedger(env, { userId: "u1", kind: "egress", what: "grounded web search", action: "denied", detail: { reason: "cap" } });
     await recordLedger(env, { userId: "u1", kind: "job", what: "nightly watch" });
     const { entries, root, verified } = await listLedger(env, "u1", 10);
     expect(entries).toHaveLength(3);

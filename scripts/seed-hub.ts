@@ -1,9 +1,9 @@
-/* Runs the nightly watch once against the real sources (spends Tavily credits: 1 per 5 URLs, plus Lightning flex)
+/* Runs the nightly watch once against the real sources (plain page fetches, plus draft-role model calls that spend a few cents)
    and writes what it found into the repo, so the demo's detected changes are real and retrieval works with a cold cache:
      hub/poland/seed-changes.json  detected changes
      hub/poland/pages.json         page text of the watched sources (truncated)
    Run: node --env-file=.env.local --import tsx scripts/seed-hub.ts [--offline] [url ...]
-   --offline re-reads hub/poland/pages.json instead of calling Tavily (no credits). No URLs = every watched source. */
+   --offline re-reads hub/poland/pages.json instead of fetching the pages (no page requests). No URLs = every watched source. */
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { watchedSources } from "../src/lib/hub/data";
@@ -14,9 +14,7 @@ const out = (s: string) => process.stdout.write(`${s}\n`);
 
 async function main() {
   const env = freshLocalEnv({
-    NEBIUS_API_KEY: process.env.NEBIUS_API_KEY ?? "",
-    TAVILY_API_KEY: process.env.TAVILY_API_KEY ?? "",
-    NVIDIA_API_KEY: process.env.NVIDIA_API_KEY ?? "",
+    MODEL_API_KEY: process.env.MODEL_API_KEY ?? "",
   });
   const args = process.argv.slice(2);
   const offline = args.includes("--offline");

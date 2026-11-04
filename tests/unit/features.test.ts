@@ -22,7 +22,7 @@ function router(handlers: Array<[RegExp, (r: ChatRequest) => string]>) {
   };
   return { client, calls };
 }
-const ctx = (client: ChatClient) => ({ env: freshLocalEnv({ NEBIUS_API_KEY: "k" }), userId: "u1", client });
+const ctx = (client: ChatClient) => ({ env: freshLocalEnv({ MODEL_API_KEY: "k" }), userId: "u1", client });
 
 describe("interpret + guard", () => {
   it("translates, masks the user's identifiers, and flags advice with a localised notice", async () => {
@@ -100,14 +100,12 @@ describe("interpret + guard", () => {
 });
 
 describe("lowConfidenceFields", () => {
-  const raw = '{"dateOnLetter": "2026-10-22", "deadlineRule": {"days": 14, "quote": "w terminie 14 dni"}}';
-  const tok = (token: string, logprob: number) => ({ token, logprob });
-  it("flags fields whose digit tokens are uncertain, not confident ones", () => {
-    const tokens = [tok('{"dateOnLetter": "', -0.01), tok("2026", -0.01), tok("-10-", -0.01), tok("22", -1.2), tok('", "deadlineRule": {"days": ', -0.01), tok("14", -0.01), tok(', "quote": "w terminie 14 dni"}}', -0.01)];
-    expect(lowConfidenceFields(raw, tokens)).toEqual(["dateOnLetter"]);
+  it("keeps only the known fields the model said it was unsure about", () => {
+    expect(lowConfidenceFields(["dateOnLetter", "bogus", "deadlineRule.days"])).toEqual(["dateOnLetter", "deadlineRule.days"]);
+    expect(lowConfidenceFields([])).toEqual([]);
   });
-  it("marks every date-bearing field when logprobs are unavailable", () => {
-    expect(lowConfidenceFields(raw, undefined)).toEqual(expect.arrayContaining(["dateOnLetter", "deadlineRule.days"]));
+  it("marks every date-bearing field when the model gave no uncertainty list", () => {
+    expect(lowConfidenceFields(undefined)).toEqual(expect.arrayContaining(["dateOnLetter", "deadlineRule.days"]));
   });
 });
 
@@ -147,16 +145,16 @@ describe("letters", () => {
     expect(r.draftLocal).toBe("Szanowni Państwo, sprawa WSC-II-P.6151.48213.2026. Arjun Raman");
     const sent = JSON.stringify(calls[0].messages);
     expect(sent).not.toMatch(/Arjun|Raman|WSC-II/);
-    expect(calls[0].model).toMatch(/Ultra/);
-    expect(calls[0].thinking).toBe(true);
+    expect(calls[0].role).toBe("reason");
+    expect(calls[0].reasoningEffort).toBe("high");
     expect("fallbackModel" in r).toBe(false);
   });
 
-  it("falls back to Super VL, labelled, when Ultra fails twice", async () => {
-    const { client, calls } = router([[/case reasoner/, (req) => (/Ultra/.test(req.model) ? "garbage" : linkReply)]]);
+  it("falls back to the draft role, labelled, when the reasoning call fails twice", async () => {
+    const { client, calls } = router([[/case reasoner/, (req) => (req.role === "reason" ? "garbage" : linkReply)]]);
     const r = await linkLetter(ctx(client), { letter, deliveryDate: "2026-10-27", case: theCase, language: "en" });
-    expect(calls.at(-1)?.model).toMatch(/Super-VL/);
-    expect(r).toMatchObject({ fallbackModel: expect.stringMatching(/Super-VL/) });
+    expect(calls.at(-1)?.role).toBe("draft");
+    expect(r).toMatchObject({ fallbackModel: "muse-spark-1.3" });
     expect(r.deadline?.date).toBe("2026-11-10");
   });
 

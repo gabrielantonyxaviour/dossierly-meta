@@ -25,17 +25,17 @@ describe("diffLines", () => {
 });
 
 describe("runNightlyWatch", () => {
-  const env = () => freshLocalEnv({ NEBIUS_API_KEY: "k" });
+  const env = () => freshLocalEnv({ MODEL_API_KEY: "k" });
 
-  it("reads an announcements listing on first sight, attaches the verified listing date, uses the flex tier", async () => {
+  it("reads an announcements listing on first sight, attaches the verified listing date, uses the draft role", async () => {
     const e = env();
     const { client, calls } = fake({
       changes: [{ title: "Legal stay confirmation replaces passport stamp", summary: "A certificate (zaświadczenie) replaces the stamp in the passport.", date: null }],
     });
     const r = await runNightlyWatch(e, { pages: [{ url: URL_LIST, text: "## Potwierdzenie legalnego pobytu\nZaświadczenie" }], client });
     expect(r.changed).toBe(1);
-    expect(calls[0].flex).toBe(true);
-    expect(calls[0].model).toMatch(/Lightning/);
+    expect(calls[0].role).toBe("draft");
+    expect(calls[0].model).toBe("muse-spark-1.3");
     const rows = await listChanges(e, "pl");
     expect(rows).toHaveLength(1);
     expect(rows[0].summary).toMatch(/Listed 2026-10-19/);
