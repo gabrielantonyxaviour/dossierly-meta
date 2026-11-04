@@ -19,7 +19,7 @@ const DONE = [
 /** The hero's one large product view: Arjun's (fictional, SAMPLE) case, a letter just read. */
 export function HeroMock() {
   return (
-    <figure className="lp-app" aria-label="Dossierly reading a letter in Arjun's sample case">
+    <figure className="lp-app" aria-label="Dossierly reading a letter from the office">
       <div className="lp-app-rail" aria-hidden="true">
         <span className="lp-app-mark">D</span>
         <div className="lp-app-rail-icons">
@@ -33,7 +33,7 @@ export function HeroMock() {
       </div>
 
       <div className="lp-app-main">
-        <p className="lp-app-time">Tue 27 Oct at 7:12 PM · SAMPLE case</p>
+        <p className="lp-app-time">Tue 27 Oct at 7:12 PM</p>
         <div className="lp-app-file">
           <Icon name="file" size={15} /> wezwanie.pdf <span>from e-Doręczenia</span>
         </div>
