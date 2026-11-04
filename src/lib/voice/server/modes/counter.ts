@@ -28,6 +28,7 @@ const ADDRESS_TASK = /address|adres|notice|zawiadom|writing|piśmie/i;
 export class CounterMode implements ModeHandler {
   readonly bargeIn = false;
   readonly speculate = true;
+  readonly merge = true;
   private exchange: VoiceTurn[] = [];
   /** Things the official was shown, for the models' view of the exchange. */
   private notes: string[] = [];

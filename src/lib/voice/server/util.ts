@@ -67,3 +67,9 @@ export function warsawIso(date: string, time: string): string {
   const part = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Warsaw", timeZoneName: "longOffset" }).formatToParts(new Date(`${date}T12:00:00Z`)).find((p) => p.type === "timeZoneName")?.value ?? "GMT+01:00";
   return `${date}T${time}:00${part === "GMT" ? "+00:00" : part.replace("GMT", "")}`;
 }
+
+/** Pause shorter than this between two utterances of the same speaker joins them (Counter). */
+export const MERGE_MS = 1500;
+
+/** Words only: the final transcript adds punctuation and casing to the same words. */
+export const speechKey = (s: string) => s.toLowerCase().replace(/[^\p{L}\d]+/gu, " ").trim();
