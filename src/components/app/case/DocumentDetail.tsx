@@ -21,7 +21,9 @@ export function DocumentDetail({ id }: { id: string }) {
   const events = snapshot.events.filter((e) => e.refs.includes(d.id));
   const [st, tone] = STATUS[d.status];
   const q = encodeURIComponent(d.status === "have" ? `What does “${d.title}” mean for my case?` : `How do I get “${d.title}” and what exactly does the office need?`);
-  const ask = <ButtonLink href={`/app/chat?q=${q}&attach=document:${d.id}`} variant={d.status === "have" ? "primary" : "ghost"} icon="sparkle">Ask about this document</ButtonLink>;
+  /* An emailed letter or scan whose file is stored: Look reads the real page and outlines what matters. */
+  const readable = d.status === "have" && !!d.fileKey && (d.kind === "letter" || d.kind === "upo");
+  const ask = <ButtonLink href={`/app/chat?q=${q}&attach=document:${d.id}`} variant={d.status === "have" && !readable ? "primary" : "ghost"} icon="sparkle">Ask about this document</ButtonLink>;
   return (
     <div className={`sh-page ${d.status !== "have" || d.kind === "letter" ? "sh-page--actions2" : "sh-page--actions"}`}>
       <TopBar title={d.title} back={back} eyebrow={SOURCE[d.source]} actions={<Pill tone={tone} dot>{st}</Pill>} />
@@ -61,7 +63,9 @@ export function DocumentDetail({ id }: { id: string }) {
           ? <ButtonLink href={photoCheckHref(openPhotoTask(snapshot)?.id)} variant="primary" icon="camera">Check a photo</ButtonLink>
           : <ButtonLink href="/app/look" variant="primary" icon="scan">Add with Look</ButtonLink>}</StickyActionBar>
       ) : (
-        <StickyActionBar secondary={d.kind === "letter" ? <ButtonLink href="/app/look" variant="ghost" icon="scan">Look at it again</ButtonLink> : undefined}>{ask}</StickyActionBar>
+        <StickyActionBar secondary={readable ? ask : d.kind === "letter" ? <ButtonLink href="/app/look" variant="ghost" icon="scan">Look at it again</ButtonLink> : undefined}>
+          {readable ? <ButtonLink href={`/app/look?doc=${encodeURIComponent(d.id)}`} variant="primary" icon="scan">Read it with Look</ButtonLink> : ask}
+        </StickyActionBar>
       )}
     </div>
   );

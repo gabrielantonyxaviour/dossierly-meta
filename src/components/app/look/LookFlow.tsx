@@ -1,9 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { LookKind } from "@/lib/look/types";
 import { Card, MobilePage, Row, ScreenTitle, Section } from "@/components/ui";
-import { prepareFromUrl, prepareImage } from "./image";
+import { prepareFromDocument, prepareFromUrl, prepareImage } from "./image";
 import { LookCapture } from "./LookCapture";
 import { LookResult } from "./LookResult";
 import type { SamplePick } from "./LookSamples";
@@ -15,11 +16,13 @@ import "./look.css";
 const LOOK_SIDE = 1000;
 const LOOK_ID = /^lk_[A-Za-z0-9]{8,40}$/;
 const SAMPLE_ID = /^[a-z0-9-]{1,60}$/;
+const DOC_ID = /^[A-Za-z0-9_-]{1,80}$/;
 const sampleSrc = (id: string) => (id.endsWith("-phone") ? `/sample/photos/${id}.jpg` : `/sample/letters/${id}.png`);
 
 function setQuery(look: string | null) {
   const url = new URL(window.location.href);
   url.searchParams.delete("sample");
+  url.searchParams.delete("doc");
   if (look) url.searchParams.set("look", look);
   else url.searchParams.delete("look");
   if (url.href !== window.location.href) window.history.replaceState(window.history.state, "", url);
@@ -27,6 +30,7 @@ function setQuery(look: string | null) {
 
 export function LookFlow() {
   const { state, run, replay, retry, reset } = useLook();
+  const router = useRouter();
   const phone = useIsPhone();
   const [prepError, setPrepError] = useState<string | null>(null);
 
@@ -40,15 +44,21 @@ export function LookFlow() {
     }
   }, [run]);
 
-  /* Deep links: ?look=<id> draws a saved look again; ?sample=<id> reads a test letter live. */
+  /* Deep links: ?look=<id> draws a saved look again; ?doc=<id> reads a case document's stored file live
+     (the emailed letter, first page); ?sample=<id> reads a test letter live. */
   const booted = useRef(false);
+  const fromDoc = useRef<string | null>(null);
   useEffect(() => {
     if (booted.current) return;
     booted.current = true;
     const q = new URLSearchParams(window.location.search);
     const look = q.get("look");
     const sample = q.get("sample");
-    if (look && LOOK_ID.test(look)) void replay(look).then((m) => m && setPrepError(m));
+    const doc = q.get("doc");
+    if (doc && DOC_ID.test(doc)) {
+      fromDoc.current = doc;
+      void Promise.resolve().then(() => start(() => prepareFromDocument(doc, LOOK_SIDE), { question: "", hint: "letter" }));
+    } else if (look && LOOK_ID.test(look)) void replay(look).then((m) => m && setPrepError(m));
     else if (sample && SAMPLE_ID.test(sample)) void Promise.resolve().then(() => start(() => prepareFromUrl(sampleSrc(sample), LOOK_SIDE), { question: "", sample: true }));
   }, [replay, start]);
 
@@ -58,9 +68,10 @@ export function LookFlow() {
     if (lookId) setQuery(lookId);
   }, [lookId]);
   const close = useCallback(() => {
+    if (fromDoc.current) return router.push(`/app/case/documents/${encodeURIComponent(fromDoc.current)}`);
     reset();
     setQuery(null);
-  }, [reset]);
+  }, [reset, router]);
 
   const onFile = useCallback((f: Blob, question: string) => void start(() => prepareImage(f, LOOK_SIDE), { question }), [start]);
   const onSample = useCallback((p: SamplePick, question: string) => void start(() => prepareFromUrl(p.src, LOOK_SIDE), { question, sample: true }), [start]);
