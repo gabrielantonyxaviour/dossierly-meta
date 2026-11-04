@@ -11,12 +11,15 @@ const rec = (over: Partial<SamRecord> = {}, fill: (x: number, y: number) => bool
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) raster[y * w + x] = fill(x, y) ? 1 : 0;
   return { id: "1", bounds: [100, 100, 300, 130], width: w, height: h, raster, ...over };
 };
-const isRect = (p: string | null) => !!p && p.includes("Q");
+/** The Spark-box fallback uses H/V segments; SAM-derived outlines (rotated quads or contours) never do. */
+const isRect = (p: string | null) => !!p && /[HV]/.test(p);
 
 describe("outlineFor", () => {
   it("uses the traced mask contour and the SAM box when the mask fits the Spark box", () => {
     const o = outlineFor(item, rec({ bounds: [102, 101, 298, 129], width: 196, height: 28, raster: new Uint8Array(196 * 28).fill(1) }), size);
-    expect(o.box).toEqual([102, 101, 298, 129]);
+    // A rotated quad around the mask, padded: it contains SAM's box and stays close to it.
+    expect(o.box[0]).toBeLessThanOrEqual(102); expect(o.box[2]).toBeGreaterThanOrEqual(298);
+    expect(o.box[1]).toBeGreaterThan(90); expect(o.box[3]).toBeLessThan(140);
     expect(o.path).not.toBeNull();
     expect(isRect(o.path)).toBe(false);
     expect(o.path!.length).toBeLessThan(4000);

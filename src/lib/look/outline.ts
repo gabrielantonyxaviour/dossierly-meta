@@ -10,6 +10,7 @@ import { samSegment, type FetchLike } from "../model/meta";
 import type { Env } from "../server/env";
 import { recordLedger } from "../server/ledger";
 import { recordRun } from "../server/runs";
+import { textQuad, roundedQuadPath } from "./quad";
 import { iou, maskToPath, roundedRectPath } from "./trace";
 import type { Box, LookItem, LookOutline } from "./types";
 
@@ -69,6 +70,13 @@ export function outlineFor(item: Pick<LookItem, "id" | "box">, rec: SamRecord | 
   const traced = maskToPath(rec.raster, rec.width, rec.height, rec.bounds);
   if (!traced) return fallback;
   if (traced.fill * area(bounds) < MIN_FILL * area(spark)) return fallback;
+  // Clean rotated band that follows SAM's tilt; stretched to Spark's line extent when SAM traced only part of it.
+  const pad = Math.max(3, Math.round(Math.max(size.w, size.h) * 0.004));
+  const quad = textQuad(traced.rings.flat(), spark, pad);
+  if (quad && Math.abs(quad.angle) < 0.45) {
+    const h = Math.min(Math.hypot(quad.corners[3][0] - quad.corners[0][0], quad.corners[3][1] - quad.corners[0][1]), 40);
+    return { id: item.id, box: clampBox(quad.box, size.w, size.h), path: roundedQuadPath(quad.corners, Math.max(4, h / 3)) };
+  }
   const xs = traced.rings.flat().map((p) => p[0]);
   if ((Math.max(...xs) - Math.min(...xs)) < MIN_SPAN * (spark[2] - spark[0])) return fallback;
   return { id: item.id, box: bounds, path: traced.path };

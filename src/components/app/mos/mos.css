@@ -1,0 +1,28 @@
+/* MOS sheet */
+.mos-page { max-width: 820px; display: grid; gap: 18px; }
+.mos-page .lk-head p { margin-bottom: 14px; }
+.mos-progress .vp-meter, .mos-page .vp-meter { height: 8px; margin-top: 10px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.mos-page .vp-meter span { display: block; height: 100%; border-radius: inherit; background: var(--ok); transition: width 0.6s ease-out; }
+.mos-sections { display: grid; gap: 8px; }
+.mos-section { border-radius: 14px; background: var(--surface); box-shadow: var(--ring); overflow: hidden; }
+.mos-section-head { display: flex; align-items: center; gap: 10px; width: 100%; padding: 14px 16px; border: 0; background: none; color: var(--ink); text-align: left; cursor: pointer; }
+.mos-section-head b { display: block; font-weight: 500; }
+.mos-section-head small { color: var(--ink-3); font-size: 0.78rem; }
+.mos-section-head svg { transition: transform 0.2s; color: var(--ink-3); }
+.mos-section.is-open .mos-section-head svg { transform: rotate(180deg); }
+.mos-count { font-size: 0.78rem; color: var(--ink-3); }
+.mos-fields { list-style: none; margin: 0; padding: 0 8px 8px; display: grid; gap: 2px; }
+.mos-field { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 10px 8px; border-top: 1px solid var(--line); }
+.mos-field:first-child { border-top: 0; }
+.mos-n { font-size: 0.72rem; color: var(--ink-3); align-self: start; padding-top: 2px; }
+.mos-labels { display: grid; gap: 1px; min-width: 0; }
+.mos-labels b { font-weight: 500; font-size: 0.95rem; }
+.mos-labels small { color: var(--ink-3); font-size: 0.78rem; }
+.mos-req { color: var(--deadline); }
+.mos-val { margin-top: 4px; padding: 4px 8px; justify-self: start; max-width: 100%; border-radius: 6px; background: var(--user-soft); color: var(--ink); overflow-wrap: anywhere; }
+.mos-hint { margin-top: 2px; font-size: 0.82rem; color: var(--ink-2); }
+.mos-fees { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.mos-fee { display: grid; gap: 2px; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); text-decoration: none; color: var(--ink); }
+.mos-fee .mono { font-size: 1.25rem; }
+.mos-fee small { color: var(--ink-2); }
+.mos-reg-out { padding-top: 10px; border-top: 1px solid var(--line); }
