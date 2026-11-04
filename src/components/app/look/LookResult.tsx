@@ -66,7 +66,6 @@ export function LookResult({ state, phone, onRetry, onClose }: Props) {
   const visual = (
     <div className="lk-visual">
       <LookCanvas src={image.dataUrl} width={image.width} height={image.height} phase={phase} items={items} outlines={state.outlines} active={active} onSelect={setActive} />
-      {state.sample && <Pill tone="official" className="lk-sample-stamp">Fictional sample</Pill>}
     </div>
   );
   const panel = (

@@ -15,7 +15,7 @@ type Catalogue = { letters?: Array<{ id: string; titleEn: string; png: string; p
 
 const FALLBACK: SamplePick[] = [{ id: "wezwanie-sample", title: "Summons for missing documents", src: "/sample/wezwanie-sample.png", kind: "letter" }];
 
-/** Fictional test material for judges and demos, in a bottom sheet. Every file is marked PRZYKŁAD / SAMPLE. */
+/** Test material for judges and demos, in a bottom sheet: realistic documents for a fictional applicant. */
 export function LookSamples({ open, onPick, onClose }: { open: boolean; onPick(p: SamplePick): void; onClose(): void }) {
   const [picks, setPicks] = useState<SamplePick[] | null>(null);
 
@@ -40,7 +40,7 @@ export function LookSamples({ open, onPick, onClose }: { open: boolean; onPick(p
 
   return (
     <Sheet open={open} onClose={onClose} title="Test material" wide>
-      <p className="muted" style={{ marginTop: 0 }}>Fictional documents for a fictional student, Arjun Raman, each stamped PRZYKŁAD (sample). They go through the same live models as your own photos.</p>
+      <p className="muted" style={{ marginTop: 0 }}>Realistic test documents for a fictional student, Arjun Raman. Case number, people and addresses are made up. They go through the same live models as your own photos.</p>
       <div className="lk-sample-grid">
         {!picks && [0, 1, 2, 3].map((i) => <Skeleton key={i} h={180} />)}
         {picks?.map((p) => (
