@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { failure, flowApi } from "@/lib/client/onboarding-flow";
 import { AgentCall } from "@/components/voice/AgentCall";
+import { AgentOrb } from "@/components/ui";
 
 /** The incoming welcome call. The script is written by Muse Spark from the saved case before the person answers. */
 export function WelcomeStep({ firstName, calendarAdded }: { firstName: string; calendarAdded: boolean }) {
@@ -21,7 +22,7 @@ export function WelcomeStep({ firstName, calendarAdded }: { firstName: string; c
   if (ended) return (
     <div className="ob-answer">
       <div className="ob-note ob-note-ok"><strong>You’re all set{firstName ? `, ${firstName}` : ""}.</strong><p>Your case, next step and dates are waiting. Talk to me any time from the call button.</p></div>
-      <Link className="btn btn-primary ob-next" href="/app">Open my case</Link>
+      <Link className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" href="/app">Open my case</Link>
     </div>
   );
   // "Answer" is the user gesture that lets the call start audio straight away.
@@ -29,11 +30,11 @@ export function WelcomeStep({ firstName, calendarAdded }: { firstName: string; c
   return (
     <div className="ob-answer">
       <div className="ob-ring" data-ready={!!script}>
-        <span className="ob-ring-avatar" aria-hidden="true"><span /></span>
+        <AgentOrb size={56} state={script ? "live" : "idle"} />
         <div><strong>Dossierly</strong><span>{script ? "Incoming welcome call" : error ? "Call not ready" : "Preparing your welcome call…"}</span></div>
       </div>
-      {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="btn btn-small" onClick={() => void load()}>Try again</button></div>}
-      <button type="button" className="btn btn-primary ob-next ob-answer-btn" disabled={!script} onClick={() => setAnswered(true)}>Answer</button>
+      {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void load()}>Try again</button></div>}
+      <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block ob-answer-btn" disabled={!script} onClick={() => setAnswered(true)}>Answer</button>
       <Link className="ob-link" href="/app">Not now, open my case</Link>
     </div>
   );

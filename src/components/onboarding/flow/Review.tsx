@@ -89,7 +89,7 @@ export function Review({ readings, rows, calendarConnected, onSaved }: { reading
         <ul className="ob-cal">{result.map((x) => (
           <li key={x.findingId} data-status={x.status}><span>{x.title}</span>{x.status === "failed" ? <em>{x.error}</em> : x.url ? <a href={x.url} target="_blank" rel="noreferrer">Open in Calendar</a> : <em>Added</em>}</li>
         ))}</ul>
-        <button type="button" className="btn btn-primary ob-next" onClick={() => onSaved(added.length > 0, chosen.length)}>Continue</button>
+        <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={() => onSaved(added.length > 0, chosen.length)}>Continue</button>
       </div>
     );
   }
@@ -114,7 +114,7 @@ export function Review({ readings, rows, calendarConnected, onSaved }: { reading
           <Checkbox checked={toCalendar} onChange={setToCalendar} disabled={!dated}>Add {dated} {dated === 1 ? "date" : "dates"} to Google Calendar, with reminders</Checkbox>
         ) : <p className="ob-more-note">Connect Google Calendar on the previous screen to add these dates with reminders.</p>}
         {error && <div className="ob-alert" role="alert"><p>{error}</p></div>}
-        <button type="button" className="btn btn-primary ob-next" disabled={busy || !chosen.length} onClick={() => void save()}>
+        <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" disabled={busy || !chosen.length} onClick={() => void save()}>
           {busy ? "Saving to your case…" : `Confirm ${chosen.length} ${chosen.length === 1 ? "item" : "items"}`}
         </button>
         <p className="ob-more-note">Unticked items are not saved. You can edit anything later.</p>

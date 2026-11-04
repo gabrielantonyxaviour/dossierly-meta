@@ -64,10 +64,10 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned }: { retu
   if (phase === "connect" || phase === "listing") {
     return (
       <div className="ob-answer">
-        {statusError && <div className="ob-alert" role="alert"><p>{statusError}</p><button type="button" className="btn btn-small" onClick={() => void load()}>Try again</button></div>}
+        {statusError && <div className="ob-alert" role="alert"><p>{statusError}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void load()}>Try again</button></div>}
         <ConnectCards status={status} gmail={gmail} calendar={calendar} returned={returned} />
-        {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="btn btn-small" onClick={() => void scan()}>Try again</button></div>}
-        <button type="button" className="btn btn-primary ob-next" disabled={!gmail || phase === "listing"} onClick={() => { started.current = true; void scan(); }}>
+        {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void scan()}>Try again</button></div>}
+        <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" disabled={!gmail || phase === "listing"} onClick={() => { started.current = true; void scan(); }}>
           {phase === "listing" ? "Looking for official emails…" : gmail ? "Read my official emails" : "Connect Gmail to continue"}
         </button>
         <button type="button" className="ob-link" onClick={onSkip}>Skip for now, I’ll start from what I told you</button>
@@ -78,8 +78,8 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned }: { retu
     return (
       <div className="ob-answer">
         <div className="ob-note"><strong>No official emails in {account || "your inbox"} from the last 120 days.</strong><p>That’s fine. When a letter or MOS email arrives, I’ll read it then. You can also add a letter photo any time in Look.</p></div>
-        <button type="button" className="btn ob-next" onClick={() => void scan()}>Check again</button>
-        <button type="button" className="btn btn-primary ob-next" onClick={onSkip}>Continue</button>
+        <button type="button" className="ui-btn ui-btn--secondary ui-btn--lg ui-btn--block" onClick={() => void scan()}>Check again</button>
+        <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={onSkip}>Continue</button>
       </div>
     );
   }
@@ -99,14 +99,14 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned }: { retu
               <strong>{r.msg.subject}</strong>
               <span>{r.reading?.relevant ? r.reading.summary : r.state === "done" ? "Not about your case" : r.state === "error" ? r.error : sender(r.msg.from)}</span>
             </span>
-            {r.state === "error" ? <button type="button" className="btn btn-small" onClick={() => void readOne(r.msg, true)}>Retry</button>
+            {r.state === "error" ? <button type="button" className="ui-btn ui-btn--sm" onClick={() => void readOne(r.msg, true)}>Retry</button>
               : <span className="ob-mail-state">{r.state === "reading" ? "Reading" : r.state === "queued" ? "Waiting" : r.reading?.relevant ? `${r.reading.findings.length} found` : "Skipped"}</span>}
           </li>
         ))}
       </ol>
       {finished && (relevant > 0
-        ? <button type="button" className="btn btn-primary ob-next" onClick={() => setPhase("review")}>Review what I found</button>
-        : <><div className="ob-note"><strong>None of these emails are about your residence case.</strong><p>I’ll keep an eye out for new official mail.</p></div><button type="button" className="btn btn-primary ob-next" onClick={onSkip}>Continue</button></>)}
+        ? <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={() => setPhase("review")}>Review what I found</button>
+        : <><div className="ob-note"><strong>None of these emails are about your residence case.</strong><p>I’ll keep an eye out for new official mail.</p></div><button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={onSkip}>Continue</button></>)}
     </div>
   );
 }
