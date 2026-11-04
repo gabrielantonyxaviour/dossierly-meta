@@ -3,7 +3,7 @@
 body:has(.sh) { background: var(--canvas); }
 .sh-main { min-width: 0; padding-bottom: calc(var(--tabbar-h) + 28px + env(safe-area-inset-bottom)); }
 .sh--immersive .sh-main { padding-bottom: 0; }
-.sh-page { width: 100%; max-width: var(--content); margin: 0 auto; padding: 0 var(--gutter) var(--s-7); display: grid; gap: var(--s-6); align-content: start; }
+.sh-page { width: 100%; max-width: var(--content); margin: 0 auto; padding: 0 var(--gutter) var(--s-7); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-6); align-content: start; }
 .sh-page--wide { max-width: 1120px; }
 
 /* Tab bar */
@@ -42,7 +42,7 @@ body:has(.sh) { background: var(--canvas); }
   }
   .sh-side-link:hover { background: var(--sunken); color: var(--ink); }
   .sh-side-link.is-active { background: var(--card); color: var(--ink); box-shadow: var(--e-1); }
-  .sh-count { margin-left: auto; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--deadline); color: #fff; font-size: var(--t-xs); font-weight: 700; display: grid; place-items: center; }
+  .sh-count { margin-left: auto; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--deadline); color: var(--bg); font-size: var(--t-xs); font-weight: 600; display: grid; place-items: center; }
   .sh-talk, .sh-me { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 16px; text-decoration: none; color: var(--ink); }
   .sh-talk { margin-top: auto; background: var(--card); box-shadow: var(--e-1); transition: box-shadow var(--d-2); }
   .sh-talk:hover { box-shadow: var(--e-2); }
