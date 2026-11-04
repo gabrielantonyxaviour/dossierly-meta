@@ -23,7 +23,10 @@ export const opaqueId = z.string().min(1).max(1024).regex(/^[A-Za-z0-9_=.@/-]+$/
 export const importSchema = z.object({ messageId: opaqueId, attachmentId: opaqueId.optional() }).strict();
 export const searchSchema = z.object({ q: z.string().trim().max(160).default(""), cursor: z.string().max(2048).optional() }).strict();
 export const eventSchema = z.object({ calendarId: z.string().min(1).max(1024), title: z.string().trim().min(1).max(160),
-  date: z.iso.date(), description: z.string().max(2000).default(""), idempotencyKey: z.string().uuid() }).strict();
+  date: z.iso.date(), description: z.string().max(2000).default(""), idempotencyKey: z.string().uuid(),
+  /** Warsaw local start time; absent means an all-day event. */
+  time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional(), durationMin: z.number().int().min(15).max(600).optional(),
+  location: z.string().trim().max(300).optional(), reminderMinutes: z.array(z.number().int().min(0).max(40320)).max(5).optional() }).strict();
 export type AccountRow = { account_id: string; category: Category; provider: Provider; broker_id: string; auth_config_id: string; label: string; scopes: string; connected_at: number };
 export type IntentRow = { state_hash: string; account_id: string; session_hash: string; category: Category; provider: Provider; auth_config_id: string; broker_id: string; return_path: string; expires_at: number; consumed_at: number | null };
 export function configId(env: ConnectionsEnv, p: Provider) {
