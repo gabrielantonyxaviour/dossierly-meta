@@ -7,12 +7,16 @@
   animation: ui-up var(--d-3) var(--ease-out); outline: none;
 }
 .ui-sheet-grip { width: 38px; height: 5px; border-radius: 3px; background: var(--line-strong); margin: 8px auto 0; flex: none; }
+.ui-sheet-drag { touch-action: none; cursor: grab; }
+.ui-sheet.is-dragging { animation: none; transition: none; }
+.ui-sheet.is-settling { transition: transform var(--d-2) var(--ease); }
 .ui-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px 6px 20px; }
 .ui-sheet-head h2 { font-size: var(--t-lg); font-weight: 600; margin: 0; letter-spacing: -0.01em; }
 .ui-sheet-body { overflow-y: auto; padding: 4px 20px 20px; overscroll-behavior: contain; }
-.ui-sheet-foot { padding: 12px 20px 16px; border-top: 1px solid var(--line); display: flex; gap: 10px; }
+.ui-sheet-foot { padding: 12px max(20px, env(safe-area-inset-right)) 16px max(20px, env(safe-area-inset-left)); border-top: 1px solid var(--line); display: flex; gap: 10px; }
 .ui-sheet-foot > * { flex: 1; }
-@media (min-width: 720px) {
+@media (max-width: 767px) { .ui-sheet-foot { flex-direction: column-reverse; gap: 8px; padding-bottom: 12px; } .ui-sheet-foot > .ui-btn { min-height: 52px; border-radius: var(--r-md); font-size: 1rem; } .ui-sheet-body { font-size: 0.9375rem; } }
+@media (min-width: 768px) {
   .ui-sheet-root { place-items: center; }
   .ui-sheet { width: min(520px, calc(100% - 48px)); border-radius: var(--r-xl); max-height: min(760px, calc(100dvh - 80px)); animation: ui-pop var(--d-3) var(--ease-out); padding-bottom: 0; }
   .ui-sheet--wide { width: min(760px, calc(100% - 48px)); }
