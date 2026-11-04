@@ -124,16 +124,10 @@
 
 /* Phones (< 768px): dock in the thumb zone above the tab bar, full-screen result, 16px reading text. */
 .lk-capture-copy { margin: 0; color: var(--ink-2); font-size: 1rem; }
-.lk-dock { display: grid; gap: 4px; }
 @media (max-width: 767px) {
   .lk-home { padding-bottom: 8px; }
   .lk-capture { padding: 20px 16px; gap: 14px; }
   .lk-capture-art { width: 96px; height: 120px; }
-  .lk-dock {
-    position: sticky; z-index: 5; bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 8px);
-    margin: 4px calc(-1 * var(--gutter)) 0; padding: 12px var(--gutter) 4px;
-    background: linear-gradient(to bottom, transparent, var(--canvas) 22%);
-  }
   .lk-phone { --lk-maxh: 56dvh; }
   .lk-phone .lk-stage { border-radius: var(--radius); }
   .lk-summary, .lk-meaning, .lk-actions li, .lk-steps, .lk-verbatim, .lk-saved { font-size: 1rem; }
@@ -149,4 +143,9 @@
   .mos-section-head { min-height: 56px; }
   .check-item, .check-item p { font-size: 1rem; }
   .vp-sources { font-size: 1rem; }
+}
+.lk-sample-link { min-height: 44px; display: inline-flex; align-items: center; }
+@media (max-width: 767px) {
+  .check-item .cite, .mos-reg .cite, .vp-sources a { min-height: 44px; display: inline-flex; align-items: center; }
+  .mos-reg p, .mos-reg li { font-size: 1rem; }
 }

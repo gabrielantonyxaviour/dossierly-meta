@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import type { LookKind } from "@/lib/look/types";
-import { Card, Row, Section, TopBar } from "@/components/ui";
+import { Card, MobilePage, Row, ScreenTitle, Section } from "@/components/ui";
 import { prepareFromUrl, prepareImage } from "./image";
 import { LookCapture } from "./LookCapture";
 import { LookResult } from "./LookResult";
@@ -36,8 +36,8 @@ export function LookFlow() {
     return <LookResult key={state.image.dataUrl.length + state.image.width} state={state} phone={phone} onRetry={retry} onClose={reset} />;
   }
   return (
-    <div className="sh-page sh-page--wide lk-page lk-home">
-      <TopBar title="Look" sub="Show me a letter or a screen. I'll point at what matters and add it to your case." />
+    <MobilePage actions={phone ? "double" : undefined} wide className="lk-page lk-home">
+      <ScreenTitle title="Look" sub="Show me a letter or a screen. I'll point at what matters and add it to your case." />
       <LookCapture phone={phone} onFile={onFile} onSample={onSample} error={prepError} />
       <Section title="Paperwork tools">
         <Card flush>
@@ -46,6 +46,6 @@ export function LookFlow() {
           <Row href="/app/visit-plan" icon="calendar" title="Visit plan" sub="What to bring, from official pages" chevron />
         </Card>
       </Section>
-    </div>
+    </MobilePage>
   );
 }

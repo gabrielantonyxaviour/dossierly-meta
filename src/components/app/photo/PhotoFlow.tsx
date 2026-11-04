@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
-import { Button, InlineError, TopBar } from "@/components/ui";
+import { Button, InlineError, MobileFlowHeader, MobilePage, ScreenTitle, StickyActionBar } from "@/components/ui";
 import { formatBytes } from "@/components/ui/Dropzone";
 import { prepareImage, type PreparedImage } from "../look/image";
 import { errorText } from "../look/ndjson";
@@ -56,8 +56,10 @@ export function PhotoFlow() {
 
   const fails = result?.checks.filter((c) => c.status === "fail") ?? [];
   return (
-    <div className="sh-page sh-page--wide lk-page">
-      <TopBar title="Photo check" back={{ href: "/app/look", label: "Look" }} sub="MOS rejects photos with the wrong size or framing. I find your head with SAM 3.1, check the rules, and crop to exactly what MOS asks for. I never retouch your face or background." />
+    <>
+    <MobileFlowHeader back="/app/look" backLabel="Back to Look" title="Photo check" />
+    <MobilePage actions={out ? "double" : true} wide className="lk-page">
+      <ScreenTitle title="Your MOS photo" sub="I find your head, check the rules and crop to exactly what MOS asks. Nothing is retouched." />
       <dl className="ph-spec" aria-label="What MOS asks for">
         {[["Size", `${MOS_W} × ${MOS_H} px`], ["Shape", "35 × 45 mm"], ["File", "Up to 2.5 MB"], ["Taken", "Last 6 months"]].map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
       </dl>
@@ -112,14 +114,16 @@ export function PhotoFlow() {
           </div>
         </div>
       )}
-      <div className="lk-dock">
+    </MobilePage>
+      <StickyActionBar secondary={out && !busy ? <Button variant="ghost" icon="camera" onClick={() => input.current?.click()}>Use another photo</Button> : undefined}>
         {out && result?.crop ? (
-          <a className={`ui-btn ui-btn--primary ui-btn--lg ui-btn--block${recent ? "" : " is-disabled"}`} href={recent ? out.url : undefined} download="mos-photo-684x883.jpg" aria-disabled={!recent} onClick={(e) => { if (!recent) e.preventDefault(); }}>
+          <a className={`ui-btn ui-btn--primary${recent ? "" : " is-disabled"}`} href={recent ? out.url : undefined} download="mos-photo-684x883.jpg" aria-disabled={!recent} onClick={(e) => { if (!recent) e.preventDefault(); }}>
             <Icon name="arrow" size={19} /> {recent ? "Download photo" : "Confirm the date to download"}
           </a>
-        ) : null}
-        {!busy && <Button variant={out ? "ghost" : "primary"} size="lg" block icon="camera" onClick={() => input.current?.click()}>{img ? "Use another photo" : "Choose your photo"}</Button>}
-      </div>
-    </div>
+        ) : (
+          <Button variant="primary" icon="camera" loading={busy} disabled={busy} onClick={() => input.current?.click()}>{busy ? "Checking…" : img ? "Use another photo" : "Choose your photo"}</Button>
+        )}
+      </StickyActionBar>
+    </>
   );
 }

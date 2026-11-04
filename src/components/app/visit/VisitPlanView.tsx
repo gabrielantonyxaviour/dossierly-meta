@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { VisitPlan } from "@/lib/visit/types";
 import { Icon } from "@/components/Icon";
+import { Button, StickyActionBar } from "@/components/ui";
 import { announceCaseChange } from "../shell/case-data";
 
 const WHEN = new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Warsaw" });
@@ -76,14 +77,15 @@ export function VisitPlanView({ plan, onAgain }: { plan: VisitPlan; onAgain(): v
         </ol>
       </section>
       <p className="tiny muted">Searched live with Muse Spark&apos;s web search. Office rules change; if a page and this list disagree, the page wins.</p>
-      <div className="lk-dock">
-        {missing.length > 0 && (
-          <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={() => void addTasks()} disabled={saving === "busy" || saving === "done"}>
-            {saving === "done" ? <><Icon name="check" size={18} /> Added to your tasks</> : saving === "busy" ? "Adding…" : `Add ${missing.length} missing item${missing.length === 1 ? "" : "s"} to my tasks`}
-          </button>
+      <StickyActionBar secondary={missing.length > 0 ? <Button variant="ghost" onClick={onAgain}>Plan another visit</Button> : undefined}>
+        {missing.length > 0 ? (
+          <Button variant="primary" icon={saving === "done" ? "check" : undefined} loading={saving === "busy"} onClick={() => void addTasks()} disabled={saving === "busy" || saving === "done"}>
+            {saving === "done" ? "Added to your tasks" : `Add ${missing.length} missing item${missing.length === 1 ? "" : "s"} to my tasks`}
+          </Button>
+        ) : (
+          <Button variant="primary" onClick={onAgain}>Plan another visit</Button>
         )}
-        <button type="button" className={`ui-btn ui-btn--lg ui-btn--block ${missing.length ? "ui-btn--ghost" : "ui-btn--primary"}`} onClick={onAgain}>Plan another visit</button>
-      </div>
+      </StickyActionBar>
     </div>
   );
 }

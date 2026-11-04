@@ -113,8 +113,8 @@ export function LookResult({ state, phone, onRetry, onClose }: Props) {
     <><Button variant="secondary" size="lg" icon="camera" onClick={onClose}>Look again</Button><ButtonLink variant="primary" size="lg" href="/app">Open my case</ButtonLink></>
   ) : savable ? (
     <Button variant="primary" size="lg" block onClick={() => setSheet(true)}>{read?.letter?.deadlineRule.amount ? "Work out my deadline" : "Add to my case"}</Button>
-  ) : phase === "error" ? (
-    <Button variant="secondary" size="lg" block icon="camera" onClick={onClose}>Try another photo</Button>
+  ) : phase === "error" || phase === "done" ? (
+    <Button variant="secondary" size="lg" block icon="camera" onClick={onClose}>{phase === "error" ? "Try another photo" : "Look at something else"}</Button>
   ) : undefined;
 
   return (

@@ -5,7 +5,7 @@ import type { CaseSnapshot } from "@/lib/case/types";
 import { MOS_FORM_SOURCE, MOS_SECTIONS, type MosField } from "@/lib/legal/mos-form";
 import { CopyValue } from "../look/CopyValue";
 import { Icon } from "@/components/Icon";
-import { TopBar } from "@/components/ui";
+import { MobileFlowHeader, MobilePage, ScreenTitle, StickyActionBar } from "@/components/ui";
 import { EmployerCheck } from "./EmployerCheck";
 import { MosAttachments } from "./MosAttachments";
 import { resolveCaseKey } from "./resolve";
@@ -41,8 +41,10 @@ export function MosSheet() {
   const starts = MOS_SECTIONS.reduce<number[]>((acc, s, i) => [...acc, i === 0 ? 0 : acc[i - 1] + MOS_SECTIONS[i - 1].fields.length], []);
 
   return (
-    <div className="sh-page lk-page mos-page">
-      <TopBar title="MOS sheet" back={{ href: "/app/look", label: "Look" }} sub="Every field of the temporary residence application, in the order MOS asks for it. What your case already knows is filled in: tap to copy, then paste it into MOS yourself." />
+    <>
+    <MobileFlowHeader back="/app/look" backLabel="Back to Look" title="MOS sheet" />
+    <MobilePage actions className="lk-page mos-page">
+      <ScreenTitle title="Your MOS form, field by field" sub="In MOS order. Tap a value to copy it, then paste it into MOS yourself." />
 
       <section className="ui-card mos-progress" aria-live="polite">
         {!snap && !failed && <div className="skeleton" style={{ height: 40 }} />}
@@ -75,9 +77,10 @@ export function MosSheet() {
       <MosAttachments snap={snap} />
       <EmployerCheck />
       <p className="tiny muted">Field list from the official form, {MOS_FORM_SOURCE.regulation} (<a href={MOS_FORM_SOURCE.url} target="_blank" rel="noreferrer">Sejm ELI</a>), in force from 27 April 2026, checked {MOS_FORM_SOURCE.verifiedOn}. The MOS screens may word some labels slightly differently. Dossierly never logs in to MOS or files for you.</p>
-      <div className="lk-dock">
-        <a className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" href="https://mos.cudzoziemcy.gov.pl/" target="_blank" rel="noreferrer"><Icon name="external" size={19} /> Open MOS in a new tab</a>
-      </div>
-    </div>
+    </MobilePage>
+      <StickyActionBar>
+        <a className="ui-btn ui-btn--primary" href="https://mos.cudzoziemcy.gov.pl/" target="_blank" rel="noreferrer"><Icon name="external" size={19} /> Open MOS in a new tab</a>
+      </StickyActionBar>
+    </>
   );
 }

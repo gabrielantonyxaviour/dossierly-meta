@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button, InlineError } from "@/components/ui";
+import { Button, InlineError, StickyActionBar } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { LookSamples, type SamplePick } from "./LookSamples";
 
@@ -73,11 +73,15 @@ export function LookCapture({ phone, onFile, onSample, error }: Props) {
           <input className="ui-input" value={question} maxLength={300} onChange={(e) => setQuestion(e.target.value)} placeholder="Which button is for fingerprints?" autoFocus />
         </label>
       ) : (
-        <div><Button variant="ghost" size="sm" icon="help" onClick={() => setAsking(true)}>Ask a question about it</Button></div>
+        <div><Button variant="ghost" icon="help" onClick={() => setAsking(true)}>Ask a question about it</Button></div>
       )}
       <div><button type="button" className="lk-sample-link" onClick={() => setSamples(true)}>Use a test letter</button></div>
       <LookSamples open={samples} onPick={(p) => { setSamples(false); onSample(p, question); }} onClose={() => setSamples(false)} />
-      {phone && <div className="lk-dock">{buttons}</div>}
+      {phone && (
+        <StickyActionBar secondary={<Button variant="ghost" icon="file" onClick={() => picker.current?.click()}>Choose a photo or screenshot</Button>}>
+          <Button variant="primary" icon="camera" onClick={() => camera.current?.click()}>Take a photo</Button>
+        </StickyActionBar>
+      )}
     </div>
   );
 }

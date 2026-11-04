@@ -33,6 +33,7 @@ export function PhotoStage({ src, width, height, busy, result }: { src: string; 
           </>
         )}
         {result?.headPath && <path d={result.headPath} className="ph-head" pathLength={1} vectorEffect="non-scaling-stroke" />}
+        {result?.facePath && <path d={result.facePath} className="ph-head" pathLength={1} vectorEffect="non-scaling-stroke" />}
         {!result?.headPath && result?.head && (
           <rect x={result.head[0]} y={result.head[1]} width={result.head[2] - result.head[0]} height={result.head[3] - result.head[1]} rx={10} className="ph-head" pathLength={1} vectorEffect="non-scaling-stroke" />
         )}
