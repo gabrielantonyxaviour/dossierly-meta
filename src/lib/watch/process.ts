@@ -105,7 +105,7 @@ async function notify(env: ConnectionsEnv, deps: Deps, a: AccountCtx, item: Watc
     // The claim is the gate: overlapping ticks and retries can never place a second call.
     if (!(await claimCall(env, a.accountId, item.messageId, deps.now()))) return;
     try {
-      const r = await deps.call(env, { accountId: a.accountId, userId: a.userId, letter: { title: n.title, sender: n.sender, asks: n.asks, dueDate: u.dueDate, ...(u.deadlineId ? { deadlineId: u.deadlineId } : {}), prepared: n.drafts.map((d) => `${d.title} (draft)`) } });
+      const r = await deps.call(env, { accountId: a.accountId, userId: a.userId, letter: { title: n.title, sender: n.sender, asks: n.asks, dueDate: u.dueDate, ...(u.deadlineId ? { deadlineId: u.deadlineId } : {}), prepared: n.drafts.map((d) => `${d.title} (draft)`), ...(item.letterDocId ? { letterDocId: item.letterDocId } : {}), draftIds: item.draftIds } });
       item.called = true;
       await recordCall(env, a.accountId, item.messageId, { callSid: r.callSid });
     } catch (e) {

@@ -11,7 +11,8 @@ export type ConnectionRow = { provider: string; category: "mail" | "calendar"; l
 export type ConnectionStatus = { capabilities: { provider: string; category: string; available: boolean; reason?: string; notice?: string }[]; connections: { mail: ConnectionRow | null; calendar: ConnectionRow | null } };
 
 export const flowApi = {
-  state: () => call<{ onboarding: OnboardingState; profile: Profile; email: string | null }>("/api/onboarding"),
+  state: () => call<{ onboarding: OnboardingState; profile: Profile; email: string | null; demoPhone: string | null }>("/api/onboarding"),
+  demoPhone: () => call<{ profile: Profile; callsAvailable: boolean }>("/api/onboarding", json("POST", { action: "demo_phone" })),
   step: (step: number) => call<{ onboarding: OnboardingState }>("/api/onboarding", json("POST", { action: "step", step })),
   phone: (number: string) => call<{ profile: Profile; callsAvailable: boolean }>("/api/onboarding", json("POST", { action: "phone", number })),
   skipPhone: () => call<{ profile: Profile; callsAvailable: boolean }>("/api/onboarding", json("POST", { action: "skip_phone" })),

@@ -15,9 +15,17 @@ const bodySchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("step"), step: z.number().int().min(1).max(ONBOARDING_STEPS) }).strict(),
   z.object({ action: z.literal("phone"), number: z.string().trim().max(32) }).strict(),
   z.object({ action: z.literal("skip_phone") }).strict(),
+  z.object({ action: z.literal("demo_phone") }).strict(),
   z.object({ action: z.literal("complete") }).strict(),
   z.object({ action: z.literal("restart") }).strict(),
 ]);
+
+/** The Twilio-verified demo number, for a demo account only. Only its last two digits ever leave the server. */
+async function demoNumber(accountId: string): Promise<string | null> {
+  const env = getEnv();
+  const n = normalisePhone(String((env as unknown as { DEMO_CALL_NUMBER?: string }).DEMO_CALL_NUMBER ?? ""));
+  return n && (await demoCallsAllowed(env, accountId, n)) ? n : null;
+}
 
 async function email(accountId: string): Promise<string | null> {
   const row = await getEnv().DB.prepare("SELECT email FROM email_identities WHERE user_id=? AND verified_at>0").bind(accountId).first<{ email: string }>();
@@ -28,8 +36,8 @@ export async function GET(req: Request) {
   try {
     const { userId, accountId } = await requireUser(req);
     const env = getEnv();
-    const [onboarding, profile, signedInAs] = await Promise.all([getOnboarding(env, accountId), caseClient(userId).snapshot().then((c) => c.profile), email(accountId)]);
-    return Response.json({ onboarding, profile, email: signedInAs }, { headers: noStore });
+    const [onboarding, profile, signedInAs, demo] = await Promise.all([getOnboarding(env, accountId), caseClient(userId).snapshot().then((c) => c.profile), email(accountId), demoNumber(accountId)]);
+    return Response.json({ onboarding, profile, email: signedInAs, demoPhone: demo ? demo.slice(-2) : null }, { headers: noStore });
   } catch (e) {
     return onboardingError(e);
   }
@@ -51,6 +59,12 @@ export async function POST(req: Request) {
         const calls = await demoCallsAllowed(env, accountId, number);
         const profile = await store.patchProfile({ phone: { number, verified: calls, callsEnabled: calls } });
         return Response.json({ profile, callsAvailable: calls }, { headers: noStore });
+      }
+      case "demo_phone": {
+        const number = await demoNumber(accountId);
+        if (!number) throw new ApiError(403, "Phone calls are coming soon", "calls_coming_soon");
+        const profile = await store.patchProfile({ phone: { number, verified: true, callsEnabled: true } });
+        return Response.json({ profile, callsAvailable: true }, { headers: noStore });
       }
       case "skip_phone": {
         const profile = await store.patchProfile({ phone: { number: null, verified: false, callsEnabled: false } });

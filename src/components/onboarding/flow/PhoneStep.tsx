@@ -1,18 +1,21 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Profile } from "@/lib/case/types";
 import { failure, flowApi } from "@/lib/client/onboarding-flow";
 import { Button, StickyActionBar } from "@/components/ui";
 
 export function PhoneStep({ profile, setProfile, onDone }: { profile: Profile; setProfile(p: Profile): void; onDone(): Promise<void> }) {
-  const [number, setNumber] = useState(profile.phone.number ?? "+48 ");
+  // A verified (demo) number is never put back on screen.
+  const [number, setNumber] = useState(profile.phone.number && !profile.phone.verified ? profile.phone.number : "+48 ");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState<null | boolean>(profile.phone.number ? profile.phone.callsEnabled : null);
+  const [demo, setDemo] = useState<string | null>(null);
+  useEffect(() => { void flowApi.state().then((r) => { if (r.ok) setDemo(r.data.demoPhone); }); }, []);
 
-  async function submit(skip: boolean) {
+  async function submit(skip: boolean, useDemo = false) {
     setBusy(true); setError("");
-    const r = skip ? await flowApi.skipPhone() : await flowApi.phone(number);
+    const r = skip ? await flowApi.skipPhone() : useDemo ? await flowApi.demoPhone() : await flowApi.phone(number);
     setBusy(false);
     if (!r.ok) { setError(failure(r) ?? "Could not save the number."); return; }
     setProfile(r.data.profile);
@@ -33,6 +36,7 @@ export function PhoneStep({ profile, setProfile, onDone }: { profile: Profile; s
   );
   return (
     <form className="ob-answer" noValidate onSubmit={(e) => { e.preventDefault(); void submit(false); }}>
+      {demo && <button type="button" className="ob-cal-toggle ob-demo-phone" disabled={busy} onClick={() => void submit(false, true)}><span><strong>Use my verified number ··{demo}</strong><small>Already verified for calls on this account</small></span></button>}
       <label className="ob-field">
         <span>Mobile number</span>
         <input className="input" type="tel" inputMode="tel" autoComplete="tel" enterKeyHint="done" maxLength={32} value={number} onChange={(e) => setNumber(e.target.value)} aria-invalid={!!error} />

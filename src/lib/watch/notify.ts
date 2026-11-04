@@ -2,7 +2,7 @@ import { z } from "zod";
 import * as twilio from "../voice/server/twilio";
 import type { Env } from "../server/env";
 
-export type LetterCallInput = { title: string; sender: string; asks: string; dueDate: string; deadlineId?: string; prepared: string[] };
+export type LetterCallInput = { title: string; sender: string; asks: string; dueDate: string; deadlineId?: string; prepared: string[]; letterDocId?: string; draftIds?: string[] };
 type LetterCaller = (env: Env, a: { accountId: string; userId: string; letter: LetterCallInput }) => Promise<{ callSid: string; to: string }>;
 
 /** Calls about the letter: the voice pane's callAboutLetter when it exists, else a plain placeCall with the same facts as the reason. */
