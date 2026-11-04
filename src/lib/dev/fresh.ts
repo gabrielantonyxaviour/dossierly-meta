@@ -6,7 +6,8 @@ import { resetPreviewAccount } from "./preview";
 
 /**
  * Previews only: a true first run for the signed-in account (film takes, QA). Empty case, setup from the start,
- * Gmail and the calendar disconnected, and the inbox watcher's memory cleared so nothing old counts as new.
+ * Gmail and the calendar disconnected, the inbox watcher's memory and the calendar write receipts cleared so nothing
+ * old counts as new.
  */
 export async function freshFirstRun(env: Env, accountId: string, opts: { disconnect: boolean }): Promise<void> {
   if (env.APP_ENV === "production") throw new Error("not available");
@@ -18,5 +19,7 @@ export async function freshFirstRun(env: Env, accountId: string, opts: { disconn
   await env.DB.batch([
     env.DB.prepare("DELETE FROM watch_messages WHERE account_id = ?").bind(accountId),
     env.DB.prepare("DELETE FROM watch_accounts WHERE account_id = ?").bind(accountId),
+    // The calendar was disconnected: the next connection writes its own events instead of replaying the old ones.
+    env.DB.prepare("DELETE FROM connection_event_receipts WHERE account_id = ?").bind(accountId),
   ]);
 }

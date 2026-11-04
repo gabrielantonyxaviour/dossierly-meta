@@ -107,6 +107,22 @@ describe("owned provider connections", () => {
     const got = await importMail(env, "u1", { messageId: "mail1", attachmentId: "att_old" });
     expect(got).toMatchObject({ kind: "attachment", file: { name: "umowa-najmu.pdf", mime: "application/pdf" } });
   });
+  it("a new calendar connection writes the same date as a new Google event id (deleted ids cannot be reused)", async () => {
+    const input = { calendarId: "primary", title: "Deadline: Reply to the summons", date: "2026-11-19", idempotencyKey: "0f3c1b9e-2a4d-4c8e-9b7a-1d2e3f4a5b6c" };
+    const base = vi.mocked(fetch).getMockImplementation()!;
+    vi.mocked(fetch).mockImplementation(async (url, init) => {
+      const path = new URL(String(url)).pathname;
+      if (!path.includes("connected_accounts/") || path.endsWith("/link")) return base(url as string, init);
+      return Response.json({ id: path.split("/").pop(), user_id: remoteOwner, status: "ACTIVE", toolkit: { slug: "googlecalendar" }, auth_config: { id: "ac_cal" }, state: { val: { scope: "https://www.googleapis.com/auth/calendar.events" } } });
+    });
+    await saveRow(env, { ...row("calendar", "googlecalendar"), broker_id: "ca_first" });
+    await createEvent(env, "u1", input);
+    await env.DB.prepare("DELETE FROM connection_event_receipts WHERE account_id='u1'").run();
+    await saveRow(env, { ...row("calendar", "googlecalendar"), broker_id: "ca_second" });
+    await createEvent(env, "u1", input);
+    const ids = proxyCalls.filter((c) => c.method === "POST").map((c) => (c.body as { id: string }).id);
+    expect(ids).toHaveLength(2); expect(ids[0]).not.toBe(ids[1]);
+  });
   it("returns plain text with scripts and active markup removed", () => { expect(plainText('<script>steal()</script><b>Insurance</b><img src=x onerror=steal()>')).toBe(' Insurance  '); });
   it("rejects provider mismatch, external return paths and mutation without a same-origin request", async () => {
     await expect(connect(env, "u1", request(), { category: "calendar", provider: "gmail" })).rejects.toBeDefined();
