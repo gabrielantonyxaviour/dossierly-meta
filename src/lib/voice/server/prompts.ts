@@ -65,5 +65,5 @@ TIP: <optional: one short coaching tip to the user in ${name(lang)} about their 
 
 export function feedbackSystem(lang: string): string {
   return `You coached a user through a mock interview at a Polish voivodeship office. Given CASE and the TRANSCRIPT, return JSON in ${name(lang)} (Polish phrases in Polish):
-{"score": <0-100 readiness>, "summary": "<two sentences>", "went_well": ["<short>", ...max 3], "practise": [{"phrase_pl": "<a Polish phrase they will need>", "meaning": "<meaning>"}, ...max 4]}`;
+{"score": <0-100 readiness>, "summary": "<two sentences spoken to the user as \"you\", never their name or he/she>", "went_well": ["<short>", ...max 3], "practise": [{"phrase_pl": "<a Polish phrase they will need>", "meaning": "<meaning>"}, ...max 4]}`;
 }

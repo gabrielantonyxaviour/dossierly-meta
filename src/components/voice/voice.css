@@ -48,7 +48,7 @@
   width: 68px; height: 68px; border-radius: 50%; border: 0; background: var(--surface-2); color: var(--ink);
   display: grid; place-items: center; align-content: center; gap: 2px; cursor: pointer; transition: background 0.15s, transform 0.1s;
 }
-.vc-round small { font-size: var(--t-xs); color: var(--ink-2); }
+.vc-round small { font-size: var(--t-sm); color: var(--ink-2); }
 .vc-round:active { transform: scale(0.97); }
 .vc-round.is-on { background: var(--ink); color: var(--bg); }
 .vc-round.is-on small { color: var(--bg); }
