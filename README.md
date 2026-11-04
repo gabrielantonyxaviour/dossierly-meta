@@ -1,5 +1,7 @@
 # Dossierly
 
+[![CI](https://github.com/gabrielantonyxaviour/dossierly-meta/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gabrielantonyxaviour/dossierly-meta/actions/workflows/ci.yml) ![tests](https://img.shields.io/badge/unit%20tests-520%20passing-2ea44f) ![license](https://img.shields.io/badge/license-MIT-blue)
+
 **A personal AI caseworker for newcomers in Poland, built on Meta Muse.** Dossierly reads every official letter, email and screen that reaches you, keeps one case file with the deadlines worked out from the actual law, interprets for you at the immigration counter in real time, and phones you when something urgent arrives. It guides; it never submits anything to a government system on your behalf, and it never gives legal advice.
 
 - **Live:** https://dossierly.cosmiclan.com (mobile-first; add it to your home screen)
@@ -16,6 +18,21 @@ Sign in with your email (a 6-digit code). Dossierly works without connecting any
 - Gmail and Google Calendar connect for real but our Google app is still in Google's testing mode, so only approved test accounts can grant access until Google's review completes. Phone calls from the agent are enabled for the demo account only (Twilio trial); everyone else gets in-app and email alerts.
 
 All sample letters, emails and people are fictional and labelled `PRZYKŁAD / SAMPLE`.
+
+## 60-second tour of the code
+
+| Look at | Why it is interesting |
+|---|---|
+| [`src/lib/voice/server/session.ts`](src/lib/voice/server/session.ts) | Realtime voice turn: the model starts on the last partial transcript at speech end and is cancelled and redone if the final transcript differs, before anything is spoken |
+| [`src/lib/voice/server/modes/counter.ts`](src/lib/voice/server/modes/counter.ts) | Counter interpreting: a bare Spark 1.2 lane for speech, side lanes for the coach card (Spark 1.3 raced against 1.2) and requested documents |
+| [`src/lib/look/read.ts`](src/lib/look/read.ts) · [`outline.ts`](src/lib/look/outline.ts) | Look: two Spark 1.3 calls in parallel (reading, grounding), then SAM 3.1 box prompts traced to outlines on the user's own photo |
+| [`src/lib/legal/deadlines.ts`](src/lib/legal/deadlines.ts) | The KPA deadline engine: pure code, verbatim articles, 2,000-case property tests |
+| [`src/lib/watch/process.ts`](src/lib/watch/process.ts) | The 24/7 inbox agent: claim, read, write the case, then notify; idempotent per message |
+| [`src/lib/strategist/agent.ts`](src/lib/strategist/agent.ts) | Muse Wonder case review: a bounded tool loop with a per-user budget; proposals never overwrite facts |
+| [`src/lib/model/`](src/lib/model) | One model layer: role routing, reserve-then-settle metering, the western-Europe relay for edge 404s |
+| [`eval/`](eval) | The model evaluation that chose each model, run through the product's own code |
+
+Docs: [architecture](docs/architecture.md) (sequence diagrams, Durable Objects, measured latency) · [models](docs/models.md) (who does what and why, spend control) · [deadline engine](docs/deadline-engine.md) · [safety](docs/safety.md) · [evaluation](docs/eval.md) · [MCP server](docs/mcp.md)
 
 ## The problem
 
@@ -35,7 +52,7 @@ Sources for every number are in the submission write-up; figures we could not ve
 | **Welcome call** | The agent explains, out loud, what it found and what to do next, and puts the dates in your calendar. | Voice Transcribe · Spark 1.2 · ElevenLabs `eleven_v4_turbo` |
 | **Look** | Photograph or screenshot anything official (letter, MOS screen, UPO receipt, inPOL status, ticket kiosk). The facts are outlined on your own photo and written to the case with their source. | Spark 1.3 perception grounding → **SAM 3.1** box-prompt refinement · deterministic KPA engine |
 | **Deadlines** | Due dates computed in code from the delivery date: art. 57 §1 (day not counted), §4 (Saturday/holiday rule), §5 (posting counts), art. 44, 64 §2 — each step shown, articles quoted from the official text (Sejm ELI API). | none needed (deterministic by design) |
-| **Counter** | Phone flat on the desk; the official's half shows Polish, yours shows your language. Live two-way interpreting (~2 s from speech end to translated speech), the requested document appears on the official's side instantly, a coach card explains what the official really needs given *your* case (e.g. address mismatch → art. 41), and requests become tasks. Rehearse mode simulates the official. | Voice Transcribe (endpointing, keywords from the case) · Spark 1.2 minimal (turns) raced with Spark 1.3 (coach) · ElevenLabs |
+| **Counter** | Phone flat on the desk; the official's half shows Polish, yours shows your language. Live two-way interpreting (2.1–3.0 s from the end of speech to the spoken translation, measured on the client across our demo recordings; per-turn timings are not persisted), the requested document appears on the official's side instantly, a coach card explains what the official really needs given *your* case (e.g. address mismatch → art. 41), and requests become tasks. Rehearse mode simulates the official. | Voice Transcribe (endpointing, keywords from the case) · Spark 1.2 minimal (turns) · Spark 1.3 raced against 1.2 (coach) · ElevenLabs |
 | **24/7 agent** | Every 2 minutes it checks the connected inbox; a new official letter is read, drafts are prepared (reply to the office, request to the dean's office), the deadline and reminders are set, and the agent **phones you** about it (demo account). | Spark 1.3 · Twilio Media Streams ↔ Voice Transcribe + Spark + ElevenLabs |
 | **Case review** | Nightly and after every new letter, Meta's most capable model reviews the whole case with the law texts in a multi-step tool loop: risk register, dated plan, inconsistencies, questions, proposed tasks. | **Muse Wonder 1.0** (tools: case items, deadline engine, article lookup) |
 | **Visit plan** | Checklist for the next appointment from today's official pages, with citations, compared against your documents. | Spark 1.3 + Meta **web search** grounding |
@@ -77,10 +94,12 @@ flowchart LR
   W --> Q[Cloudflare Email]
 ```
 
-- **One model layer** (`src/lib/model`) routes by role (interpret, guard, agent, vision, draft, sam, asr, search) with per-role environment overrides, so any role can move to open-weights Muse Spark Open on Fireworks/Baseten/Modal without code changes.
+- **One model layer** (`src/lib/model`) routes by role (interpret, guard, reason, agent, vision, draft, plus the sam, asr and search services) with per-role environment overrides, so any role can move to open-weights Muse Spark Open on Fireworks/Baseten/Modal without code changes.
 - **Case file** in a per-user Durable Object: profile, facts with their source (email, letter, screenshot, call, user), documents, deadlines with computation steps, tasks, timeline, appointments. Every agent gets the whole case as context; dates are spelled out with weekdays so models never do calendar arithmetic.
 - **Voice** runs in a Durable Object pinned to western Europe (Meta's API rejects some Asian edge locations); turns start on the last partial transcript and are confirmed by the final one; an echo guard gates the mic while the phone speaks.
-- **Safety:** an interpret-only guard on every turn; the agent never logs into government systems or submits anything; proposals from the case review never overwrite confirmed facts.
+- **Safety:** an interpret-only guard model screens every text interpret turn (live voice turns carry the same rules in the prompt); names, addresses and ID numbers in case context, mail text and typed text are masked before they reach a model (images cannot be masked, and live voice sessions keep the name so the caseworker can address you); the agent never logs into government systems or submits anything; proposals from the case review never overwrite confirmed facts. See [docs/safety.md](docs/safety.md).
+
+More: [docs/architecture.md](docs/architecture.md) has the request paths as sequence diagrams and the measured latency table.
 
 ## What was built for this hackathon
 
@@ -99,9 +118,11 @@ Dossierly started as a version built during the Nebius × NVIDIA Global AI Hacka
 ```bash
 npm install
 npm run dev            # http://localhost:3000
-npm test               # 490+ unit tests
-npm run typecheck
+npm test               # 520 unit tests (vitest, about 3 s)
+npm run lint && npm run typecheck
 npm run smoke:meta     # one live call per Meta helper (needs MODEL_API_KEY)
+npm run eval:report    # evaluation tables from eval/results (offline)
+npm run latency        # per-task latency and cost from D1 (read-only, needs wrangler login)
 npm run deploy:prod    # Cloudflare (see wrangler.jsonc and scripts/put-secrets.sh)
 ```
 
