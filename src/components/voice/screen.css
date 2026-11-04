@@ -1,0 +1,38 @@
+/* Full-screen voice layout (call, counter start, rehearse). Mobile-first: 16px gutter + safe areas, 52px bar, thumb-zone foot. */
+.vs {
+  --side: max(16px, env(safe-area-inset-left), env(safe-area-inset-right));
+  position: fixed; inset: 0 0 var(--kb, 0) 0; z-index: 70; display: flex; flex-direction: column; background: var(--bg); color: var(--ink);
+}
+.vs-bar {
+  position: relative; flex: none; display: grid; grid-template-columns: 44px minmax(0, 1fr) minmax(44px, auto); align-items: center; gap: 8px;
+  min-height: 52px; padding: env(safe-area-inset-top) calc(var(--side) - 8px) 0;
+}
+.vs-title { text-align: center; font-weight: 600; font-size: var(--t-base); line-height: 1.25; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vs-title small { display: block; font-weight: 500; font-size: var(--t-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.vs-end { display: flex; justify-content: flex-end; }
+.vs-progress { position: absolute; left: var(--side); right: var(--side); bottom: -2px; height: 3px; border-radius: 2px; background: var(--line); overflow: hidden; }
+.vs-progress span { display: block; height: 100%; background: var(--official); border-radius: 2px; transition: width 0.2s ease-out; }
+.vs-body {
+  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 14px;
+  width: 100%; max-width: 640px; margin: 0 auto; padding: 12px var(--side) 16px;
+}
+.vs-body.is-center > :first-child { margin-top: auto; }
+.vs-body.is-center > :last-child { margin-bottom: auto; }
+.vs-foot {
+  flex: none; display: grid; gap: 10px; width: 100%; max-width: 640px; margin: 0 auto;
+  padding: 10px var(--side) calc(16px + env(safe-area-inset-bottom)); background: var(--bg);
+}
+.vs-foot .ui-btn--lg { border-radius: var(--r-md); }
+.vs-foot-row { display: flex; gap: 10px; }
+.vs-foot-row > * { flex: 1; }
+.vs-text-btn { justify-self: center; min-height: 44px; padding: 0 14px; border: 0; background: transparent; color: var(--ink-2); font: inherit; font-size: var(--t-base); font-weight: 500; text-decoration: none; display: inline-grid; place-items: center; cursor: pointer; }
+
+/* Start / intro screens */
+.vs-h1 { margin: 0; font-size: 1.625rem; line-height: 1.2; font-weight: 600; letter-spacing: -0.02em; }
+.vs-lead { margin: 0; font-size: var(--t-base); line-height: 1.5; color: var(--ink-2); }
+.vs-steps { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 2px; counter-reset: vs; }
+.vs-steps li { counter-increment: vs; display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; padding: 12px 0; border-top: 1px solid var(--line); font-size: var(--t-base); line-height: 1.45; }
+.vs-steps li::before { content: counter(vs); width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--ink-2); font-size: var(--t-sm); font-weight: 600; }
+.vs-fine { margin: 0; font-size: var(--t-sm); line-height: 1.45; color: var(--ink-3); }
+
+@media (prefers-reduced-motion: reduce) { .vs-progress span { transition: none; } }
