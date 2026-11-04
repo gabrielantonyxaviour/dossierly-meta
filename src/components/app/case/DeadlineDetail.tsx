@@ -5,6 +5,7 @@ import { Icon } from "@/components/Icon";
 import { longDay } from "../format";
 import { useCaseData } from "../shell/case-data";
 import "./case.css";
+import { isPhotoTask, photoCheckHref } from "../photo-link";
 
 /** One deadline: countdown, the counting steps, the legal rule and what it's for. */
 export function DeadlineDetail({ id }: { id: string }) {
@@ -56,7 +57,7 @@ export function DeadlineDetail({ id }: { id: string }) {
 
       {tasks.length > 0 && (
         <Section title="To do before then" action={{ label: "Tasks", href: "/app/case?tab=tasks" }}>
-          <Card flush>{tasks.map((t) => <Row key={t.id} icon="task" iconBg={t.status === "done" ? "var(--ok-soft)" : undefined} iconColor={t.status === "done" ? "var(--ok)" : undefined} title={t.title} sub={t.detail || undefined} end={t.status === "done" ? <Pill tone="ok">Done</Pill> : undefined} />)}</Card>
+          <Card flush>{tasks.map((t) => <Row key={t.id} href={t.status === "open" && isPhotoTask(t) ? photoCheckHref(t.id) : undefined} chevron={t.status === "open" && isPhotoTask(t)} icon={t.status === "open" && isPhotoTask(t) ? "camera" : "task"} iconBg={t.status === "done" ? "var(--ok-soft)" : undefined} iconColor={t.status === "done" ? "var(--ok)" : undefined} title={t.title} sub={t.detail || undefined} end={t.status === "done" ? <Pill tone="ok">Done</Pill> : undefined} />)}</Card>
         </Section>
       )}
 

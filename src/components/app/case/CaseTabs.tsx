@@ -5,6 +5,7 @@ import { ButtonLink, Card, CheckCircle, EmptyState, Pill, Row, Section, useToast
 import type { IconName } from "@/components/Icon";
 import { dayLabel, relDays, timeLabel } from "../format";
 import { useCaseData } from "../shell/case-data";
+import { isMissingPhoto, isPhotoTask, openPhotoTask, photoCheckHref } from "../photo-link";
 
 export function DatesTab({ c }: { c: CaseSnapshot }) {
   const today = warsawToday();
@@ -47,8 +48,9 @@ export function DocumentsTab({ c }: { c: CaseSnapshot }) {
   const docs = [...c.documents].sort((a, b) => order[a.status] - order[b.status] || b.createdAt.localeCompare(a.createdAt));
   const need = docs.filter((d) => d.status !== "have");
   const have = docs.filter((d) => d.status === "have");
+  const photoTask = openPhotoTask(c);
   const row = (d: CaseDocument) => (
-    <Row key={d.id} href={`/app/case/documents/${d.id}`} chevron icon={DOC_ICON[d.kind]} title={d.title}
+    <Row key={d.id} href={isMissingPhoto(d) ? photoCheckHref(photoTask?.id) : `/app/case/documents/${d.id}`} chevron icon={DOC_ICON[d.kind]} title={d.title}
       sub={[d.pages ? `${d.pages} page${d.pages === 1 ? "" : "s"}` : null, Object.keys(d.extractedFields).length ? `${Object.keys(d.extractedFields).length} fields read` : null, d.source === "email" ? "From email" : d.source === "scan" ? "Scanned" : null].filter(Boolean).join(" · ") || undefined}
       end={<Pill tone={DOC_STATUS[d.status].tone}>{DOC_STATUS[d.status].label}</Pill>} />
   );
@@ -79,7 +81,10 @@ export function TasksTab({ c }: { c: CaseSnapshot }) {
       <Row key={t.id} className={t.status === "done" ? "cs-done" : undefined}
         icon={<CheckCircle checked={t.status === "done"} label={t.status === "done" ? `Reopen “${t.title}”` : `Mark “${t.title}” done`} onChange={(v) => void toggle(t.id, v ? "done" : "open")} />}
         title={t.title} sub={[t.detail, d ? `For: ${d.title}` : null, ORIGIN[t.origin]].filter(Boolean).join(" · ")}
-        end={t.status === "open" && left !== null ? <Pill tone={left <= 7 ? "deadline" : "neutral"}>{left < 0 ? "Overdue" : `${left}d`}</Pill> : undefined} />
+        end={<>
+          {t.status === "open" && left !== null && <Pill tone={left <= 7 ? "deadline" : "neutral"}>{left < 0 ? "Overdue" : `${left}d`}</Pill>}
+          {t.status === "open" && isPhotoTask(t) && <ButtonLink href={photoCheckHref(t.id)} size="sm" variant="primary" icon="camera">Check photo</ButtonLink>}
+        </>} />
     );
   };
   return (

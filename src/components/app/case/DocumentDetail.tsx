@@ -3,6 +3,7 @@ import { ButtonLink, Card, EmptyState, Pill, Row, Section, Skeleton, StickyActio
 import { dayLabel } from "../format";
 import { useCaseData } from "../shell/case-data";
 import "./case.css";
+import { isMissingPhoto, openPhotoTask, photoCheckHref } from "../photo-link";
 
 const STATUS = { have: ["Have", "ok"], missing: ["Missing", "deadline"], requested: ["Requested", "warn"] } as const;
 const SOURCE: Record<string, string> = { upload: "Uploaded by you", email: "Found in your email", scan: "Scanned with Look", user: "Added by you", agent: "Added by Dossierly" };
@@ -56,7 +57,9 @@ export function DocumentDetail({ id }: { id: string }) {
       )}
 
       {d.status !== "have" ? (
-        <StickyActionBar secondary={ask}><ButtonLink href="/app/look" variant="primary" icon="scan">Add with Look</ButtonLink></StickyActionBar>
+        <StickyActionBar secondary={ask}>{isMissingPhoto(d)
+          ? <ButtonLink href={photoCheckHref(openPhotoTask(snapshot)?.id)} variant="primary" icon="camera">Check a photo</ButtonLink>
+          : <ButtonLink href="/app/look" variant="primary" icon="scan">Add with Look</ButtonLink>}</StickyActionBar>
       ) : (
         <StickyActionBar secondary={d.kind === "letter" ? <ButtonLink href="/app/look" variant="ghost" icon="scan">Look at it again</ButtonLink> : undefined}>{ask}</StickyActionBar>
       )}
