@@ -2,7 +2,7 @@
 .wrap { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
 @media (min-width: 768px) { .wrap { padding: 0 40px; } }
 @media (min-width: 1200px) { .wrap { padding: 0 64px; } }
-.site-header { position: sticky; top: 0; z-index: 40; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: saturate(1.5) blur(12px); transition: box-shadow 0.2s; }
+.site-header { position: sticky; top: 0; z-index: 40; padding-top: env(safe-area-inset-top); background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: saturate(1.5) blur(12px); transition: box-shadow 0.2s; }
 .site-bar { display: flex; align-items: center; gap: 24px; min-height: 64px; }
 .site-nav { display: none; gap: 2px; margin-right: auto; }
 .site-nav a { text-decoration: none; color: var(--ink); font-weight: 500; font-size: 0.875rem; padding: 6px 12px; border-radius: var(--pill); transition: background 0.15s; }

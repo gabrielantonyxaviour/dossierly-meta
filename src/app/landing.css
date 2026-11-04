@@ -136,3 +136,10 @@
 @media (prefers-reduced-motion: reduce) {
   .lp *, .lp *::before, .lp *::after { animation: none !important; transition: none !important; }
 }
+
+/* Phones (mobile-first standard, 4 Nov): stacked full-width hero actions, 15px minimum for reading text. */
+@media (max-width: 767px) {
+  .lp-hero-ctas { flex-direction: column; align-items: stretch; width: 100%; max-width: 420px; margin-inline: auto; }
+  .lp-hero-ctas > * { width: 100%; min-height: 52px; justify-content: center; }
+  .lp-hero-proof, .lp-hero-link { font-size: 15px; line-height: 22px; }
+}

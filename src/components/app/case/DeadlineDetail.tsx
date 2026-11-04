@@ -1,6 +1,6 @@
 "use client";
 import { daysBetween, warsawToday } from "@/lib/case/next-step";
-import { ButtonLink, Card, EmptyState, Pill, Row, Section, Skeleton, TopBar } from "@/components/ui";
+import { ButtonLink, Card, EmptyState, Pill, Row, Section, Skeleton, StickyActionBar, TopBar } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { longDay } from "../format";
 import { useCaseData } from "../shell/case-data";
@@ -19,7 +19,7 @@ export function DeadlineDetail({ id }: { id: string }) {
   const tasks = snapshot.tasks.filter((t) => t.dueDeadlineId === d.id);
   const q = encodeURIComponent(`Explain this deadline and what I should do: ${d.title}`);
   return (
-    <div className="sh-page">
+    <div className="sh-page sh-page--actions">
       <TopBar title={d.title} back={back} eyebrow={d.computation.rule ?? "Deadline"} actions={<Pill tone={d.status === "done" ? "ok" : d.status === "missed" ? "deadline" : urgent ? "deadline" : "neutral"} dot>{d.status === "open" ? "Open" : d.status === "done" ? "Done" : "Missed"}</Pill>} />
       <Card className="dt-hero" raised>
         <div className={`dt-due${urgent ? " dt-due--urgent" : ""}`}>
@@ -60,10 +60,10 @@ export function DeadlineDetail({ id }: { id: string }) {
         </Section>
       )}
 
-      <div className="dt-actions">
-        <ButtonLink href={`/app/chat?q=${q}&attach=deadline:${d.id}`} variant="primary" icon="sparkle">Ask Dossierly about this</ButtonLink>
-      </div>
       <p className="ui-meta">Dossierly explains how deadlines are counted. It isn’t legal advice: if the date matters for an appeal, confirm it with the office or a licensed adviser.</p>
+      <StickyActionBar>
+        <ButtonLink href={`/app/chat?q=${q}&attach=deadline:${d.id}`} variant="primary" icon="sparkle">Ask Dossierly about this</ButtonLink>
+      </StickyActionBar>
     </div>
   );
 }
