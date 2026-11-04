@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import { Icon } from "../Icon";
 import { Logo } from "../Logo";
 import { AgentOrb, Avatar, ToastProvider } from "@/components/ui";
-import { CaseDataProvider, useCaseData } from "./shell/case-data";
+import { CaseDataProvider, StaticCaseData, useCaseData } from "./shell/case-data";
+import type { CaseSnapshot } from "@/lib/case/types";
 import { isLegacyRoute, LegacyBoundary } from "./shell/Legacy";
 import { AGENT, IMMERSIVE, isActive, SIDE_MAIN, SIDE_MORE, TABS_LEFT, TABS_RIGHT, type NavItem } from "./shell/nav";
 import { deriveNotices, readIds } from "./notifications/derive";
@@ -104,6 +105,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Shell>{children}</Shell>
       </ToastProvider>
     </CaseDataProvider>
+  );
+}
+
+/** The real shell over a fixed snapshot (preview-only /kit layout checks). */
+export function StaticAppShell({ snapshot, children }: { snapshot: CaseSnapshot; children: React.ReactNode }) {
+  return (
+    <StaticCaseData snapshot={snapshot}>
+      <ToastProvider>
+        <Shell>{children}</Shell>
+      </ToastProvider>
+    </StaticCaseData>
   );
 }
 

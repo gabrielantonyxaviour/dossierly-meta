@@ -2,11 +2,12 @@
 import Link from "next/link";
 import { daysBetween, warsawDate, warsawToday } from "@/lib/case/next-step";
 import type { CaseSnapshot } from "@/lib/case/types";
-import { Card, CheckCircle, Pill, Row, Section, useToast } from "@/components/ui";
+import { ButtonLink, Card, CheckCircle, Pill, Row, Section, useToast } from "@/components/ui";
 import { Icon, type IconName } from "@/components/Icon";
 import { ago, dateParts, relDays, timeLabel } from "../format";
 import { eventTitle } from "../notifications/derive";
 import { useCaseData } from "../shell/case-data";
+import { isPhotoTask, photoCheckHref } from "../photo-link";
 
 const ACTIONS: { href: string; icon: IconName; title: string; sub: string }[] = [
   { href: "/app/look", icon: "scan", title: "Look", sub: "Photo of a letter or screen" },
@@ -70,7 +71,11 @@ export function OpenTasks({ c }: { c: CaseSnapshot }) {
           const left = d ? daysBetween(warsawToday(), d.dueDate) : null;
           return (
             <Row key={t.id} icon={<CheckCircle checked={false} label={`Mark “${t.title}” done`} onChange={() => void done(t.id, t.title)} />} title={t.title}
-              sub={d ? `For: ${d.title}` : t.detail || undefined} end={left !== null ? <Pill tone={left <= 7 ? "deadline" : "neutral"}>{left < 0 ? "Overdue" : `${left}d`}</Pill> : undefined} />
+              sub={<>
+                {d ? `For: ${d.title}` : t.detail || null}
+                {isPhotoTask(t) && <span className="ui-row-action"><ButtonLink href={photoCheckHref(t.id)} size="sm" variant="primary" icon="camera">Check photo</ButtonLink></span>}
+              </>}
+              end={left !== null ? <Pill tone={left <= 7 ? "deadline" : "neutral"}>{left < 0 ? "Overdue" : `${left}d`}</Pill> : undefined} />
           );
         })}
       </Card>

@@ -16,7 +16,7 @@ export const STAGES: { id: Profile["stage"]; title: string; hint: string }[] = [
   { id: "decision_received", title: "I got a decision", hint: "Positive, negative or a card to collect" },
 ];
 
-export const CITIES = ["Warszawa", "Kraków", "Wrocław", "Poznań", "Gdańsk", "Łódź", "Lublin", "Katowice"];
+export const CITIES = ["Warszawa", "Kraków", "Wrocław", "Poznań", "Gdańsk", "Łódź", "Lublin", "Katowice", "Szczecin"];
 
 /** "Studying" vs "Working" changes what we ask for and what the agent prepares. */
 export const orgLabel = (permit: Profile["permitType"], reason: Reason | null) =>

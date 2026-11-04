@@ -114,7 +114,7 @@ export function computeKpaDeadline(input: DeadlineInput): ComputedDeadline {
 
   let nominal: string;
   const label = plural(period.amount, period.unit.slice(0, -1));
-  const quoted = input.quote?.trim() ? ` The letter says: “${input.quote.trim()}”` : "";
+  const quoted = input.quote?.trim() ? ` The letter says: “${input.quote.trim().replace(/[.;,]+$/, "")}”.` : "";
   if (period.unit === "days") {
     nominal = addDays(startDate, period.amount);
     steps.push(`The period is ${label}.${quoted} Day ${period.amount} is ${formatDay(nominal)}.`);

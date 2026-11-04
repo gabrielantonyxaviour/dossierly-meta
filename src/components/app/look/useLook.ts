@@ -62,6 +62,39 @@ export function useLook() {
     }
   }, []);
 
+  /** Draws a saved look again from the stored read and outlines (no model calls), one outline at a time. */
+  const replay = useCallback(async (lookId: string): Promise<string | null> => {
+    ctl.current?.abort();
+    const ac = new AbortController();
+    ctl.current = ac;
+    last.current = null;
+    const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+    try {
+      const res = await fetch(`/api/look/${encodeURIComponent(lookId)}`, { signal: ac.signal });
+      if (!res.ok) {
+        setState(EMPTY);
+        return res.status === 404 ? "That look is not in your account any more." : (await errorText(res)).message;
+      }
+      const rec = (await res.json()) as SavedLook;
+      const image = { dataUrl: rec.image, width: rec.size.w, height: rec.size.h, bytes: 0 };
+      setState({ ...EMPTY, phase: "reading", image });
+      await wait(700);
+      if (ac.signal.aborted) return null;
+      setState((s) => ({ ...s, read: rec.read, phase: "outlining" }));
+      for (const o of rec.outlines) {
+        await wait(380);
+        if (ac.signal.aborted) return null;
+        setState((s) => ({ ...s, outlines: { ...s.outlines, [o.id]: o } }));
+      }
+      setState((s) => ({ ...s, phase: "done" }));
+      return null;
+    } catch {
+      if (ac.signal.aborted) return null;
+      setState(EMPTY);
+      return "Could not open that look. Check your connection.";
+    }
+  }, []);
+
   const retry = useCallback(() => {
     if (last.current) void run(last.current.image, last.current.opts);
   }, [run]);
@@ -72,7 +105,15 @@ export function useLook() {
     setState(EMPTY);
   }, []);
 
-  return { state, run, retry, reset };
+  return { state, run, replay, retry, reset };
+}
+
+interface SavedLook {
+  lookId: string;
+  size: { w: number; h: number };
+  read: LookRead;
+  outlines: LookOutline[];
+  image: string;
 }
 
 export interface RunOpts {

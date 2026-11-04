@@ -28,8 +28,8 @@ export function StageHint({ hint, apply }: { hint: { stage: Profile["stage"]; wh
       {state !== "done" && <p>{hint.why}. Should I set your stage to “{label}”?</p>}
       {state === "error" && <p className="ob-field-err">That didn’t save. Try again.</p>}
       {state !== "done" && <div className="ob-hint-actions">
-        <button type="button" className="ui-btn ui-btn--sm ui-btn--primary" disabled={state === "busy"} onClick={async () => { setState("busy"); setState((await apply(hint.stage)) ? "done" : "error"); }}>Update my stage</button>
-        <button type="button" className="ui-btn ui-btn--sm ui-btn--ghost" disabled={state === "busy"} onClick={() => setState("kept")}>Keep it as is</button>
+        <button type="button" className="ui-btn ui-btn--primary" disabled={state === "busy"} onClick={async () => { setState("busy"); setState((await apply(hint.stage)) ? "done" : "error"); }}>Update my stage</button>
+        <button type="button" className="ui-btn ui-btn--ghost" disabled={state === "busy"} onClick={() => setState("kept")}>Keep it as is</button>
       </div>}
     </div>
   );

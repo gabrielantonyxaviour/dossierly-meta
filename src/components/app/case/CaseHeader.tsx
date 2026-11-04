@@ -6,7 +6,7 @@ import { Icon } from "@/components/Icon";
 import { STAGE_LABEL } from "../format";
 import { FACT_LABEL, SOURCE_LABEL } from "../home/CaseStrip";
 
-const filedLabel = (d: string) => new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${d}T12:00:00Z`));
+const filedLabel = (d: string) => new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${d}T12:00:00Z`)).replace("Sept", "Sep");
 
 /** Compact: stage track, case number (tap to copy) and a row that opens every fact with its source. */
 export function CaseHeader({ c }: { c: CaseSnapshot }) {

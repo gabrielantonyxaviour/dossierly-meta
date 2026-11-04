@@ -14,6 +14,9 @@
     "binding": "ASSETS"
   },
   "name": "dossierly-meta",
+  "triggers": {
+    "crons": ["*/2 * * * *", "0 2 * * *"]
+  },
   "workers_dev": false,
   "preview_urls": false,
   "routes": [
@@ -114,6 +117,7 @@
   "env": {
     "onboarding": {
       "name": "dossierly-meta-onboarding",
+      "triggers": { "crons": ["*/2 * * * *", "0 2 * * *"] },
       "workers_dev": false,
       "preview_urls": false,
       "routes": [
@@ -219,6 +223,7 @@
     },
     "app": {
       "name": "dossierly-meta-app",
+      "triggers": { "crons": [] },
       "workers_dev": false,
       "preview_urls": false,
       "routes": [
@@ -324,6 +329,7 @@
     },
     "voice": {
       "name": "dossierly-meta-voice",
+      "triggers": { "crons": [] },
       "workers_dev": false,
       "preview_urls": false,
       "routes": [
@@ -429,6 +435,7 @@
     },
     "look": {
       "name": "dossierly-meta-look",
+      "triggers": { "crons": [] },
       "workers_dev": false,
       "preview_urls": false,
       "routes": [

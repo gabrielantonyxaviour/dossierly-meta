@@ -10,14 +10,15 @@ import type { ConnectionsEnv } from "../server/connections/types";
  * 120 days, at most MAX_MESSAGES results. Nothing is sent, labelled, moved or deleted in the mailbox.
  */
 export const MAX_MESSAGES = 12;
-const OFFICIAL_QUERY = [
+export const OFFICIAL_QUERY = [
   "wezwanie", '"karta pobytu"', '"pobyt czasowy"', '"zezwolenie na pobyt"', '"urząd wojewódzki"', "UdSC", "MOS",
   '"e-Doręczenia"', "cudzoziemców", "cudzoziemcow", '"residence permit"', '"residence card"', "immigration", "wiza",
   "uczelnia", "university", '"health insurance"', "ubezpieczenie", "PESEL", "zameldowanie", "inPOL", "wizyta",
+  '"umowa najmu"', "najmu", "lease", "tenancy", "NFZ", "odcisków", "odciski", "fingerprints", "legalizacja",
 ].join(" OR ");
 
 export type InboxMessage = { id: string; from: string; subject: string; receivedAt: string; snippet: string; attachments: number };
-export type MessageBody = { id: string; from: string; subject: string; receivedAt: string; text: string; images: string[]; attachments: { name: string; mime: string }[] };
+export type MessageBody = { id: string; from: string; subject: string; receivedAt: string; text: string; images: string[]; attachments: { id: string; name: string; mime: string; size: number }[] };
 
 const metaSchema = z.object({
   id: z.string(),
@@ -73,6 +74,6 @@ export async function readMessage(env: ConnectionsEnv, accountId: string, messag
   }
   return {
     id: msg.messageId, from: msg.from, subject: msg.subject || "(no subject)", receivedAt: when(meta.internalDate),
-    text: msg.text.slice(0, 12_000), images, attachments: msg.attachments.map((a) => ({ name: a.name, mime: a.mime })),
+    text: msg.text.slice(0, 12_000), images, attachments: msg.attachments.map((a) => ({ id: a.id, name: a.name, mime: a.mime, size: a.size })),
   };
 }
