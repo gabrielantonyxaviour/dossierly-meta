@@ -53,26 +53,24 @@
 .ct-dock > :last-child { flex: none; padding: 0 18px; }
 .ct-dock > :only-child, .ct-dock > .ct-flip:first-child + * { flex: 1; }
 
-.ct-doc { position: fixed; inset: 0; z-index: 80; background: color-mix(in srgb, var(--bg) 94%, transparent); backdrop-filter: blur(6px); display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 12px; max-width: 820px; margin: 0 auto; padding: calc(16px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-left), env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)); overflow-y: auto; }
-.ct-doc-card {
-  align-self: center; min-width: 0; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 24px 22px;
-  display: grid; gap: 8px; border: 2px solid var(--official-line); animation: ct-pop 0.25s ease-out;
+/* The document on the official's half: big Polish caption, a few fields, legible at 45% film scale. */
+.ct-odoc {
+  flex: none; max-height: 68%; overflow-y: auto; min-width: 0; display: grid; gap: 6px; padding: 14px 16px 16px;
+  background: var(--surface); border-radius: var(--radius); border: 2px solid var(--official-line); box-shadow: var(--shadow-lg); animation: ct-pop 0.25s ease-out;
 }
-.ct-doc-card.is-flipped { transform: rotate(180deg); animation-name: ct-pop-flip; }
-@keyframes ct-pop { from { opacity: 0; transform: scale(0.96); } }
-@keyframes ct-pop-flip { from { opacity: 0; transform: rotate(180deg) scale(0.96); } }
-.ct-doc-card small { font-size: var(--t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--official); font-weight: 600; }
-.ct-doc-card h2 { margin: 0; font-size: clamp(1.75rem, 1.4rem + 2vw, 2.6rem); line-height: 1.15; letter-spacing: -0.02em; overflow-wrap: anywhere; }
-.ct-doc-title { margin: 0; color: var(--ink-2); }
-.ct-doc-card dl { margin: 8px 0 0; display: grid; gap: 8px; }
-.ct-doc-card dl div { display: grid; grid-template-columns: minmax(96px, 38%) minmax(0, 1fr); gap: 10px; padding-top: 8px; border-top: 1px solid var(--line); }
-.ct-doc-card dt { color: var(--ink-3); font-size: var(--t-md); }
-.ct-doc-card dd { margin: 0; font-weight: 600; font-size: 1.0625rem; overflow-wrap: anywhere; }
-.ct-doc-note { margin: 6px 0 0; font-size: var(--t-sm); color: var(--ink-3); }
-.ct-doc-user { display: flex; align-items: center; gap: 12px; justify-content: space-between; padding: 12px 14px; border-radius: var(--radius); background: var(--user-soft); }
-.ct-doc-user p { margin: 0; font-size: 0.9375rem; }
-.ct-doc-user .ui-btn { --h: 48px; border-radius: var(--r-md); padding: 0 22px; flex: none; }
-@media (prefers-reduced-motion: reduce) { .ct-doc-card { animation: none; } }
+.ct-odoc.is-draft { border-style: dashed; }
+@keyframes ct-pop { from { opacity: 0; transform: translateY(8px) scale(0.97); } }
+.ct-odoc header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -6px -8px -4px 0; }
+.ct-odoc small { font-size: var(--t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--official); font-weight: 600; }
+.ct-odoc-x { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: var(--ink-3); cursor: pointer; }
+.ct-odoc h2 { margin: 0; font-size: clamp(1.625rem, 1.3rem + 1.6vw, 2.25rem); line-height: 1.12; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.ct-odoc-basis { margin: 0; font-size: var(--t-md); font-weight: 600; color: color-mix(in srgb, var(--official) 70%, var(--ink)); }
+.ct-odoc dl { margin: 4px 0 0; display: grid; gap: 6px; }
+.ct-odoc dl div { display: grid; grid-template-columns: minmax(84px, 34%) minmax(0, 1fr); gap: 10px; padding-top: 6px; border-top: 1px solid var(--line); }
+.ct-odoc dt { color: var(--ink-3); font-size: var(--t-sm); padding-top: 2px; }
+.ct-odoc dd { margin: 0; font-weight: 600; font-size: 1.0625rem; line-height: 1.3; overflow-wrap: anywhere; }
+.ct-half-official.has-doc .ct-big { font-size: 1.25rem; }
+@media (prefers-reduced-motion: reduce) { .ct-odoc { animation: none; } }
 
 /* Counter tab hub */
 .ch { display: grid; gap: 18px; }

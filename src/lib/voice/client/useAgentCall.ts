@@ -7,6 +7,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CapturedItem, CoachNote, DocCard, RehearseFeedback, ServerEvent, TurnMetric, VoiceMode, VoiceTurn } from "../protocol";
 import { announceCaseChange } from "@/components/app/shell/case-data";
+import { TEST_LINES } from "../clips";
 import { frames, Mic, Player } from "./audio";
 
 export type CallStatus = "idle" | "connecting" | "live" | "ended" | "error";
@@ -249,16 +250,18 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
     setMutedState(m);
   }, []);
 
-  /** Feeds a labelled test-official clip into the real pipeline in real time, and plays it aloud. */
+  /** Feeds a labelled test-kit line into the real pipeline in real time, and plays it aloud. */
   const playClip = useCallback(async (i: number) => {
+    const who = TEST_LINES[i]?.who ?? "official";
     if (clipping.current || !ctx.current) return;
     clipping.current = true;
     setClipBusy(true);
     try {
       const res = await fetch(`/api/voice/clip?i=${i}`);
-      if (!res.ok) throw new Error("Could not load the test official");
+      if (!res.ok) throw new Error("Could not load the test line");
       const pcm = await res.arrayBuffer();
-      send(JSON.stringify({ t: "source", source: "clip" }));
+      // Official lines are attributed to the official; the user's line goes through as microphone speech.
+      if (who === "official") send(JSON.stringify({ t: "source", source: "clip" }));
       const tail = new ArrayBuffer(16000 * 2); // 1 s of silence closes the turn
       const all = [...frames(pcm), ...frames(tail)];
       player.current?.play(pcm, 16000);

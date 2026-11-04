@@ -50,7 +50,7 @@ export class VoiceSession {
     this.speaker = new Speaker(String(env.ELEVENLABS_API_KEY ?? ""), t, {
       onFirstAudio: (u) => this.firstAudio(u),
       onError: (m) => this.emit({ t: "error", error: m, code: "tts" }),
-    });
+    }, typeof env.ELEVENLABS_TTS_MODEL === "string" ? env.ELEVENLABS_TTS_MODEL : undefined);
   }
 
   get mode() {
@@ -122,6 +122,7 @@ export class VoiceSession {
   /** Partial transcript: captions, and barge-in for conversational modes. */
   private onPartial(text: string): void {
     this.emit({ t: "asr", phase: "partial", text });
+    this.handler.partial?.(text);
     if (this.handler.bargeIn && this.speaker.speaking && text.split(/\s+/).length >= 2) this.interrupt();
   }
 

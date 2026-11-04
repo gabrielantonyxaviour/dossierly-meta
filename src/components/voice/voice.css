@@ -34,8 +34,9 @@
 .vc-cap > svg { color: var(--ok); flex: none; }
 .vc-cap span { display: grid; min-width: 0; }
 .vc-cap small { font-size: var(--t-xs); color: var(--ok); font-weight: 600; }
-.vc-cap b { font-weight: 500; font-size: 0.9375rem; }
-.vc-cap em { margin-left: auto; font-style: normal; font-size: var(--t-sm); color: var(--ink-2); white-space: nowrap; }
+.vc-cap b { font-weight: 600; font-size: var(--t-base); line-height: 1.3; }
+.vc-cap i { font-style: normal; font-size: var(--t-sm); color: var(--ink-2); }
+.vc-cap em { margin-left: auto; font-style: normal; font-size: var(--t-sm); font-weight: 600; color: var(--ok); white-space: nowrap; }
 @keyframes vc-in { from { transform: translateY(6px); opacity: 0; } }
 
 .vc-latency { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 12px; font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-3); }

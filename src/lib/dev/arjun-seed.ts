@@ -18,12 +18,23 @@ export function warsawIso(date: string, time: string): string {
   return `${date}T${time}:00${offset}`;
 }
 
+/** Canonical film data (coordinator, 4 Nov): shared by the seed, sample emails, extraction checks and voice scripts. */
+export const ARJUN = {
+  caseNumber: "WSC-II-P.6151.48213.2026",
+  filedAt: "2026-09-18",
+  dorm: "DS Babilon, ul. Kickiego 12, 04-369 Warszawa",
+  flat: "ul. Grzybowska 43A m. 12, 00-855 Warszawa",
+  movedOn: "2026-10-01",
+  summonsDated: "2026-10-22",
+  summonsDelivered: "2026-11-04",
+  office: "Mazowiecki Urząd Wojewódzki, Wydział Spraw Cudzoziemców",
+  fingerprintsAt: "ul. Marszałkowska 3/5, 00-624 Warszawa",
+} as const;
+
 export function buildArjunSeed(today: string) {
   const at = (days: number, time = "09:00") => warsawIso(addDays(today, days), time);
-  const delivered = addDays(today, -1);
-  const replyBy = nextWorkingDay(addDays(delivered, 7) > addDays(today, 6) ? addDays(today, 6) : addDays(delivered, 7));
-  const fingerprintDay = addDays(today, 9);
-  const stay = addDays(today, -43);
+  const delivered = ARJUN.summonsDelivered;
+  const replyBy = nextWorkingDay(addDays(delivered, 14));
 
   return {
     profile: {
@@ -34,34 +45,48 @@ export function buildArjunSeed(today: string) {
       permitType: "temporary_residence_study" as const,
       stage: "waiting_decision" as const,
       organisation: "Warsaw University of Technology (MSc Computer Science)",
-      arrivalDate: "2026-09-22",
+      arrivalDate: "2026-09-10",
       phone: { number: null, verified: false, callsEnabled: false },
       timezone: "Europe/Warsaw",
     },
     facts: {
-      caseNumber: { value: "WSC-II-P.6151.48213.2026", source: { type: "email" as const, ref: "Mazowiecki Urząd Wojewódzki email" }, confirmedByUser: true },
-      office: { value: "Mazowiecki Urząd Wojewódzki, Wydział Spraw Cudzoziemców", source: { type: "email" as const, ref: null }, confirmedByUser: true },
-      filedAt: { value: "2026-10-06", source: { type: "user" as const, ref: null }, confirmedByUser: true },
-      upoReceivedAt: { value: "2026-10-06", source: { type: "email" as const, ref: "UPO receipt" }, confirmedByUser: true },
-      mosStatus: { value: "Złożony (filed)", source: { type: "screenshot" as const, ref: "MOS status screenshot" }, confirmedByUser: true },
+      caseNumber: { value: ARJUN.caseNumber, source: { type: "email" as const, ref: "MOS filing confirmation" }, confirmedByUser: true },
+      office: { value: ARJUN.office, source: { type: "email" as const, ref: null }, confirmedByUser: true },
+      filedAt: { value: ARJUN.filedAt, source: { type: "email" as const, ref: "MOS filing confirmation" }, confirmedByUser: true },
+      upoReceivedAt: { value: ARJUN.filedAt, source: { type: "email" as const, ref: "UPO receipt" }, confirmedByUser: true },
+      mosStatus: { value: "Złożony (filed)", source: { type: "email" as const, ref: "MOS filing confirmation" }, confirmedByUser: true },
     },
     documents: [
       { id: "doc-passport", kind: "passport" as const, title: "Passport (India)", status: "have" as const, pages: 32, source: "scan" as const, extractedFields: { holder: "Arjun Raman", expires: "2031-03-14" } },
-      { id: "doc-enrol", kind: "university_certificate" as const, title: "University enrolment certificate", status: "have" as const, source: "upload" as const, extractedFields: { university: "Warsaw University of Technology", programme: "MSc Computer Science" } },
-      { id: "doc-health", kind: "health_insurance" as const, title: "Health insurance policy (NFZ voluntary insurance)", status: "requested" as const, source: "email" as const, extractedFields: { requestedBy: "Wezwanie from the voivodeship office" } },
-      { id: "doc-rental", kind: "rental_agreement" as const, title: "Rental agreement, Warsaw", status: "have" as const, pages: 6, source: "scan" as const, extractedFields: {} },
-      { id: "doc-photo", kind: "photo" as const, title: "MOS photo 35x45 mm", status: "have" as const, source: "upload" as const, extractedFields: {} },
-      { id: "doc-upo", kind: "upo" as const, title: "UPO receipt", status: "have" as const, source: "email" as const, extractedFields: { receivedAt: "2026-10-06" } },
-      { id: "doc-wezwanie", kind: "letter" as const, title: "Wezwanie: summons to complete formal deficiencies", status: "have" as const, pages: 2, source: "email" as const, extractedFields: { sender: "Mazowiecki Urząd Wojewódzki", asks: "Proof of health insurance" } },
+      {
+        id: "doc-upo", kind: "upo" as const, title: "MOS filing confirmation (UPO)", status: "have" as const, source: "email" as const,
+        extractedFields: { caseNumber: ARJUN.caseNumber, filedAt: ARJUN.filedAt, applicationAddress: ARJUN.dorm },
+      },
+      {
+        id: "doc-rental", kind: "rental_agreement" as const, title: "Lease, ul. Grzybowska 43A m. 12", status: "have" as const, pages: 6, source: "email" as const,
+        extractedFields: { address: ARJUN.flat, startDate: ARJUN.movedOn },
+      },
+      {
+        id: "doc-health", kind: "health_insurance" as const, title: "NFZ student health insurance", status: "have" as const, source: "email" as const,
+        extractedFields: { insurer: "NFZ (voluntary, student)", cover: "Whole stay" },
+      },
+      { id: "doc-photo", kind: "photo" as const, title: "New photo 35×45 mm meeting the requirements", status: "missing" as const, source: "user" as const, extractedFields: { requestedBy: "Summons of 22 Oct" } },
+      {
+        id: "doc-wezwanie", kind: "letter" as const, title: "Wezwanie: summons to complete the application", status: "have" as const, pages: 2, source: "email" as const,
+        extractedFields: {
+          sender: "Mazowiecki Urząd Wojewódzki", dated: ARJUN.summonsDated, delivered, addressedTo: ARJUN.dorm,
+          asks: "lease; insurance for the whole stay; new photo", within: "14 days from delivery (KPA art. 64 § 2)",
+        },
+      },
     ],
     deadlines: [
       {
-        id: "dl-summons", title: "Reply to summons: submit missing health insurance", dueDate: replyBy, triggeredBy: "doc-wezwanie", status: "open" as const,
+        id: "dl-summons", title: "Reply to the summons", dueDate: replyBy, triggeredBy: "doc-wezwanie", status: "open" as const,
         computation: {
           steps: [
-            `Letter delivered by email via e-Doręczenia on ${delivered}`,
-            "7 days from delivery per the summons (KPA art. 64 § 2)",
-            `Delivery date + 7 days = ${addDays(delivered, 7)}`,
+            `Summons dated ${ARJUN.summonsDated}, delivered on ${delivered}`,
+            "14 days from delivery per the summons (KPA art. 64 § 2)",
+            `Delivery date + 14 days = ${addDays(delivered, 14)}`,
             "Not a Sunday or public holiday in Poland",
           ],
           rule: "KPA art. 64 § 2", legalRefUrl: LEGAL_URL,
@@ -69,31 +94,29 @@ export function buildArjunSeed(today: string) {
         reminders: [{ at: warsawIso(addDays(replyBy, -2), "09:00"), channel: "in_app" as const, sentAt: null }],
       },
       {
-        id: "dl-filed", title: "Submit application within legal stay", dueDate: stay, status: "done" as const, triggeredBy: null,
-        computation: { steps: ["Application must be filed while the visa or stay is still valid", "Filed on 2026-10-06, before the stay expired"], rule: "Ustawa o cudzoziemcach, art. 139a", legalRefUrl: null },
+        id: "dl-filed", title: "Submit application within legal stay", dueDate: ARJUN.filedAt, status: "done" as const, triggeredBy: null,
+        computation: { steps: ["Application must be filed while the visa or stay is still valid", `Filed in MOS on ${ARJUN.filedAt}, before the stay expired`], rule: "Ustawa o cudzoziemcach, art. 139a", legalRefUrl: null },
         reminders: [],
       },
     ],
     appointments: [
       {
-        id: "apt-fingerprints", title: "Fingerprint appointment", at: warsawIso(fingerprintDay, "10:30"),
-        location: { name: "Mazowiecki Urząd Wojewódzki, Biuro Podawcze", address: "ul. Marszałkowska 3/5, 00-624 Warszawa" },
-        purpose: "Fingerprints and photo for the residence card (karta pobytu)", prepTaskIds: ["task-passport"],
+        id: "apt-fingerprints", title: "Fingerprints", at: warsawIso(today, "10:40"),
+        location: { name: "Mazowiecki Urząd Wojewódzki", address: ARJUN.fingerprintsAt },
+        purpose: "Fingerprints for the residence card (karta pobytu)", prepTaskIds: ["task-passport"],
       },
     ],
     tasks: [
-      { id: "task-insurance", title: "Buy NFZ voluntary health insurance", detail: "The summons asks for proof of health insurance. Voluntary NFZ insurance for students is one option; keep the policy PDF and the payment confirmation.", dueDeadlineId: "dl-summons", origin: "letter" as const, status: "open" as const },
-      { id: "task-passport", title: "Bring original passport to fingerprint appointment", detail: "Take the original passport and the UPO receipt.", dueDeadlineId: null, origin: "agent" as const, status: "open" as const },
-      { id: "task-upo", title: "Print UPO receipt", detail: "", dueDeadlineId: null, origin: "user" as const, status: "done" as const },
+      { id: "task-photo", title: "Get a new photo that meets the requirements", detail: "The summons asks for a new 35×45 mm photo. The lease and the insurance are already in your case.", dueDeadlineId: "dl-summons", origin: "letter" as const, status: "open" as const },
+      { id: "task-reply", title: "Send the lease and insurance with your reply", detail: "Both came in by email and are in your case.", dueDeadlineId: "dl-summons", origin: "letter" as const, status: "open" as const },
+      { id: "task-passport", title: "Bring your original passport to fingerprints", detail: "Take the original passport and the case number.", dueDeadlineId: null, origin: "agent" as const, status: "open" as const },
     ],
     events: [
-      { id: "ev-counter", at: at(-1, "18:20"), type: "counter_session" as const, summary: "Practised the fingerprint appointment in Rehearse", refs: ["apt-fingerprints"] },
-      { id: "ev-docadded", at: at(-1, "12:05"), type: "document_added" as const, summary: "Added the summons letter to your documents", refs: ["doc-wezwanie"] },
-      { id: "ev-deadline", at: at(-1, "11:40"), type: "deadline_created" as const, summary: "Created a deadline to reply to the summons", refs: ["dl-summons"] },
-      { id: "ev-read", at: at(-1, "11:30"), type: "letter_read" as const, summary: "Read the summons: the office asks for proof of health insurance within 7 days", refs: ["doc-wezwanie"] },
-      { id: "ev-email", at: at(-1, "08:15"), type: "email_received" as const, summary: "Email from the voivodeship office: Wezwanie to complete formal deficiencies", refs: ["doc-wezwanie"] },
-      { id: "ev-call", at: at(-12, "17:00"), type: "call" as const, summary: "Welcome call from Dossierly: explained your case, what the UPO means and what happens after filing", refs: [] },
-      { id: "ev-note", at: at(-29, "15:30"), type: "note" as const, summary: "Case filed in MOS", refs: [] },
+      { id: "ev-read", at: at(0, "08:20"), type: "letter_read" as const, summary: "Read the summons: the office asks for your lease, health insurance and a new photo within 14 days", refs: ["doc-wezwanie"] },
+      { id: "ev-deadline", at: at(0, "08:19"), type: "deadline_created" as const, summary: "Created a deadline to reply to the summons", refs: ["dl-summons"] },
+      { id: "ev-email", at: at(-1, "21:40"), type: "email_received" as const, summary: "Email from the voivodeship office: summons to complete your application", refs: ["doc-wezwanie"] },
+      { id: "ev-lease", at: at(-20, "10:05"), type: "document_added" as const, summary: "Lease for ul. Grzybowska 43A m. 12 from your landlord's email (from 1 Oct)", refs: ["doc-rental"] },
+      { id: "ev-note", at: warsawIso(ARJUN.filedAt, "15:30"), type: "note" as const, summary: "Case filed in MOS with the dorm address (DS Babilon)", refs: ["doc-upo"] },
     ],
   };
 }

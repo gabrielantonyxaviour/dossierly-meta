@@ -3,11 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, ButtonLink, ScreenTitle } from "@/components/ui";
 import { useAgentCall } from "@/lib/voice/client/useAgentCall";
-import { TEST_OFFICIAL_LINES } from "@/lib/voice/clips";
+import { TEST_LINES } from "@/lib/voice/clips";
 import { LANG_NAME } from "@/lib/voice/protocol";
 import { LatencyLine } from "@/components/voice/bits";
 import { VoiceScreen } from "@/components/voice/Screen";
-import { DocSheet } from "./DocSheet";
 import { OfficialHalf, UserHalf } from "./Halves";
 import "@/components/voice/voice.css";
 import "./counter.css";
@@ -18,7 +17,6 @@ export function CounterFlow() {
   const [flat, setFlat] = useState(true);
   const [clip, setClip] = useState(0);
   const live = call.status === "live";
-  const doc = call.docs[call.docs.length - 1] ?? null;
   const started = useRef(false);
   const { start } = call;
 
@@ -47,8 +45,8 @@ export function CounterFlow() {
         <ScreenTitle title="At the counter" sub="Lay the phone flat between you and the official, this end toward you." />
         <ol className="vs-steps">
           <li>The top half speaks Polish to the official. The bottom half is yours, in {LANG_NAME[call.lang] ?? "your language"}.</li>
-          <li>When they ask for a document, it opens for them. Tasks go into your case.</li>
-          <li>No Polish speaker around? Use the labelled test official.</li>
+          <li>When they ask for a document, it opens on their half. Tasks go into your case.</li>
+          <li>No Polish speaker around? The labelled test kit plays a short scene with a synthetic official.</li>
         </ol>
         {call.error && <p className="vc-error" role="alert">{call.error}</p>}
         <p className="vs-fine">Audio goes through our server to Meta&rsquo;s speech model and is not stored. Dossierly interprets and guides; it is not a lawyer and files nothing for you.</p>
@@ -58,7 +56,7 @@ export function CounterFlow() {
 
   const hearing = call.partial !== null;
   const status =
-    call.micWaiting ? "Allow the microphone to start" : call.status === "connecting" ? "Connecting…" : call.status === "ended" ? "Conversation ended" : call.clipBusy ? "Test official speaking" : call.speaking ? (call.speaking === "official" ? "Speaking Polish" : "Speaking to you") : hearing ? "Hearing…" : "Listening";
+    call.micWaiting ? "Allow the microphone to start" : call.status === "connecting" ? "Connecting…" : call.status === "ended" ? "Conversation ended" : call.clipBusy ? "Test line playing" : call.speaking ? (call.speaking === "official" ? "Speaking Polish" : "Speaking to you") : hearing ? "Hearing…" : "Listening";
 
   return (
     <div className={`ct ${flat ? "is-flat" : ""}`} role="application" aria-label="Counter conversation">
@@ -84,11 +82,11 @@ export function CounterFlow() {
             disabled={call.clipBusy}
             onClick={() => {
               void call.playClip(clip);
-              setClip((i) => (i + 1) % TEST_OFFICIAL_LINES.length);
+              setClip((i) => (i + 1) % TEST_LINES.length);
             }}
-            title="Plays a synthetic Polish voice into the real speech pipeline"
+            title="Plays a synthetic voice into the real speech pipeline"
           >
-            Test official {clip + 1}/{TEST_OFFICIAL_LINES.length}
+            {TEST_LINES[clip].who === "user" ? "Test reply" : "Test official"} {clip + 1}/{TEST_LINES.length}
           </Button>
         )}
         <Button className="ct-flip" variant="secondary" icon="flip" onClick={() => setFlat((f) => !f)} aria-pressed={flat} aria-label={flat ? "Official half is upside down for a flat phone; tap for upright" : "Official half upright; tap to turn it for a flat phone"}>
@@ -102,8 +100,6 @@ export function CounterFlow() {
           <ButtonLink variant="secondary" href="/app/counter">Cancel</ButtonLink>
         )}
       </div>
-
-      {doc && <DocSheet doc={doc} flat={flat} onClose={() => call.dismissDoc(doc.docId)} />}
     </div>
   );
 }

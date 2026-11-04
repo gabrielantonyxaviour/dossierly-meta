@@ -1,11 +1,17 @@
 /*
- * The labelled "test official" kit for Counter: Polish lines spoken by a synthetic ElevenLabs voice and fed through the
- * real pipeline (microphone path → Meta ASR → Spark), for judges without a Polish speaker at hand.
+ * The labelled test kit for Counter: the window-7 scene (lease, address mismatch, KPA art. 41) spoken by synthetic
+ * ElevenLabs voices and fed through the real pipeline (microphone path → Meta ASR → Spark), for judges without a
+ * Polish speaker at hand. Official lines are attributed to the official; the reply goes through as the user's speech.
  */
-export const TEST_OFFICIAL_LINES = [
-  "Dzień dobry. Poproszę paszport i numer sprawy.",
-  "Czy ma Pan ubezpieczenie zdrowotne na cały okres pobytu?",
-  "Dziękuję. A teraz umowę najmu, proszę.",
-  "Umowa najmu kończy się w grudniu. Potrzebny jest aneks przedłużający najem. Proszę go dostarczyć w ciągu czternastu dni.",
-  "Dobrze. Odciski palców pobierzemy w czwartek, dwunastego listopada, o dziesiątej czterdzieści.",
-] as const;
+export interface TestLine {
+  who: "official" | "user";
+  text: string;
+}
+
+export const TEST_LINES: readonly TestLine[] = [
+  { who: "official", text: "Umowa najmu?" },
+  { who: "official", text: "Moment... Tu jest inny adres niż we wniosku. Dlaczego?" },
+  { who: "user", text: "I moved out of the dorm on the first of October. I'd like to update my address today." },
+  { who: "official", text: "Dobrze. Mało kto o tym pamięta. Proszę to złożyć na piśmie. Najlepiej dziś." },
+  { who: "official", text: "Dobrze. Teraz odciski." },
+];

@@ -73,9 +73,11 @@ export interface DocCard {
 
 export interface CapturedItem {
   turnId: string;
-  kind: "task" | "deadline";
+  kind: "task" | "deadline" | "reminder";
   id: string;
   title: string;
+  /** Short status line, e.g. "KPA art. 41 · draft ready". */
+  detail?: string;
   dueDate: string | null;
 }
 

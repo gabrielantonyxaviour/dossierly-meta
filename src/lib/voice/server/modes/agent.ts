@@ -4,7 +4,7 @@ import type { CapturedItem } from "../../protocol";
 import { streamLines } from "../llm";
 import { agentSystem } from "../prompts";
 import type { Utterance, VoiceSession } from "../session";
-import { firstName, shortId } from "../util";
+import { firstName, shortId, warsawIso } from "../util";
 import type { ModeHandler } from "./index";
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -24,6 +24,7 @@ export class AgentMode implements ModeHandler {
   readonly bargeIn = true;
   private history: ChatMessage[] = [];
   private captured: CapturedItem[] = [];
+  private reminded = new Set<string>();
   private ending = false;
 
   constructor(private s: VoiceSession) {}
@@ -34,7 +35,8 @@ export class AgentMode implements ModeHandler {
 
   private system(): string {
     const reason = this.kind === "phone" && this.s.ticket.r ? `\n\nREASON FOR THIS CALL\n${this.s.ticket.r}` : "";
-    return `${agentSystem(this.s.lang, this.kind)}\n\n${this.s.caseText}${reason}`;
+    const now = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Warsaw", weekday: "long", hour: "2-digit", minute: "2-digit" }).format(new Date());
+    return `${agentSystem(this.s.lang, this.kind)}\n\nLocal time now: ${now} (Warsaw).\n${this.s.caseText}${reason}`;
   }
 
   async open(): Promise<void> {
@@ -91,10 +93,11 @@ export class AgentMode implements ModeHandler {
     if (said) this.s.emit({ t: "turn", turn: { id, who: "agent", text: said, lang: this.s.lang } });
     this.history.push({ role: "user", content: input });
     // Keep the action lines in history so the model knows they are done and does not repeat them.
-    const acts = ["TASK", "DEADLINE"].flatMap((k) => (res.fields[k] ? res.fields[k].split("\n").map((l) => `${k}: ${l}`) : []));
+    const acts = ["TASK", "DEADLINE", "REMIND"].flatMap((k) => (res.fields[k] ? res.fields[k].split("\n").map((l) => `${k}: ${l}`) : []));
     this.history.push({ role: "assistant", content: [`SAY: ${res.fields.SAY ?? said}`, ...acts].join("\n") });
     void cue;
     await this.actions(id, res.fields);
+    await this.remind(id, res.fields);
     if (/^y/i.test(res.fields.END ?? "")) {
       this.ending = true;
       setTimeout(() => void this.s.finish("agent_ended"), 6000);
@@ -137,6 +140,30 @@ export class AgentMode implements ModeHandler {
     }
   }
 
+  /** "Remind me tomorrow at nine": a reminder on the deadline (confirms one the inbox runtime pre-set, never doubles it). */
+  private async remind(turnId: string, f: Record<string, string>): Promise<void> {
+    for (const line of (f.REMIND ?? "").split("\n").filter(Boolean).slice(0, 2)) {
+      const [rawId, when] = line.split("|").map((x) => x.trim());
+      const id = (rawId ?? "").replace(/^#/, "");
+      const m = /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})$/.exec(when ?? "");
+      const d = this.s.snapshot?.deadlines.find((x) => x.id === id);
+      if (!d || !m || this.reminded.has(d.id)) continue;
+      try {
+        const at = warsawIso(m[1], m[2]);
+        const same = (x: { at: string }) => Date.parse(x.at) === Date.parse(at);
+        const reminders = d.reminders.some(same) ? d.reminders : [...d.reminders, { at, channel: "call" as const, sentAt: null }];
+        if (reminders !== d.reminders) {
+          await this.s.case.patchDeadline(d.id, { reminders });
+          d.reminders = reminders;
+        }
+        this.reminded.add(d.id);
+        this.push({ turnId, kind: "reminder", id: d.id, title: `Reminder: ${d.title}`, detail: `${new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${m[1]}T00:00:00Z`))}, ${m[2]}`, dueDate: d.dueDate });
+      } catch {
+        this.s.emit({ t: "error", error: "Could not set that reminder", code: "case_write" });
+      }
+    }
+  }
+
   private push(item: CapturedItem): void {
     this.captured.push(item);
     this.s.emit({ t: "captured", item });
@@ -148,6 +175,9 @@ export class AgentMode implements ModeHandler {
     const label = this.kind === "phone" ? "Phone call from Dossierly" : this.kind === "welcome" ? "Welcome call with Dossierly" : "Voice call with Dossierly";
     const asked = userTurns.slice(0, 3).map((t) => `"${t.text.slice(0, 80)}"`).join(", ");
     const made = this.captured.length ? ` Added: ${this.captured.map((c) => c.title).join("; ")}.` : "";
-    await this.s.case.addEvent({ type: "call", summary: `${label}.${asked ? ` You asked ${asked}.` : ""}${made}`, refs: this.captured.map((c) => c.id) });
+    // Phone calls about a letter reference its deadline (and drafts) by #id in the reason.
+    const about = this.kind === "phone" ? [...(this.s.ticket.r ?? "").matchAll(/#([A-Za-z0-9_-]{1,64})/g)].map((x) => x[1]) : [];
+    const refs = [...new Set([...about, ...this.captured.map((c) => c.id)])].slice(0, 20);
+    await this.s.case.addEvent({ type: "call", summary: `${label}.${asked ? ` You asked ${asked}.` : ""}${made}`, refs });
   }
 }

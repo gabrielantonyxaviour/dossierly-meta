@@ -8,6 +8,8 @@ export interface ModeHandler {
   readonly bargeIn: boolean;
   open(): Promise<void>;
   utterance(u: Utterance, signal: AbortSignal): Promise<void>;
+  /** Live partial transcript (Counter: pull up a named document before the sentence ends). */
+  partial?(text: string): void;
   /** Writes the session summary to the case timeline. */
   finish(): Promise<void>;
 }
