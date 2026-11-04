@@ -1,5 +1,6 @@
 "use client";
 
+import { SampleCaseHint } from "@/components/voice/SampleCaseHint";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useAgentCall } from "@/lib/voice/client/useAgentCall";
@@ -62,6 +63,7 @@ export function RehearseFlow() {
           <span className="tab-label"><Icon name="speak" size={16} /> Rehearse</span>
           <h1>Practise the interview before the real one</h1>
           <p className="muted">A simulated official asks you what the office would ask about your case, in Polish, with {lang} subtitles. Answer out loud in Polish or {lang}. After {QUESTIONS} questions you get feedback and the phrases worth practising.</p>
+          <SampleCaseHint />
           {call.error && <p className="vc-error" role="alert">{call.error}</p>}
           <button className="btn btn-primary rh-go" onClick={() => void call.start()}><Icon name="mic" size={18} /> {call.error ? "Try again" : "Start rehearsal"}</button>
           <p className="vc-fine">The official is an AI voice, not a real office. Questions come from your case file.</p>
