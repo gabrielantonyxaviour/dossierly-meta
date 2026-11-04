@@ -19,20 +19,20 @@ const outSchema = z.object({
   language: z.string().trim().max(8).catch("en"),
   reason: z.enum(["study", "work", "family", "other", "unknown"]).catch("unknown"),
   city: n(z.string().trim().min(2).max(80)),
-  officialMail: z.boolean().catch(false),
-  reply: z.string().trim().min(2).max(240),
 });
+const replySchema = z.object({ reply: z.string().trim().min(2).max(240), language: z.string().trim().max(8).catch("en") });
 
-const SYSTEM = `You are Dossierly, a calm personal caseworker for newcomers in Poland. This is the very first moment of setup: the person just pressed the microphone and said a few words about themselves. You hear a speech transcript (it may contain fillers, false starts and self-corrections).
-Pull out only what they actually said:
+/* Two Spark calls in parallel: the spoken reply (short prompt, tiny output, on the critical path) and the profile. */
+const EXTRACT = `You read the speech transcript of a newcomer in Poland introducing themselves at the start of setup (it may contain fillers, false starts and self-corrections). Pull out only what they actually said:
 - firstName and fullName (fullName only if they said a surname), as they would write them.
 - language: ISO code of the language they spoke (en, uk, ru, hi, ta, zh, ja, vi, pl…).
 - reason for living in Poland: study (student, university), work (job, employer), family, other, or unknown.
 - city in Poland if they named one.
-- officialMail: true if they mention a letter, a summons, an office, an appointment, fingerprints, a permit or a deadline.
-Then write reply: what you say back out loud, in the language they spoke, at most two very short spoken sentences (under 20 words). Greet them by first name. If officialMail is true, ask to look at their email and say why in a few words: that is where the office writes to them. Otherwise ask to look at their email so you can find anything official. Do not answer their questions yet, do not repeat their details back, do not mention dates, and do not promise outcomes. No emojis, no lists.
-Example. Transcript: "um hello I'm Mei, I work here, and I got some letter from the office I don't get" → reply: "Hi Mei. Can I look at your email? That's where the office writes to you."
-Return only JSON: {"firstName":null,"fullName":null,"language":"en","reason":"unknown","city":null,"officialMail":false,"reply":""}`;
+Return only JSON: {"firstName":null,"fullName":null,"language":"en","reason":"unknown","city":null}`;
+
+const REPLY = `You are Dossierly, a calm caseworker for newcomers in Poland. The person just introduced themselves by voice (speech transcript, may have fillers). Say back, in the language they spoke, at most two very short spoken sentences (under 20 words): greet them by first name, then ask to look at their email and say why in a few words (that is where the office writes to them). Do not answer questions yet, repeat their details, mention dates or promise outcomes. No emojis.
+Example: "um hello I'm Mei, I work here, I got some letter from the office I don't get" → {"reply":"Hi Mei. Can I look at your email? That's where the office writes to you.","language":"en"}
+Return only JSON: {"reply":"","language":"<ISO code of the language they spoke>"}`;
 
 type CaseNs = { idFromName(n: string): unknown; get(id: unknown): { fetch(input: string, init?: RequestInit): Promise<Response> } };
 /** The profile through the CASE_DO binding on whatever env is given (Next route or VoiceDO), else the dev case client. */
@@ -62,19 +62,24 @@ export async function runIntake(env: Env, userId: string, transcript: string): P
 }
 
 /** One spoken introduction → saved profile + the reply to say. Also used by the realtime voice session (mode "intake"). */
-export async function intakeTurn(env: Env, userId: string, transcript: string, opts: { defer?: (work: Promise<unknown>) => void } = {}): Promise<Omit<IntakeResult, "speechId">> {
+/**
+ * One spoken introduction → the reply to say + the saved profile. The reply has its own small Spark call so it can be
+ * spoken as soon as it exists (`onReply`), while the profile extraction and save finish alongside (`defer`).
+ */
+export async function intakeTurn(
+  env: Env, userId: string, transcript: string,
+  opts: { defer?: (work: Promise<unknown>) => void; onReply?: (reply: string, language: string) => void } = {},
+): Promise<Omit<IntakeResult, "speechId">> {
   const c = profileStore(env, userId);
-  // The profile read runs alongside Spark; only the model call is on the critical path.
-  const [out, current] = await Promise.all([
-    retryTransient(() => runModel(
-      { env, userId },
-      {
-        task: "intake", system: SYSTEM, input: `Transcript: "${transcript.replace(/"/g, "'")}"`, schema: outSchema,
-        maxTokens: 400, effort: "minimal", masker: maskerFor({}), replay: () => { throw new Error("no replay for intake"); },
-      },
-    ), 600),
-    c.get(),
-  ]);
+  const input = `Transcript: "${transcript.replace(/"/g, "'")}"`;
+  const base = { input, effort: "minimal" as const, masker: maskerFor({}), replay: (): never => { throw new Error("no replay for intake"); } };
+  const replyP = retryTransient(() => runModel({ env, userId }, { ...base, task: "intake", system: REPLY, schema: replySchema, maxTokens: 200 }), 600).then((o) => {
+    const lang = (LANGUAGES as readonly string[]).includes(o.data.language) ? o.data.language : "en";
+    opts.onReply?.(o.data.reply, lang);
+    return { reply: o.data.reply, language: lang };
+  });
+  const extractP = retryTransient(() => runModel({ env, userId }, { ...base, task: "intake", system: EXTRACT, schema: outSchema, maxTokens: 300 }), 600);
+  const [said, out, current] = await Promise.all([replyP, extractP, c.get()]);
   const x = out.data;
   const lang = (LANGUAGES as readonly string[]).includes(x.language) ? (x.language as Language) : null;
   const patch: Partial<Profile> = { country: "PL" };
@@ -83,8 +88,7 @@ export async function intakeTurn(env: Env, userId: string, transcript: string, o
   if (lang) patch.preferredLanguage = lang;
   if (PERMIT[x.reason]) patch.permitType = PERMIT[x.reason];
   if (x.city) patch.city = x.city;
-  const result = { reply: x.reply, language: lang ?? "en", firstName: x.firstName };
-  // With `defer` (a voice session that stays alive), the reply goes out while the profile is saved.
+  const result = { reply: said.reply, language: lang ?? said.language, firstName: x.firstName };
   if (opts.defer) {
     opts.defer(c.patch(patch).catch(() => undefined));
     return { ...result, profile: { ...current, ...patch, phone: current.phone } };
