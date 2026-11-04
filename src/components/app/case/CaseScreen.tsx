@@ -4,6 +4,7 @@ import { ErrorState, IconLink, Segmented, Skeleton, TopBar } from "@/components/
 import { PERMIT_LABEL, STAGE_LABEL } from "../format";
 import { useCaseData } from "../shell/case-data";
 import { CaseHeader } from "./CaseHeader";
+import { KeyCards } from "./KeyCards";
 import { DatesTab, DocumentsTab, TasksTab } from "./CaseTabs";
 import { TimelineTab } from "./TimelineTab";
 import "./case.css";
@@ -32,6 +33,7 @@ export function CaseScreen() {
         actions={<IconLink href={`/app/chat?q=${encodeURIComponent("Summarise where my case stands and what could go wrong next.")}`} icon="sparkle" label="Ask about your case" />}
       />
       <CaseHeader c={c} />
+      <KeyCards c={c} />
       <div className="cs-tabs">
         <Segmented label="Case sections" value={tab} onChange={setTab} options={[
           { value: "timeline", label: "Timeline" },

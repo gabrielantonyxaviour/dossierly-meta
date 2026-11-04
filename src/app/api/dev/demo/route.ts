@@ -1,5 +1,6 @@
 import { caseClient } from "@/lib/case/client";
 import { completeOnboarding, resetPreviewAccount } from "@/lib/dev/preview";
+import { writeReadyScene } from "@/lib/dev/ready-scene";
 import { buildArjunSeed } from "@/lib/dev/arjun-seed";
 import { warsawToday } from "@/lib/case/next-step";
 import { getEnv } from "@/lib/server/env";
@@ -12,7 +13,7 @@ const DEMO_ID = "dev-arjun";
 
 const target = (req: Request) => {
   const next = new URL(req.url).searchParams.get("next");
-  return next && /^\/app(\/|\?|$)/.test(next) ? next : "/app";
+  return next && /^\/app(\/|\?|$)/.test(next) ? next : new URL(req.url).searchParams.get("scene") === "ready" ? "/app/ready" : "/app";
 };
 
 /**
@@ -20,6 +21,7 @@ const target = (req: Request) => {
  * - local: signs in as a seeded demo user (no email sign-in needed).
  * - preview: for the ALREADY signed-in account, `?reset=1` replaces the case with Arjun's labelled sample case.
  *   (Empty cases on app/voice/look previews are seeded automatically by the /app layout.) Never creates accounts.
+ * - both: `?scene=ready` adds the labelled "new letter + drafts" scene so /app/ready can be checked (next defaults to it).
  */
 export async function GET(req: Request) {
   const env = getEnv();
@@ -28,8 +30,10 @@ export async function GET(req: Request) {
     if (env.APP_ENV === "preview") {
       const account = await accountFromCookie(req.headers.get("cookie"), env);
       if (!account) return jsonError(401, "Sign in first", "no_session");
-      if (new URL(req.url).searchParams.get("reset") === "1") await resetPreviewAccount(env, account.accountId, { reseed: true });
+      const q = new URL(req.url).searchParams;
+      if (q.get("reset") === "1") await resetPreviewAccount(env, account.accountId, { reseed: true });
       else await completeOnboarding(env, account.accountId);
+      if (q.get("scene") === "ready") await writeReadyScene(account.accountId);
       return new Response(null, { status: 302, headers: { location: target(req), "cache-control": "no-store" } });
     }
     const now = Date.now();
@@ -46,6 +50,7 @@ export async function GET(req: Request) {
       await cc.patchFacts(s.facts);
       for (const kind of ["documents", "deadlines", "appointments", "tasks", "events"] as const) for (const item of s[kind]) await cc.create(kind, item);
     }
+    if (new URL(req.url).searchParams.get("scene") === "ready") await writeReadyScene(DEMO_ID);
     return new Response(null, { status: 302, headers: { location: target(req), "set-cookie": await sessionCookie(DEMO_ID, env), "cache-control": "no-store" } });
   } catch {
     return jsonError(500, "Could not seed the demo case", "seed_failed");
