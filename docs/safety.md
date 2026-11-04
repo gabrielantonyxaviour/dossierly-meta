@@ -31,7 +31,7 @@ Dossierly guides; it never acts on a government system for the user, and it neve
 
 ## Spend and abuse limits
 
-Reserve-then-settle metering against a daily model cap, per-user limits on looks (30/hour), searches and Wonder reviews, and a kill switch (`MODELS_DISABLED=1`). Live voice sessions are outside the cap and the kill switch today; they need a signed-in user and a 2-minute ticket. Details in [models.md](models.md#spend-control).
+Reserve-then-settle metering against a daily model cap, per-user limits on looks (30/hour), searches and Wonder reviews, and a kill switch (`MODELS_DISABLED=1`). Live voice books each call against the same cap after it ends (so a turn never waits on the budget) and stops when the kill switch is on or the cap is reached. Details in [models.md](models.md#spend-control).
 
 ## Limits
 

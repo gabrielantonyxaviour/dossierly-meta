@@ -36,7 +36,7 @@ Every Meta model call goes through `src/lib/model` (or, for the realtime voice l
 - **Reserve, then settle** (`model/meter.ts`): every `runModel` call, grounded search, SAM call and Wonder review round reserves an upper bound (estimated input + all of `max_tokens` at the output price) against a daily cap, then settles to the billed usage. A reply without usage is metered as the worst case, never zero.
 - **Caps**: US$5 of model spend per day across the app (`MODEL_DAILY_USD_CAP`), 40 grounded searches per day (5 per user), US$0.50 of Wonder review per user per day.
 - **Kill switch**: `MODELS_DISABLED=1` stops all of those paths.
-- **Not covered yet**: the realtime voice session (`VoiceDO` streaming Spark lanes, Voice Transcribe, ElevenLabs) is not counted against the daily cap and not stopped by the kill switch. A voice session needs a signed-in user and a ticket that expires after 2 minutes.
+- **Live voice** (`voice/server/meter.ts`) is metered without adding latency to a turn. Before each Spark call and each Voice Transcribe connect, a synchronous gate checks the kill switch and a cached "cap reached today" flag (primed from D1 at session start). After each call, its billed usage is booked against the same daily cap, never awaited by the turn: a stream cut short by barge-in or a corrected partial is booked from an estimate, and Voice Transcribe is booked by the audio streamed. Because booking follows the call, the cap can be overshot by the calls already in flight. ElevenLabs is outside the model cap.
 - Cap, settle, retry metering and the kill switch are pinned by `tests/unit/token-cap.test.ts`.
 - **Records**: each `runModel` call writes a `runs` row (task, model, ms, tokens, cost) and a `ledger` row (bytes sent, items masked) in D1.
 
@@ -55,7 +55,7 @@ Mean billed cost per model call from D1 `runs` (preview environment, 134 cloud r
 | Look outlines | SAM 3.1 | 2 | | $0.0025 |
 | Photo check | Spark 1.3 | 2 | 2,927 / 846 | $0.0073 |
 
-Output tokens include reasoning tokens. Live voice turns stream outside `runModel`, so they are neither metered nor written to `runs`.
+Output tokens include reasoning tokens. Live voice turns stream outside `runModel`: they are booked against the cap but not written to `runs`.
 
 Letter reading under controlled conditions, 28 letters × clean and photo variants ([eval.md](eval.md)): Spark 1.3 low (production) $0.033 per letter including SAM, 19.0 s p50 for the whole read (both calls in parallel), SAM 2.7 s p50.
 
