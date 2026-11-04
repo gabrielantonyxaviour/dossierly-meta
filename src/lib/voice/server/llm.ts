@@ -2,7 +2,7 @@
 import type { Role, ReasoningEffort } from "../../config";
 import { metaChat, metaChatStream, type FetchLike } from "../../model/meta";
 import { resolveRole, type EnvLike } from "../../model/roles";
-import type { ChatMessage } from "../../model/types";
+import { ModelError, type ChatMessage } from "../../model/types";
 import { LineStream, type LineHandlers } from "./lines";
 
 export interface StreamArgs {
@@ -24,6 +24,10 @@ function withSignal(signal?: AbortSignal): FetchLike | undefined {
   };
 }
 
+const RETRIES = 3;
+/** Provider hiccups worth another try (not a bad key or a rejected request). */
+const transient = (e: unknown) => e instanceof ModelError && ["model_unavailable", "rate_limited", "model_error"].includes(e.code);
+
 /** Streams one reply through the line parser. Resolves with all fields once the stream ends. */
 export async function streamLines(env: EnvLike, a: StreamArgs, h: Partial<LineHandlers>): Promise<{ fields: Record<string, string>; model: string; firstTokenMs: number | null }> {
   const cfg = resolveRole(a.role, env);
@@ -34,21 +38,31 @@ export async function streamLines(env: EnvLike, a: StreamArgs, h: Partial<LineHa
   );
   const t0 = Date.now();
   let first: number | null = null;
-  const gen = metaChatStream(
-    {
-      model: cfg.model,
-      role: a.role,
-      messages: [{ role: "system", content: a.system }, ...a.messages],
-      maxTokens: a.maxTokens ?? 1500,
-      reasoningEffort: a.effort ?? "minimal",
-    },
-    { env, fetch: withSignal(a.signal), timeoutMs: 30_000 },
-  );
-  for await (const c of gen) {
-    if (a.signal?.aborted) break;
-    if (c.type === "delta") {
-      first ??= Date.now() - t0;
-      lines.push(c.text);
+  const open = () =>
+    metaChatStream(
+      {
+        model: cfg.model,
+        role: a.role,
+        messages: [{ role: "system", content: a.system }, ...a.messages],
+        maxTokens: a.maxTokens ?? 1500,
+        reasoningEffort: a.effort ?? "minimal",
+      },
+      { env, fetch: withSignal(a.signal), timeoutMs: 30_000 },
+    );
+  // Meta answers an intermittent 404/429/5xx before streaming: retry while nothing has been said yet.
+  for (let attempt = 1; ; attempt++) {
+    try {
+      for await (const c of open()) {
+        if (a.signal?.aborted) break;
+        if (c.type === "delta") {
+          first ??= Date.now() - t0;
+          lines.push(c.text);
+        }
+      }
+      break;
+    } catch (e) {
+      if (first !== null || a.signal?.aborted || attempt >= RETRIES || !transient(e)) throw e;
+      await new Promise((r) => setTimeout(r, 200 * attempt));
     }
   }
   if (!a.signal?.aborted) lines.end();
@@ -58,21 +72,25 @@ export async function streamLines(env: EnvLike, a: StreamArgs, h: Partial<LineHa
 /** One-shot JSON (json_object) for side lanes; returns null on any failure so a side lane never breaks a turn. */
 export async function jsonCall<T>(env: EnvLike, a: { role: Role; effort?: ReasoningEffort; system: string; user: string; maxTokens?: number }): Promise<T | null> {
   const cfg = resolveRole(a.role, env);
-  try {
-    const out = await metaChat(
-      {
-        model: cfg.model,
-        role: a.role,
-        messages: [{ role: "system", content: a.system }, { role: "user", content: a.user }],
-        maxTokens: a.maxTokens ?? 2500,
-        reasoningEffort: a.effort ?? "minimal",
-        json: "json_object",
-      },
-      { env, timeoutMs: 30_000 },
-    );
-    const s = out.content.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
-    return JSON.parse(s.slice(s.indexOf("{"), s.lastIndexOf("}") + 1)) as T;
-  } catch {
-    return null;
+  for (let attempt = 1; attempt <= RETRIES; attempt++) {
+    try {
+      const out = await metaChat(
+        {
+          model: cfg.model,
+          role: a.role,
+          messages: [{ role: "system", content: a.system }, { role: "user", content: a.user }],
+          maxTokens: a.maxTokens ?? 2500,
+          reasoningEffort: a.effort ?? "minimal",
+          json: "json_object",
+        },
+        { env, timeoutMs: 30_000 },
+      );
+      const s = out.content.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
+      return JSON.parse(s.slice(s.indexOf("{"), s.lastIndexOf("}") + 1)) as T;
+    } catch (e) {
+      if (attempt >= RETRIES || !transient(e)) return null;
+      await new Promise((r) => setTimeout(r, 200 * attempt));
+    }
   }
+  return null;
 }
