@@ -11,10 +11,10 @@ const STEPS: { icon: IconName; title: string; body: string; href: string }[] = [
 ];
 
 const FAQ: { q: string; a: string }[] = [
-  { q: "Where is my case stored?", a: "On this device, encrypted. Your agent works from a masked copy so it can remember. Names and case numbers are masked before any model call." },
-  { q: "Can I open my case on another device?", a: "Sign in with a code sent to your email. Your account is available on another device, but your encrypted case stays in the browser where you made it. Email sign-in cannot restore a missing local case. The sample case is available everywhere." },
-  { q: "How do I delete everything?", a: "Privacy ledger, then Delete everything. It removes the case from this device." },
-  { q: "Who can I write to?", a: "darthstormer.ai@gmail.com. Dossierly is operated by Gokul Nath." },
+  { q: "Where is my case stored?", a: "In your own private case file on Cloudflare, one per account, readable only when you are signed in. It is never sold. Names and case numbers are masked before any model call." },
+  { q: "Can I open my case on another device?", a: "Yes. Sign in with a code sent to your email and your case opens on any device. Only your chat history stays in the browser where you had it." },
+  { q: "How do I delete everything?", a: "Write to contact@cosmiclan.com from the email you sign in with. We delete your case file and your account." },
+  { q: "Who can I write to?", a: "contact@cosmiclan.com. Dossierly is operated by Gabriel Antony Xaviour." },
 ];
 
 export function HelpPage() {

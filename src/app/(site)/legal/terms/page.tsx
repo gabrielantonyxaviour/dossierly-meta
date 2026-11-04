@@ -13,7 +13,7 @@ export default function TermsPage() {
       </div>
 
       <h2>Who runs Dossierly</h2>
-      <p>Dossierly is operated by Gokul Nath, an individual. Contact: <a href="mailto:darthstormer.ai@gmail.com">darthstormer.ai@gmail.com</a>.</p>
+      <p>Dossierly is operated by Gabriel Antony Xaviour, an individual. Contact: <a href="mailto:contact@cosmiclan.com">contact@cosmiclan.com</a>.</p>
 
       <h2>What the service does</h2>
       <ul>

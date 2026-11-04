@@ -34,3 +34,5 @@ export async function GET() {
     return errorResponse(e);
   }
 }
+
+export { POST, PUT, PATCH, DELETE } from "@/lib/server/get-only";

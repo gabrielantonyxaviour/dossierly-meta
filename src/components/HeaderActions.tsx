@@ -19,6 +19,7 @@ export function HeaderActions() {
   }, [s]);
   return (
     <div className="site-actions">
+      <Link href="/pricing" className="nav-pricing-sm">Pricing</Link>
       {s === "signed-in" ? (
         <>
           {onboardingPreview && (

@@ -56,3 +56,5 @@ export async function GET(req: Request) {
     return jsonError(500, "Could not seed the demo case", "seed_failed");
   }
 }
+
+export { POST, PUT, PATCH, DELETE } from "@/lib/server/get-only";

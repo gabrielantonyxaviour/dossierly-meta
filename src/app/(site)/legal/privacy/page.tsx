@@ -19,7 +19,7 @@ export default function PrivacyPolicy() {
       <p className="lead muted">Plainly: what we process, where it is kept and how to remove it.</p>
 
       <h2>Controller</h2>
-      <p>Gokul Nath (individual), <a href="mailto:darthstormer.ai@gmail.com">darthstormer.ai@gmail.com</a>. You are using an AI system.</p>
+      <p>Gabriel Antony Xaviour (individual), <a href="mailto:contact@cosmiclan.com">contact@cosmiclan.com</a>. You are using an AI system.</p>
 
       <h2>What is stored where</h2>
       <table>
@@ -52,7 +52,7 @@ export default function PrivacyPolicy() {
       <p>Your case file and account record are kept while you use Dossierly and deleted on request.</p>
 
       <h2>Your rights</h2>
-      <p>You can ask for access, correction, deletion, restriction, portability, or object to processing, by writing to darthstormer.ai@gmail.com. You can complain to the Polish supervisory authority, the President of the Personal Data Protection Office (UODO), <a href="https://uodo.gov.pl" target="_blank" rel="noreferrer">uodo.gov.pl</a>, or to the authority in your EU country.</p>
+      <p>You can ask for access, correction, deletion, restriction, portability, or object to processing, by writing to <a href="mailto:contact@cosmiclan.com">contact@cosmiclan.com</a>. You can complain to the Polish supervisory authority, the President of the Personal Data Protection Office (UODO), <a href="https://uodo.gov.pl" target="_blank" rel="noreferrer">uodo.gov.pl</a>, or to the authority in your EU country.</p>
 
       <p className="small muted">See also: <Link href="/legal/terms">Terms</Link> · <Link href="/limits">Published limitations</Link></p>
     </article>

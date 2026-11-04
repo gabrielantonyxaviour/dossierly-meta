@@ -20,3 +20,5 @@ export async function GET(req: Request): Promise<Response> {
     return errorResponse(e);
   }
 }
+
+export { POST, PUT, PATCH, DELETE } from "@/lib/server/get-only";

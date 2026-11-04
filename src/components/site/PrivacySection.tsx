@@ -4,7 +4,7 @@ const POINTS = [
   { t: "Your own agent", d: "Each person gets their own private agent, which works only on your masked case and official sources." },
   { t: "A ledger of every call", d: "Every model call your agent makes is written to a hash-chained ledger you can open in the app." },
   { t: "IDs masked first", d: "Your name, case number, PESEL and addresses are replaced with placeholders before any model sees the text." },
-  { t: "Encrypted on your device", d: "The case stays in your browser, encrypted with AES-GCM. Email sign-in gives you account access; it does not transfer your saved case." },
+  { t: "Your own private case file", d: "Your case is kept server-side on Cloudflare, in a separate store for each account that only your signed-in session can read. It is never sold, and you can have it deleted." },
   { t: "Storage off", d: "Every model call is sent with storage switched off." },
 ];
 

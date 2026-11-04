@@ -38,8 +38,8 @@ const FAQ = [
   { q: "Which countries and offices are covered?", a: "Poland first: temporary residence and work at the Mazowiecki office in Warsaw. Germany and France are next. A country goes live only when its offices, letter types and deadline rules are covered from their sources." },
   { q: "Which languages can I use?", a: "The official's side is Polish. You can speak English, Ukrainian, Hindi or Tamil. Interface labels are in English; content follows your language." },
   { q: "Does Dossierly keep my audio?", a: "No. Each spoken turn in Polish, English or Ukrainian is sent once for transcription by Meta Muse Voice Transcribe and deleted; only the text is kept. Hindi and Tamil use your browser's own recognition." },
-  { q: "What happens to my personal data?", a: "Your case lives on your device, encrypted with AES-GCM. Identifiers are masked before any model call, and every model call and connection is listed in your privacy ledger." },
-  { q: "What does it cost?", a: "Nothing. Letters, appointment preparation, interpreting and deadlines are free." },
+  { q: "What happens to my personal data?", a: "Your case lives in a private case file on Cloudflare, one per account, readable only when you are signed in. It is never sold, and you can have it deleted at any time. Identifiers are masked before any model call, and every model call is listed in your privacy ledger." },
+  { q: "What does it cost?", a: "Nothing during the beta. Everything is included, with fair daily limits that keep the service up for everyone. See the pricing page for the numbers." },
 ];
 
 /** "Your questions, covered": heading and button on the left, an accordion on the right. */

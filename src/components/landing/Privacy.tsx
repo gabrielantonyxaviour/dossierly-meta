@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Icon } from "@/components/Icon";
 
 const LEDGER = [
-  { t: "Super VL · letter reading", s: "store: false · 7:13 PM" },
+  { t: "Muse Spark 1.3 · letter reading", s: "3 IDs masked · 7:13 PM" },
   { t: "migrant.wsc.mazowieckie.pl", s: "allowed by policy · 7:12 PM" },
   { t: "an unknown host", s: "denied by policy · 7:12 PM" },
 ];
@@ -41,7 +41,7 @@ export function Privacy() {
                 <div className="lp-ui-body">
                   <p className="lp-mask">Applicant <mark>[NAME_1]</mark>, passport <mark>[PASSPORT_1]</mark>, case <mark>[CASE_1]</mark>, asks about the wezwanie of 27 Oct.</p>
                   <div className="lp-ui-btns" aria-hidden="true">
-                    <span className="lp-ui-btn lp-ui-btn-dark"><Icon name="lock" size={13} /> Encrypted on this device</span>
+                    <span className="lp-ui-btn lp-ui-btn-dark"><Icon name="lock" size={13} /> Restored only in your answer</span>
                   </div>
                 </div>
               </div>
@@ -65,8 +65,8 @@ export function Privacy() {
           </article>
         </div>
         <p className="lp-fine">
-          Your case lives on your device, encrypted with AES-GCM. What we
-          cannot promise yet is on <Link href="/limits" className="lp-ulink">the limits page</Link>.
+          Your case lives in its own private case file on Cloudflare, readable only by your signed-in account. It is never
+          sold, and you can have it deleted at any time. What we cannot promise yet is on <Link href="/limits" className="lp-ulink">the limits page</Link>.
         </p>
       </div>
     </section>

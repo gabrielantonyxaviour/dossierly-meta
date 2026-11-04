@@ -63,7 +63,7 @@ export function HeroMock() {
         <b className="lp-app-name">Your agent</b>
         <span className="lp-app-status"><span className="lp-dot-ok" aria-hidden="true" />Private case</span>
         <div className="lp-app-chips">
-          <span>Super VL</span>
+          <span>Muse Spark 1.3</span>
           <span>IDs masked</span>
         </div>
         <p className="lp-app-today">Today</p>

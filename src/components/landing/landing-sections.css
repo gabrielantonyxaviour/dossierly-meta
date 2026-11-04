@@ -112,13 +112,20 @@
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lp-logos { --lp-logo-filter: grayscale(1) invert(1) brightness(1.8); } }
 :root[data-theme="dark"] .lp-logos { --lp-logo-filter: grayscale(1) invert(1) brightness(1.8); }
 
-.lp-parts { display: grid; gap: 28px 32px; }
-@media (min-width: 640px) { .lp-parts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 1024px) { .lp-parts { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 40px; } }
-.lp-parts li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 12px; }
-.lp-parts svg { margin-top: 2px; }
-.lp-parts b { display: block; font-size: 15px; line-height: 22px; font-weight: 500; }
-.lp-parts span { display: block; font-size: 13px; line-height: 20px; color: var(--lp-muted); }
+.lp-sys { display: grid; gap: 16px; }
+@media (min-width: 900px) { .lp-sys { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; } }
+.lp-sys-cell { border: 1px solid var(--lp-hair); border-radius: 20px; padding: 22px 20px; display: grid; gap: 18px; align-content: start; }
+@media (min-width: 640px) { .lp-sys-cell { padding: 28px; } }
+.lp-sys-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 34px; }
+.lp-sys-top img { display: block; height: auto; }
+.lp-sys-role { font-size: 13px; line-height: 18px; color: var(--lp-muted); text-align: right; }
+.lp-sys-models { display: grid; gap: 0; }
+.lp-sys-models li { display: grid; gap: 2px; padding: 12px 0; border-top: 1px solid var(--lp-hair); }
+.lp-sys-models li:last-child { padding-bottom: 0; }
+.lp-sys-meta .lp-sys-models { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px) { .lp-sys-meta .lp-sys-models { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; } }
+.lp-sys-models b { font-size: 15px; line-height: 22px; font-weight: 500; }
+.lp-sys-models span { font-size: 14px; line-height: 20px; color: var(--lp-muted); }
 
 /* Why: comparison */
 .lp-why { display: grid; gap: 40px; align-items: center; }

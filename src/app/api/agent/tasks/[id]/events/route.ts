@@ -37,3 +37,5 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
     return new Response(stream, { headers: { "content-type": "text/event-stream", "cache-control": "no-store", "x-accel-buffering": "no" } });
   } catch (error) { return errorResponse(error); }
 }
+
+export { POST, PUT, PATCH, DELETE } from "@/lib/server/get-only";

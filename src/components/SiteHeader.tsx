@@ -11,6 +11,7 @@ export function SiteHeader() {
           <Link href="/#how">How it works</Link>
           <Link href="/#privacy">Privacy</Link>
           <Link href="/countries">Countries</Link>
+          <Link href="/pricing">Pricing</Link>
         </nav>
         <HeaderActions />
       </div>

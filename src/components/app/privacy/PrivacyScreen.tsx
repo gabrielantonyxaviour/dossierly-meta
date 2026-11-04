@@ -38,7 +38,7 @@ function DeleteCard() {
   return (
     <section className="card stack" aria-labelledby="del-h" style={{ ["--gap" as string]: "10px" }}>
       <h2 id="del-h" className="h-card">Delete everything</h2>
-      <p className="small muted" style={{ margin: 0 }}>Destroys the encryption key and wipes the case, letters and wrap-ups from this device. This cannot be undone. To also erase the server ledger and your account, email darthstormer.ai@gmail.com.</p>
+      <p className="small muted" style={{ margin: 0 }}>Destroys the encryption key and wipes the case, letters and wrap-ups from this device. This cannot be undone. To also erase the server ledger and your account, email contact@cosmiclan.com.</p>
       {armed ? (
         <div className="row">
           <button className="btn btn-danger" onClick={() => void del()} disabled={busy}>{busy ? "Deleting…" : "Yes, delete my case"}</button>

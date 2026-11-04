@@ -125,7 +125,7 @@ export const choosePlan = (choice: "free"): Promise<ApiResult<Account>> => postA
 /** Sandbox names are internal ids; show only the pool slot (e.g. "pool-03"). */
 export function sandboxLabel(name?: string | null): string {
   if (!name) return "";
-  return name.replace(/^settla[-_]?/i, "").replace(/^companion-arjun$/, "sample agent");
+  return name.replace(/^companion-arjun$/, "sample agent");
 }
 
 /** Fetch with typed results. A 401 `no_session` is returned as is: the UI sends the person to sign in. */

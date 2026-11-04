@@ -4,3 +4,5 @@ import { withCase } from "@/lib/case/route";
 export const dynamic = "force-dynamic";
 
 export const GET = (req: Request) => withCase(req, async (c) => ({ nextStep: nextStep(await c.snapshot()) }));
+
+export { POST, PUT, PATCH, DELETE } from "@/lib/server/get-only";

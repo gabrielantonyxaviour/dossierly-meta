@@ -19,3 +19,5 @@ export async function GET(req: Request, ctx: { params: Promise<{ lookId: string 
     return errorResponse(e);
   }
 }
+
+export { POST, PUT, PATCH, DELETE } from "@/lib/server/get-only";

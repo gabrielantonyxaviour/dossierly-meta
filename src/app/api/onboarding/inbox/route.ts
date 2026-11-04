@@ -5,3 +5,5 @@ export const dynamic = "force-dynamic";
 
 /** Candidate official emails (metadata only) from the connected Gmail account. */
 export const GET = (req: Request) => withOnboarding(req, ({ env, accountId }) => listOfficialMail(env, accountId));
+
+export { POST, PUT, PATCH, DELETE } from "@/lib/server/get-only";

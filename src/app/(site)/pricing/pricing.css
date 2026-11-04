@@ -1,0 +1,25 @@
+/* /pricing: one beta plan, the usage limits, FAQ. Mobile first. */
+.pr { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+.pr .pricing-head h1 { font-size: 2rem; line-height: 1.15; letter-spacing: -0.03em; margin: 0 0 10px; }
+@media (min-width: 720px) { .pr .pricing-head h1 { font-size: 2.75rem; } }
+.pr-plan { max-width: 560px; margin: 0 auto; padding: 24px 20px; }
+@media (min-width: 720px) { .pr-plan { padding: 32px; } }
+.pr-cta { min-height: 52px; justify-content: center; font-size: 1rem; width: 100%; }
+@media (min-width: 720px) { .pricing-final .pr-cta { width: auto; padding-inline: 28px; } }
+
+.pr-sec { max-width: 760px; margin: 64px auto 0; }
+.pr-sec h2 { margin: 0 0 10px; }
+.pr-sec > p { font-size: 0.9375rem; line-height: 1.55; }
+.pr-limits { list-style: none; padding: 0; margin: 20px 0 12px; border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--ring); overflow: hidden; }
+.pr-limits li { display: grid; grid-template-areas: "what" "limit" "note"; gap: 2px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.pr-limits li:last-child { border-bottom: 0; }
+.pr-what { grid-area: what; font-size: 0.9375rem; color: var(--ink); }
+.pr-note { grid-area: note; font-size: 0.8125rem; color: var(--ink-3); }
+.pr-limits b { grid-area: limit; font-weight: 600; font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
+@media (min-width: 600px) {
+  .pr-limits li { grid-template-areas: "what limit" "note note"; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 16px; padding: 16px 20px; }
+  .pr-limits b { text-align: right; }
+}
+.pr .faq { margin-top: 64px; }
+.pr .faq-item summary { min-height: 52px; align-items: center; padding: 14px 0; }
+.pr .pricing-final { margin-top: 64px; padding: 40px 20px; }

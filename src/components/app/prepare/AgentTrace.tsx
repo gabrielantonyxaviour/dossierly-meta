@@ -7,8 +7,6 @@ import { useCase } from "@/lib/client/store";
 import type { AgentTask } from "@/lib/client/types";
 import { Attribution } from "../../Attribution";
 
-const clean = (t: string) => t.replace(/settla[-_]?/gi, "");
-
 /** Live view of what the personal agent is doing: each step, its tool, and where it ran. */
 export function AgentTrace({ task, startedAt }: { task: AgentTask | null; startedAt: number | null }) {
   const [now, setNow] = useState(() => Date.now());
@@ -39,7 +37,7 @@ export function AgentTrace({ task, startedAt }: { task: AgentTask | null; starte
         {(task?.trace ?? [{ step: "Sending your masked case to the agent", ms: 0 }]).map((s, i) => (
           <li key={i}>
             <span className="tick" aria-hidden="true" />
-            <span>{clean(s.step)}{s.tool && <span className="tool"> · {clean(s.tool)}</span>}</span>
+            <span>{s.step}{s.tool && <span className="tool"> · {s.tool}</span>}</span>
             <span className="mono tiny muted">{s.ms ? seconds(s.ms) : ""}</span>
           </li>
         ))}
