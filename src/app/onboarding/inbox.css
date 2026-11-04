@@ -139,3 +139,29 @@
 .ob-voice-tap { border: 0; padding: 0; background: none; border-radius: 50%; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .ob-voice-tap:disabled { cursor: default; }
 .ob-voice-tap:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
+
+/* Voice hello: the Gmail ask under the agent's question. */
+.ob-conn-ask { grid-template-columns: 40px minmax(0, 1fr); border: 0; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
+
+/* Calendar step: the case's dates on a month view, then the list. */
+.ob-months { display: grid; gap: 12px; }
+.ob-month { margin: 0; padding: 14px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
+.ob-month figcaption { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+.ob-month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; text-align: center; }
+.ob-month-dow { font: 500 11px/1 var(--mono); color: var(--ink-3); padding-bottom: 6px; }
+.ob-month-day { display: grid; place-items: center; width: 36px; height: 36px; margin: 0 auto; border-radius: 50%; font-size: 14px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.ob-month-day[data-today] { box-shadow: inset 0 0 0 1.5px var(--ink-3); color: var(--ink); }
+.ob-month-day[data-mark="appointment"] { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.ob-month-day[data-mark="deadline"] { background: var(--deadline-soft); color: var(--deadline); font-weight: 600; }
+.ob-agenda { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ob-agenda li { display: grid; grid-template-columns: 60px minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 64px; padding: 10px 14px; border-radius: var(--radius-sm); background: var(--surface); box-shadow: var(--shadow); }
+.ob-agenda-date { display: grid; justify-items: center; line-height: 1.1; padding: 6px 0; border-radius: 8px; }
+.ob-agenda li[data-kind="deadline"] .ob-agenda-date { color: var(--deadline); background: var(--deadline-soft); }
+.ob-agenda li[data-kind="appointment"] .ob-agenda-date { color: var(--ok); background: var(--ok-soft); }
+.ob-agenda-date strong { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ob-agenda-date small { font: 500 10px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .02em; }
+.ob-agenda-body { display: grid; gap: 2px; min-width: 0; }
+.ob-agenda-body strong { font-size: 16px; font-weight: 600; }
+.ob-agenda-body span { font-size: 14px; color: var(--ink-3); overflow-wrap: anywhere; }
+.ob-agenda a { color: var(--ink); min-height: 44px; display: inline-flex; align-items: center; font-size: 14px; }
+.ob-agenda em { font-style: normal; font-size: 13px; color: var(--ink-3); }

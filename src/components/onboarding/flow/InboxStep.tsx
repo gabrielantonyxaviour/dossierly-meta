@@ -7,9 +7,10 @@ import type { Profile } from "@/lib/case/types";
 import { ConnectCards } from "./ConnectCards";
 import { Button, StickyActionBar } from "@/components/ui";
 import { Review } from "./Review";
+import { CalendarStep, pendingDates, type Dated } from "./CalendarStep";
 
 type Row = { msg: InboxMessage; state: "queued" | "reading" | "done" | "error"; reading?: MailReading; error?: string };
-export type InboxPhase = "connect" | "listing" | "reading" | "review" | "empty" | "saved";
+export type InboxPhase = "connect" | "listing" | "reading" | "review" | "empty" | "saved" | "calendar";
 type Phase = Exclude<InboxPhase, "saved">;
 
 const CHAIN = "ob-google-chain";
@@ -17,6 +18,9 @@ const chained = () => { try { return sessionStorage.getItem(CHAIN) === "1"; } ca
 const chain = (on: boolean) => { try { if (on) sessionStorage.setItem(CHAIN, "1"); else sessionStorage.removeItem(CHAIN); } catch { /* private mode */ } };
 
 export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, applyStage, onPhase, auto }: { auto: boolean; onPhase(p: InboxPhase): void; returned: string | null; stage: Profile["stage"]; applyStage(s: Profile["stage"]): Promise<boolean>; onDone(saved: number): void; onSkip(): void; setCalendarAdded(v: boolean): void }) {
+  // Back from the Google Calendar consent: straight to the calendar step, which adds the dates.
+  const [dates, setDates] = useState<Dated[]>([]);
+  const [saved, setSaved] = useState(0);
   const [status, setStatus] = useState<ConnectionStatus | null>(null);
   const [statusError, setStatusError] = useState("");
   const [phase, setPhase] = useState<Phase>("connect");
@@ -26,6 +30,11 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
   const [opening, setOpening] = useState<"" | "mail" | "calendar">("");
   const started = useRef(false);
   useEffect(() => { onPhase(phase === "listing" ? "connect" : phase); }, [phase, onPhase]);
+  useEffect(() => {
+    const pending = returned === "connected" ? pendingDates.get() : [];
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sessionStorage is read after hydration, once
+    if (pending.length) { setDates(pending); setPhase("calendar"); }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- once per visit
 
   const load = useCallback(async () => {
     setStatusError("");
@@ -54,17 +63,17 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
     await Promise.all(Array.from({ length: 4 }, async () => { for (let m = queue.shift(); m; m = queue.shift()) await readOne(m); }));
   }
 
-  /** Google consent, Gmail first then Calendar: one "yes" and two Allow taps, nothing typed. */
-  async function google(category: "mail" | "calendar") {
+  /** Gmail consent only (read-only); Calendar has its own step after the save. */
+  async function google(category: "mail") {
     setOpening(category); setError("");
-    const r = await flowApi.connect(category, category === "mail" ? "gmail" : "googlecalendar");
+    const r = await flowApi.connect(category, "gmail");
     if (r.ok) { window.location.assign(r.data.redirectUrl); return; }
     chain(false); setOpening(""); setError(failure(r) ?? "Could not open Google.");
   }
 
   const gmail = status?.connections.mail?.provider === "gmail" && status.connections.mail.status === "connected";
   const calendar = status?.connections.calendar?.provider === "googlecalendar" && status.connections.calendar.status === "connected";
-  // Voice "yes" → Gmail consent → Calendar consent → back here with both: start reading straight away.
+  // "Connect Gmail" → Gmail consent → back here: start reading straight away.
   useEffect(() => {
     if (!status || started.current || phase !== "connect") return;
     if (returned === "failed") { chain(false); return; }
@@ -72,8 +81,7 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
     started.current = true;
     /* eslint-disable react-hooks/set-state-in-effect -- one hand-off per visit: open the next consent or start the read */
     if (going && !gmail) void google("mail");
-    else if (going && gmail && !calendar) void google("calendar");
-    else if (gmail && calendar && (going || returned === "connected")) {
+    else if (gmail && (going || returned === "connected")) {
       chain(false);
       window.history.replaceState(null, "", "/onboarding");
       void scan();
@@ -92,20 +100,23 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
     return () => clearTimeout(t);
   }, [finished, found, failedAny]);
 
+  if (phase === "calendar") {
+    return <CalendarStep dates={dates} returned={returned === "connected"} onAdded={() => setCalendarAdded(true)} onDone={() => { pendingDates.clear(); onDone(saved || dates.length); }} />;
+  }
   if (phase === "connect" || phase === "listing") {
     return (
       <div className="ob-answer">
         {statusError && <div className="ob-alert" role="alert"><p>{statusError}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void load()}>Try again</button></div>}
-        <ConnectCards status={status} gmail={gmail} calendar={calendar} returned={returned} />
+        <ConnectCards status={status} gmail={gmail} calendar={calendar} returned={returned} only="mail" />
         {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void scan()}>Try again</button></div>}
         <StickyActionBar secondary={<Button variant="ghost" onClick={() => { chain(false); onSkip(); }}>Skip for now</Button>}>
           {gmail ? (
             <Button variant="primary" size="lg" disabled={phase === "listing" || !!opening} loading={phase === "listing" || !!opening} onClick={() => { started.current = true; void scan(); }}>
-              {opening === "calendar" ? "Opening Google Calendar…" : phase === "listing" ? "Looking for official emails…" : "Read my official emails"}
+              {phase === "listing" ? "Looking for official emails…" : "Read my official emails"}
             </Button>
           ) : (
             <Button variant="primary" size="lg" disabled={!status || !!opening} loading={!!opening} onClick={() => { chain(true); started.current = true; void google("mail"); }}>
-              {opening ? "Opening Google…" : "Connect Google"}
+              {opening ? "Opening Google…" : "Connect Gmail"}
             </Button>
           )}
         </StickyActionBar>
@@ -124,7 +135,8 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
   }
   if (phase === "review") {
     const readings = rows.flatMap((r) => (r.reading?.relevant ? [r.reading] : []));
-    return <Review readings={readings} rows={rows.map((r) => r.msg)} calendarConnected={calendar} stage={stage} applyStage={applyStage} onShowResult={() => onPhase("saved")} onSaved={(added, saved) => { setCalendarAdded(added); onDone(saved); }} />;
+    return <Review readings={readings} rows={rows.map((r) => r.msg)} stage={stage} applyStage={applyStage} onShowResult={() => onPhase("saved")}
+      onSaved={(n, dated) => { if (!dated.length) { onDone(n); return; } setSaved(n); setDates(dated); setPhase("calendar"); }} />;
   }
   const relevant = rows.filter((r) => r.reading?.relevant).length;
   return (

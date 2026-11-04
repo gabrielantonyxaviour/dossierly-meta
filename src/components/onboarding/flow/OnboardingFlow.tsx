@@ -34,11 +34,12 @@ function copy(id: ScreenId | "welcome", name: string, profile: Profile, inbox: I
     case "city": return ["Which city are you in?", "It tells me which office handles your case."];
     case "details": return [study ? "Which university?" : work ? "Who do you work for?" : "A few more details", "And when you arrived, if you know."];
     case "phone": return ["Can I call you when it’s urgent?", "Like a summons with a 14-day deadline."];
-    case "inbox": return inbox === "saved" ? ["Saved to your case", "Everything you ticked is in your case now."]
+    case "inbox": return inbox === "calendar" ? ["Add these dates to your calendar", "You’ll get a reminder before each one."]
+      : inbox === "saved" ? ["Saved to your case", "Everything you ticked is in your case now."]
       : inbox === "review" ? ["Found in your inbox", "Untick anything that’s wrong. Only ticked items are saved."]
       : inbox === "reading" ? ["Reading your inbox…", "Muse Spark reads each official email and notes where every fact came from."]
       : inbox === "empty" ? ["Nothing official yet", "I’ll read new letters when they arrive."]
-      : ["Let me read your official mail", "Read-only. I look for the office, MOS and your university."];
+      : ["Connect your Gmail", "Read-only. I look for letters from the office, MOS and your university."];
   }
 }
 
@@ -82,7 +83,7 @@ export function OnboardingFlow({ initial, profile: initialProfile, returned }: {
     await move(Math.min(screen + 1, SCREENS.length - 1));
     setBusy(false);
   }
-  /** Voice path: "Yes, look at my email" goes straight to Google; the remaining questions come from the inbox. */
+  /** Voice path: "Connect Gmail" goes straight to the Gmail consent; the remaining questions come from the inbox. */
   async function toEmail() {
     try { sessionStorage.setItem("ob-google-chain", "1"); } catch { /* private mode: one consent at a time */ }
     setAuto(true); setBusy(true); await move(SCREENS.findIndex((s) => s.id === "inbox")); setBusy(false);
