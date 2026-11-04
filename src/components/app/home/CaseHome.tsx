@@ -1,5 +1,5 @@
 "use client";
-import { Avatar, ErrorState, IconLink, Skeleton, TopBar, useNow } from "@/components/ui";
+import { Avatar, ErrorState, IconLink, Pill, Skeleton, TopBar, useNow } from "@/components/ui";
 import Link from "next/link";
 import { useUnread } from "../AppShell";
 import { firstName, greeting } from "../format";
@@ -7,6 +7,7 @@ import { useCaseData } from "../shell/case-data";
 import { NextStepCard } from "./NextStepCard";
 import { OpenTasks, QuickActions, RecentActivity, UpcomingAppointment } from "./HomeSections";
 import { CaseStrip } from "./CaseStrip";
+import { SAMPLE_LABEL_ID } from "@/lib/dev/sample-label";
 import "./home.css";
 
 function HomeSkeleton() {
@@ -32,7 +33,7 @@ export function CaseHome() {
     <div className="sh-page sh-page--wide hm">
       <TopBar
         title={`${greeting(now)}, ${firstName(snapshot.profile.fullName)}`}
-        eyebrow={today}
+        eyebrow={snapshot.events.some((e) => e.id === SAMPLE_LABEL_ID) ? <>{today} · <Pill tone="official">Sample case</Pill></> : today}
         actions={<>
           <IconLink href="/app/notifications" icon="bell" label={unread ? `Notifications, ${unread} unread` : "Notifications"} dot={unread > 0} />
           <Link href="/app/settings" className="hm-me" aria-label="Settings and profile"><Avatar name={snapshot.profile.fullName} size={34} /></Link>

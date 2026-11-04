@@ -15,7 +15,7 @@
 .op-chat-response > p:not(.op-help) { font-size: .9rem; line-height: 1.85; }
 .op-chat-response details { font-size: .8rem; margin-block: 18px; }
 .op-chat-response summary { cursor: pointer; padding: 6px 0; }
-.op-chat-response blockquote { font: .95rem/1.7 Georgia, serif; margin: 12px 0; padding: 12px 16px; background: var(--surface-2); border-radius: 6px; }
+.op-chat-response blockquote { font: .95rem/1.7 var(--font); margin: 12px 0; padding: 12px 16px; background: var(--surface-2); border-radius: 6px; }
 .op-chat-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 16px; }
 .op-composer-area { display: grid; gap: 12px; }
 .op-composer { padding: 16px; border: 1px solid var(--line-strong); border-radius: 20px; background: var(--surface); }

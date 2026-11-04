@@ -92,7 +92,7 @@
 .tone-user .lk-num { color: #1e1d1c; }
 .lk-item-label { flex: 1; min-width: 0; }
 .lk-traced { font-family: var(--mono); font-size: 0.68rem; color: var(--ink-3); }
-.lk-verbatim { margin: 8px 0 0; padding: 6px 10px; border-left: 3px solid var(--tone); background: var(--tone-soft); border-radius: 0 8px 8px 0; font-family: Georgia, "Times New Roman", serif; font-size: 0.95rem; line-height: 1.45; overflow-wrap: anywhere; }
+.lk-verbatim { margin: 8px 0 0; padding: 6px 10px; border-left: 3px solid var(--tone); background: var(--tone-soft); border-radius: 0 8px 8px 0; font-family: var(--font); font-size: 0.95rem; line-height: 1.45; overflow-wrap: anywhere; }
 .lk-meaning { margin: 8px 0 0; font-size: 0.92rem; color: var(--ink-2); }
 .lk-value { display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: var(--user-soft); }
 .lk-value b { display: block; font-size: 1.05rem; overflow-wrap: anywhere; }

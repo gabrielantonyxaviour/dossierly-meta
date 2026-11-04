@@ -1,6 +1,7 @@
 import { getEnv } from "@/lib/server/env";
 import { errorResponse } from "@/lib/server/http";
 import { requireUserState } from "@/lib/server/session";
+import { previewFlow } from "@/lib/dev/preview";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,7 @@ export async function GET(req: Request) {
     const email = row?.email ?? null;
     const allow = String((env as unknown as Record<string, unknown>).DEMO_CALL_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
     return Response.json(
-      { email, callsEligible: !!email && allow.includes(email.toLowerCase()), sampleCase: state.activeCase === "sample" },
+      { email, callsEligible: !!email && allow.includes(email.toLowerCase()), sampleCase: state.activeCase === "sample", previewFlow: previewFlow(env) },
       { headers: { "cache-control": "no-store" } },
     );
   } catch (e) {

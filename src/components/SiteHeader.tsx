@@ -9,8 +9,8 @@ export function SiteHeader() {
         <Link href="/" aria-label="Dossierly home" className="logo-link"><Logo /></Link>
         <nav aria-label="Main" className="site-nav">
           <Link href="/#how">How it works</Link>
-          <Link href="/#deadlines">Deadlines</Link>
-          <Link href="/#meta">Built on Meta</Link>
+          <Link href="/#privacy">Privacy</Link>
+          <Link href="/countries">Countries</Link>
         </nav>
         <HeaderActions />
       </div>

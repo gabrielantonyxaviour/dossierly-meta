@@ -1,62 +1,42 @@
-/* Dossierly tokens. Warm stone base (ink #1e1d1c, muted #78756f, surfaces #f7f6f3 / #fefdfb); violet = the official's side, amber = the user, red = deadlines only. */
+/* Dossierly tokens. Dark only (Gabriel, 4 Nov): warm stone dark base from the original landing; violet = the official's side, amber = the user, red = deadlines only. */
 :root {
-  --bg: #ffffff;
-  --surface: #ffffff;
-  --surface-2: #f7f6f3;
-  --warm: #fefdfb;
-  --ink: #1e1d1c;
-  --ink-2: #5f5c57;
-  --ink-3: #78756f;
-  --line: #1e1d1c14;
-  --line-strong: #1e1d1c29;
-  --brand: #1e1d1c;
-  --brand-ink: #ffffff;
-  --btn-soft: #f3f3f3;
-  --btn-soft-ink: #616161;
-  --official: #5a3db0;
-  --official-soft: #efeafc;
-  --official-line: #c9bdf0;
-  --user: #8f5300;
-  --user-fill: #f0a531;
-  --user-soft: #fdf2df;
-  --user-line: #f0cf95;
-  --deadline: #c0262d;
-  --deadline-soft: #fdeded;
-  --ok: #1d7752;
-  --ok-soft: #e2f3ea;
-  --focus: #2f6fed;
-  --ring: 0 0 0 1px rgb(0 0 0 / 6%), 0 1px 3px rgb(0 0 0 / 3%), 0 2px 8px rgb(0 0 0 / 2%);
+  --bg: #121110;
+  --surface: #1b1a19;
+  --surface-2: #232220;
+  --warm: #1b1a19;
+  --ink: #f3f1ed;
+  --ink-2: #c2beb7;
+  --ink-3: #9a968f;
+  --line: #ffffff14;
+  --line-strong: #ffffff29;
+  --brand: #f3f1ed;
+  --brand-ink: #1e1d1c;
+  --btn-soft: #2a2927;
+  --btn-soft-ink: #d6d2cb;
+  --official: #b9a8ff;
+  --official-soft: #221b3b;
+  --official-line: #4a3c86;
+  --user: #f6b955;
+  --user-fill: #f6b955;
+  --user-soft: #2e230f;
+  --user-line: #6b4f1d;
+  --deadline: #ff6f6f;
+  --deadline-soft: #3a1618;
+  --ok: #62d3a0;
+  --ok-soft: #12281e;
+  --focus: #7aa7ff;
+  --ring: 0 0 0 1px rgb(255 255 255 / 8%);
   --shadow: var(--ring);
-  --shadow-lg: 0 0 0 1px rgb(0 0 0 / 6%), 0 8px 24px rgb(0 0 0 / 6%), 0 24px 60px rgb(0 0 0 / 6%);
+  --shadow-lg: 0 0 0 1px rgb(255 255 255 / 8%), 0 24px 60px rgb(0 0 0 / 45%);
   --radius-lg: 20px;
   --radius: 14px;
   --radius-sm: 10px;
   --pill: 999px;
   --font: var(--font-text), system-ui, -apple-system, "Segoe UI", "Noto Sans", "Noto Sans Devanagari", "Noto Sans Tamil", sans-serif;
   --mono: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #121110; --surface: #1b1a19; --surface-2: #232220; --warm: #1b1a19; --ink: #f3f1ed; --ink-2: #c2beb7; --ink-3: #9a968f;
-    --line: #ffffff14; --line-strong: #ffffff29; --brand: #f3f1ed; --brand-ink: #1e1d1c; --btn-soft: #2a2927; --btn-soft-ink: #d6d2cb;
-    --official: #b9a8ff; --official-soft: #221b3b; --official-line: #4a3c86;
-    --user: #f6b955; --user-fill: #f6b955; --user-soft: #2e230f; --user-line: #6b4f1d;
-    --deadline: #ff6f6f; --deadline-soft: #3a1618; --ok: #62d3a0; --ok-soft: #12281e; --focus: #7aa7ff;
-    --ring: 0 0 0 1px rgb(255 255 255 / 8%); --shadow: var(--ring); --shadow-lg: 0 0 0 1px rgb(255 255 255 / 8%), 0 24px 60px rgb(0 0 0 / 45%);
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #121110; --surface: #1b1a19; --surface-2: #232220; --warm: #1b1a19; --ink: #f3f1ed; --ink-2: #c2beb7; --ink-3: #9a968f;
-  --line: #ffffff14; --line-strong: #ffffff29; --brand: #f3f1ed; --brand-ink: #1e1d1c; --btn-soft: #2a2927; --btn-soft-ink: #d6d2cb;
-  --official: #b9a8ff; --official-soft: #221b3b; --official-line: #4a3c86;
-  --user: #f6b955; --user-fill: #f6b955; --user-soft: #2e230f; --user-line: #6b4f1d;
-  --deadline: #ff6f6f; --deadline-soft: #3a1618; --ok: #62d3a0; --ok-soft: #12281e; --focus: #7aa7ff;
-  --ring: 0 0 0 1px rgb(255 255 255 / 8%); --shadow: var(--ring); --shadow-lg: 0 0 0 1px rgb(255 255 255 / 8%), 0 24px 60px rgb(0 0 0 / 45%);
   color-scheme: dark;
 }
+
 
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }

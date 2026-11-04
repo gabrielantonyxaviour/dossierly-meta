@@ -38,6 +38,8 @@ export function OnboardingFlow({ initial, profile: initialProfile, email, return
   const step = state.step;
   const name = firstName(profile.fullName);
 
+  // A review run (?again=1) restarts once; a refresh must not restart again.
+  useEffect(() => { if (new URLSearchParams(window.location.search).has("again")) window.history.replaceState(null, "", "/onboarding"); }, []);
   useEffect(() => { document.getElementById("ob-say")?.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); }, [step, welcome]);
 
   async function go(next: number) {
@@ -83,7 +85,7 @@ export function OnboardingFlow({ initial, profile: initialProfile, email, return
             : step === 2 ? <ReasonStep {...base} reason={reason} setReason={setReason} />
             : step === 3 ? <StageStep {...base} answered={initial.step > 3} />
             : step === 4 ? <PlaceStep {...base} reason={reason} />
-            : step === 5 ? <InboxStep returned={returned} setCalendarAdded={setCalendarAdded} onSkip={() => void go(6)} onDone={(saved) => { setFound(saved); void go(6); }} />
+            : step === 5 ? <InboxStep returned={returned} stage={profile.stage} applyStage={async (stage) => { const r = await flowApi.profile({ stage }); if (r.ok) setProfile(r.data); return r.ok; }} setCalendarAdded={setCalendarAdded} onSkip={() => void go(6)} onDone={(saved) => { setFound(saved); void go(6); }} />
             : <PhoneStep profile={profile} setProfile={setProfile} onDone={complete} />}
           {!welcome && step > 1 && <button type="button" className="ob-back" disabled={busy} onClick={() => void go(step - 1)}>← Back</button>}
         </section>

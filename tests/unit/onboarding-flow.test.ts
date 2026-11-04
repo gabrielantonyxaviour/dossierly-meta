@@ -65,3 +65,13 @@ describe("time and calendar keys", () => {
     expect(z.string().uuid().safeParse(k).success).toBe(true);
   });
 });
+
+describe("retryTransient", async () => {
+  const { retryTransient } = await import("../../src/lib/onboarding/retry");
+  const { ModelError } = await import("../../src/lib/model");
+  it("retries a transient model error once and passes others through", async () => {
+    let n = 0;
+    expect(await retryTransient(async () => { if (n++ === 0) throw new ModelError("x", "model_unavailable", 503); return "ok"; }, 1)).toBe("ok");
+    await expect(retryTransient(async () => { throw new ModelError("x", "over_budget", 429); }, 1)).rejects.toThrow();
+  });
+});

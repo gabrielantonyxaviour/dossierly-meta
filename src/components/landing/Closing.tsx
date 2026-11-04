@@ -1,69 +1,63 @@
-import { AgentOrb, ButtonLink } from "@/components/ui";
+import Link from "next/link";
+import { Icon } from "@/components/Icon";
 
-const FAQ: { q: string; a: string }[] = [
-  {
-    q: "Who is Dossierly for?",
-    a: "People from outside the EU who live in Poland on a temporary residence permit, or are applying for one: students, workers and families. It starts with the Mazowiecki office in Warsaw.",
-  },
-  {
-    q: "Will it submit my application or log in to MOS for me?",
-    a: "No. Filing in MOS and checking inPOL stay with you. Dossierly tells you what each step needs, checks your documents and photo, and keeps the dates.",
-  },
-  {
-    q: "How are deadlines worked out?",
-    a: "In code, with the rules of the Code of Administrative Procedure: counting starts the day after delivery, a deadline ending on a Saturday or public holiday moves to the next working day, and an uncollected letter counts as delivered 14 days after the first notice. Each step is shown with its article. You confirm the delivery date.",
-  },
-  {
-    q: "What does it do with my Gmail?",
-    a: "Access is read-only. It looks for official mail about your case, such as appointment emails and summonses, and turns it into facts you can review. It never sends email from your account.",
-  },
-  {
-    q: "Which languages can I use?",
-    a: "Speech works in English, Polish, Hindi, Tamil and many more. Ukrainian and Russian speech is not supported by the speech model yet, so please type instead.",
-  },
-  {
-    q: "Can Dossierly really phone me?",
-    a: "Phone calls about new letters are coming soon. They work today on our demo account; everyone else gets notifications in the app.",
-  },
-  {
-    q: "Is this legal advice?",
-    a: "No. Dossierly interprets and explains, and tells you when to see a lawyer. It can be wrong, so check dates and names against the original letter.",
-  },
-];
-
-export function Faq() {
+/** "Don't take our word for it": the sample case, live. */
+export function FinalCta() {
   return (
-    <section id="faq" className="dl-sec" aria-labelledby="faq-h">
-      <div className="dl-wrap dl-faq">
-        <header className="dl-head" data-reveal>
-          <span className="ui-eyebrow">Questions</span>
-          <h2 id="faq-h" className="dl-h2">Before you start</h2>
-        </header>
-        <div className="dl-faq-list">
-          {FAQ.map((f) => (
-            <details key={f.q} className="dl-faq-item">
-              <summary>{f.q}</summary>
-              <p className="dl-body">{f.a}</p>
-            </details>
-          ))}
+    <section className="lp-sec" aria-labelledby="final-h">
+      <div className="lp-wrap lp-final">
+        <div>
+          <p className="lp-mono">Sample case</p>
+          <h2 id="final-h" className="lp-h2 lp-final-h"><span className="lp-h2-muted">Don&apos;t take our word for it.</span>Open Arjun&apos;s case now.</h2>
+          <p className="lp-body">
+            Arjun Raman is a fictional applicant. His office, his letter type and his deadline rules are real. Read his
+            letter, count his deadline and try table mode.
+          </p>
+          <p className="lp-grad" aria-label="Reply by 10 November">Reply by 10 Nov</p>
+          <div className="lp-hero-ctas lp-ctas-l">
+            <Link className="lp-btn lp-btn-dark" href="/signup?start=sample"><Icon name="case" size={16} /> Open the sample</Link>
+            <Link className="lp-btn lp-btn-line" href="/signup">Get started</Link>
+          </div>
+        </div>
+        <div className="lp-final-panel" data-reveal>
+          <div className="lp-final-card">
+            <div className="lp-final-top"><span className="lp-mono">Interpreting</span><span>Mazowiecki office</span></div>
+            <div className="lp-ph-bubble lp-ph-off" lang="pl">„Proszę podać numer sprawy.”</div>
+            <div className="lp-ph-bubble lp-ph-me">Please give your case number.</div>
+            <div className="lp-ph-bubble lp-ph-off lp-ph-fade" lang="pl">„Przyjdzie pismo w tej sprawie.”</div>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-export function FinalCta() {
+const FAQ = [
+  { q: "What exactly is Dossierly?", a: "A personal AI caseworker for life abroad. You get your own private agent that remembers your whole residence case: it prepares you for official appointments, interprets while you talk to the official, reads the letters that follow and counts the deadlines." },
+  { q: "Is this legal advice?", a: "No. Dossierly interprets and explains. It never gives legal or medical advice, and an interpret-only guard checks every turn." },
+  { q: "Which countries and offices are covered?", a: "Poland first: temporary residence and work at the Mazowiecki office in Warsaw. Germany and France are next. A country goes live only when its offices, letter types and deadline rules are covered from their sources." },
+  { q: "Which languages can I use?", a: "The official's side is Polish. You can speak English, Ukrainian, Hindi or Tamil. Interface labels are in English; content follows your language." },
+  { q: "Does Dossierly keep my audio?", a: "No. Each spoken turn in Polish, English or Ukrainian is sent once for transcription by Meta Muse Voice Transcribe and deleted; only the text is kept. Hindi and Tamil use your browser's own recognition." },
+  { q: "What happens to my personal data?", a: "Your case lives on your device, encrypted with AES-GCM. Identifiers are masked before any model call, and every model call and connection is listed in your privacy ledger." },
+  { q: "What does it cost?", a: "Nothing. Letters, appointment preparation, interpreting and deadlines are free." },
+];
+
+/** "Your questions, covered": heading and button on the left, an accordion on the right. */
+export function Faq() {
   return (
-    <section className="dl-sec dl-final-sec" aria-labelledby="final-h">
-      <div className="dl-wrap">
-        <div className="dl-final" data-reveal>
-          <AgentOrb size={64} state="idle" />
-          <h2 id="final-h" className="dl-h2">Know your next step, <em>every day</em></h2>
-          <p className="dl-lead">Set up your case in a few minutes. Dossierly takes it from there, with you.</p>
-          <div className="dl-ctas">
-            <ButtonLink href="/signup" variant="primary" size="lg" iconEnd="forward">Get started</ButtonLink>
-            <ButtonLink href="/signin" variant="secondary" size="lg">Sign in</ButtonLink>
-          </div>
+    <section className="lp-sec" aria-labelledby="faq-h">
+      <div className="lp-wrap lp-faq">
+        <div>
+          <h2 id="faq-h" className="lp-h2">Your questions, covered<span className="lp-h2-muted">Get started today</span></h2>
+          <Link className="lp-btn lp-btn-dark lp-btn-lg" href="/signup">Get started</Link>
+        </div>
+        <div className="lp-faq-list">
+          {FAQ.map((f, i) => (
+            <details key={f.q} className="lp-faq-item" open={i === 0}>
+              <summary>{f.q}<span className="lp-faq-ic" aria-hidden="true" /></summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
         </div>
       </div>
     </section>
