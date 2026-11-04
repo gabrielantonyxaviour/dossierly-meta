@@ -9,6 +9,7 @@ import { Icon } from "@/components/Icon";
 import { LatencyLine } from "@/components/voice/bits";
 import { DocSheet } from "./DocSheet";
 import { OfficialHalf, UserHalf } from "./Halves";
+import "@/components/voice/voice.css";
 import "./counter.css";
 
 /** Counter: phone flat on the desk. Top half turned to the official (Polish), bottom half for the user. */
@@ -49,7 +50,7 @@ export function CounterFlow() {
 
   const hearing = call.partial !== null;
   const status =
-    call.status === "connecting" ? "Connecting…" : call.status === "ended" ? "Conversation ended" : call.clipBusy ? "Test official speaking" : call.speaking ? (call.speaking === "official" ? "Speaking Polish" : "Speaking to you") : hearing ? "Hearing…" : "Listening";
+    call.micWaiting ? "Allow the microphone to start" : call.status === "connecting" ? "Connecting…" : call.status === "ended" ? "Conversation ended" : call.clipBusy ? "Test official speaking" : call.speaking ? (call.speaking === "official" ? "Speaking Polish" : "Speaking to you") : hearing ? "Hearing…" : "Listening";
 
   return (
     <div className={`ct ${flat ? "is-flat" : ""}`} role="application" aria-label="Counter conversation">

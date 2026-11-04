@@ -8,6 +8,14 @@ type ServerSocket = WebSocket & { accept(): void };
 /** Hard cap so a forgotten tab cannot hold a session (and the ASR socket) open for hours. */
 const MAX_SESSION_MS = 20 * 60_000;
 
+/** Binary frames can arrive as ArrayBuffer, a typed-array view or a Blob depending on the runtime path. */
+async function toBuffer(data: unknown): Promise<ArrayBuffer | null> {
+  if (data instanceof ArrayBuffer) return data;
+  if (ArrayBuffer.isView(data)) return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer;
+  if (data && typeof (data as Blob).arrayBuffer === "function") return (data as Blob).arrayBuffer();
+  return null;
+}
+
 export function attachVoiceSocket(ws: ServerSocket, headers: Headers, env: VoiceEnv, onDone: () => void): void {
   const ticket = ticketSchema.parse(JSON.parse(headers.get("x-voice-ticket") ?? "{}"));
   const kind = headers.get("x-voice-kind") === "twilio" ? "twilio" : "browser";
@@ -22,11 +30,19 @@ export function attachVoiceSocket(ws: ServerSocket, headers: Headers, env: Voice
     void session.start();
   };
 
+  // Blob frames convert asynchronously: chain them so audio reaches ASR in order.
+  let audioChain: Promise<void> = Promise.resolve();
   ws.addEventListener("message", (ev: MessageEvent) => {
-    const data = ev.data as string | ArrayBuffer;
+    const data = ev.data as unknown;
     if (kind === "browser") {
       if (typeof data === "string") session.onClientText(data);
-      else if (data.byteLength <= 32_000) session.onAudio(data);
+      else
+        audioChain = audioChain
+          .then(() => toBuffer(data))
+          .then((b) => {
+            if (b && b.byteLength <= 32_000) session.onAudio(b);
+          })
+          .catch(() => undefined);
       return;
     }
     if (typeof data !== "string") return;

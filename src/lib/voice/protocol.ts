@@ -100,7 +100,8 @@ export type ServerEvent =
   | { t: "metric"; metric: TurnMetric }
   | { t: "feedback"; feedback: RehearseFeedback }
   | { t: "ended"; reason: string }
-  | { t: "error"; error: string; code?: string; fatal?: boolean };
+  | { t: "error"; error: string; code?: string; fatal?: boolean }
+  | { t: "debug"; info: Record<string, unknown> };
 
 export const clientEventSchema = z.discriminatedUnion("t", [
   /** Typed input, or the speaker for the next clip frames. */
@@ -111,5 +112,6 @@ export const clientEventSchema = z.discriminatedUnion("t", [
   z.object({ t: z.literal("played"), id: z.string().max(80) }),
   z.object({ t: z.literal("interrupt") }),
   z.object({ t: z.literal("finish") }),
+  z.object({ t: z.literal("debug") }),
 ]);
 export type ClientEvent = z.infer<typeof clientEventSchema>;
