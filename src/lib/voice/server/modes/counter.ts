@@ -93,7 +93,13 @@ export class CounterMode implements ModeHandler {
     if (!w) return;
     for (const id of (w.docs ?? []).slice(0, 2)) {
       const doc = docs.find((d) => d.id === id || id.endsWith(d.id));
-      if (doc && !this.shown.has(doc.id)) this.showDoc(u.id, doc);
+      if (!doc || this.shown.has(doc.id)) continue;
+      if (doc.status === "have") this.showDoc(u.id, doc);
+      else {
+        // Never show the official a document the user does not actually hold.
+        this.shown.add(doc.id);
+        this.s.emit({ t: "coach", note: { turnId: u.id, toUser: `The official asked for ${doc.title}. It is not in your case yet, so say you will send it and ask how (in person, by post or e-Doręczenia).` } });
+      }
     }
     if (w.meaning) this.s.emit({ t: "coach", note: { turnId: u.id, toUser: w.meaning } });
     if (w.check) this.s.emit({ t: "coach", note: { turnId: u.id, toUser: w.check } });

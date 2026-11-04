@@ -6,6 +6,7 @@ import type { DocCard } from "@/lib/voice/protocol";
 const LABEL_PL: Record<string, string> = {
   number: "Numer", nationality: "Obywatelstwo", valid_until: "Ważny do", address: "Adres", from: "Od", until: "Do", rent: "Czynsz",
   insurer: "Ubezpieczyciel", programme: "Kierunek", issued: "Wydano", received: "Doręczono", asks: "Wezwanie dotyczy", deadline_days: "Termin (dni)",
+  holder: "Posiadacz", expires: "Ważny do", university: "Uczelnia", requestedBy: "Wymagane przez", receivedAt: "Data", sender: "Nadawca",
 };
 const pretty = (k: string) => LABEL_PL[k] ?? k.replace(/_/g, " ");
 
