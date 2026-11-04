@@ -17,6 +17,9 @@ export type VoiceEnv = Record<string, unknown> & { CASE_DO?: CaseNamespace; ELEV
 
 export type Via = NonNullable<VoiceTurn["via"]>;
 
+/** Words only: the final transcript adds punctuation and casing to the same words. */
+const speechKey = (s: string) => s.toLowerCase().replace(/[^\p{L}\d]+/gu, " ").trim();
+
 export interface Utterance {
   id: string;
   text: string;
@@ -86,6 +89,7 @@ export class VoiceSession {
         const lag = audioMs !== null && this.asr ? Math.max(0, this.asr.sentMs - audioMs) : 0;
         this.speechEndAt = Date.now() - lag;
         this.emit({ t: "asr", phase: "end" });
+        this.speculate();
       },
       onFinal: (text) => this.onFinal(text),
       onError: (m) => this.emit({ t: "error", error: m, code: "asr" }),
@@ -121,13 +125,44 @@ export class VoiceSession {
 
   /** Partial transcript: captions, and barge-in for conversational modes. */
   private onPartial(text: string): void {
+    this.lastPartial = text;
     this.emit({ t: "asr", phase: "partial", text });
     this.handler.partial?.(text);
     if (this.handler.bargeIn && this.speaker.speaking && text.split(/\s+/).length >= 2) this.interrupt();
   }
 
+  private lastPartial = "";
+  private spec: { u: Utterance; key: string; ctl: AbortController } | null = null;
+
+  /**
+   * Speech ended: start the turn on the last partial instead of waiting ~0.7 s for the final transcript. The final
+   * always lands before the model's first sentence, so a mismatch is cancelled and redone under the same turn id
+   * before anything is spoken.
+   */
+  private speculate(): void {
+    const text = this.lastPartial.trim();
+    this.lastPartial = "";
+    if (!this.handler?.speculate || !text || this.spec) return;
+    const id = shortId();
+    const metric = { turnId: id, t0: this.speechEndAt ?? Date.now(), asrMs: 0 };
+    this.metrics.set(id, metric);
+    const u: Utterance = { id, text, via: this.t.kind === "twilio" ? "phone" : this.speechSource, as: this.speechSource === "clip" ? "official" : undefined, metric };
+    this.spec = { u, key: speechKey(text), ctl: this.submit(u) };
+  }
+
   private onFinal(text: string): void {
     const now = Date.now();
+    const spec = this.spec;
+    this.spec = null;
+    this.lastPartial = "";
+    if (spec) {
+      this.speechEndAt = null;
+      if (speechKey(text) === spec.key) return;
+      spec.ctl.abort();
+      this.speaker.cut();
+      this.submit({ ...spec.u, text, metric: { ...spec.u.metric, asrMs: now - spec.u.metric.t0 } });
+      return;
+    }
     const id = shortId();
     const metric = { turnId: id, t0: this.speechEndAt ?? now, asrMs: this.speechEndAt ? now - this.speechEndAt : undefined };
     this.speechEndAt = null;
@@ -136,15 +171,16 @@ export class VoiceSession {
     this.submit(u);
   }
 
-  submit(u: Utterance): void {
+  submit(u: Utterance): AbortController {
     if (this.handler.bargeIn) {
       this.turnAbort?.abort();
       this.speaker.cut();
     }
-    this.enqueue((signal) => this.handler.utterance(u, signal));
+    this.metrics.set(u.id, u.metric);
+    return this.enqueue((signal) => this.handler.utterance(u, signal));
   }
 
-  private enqueue(fn: (signal: AbortSignal) => Promise<void>): void {
+  private enqueue(fn: (signal: AbortSignal) => Promise<void>): AbortController {
     const ctl = new AbortController();
     this.chain = this.chain.then(async () => {
       if (this.closed || ctl.signal.aborted) return;
@@ -156,6 +192,7 @@ export class VoiceSession {
       }
     });
     if (this.handler?.bargeIn) this.turnAbort = ctl;
+    return ctl;
   }
 
   interrupt(): void {

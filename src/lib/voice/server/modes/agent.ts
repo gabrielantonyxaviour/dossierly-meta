@@ -22,6 +22,7 @@ export function similar(a: string, b: string): boolean {
 
 export class AgentMode implements ModeHandler {
   readonly bargeIn = true;
+  readonly speculate = true;
   private history: ChatMessage[] = [];
   private captured: CapturedItem[] = [];
   private reminded = new Set<string>();

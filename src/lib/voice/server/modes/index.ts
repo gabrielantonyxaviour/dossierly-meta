@@ -6,6 +6,8 @@ import { RehearseMode } from "./rehearse";
 export interface ModeHandler {
   /** New speech cuts the agent off mid-sentence (conversational modes only). */
   readonly bargeIn: boolean;
+  /** Start the turn on the last partial at speech end (redone if the final transcript differs). */
+  readonly speculate?: boolean;
   open(): Promise<void>;
   utterance(u: Utterance, signal: AbortSignal): Promise<void>;
   /** Live partial transcript (Counter: pull up a named document before the sentence ends). */

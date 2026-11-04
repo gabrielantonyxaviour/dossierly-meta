@@ -27,6 +27,7 @@ const ADDRESS_TASK = /address|adres|notice|zawiadom|writing|piśmie/i;
 
 export class CounterMode implements ModeHandler {
   readonly bargeIn = false;
+  readonly speculate = true;
   private exchange: VoiceTurn[] = [];
   /** Things the official was shown, for the models' view of the exchange. */
   private notes: string[] = [];
@@ -89,8 +90,8 @@ export class CounterMode implements ModeHandler {
     const askedForDoc = this.offerAsked(u.text, u.id);
     const input = `${this.s.caseText}\n\nEXCHANGE\n${context}\n\nTURN (official)\n${u.text}`;
     // Side lanes start at once, in parallel with the spoken translation, and never hold the next turn.
-    if (!askedForDoc) this.side(coachCard(this.s.env, input, this.s.lang).then((c) => c && this.s.emit({ t: "coach", note: { turnId: u.id, toUser: c.text } })));
-    this.side(this.watch(u, input));
+    if (!askedForDoc) this.side(coachCard(this.s.env, input, this.s.lang).then((c) => c && !signal.aborted && this.s.emit({ t: "coach", note: { turnId: u.id, toUser: c.text } })));
+    this.side(this.watch(u, input, signal));
     const prepared = this.draft ? `a written notice of change of address (${this.draft.title}), already shown to the official` : undefined;
     let said = "";
     const res = await streamLines(
@@ -105,15 +106,16 @@ export class CounterMode implements ModeHandler {
         },
       },
     );
+    if (signal.aborted) return; // redone with the final transcript under the same id
     this.s.speaker.end(u.id);
     const done = { ...turn, translation: said || res.fields.SAY || "", partial: false };
     this.s.emit({ t: "turn", turn: done });
     this.exchange.push(done);
   }
 
-  private async watch(u: Utterance, input: string): Promise<void> {
+  private async watch(u: Utterance, input: string, signal: AbortSignal): Promise<void> {
     const w = await jsonCall<Watch>(this.s.env, { role: "interpret", effort: "minimal", system: watcherSystem(this.s.lang), user: input, maxTokens: 2000 });
-    if (!w) return;
+    if (!w || signal.aborted) return;
     for (const id of (w.docs ?? []).slice(0, 2)) {
       const doc = this.docs.find((d) => d.id === id || id.endsWith(d.id));
       if (doc) this.offer(u.id, doc);
@@ -202,6 +204,7 @@ export class CounterMode implements ModeHandler {
         },
       },
     );
+    if (signal.aborted) return; // redone with the final transcript under the same id
     this.s.speaker.end(u.id);
     const done = { ...turn, translation: said || res.fields.SAY || "", partial: false };
     this.s.emit({ t: "turn", turn: done });
