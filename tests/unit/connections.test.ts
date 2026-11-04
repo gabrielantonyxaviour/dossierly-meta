@@ -90,6 +90,23 @@ describe("owned provider connections", () => {
     remoteOwner = "dossierly:u1";
     await expect(importMail(env, "u1", { messageId: "mail1", attachmentId: "att1" })).rejects.toMatchObject({ code: "attachment_too_large" }); expect(proxyCalls).toHaveLength(1);
   });
+  it("fetches a Gmail attachment by an id from an earlier read (Gmail re-issues ids on every read)", async () => {
+    await saveRow(env, row());
+    const pdf = btoa("%PDF-1.7 lease"); const base = vi.mocked(fetch).getMockImplementation()!;
+    vi.mocked(fetch).mockImplementation(async (url, init) => {
+      const body = init?.body ? JSON.parse(String(init.body)) : {};
+      if (!String(url).endsWith("tools/execute/proxy")) return base(url as string, init);
+      proxyCalls.push(body);
+      if (body.endpoint.includes("/attachments/att_old")) return Response.json({ status: 200, data: { data: pdf, size: 14 } });
+      return Response.json({ status: 200, data: { id: "mail1", payload: { headers: [], parts: [
+        { mimeType: "text/plain", body: { data: btoa("Lease attached") } },
+        { mimeType: "application/pdf", filename: "umowa-najmu.pdf", body: { attachmentId: "att_new", size: 14 } },
+        { mimeType: "image/png", filename: "logo.png", body: { attachmentId: "att_logo", size: 900 } },
+      ] } } });
+    });
+    const got = await importMail(env, "u1", { messageId: "mail1", attachmentId: "att_old" });
+    expect(got).toMatchObject({ kind: "attachment", file: { name: "umowa-najmu.pdf", mime: "application/pdf" } });
+  });
   it("returns plain text with scripts and active markup removed", () => { expect(plainText('<script>steal()</script><b>Insurance</b><img src=x onerror=steal()>')).toBe(' Insurance  '); });
   it("rejects provider mismatch, external return paths and mutation without a same-origin request", async () => {
     await expect(connect(env, "u1", request(), { category: "calendar", provider: "gmail" })).rejects.toBeDefined();
