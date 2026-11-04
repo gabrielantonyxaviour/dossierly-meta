@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { LookKind } from "@/lib/look/types";
 import { Icon } from "@/components/Icon";
 import { prepareFromUrl, prepareImage } from "./image";
@@ -16,9 +16,26 @@ const KIND: Record<LookKind, string> = {
   letter: "Letter from the office", decision: "Decision", mos_screen: "MOS form screen", upo: "Filing receipt (UPO)",
   inpol_status: "inPOL status", kiosk: "Ticket kiosk", other: "Not an official document",
 };
+/** Spark grounding is accurate at about 1000 px on the long side and drifts above that. */
+const LOOK_SIDE = 1000;
 const secs = (ms: number | null) => (ms === null ? "" : `${(ms / 1000).toFixed(1)} s`);
 
+function useElapsed(on: boolean): number {
+  const [t, setT] = useState(0);
+  useEffect(() => {
+    if (!on) return;
+    const t0 = Date.now();
+    setT(0);
+    const id = setInterval(() => setT(Math.floor((Date.now() - t0) / 1000)), 500);
+    return () => clearInterval(id);
+  }, [on]);
+  return t;
+}
+
+const READ_HINTS = ["Transcribing every line", "Finding the case number and dates", "Looking for what they ask you to do", "Matching it to your case"];
+
 function Progress({ phase, readMs, samMs, count }: { phase: string; readMs: number | null; samMs: number | null; count: number }) {
+  const elapsed = useElapsed(phase === "reading");
   const step = (label: string, model: string, state: "wait" | "run" | "ok", time?: string) => (
     <li className={`lk-prog is-${state}`}>
       <span className="lk-prog-dot" aria-hidden="true">{state === "ok" ? <Icon name="check" size={13} /> : null}</span>
@@ -28,7 +45,7 @@ function Progress({ phase, readMs, samMs, count }: { phase: string; readMs: numb
   );
   return (
     <ol className="lk-progress" aria-live="polite">
-      {step("Reading and pointing", "Muse Spark 1.3", phase === "reading" ? "run" : "ok", secs(readMs))}
+      {step(phase === "reading" ? `${READ_HINTS[Math.min(READ_HINTS.length - 1, Math.floor(elapsed / 6))]}…` : "Read and pointed", "Muse Spark 1.3", phase === "reading" ? "run" : "ok", phase === "reading" ? `${elapsed} s` : secs(readMs))}
       {step(count ? `Tracing ${count} exact outlines` : "Tracing exact outlines", "SAM 3.1", phase === "reading" ? "wait" : samMs === null && phase !== "error" && phase !== "done" ? "run" : "ok", secs(samMs))}
     </ol>
   );
@@ -50,8 +67,8 @@ export function LookFlow() {
     }
   }, [run]);
 
-  const onFile = useCallback((f: Blob, question: string) => void start(() => prepareImage(f), { question }), [start]);
-  const onSample = useCallback((p: SamplePick, question: string) => void start(() => prepareFromUrl(p.src), { question, sample: true }), [start]);
+  const onFile = useCallback((f: Blob, question: string) => void start(() => prepareImage(f, LOOK_SIDE), { question }), [start]);
+  const onSample = useCallback((p: SamplePick, question: string) => void start(() => prepareFromUrl(p.src, LOOK_SIDE), { question, sample: true }), [start]);
   const traced = useMemo(() => new Set(Object.keys(state.outlines)), [state.outlines]);
 
   if (state.phase === "idle" || !state.image) {

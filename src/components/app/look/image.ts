@@ -51,8 +51,8 @@ export async function prepareImage(blob: Blob, maxSide = MAX_SIDE): Promise<Prep
   return { dataUrl, width, height, bytes: Math.round((dataUrl.length - dataUrl.indexOf(",") - 1) * 0.75) };
 }
 
-export async function prepareFromUrl(url: string): Promise<PreparedImage> {
+export async function prepareFromUrl(url: string, maxSide = MAX_SIDE): Promise<PreparedImage> {
   const res = await fetch(url);
   if (!res.ok) throw new Error("Could not load the sample image.");
-  return prepareImage(await res.blob());
+  return prepareImage(await res.blob(), maxSide);
 }
