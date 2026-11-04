@@ -40,7 +40,9 @@ const dayBefore = (date: string) => { const d = new Date(`${date}T00:00:00Z`); d
 
 export async function commitFindings(env: ConnectionsEnv, ids: { userId: string; accountId: string }, input: z.infer<typeof commitSchema>) {
   const c = caseClient(ids.userId);
-  const profile = (await c.snapshot()).profile;
+  const snap = await c.snapshot();
+  const profile = snap.profile;
+  const held = new Set(snap.documents.filter((d) => d.status === "have").map((d) => d.id));
   const calls = profile.phone.callsEnabled && profile.phone.verified;
   const facts: Record<string, unknown> = {};
   const byMessage = new Map<string, string[]>();
@@ -52,7 +54,9 @@ export async function commitFindings(env: ConnectionsEnv, ids: { userId: string;
     if (f.kind === "task") await upsert(c, "tasks", { id: f.id, title: f.title, detail: f.detail, origin: "email", dueDeadlineId: null, status: "open" });
     if (f.kind !== "document") note(f);
   }
-  for (const f of mergeDocuments(input.findings)) {
+  for (const merged of mergeDocuments(input.findings)) {
+    // Asked for again but already in the case: it stays "have" (the request is noted on it).
+    const f = merged.status === "missing" && held.has(merged.id) ? { ...merged, status: "have" as const, file: null } : merged;
     const fileKey = f.file && f.status === "have" ? await storeAttachment(env, ids, f) : null;
     const extractedFields: Record<string, string> = { fromEmail: f.source.subject.slice(0, 200), ...f.fields, ...(fileKey && f.file ? { file: f.file.name } : {}) };
     await upsert(c, "documents", { id: f.id, kind: f.docKind, title: f.title, status: f.status, source: "email", extractedFields, ...(fileKey ? { fileKey } : {}) });
