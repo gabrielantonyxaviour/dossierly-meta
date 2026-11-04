@@ -1,0 +1,150 @@
+/*
+ * Attachments and fees for a MOS temporary-residence application, purpose: studies.
+ * Mandatory attachments come from art. 106d ust. 1 of the Act on Foreigners (as inserted by Dz. U. 2025 poz. 1794, in force
+ * from 27 April 2026) and the regulation Dz. U. 2026 poz. 553. Amounts come from the stamp duty act (Dz. U. 2026 poz. 1395,
+ * załącznik, część III) and from UdSC information. Anything not confirmed in an official text has verified: false.
+ */
+import type { MosAttachment, MosFee } from "./mos-types";
+
+const REG = "https://api.sejm.gov.pl/eli/acts/DU/2026/553/text.pdf";
+const UDSC = "https://zielonalinia.gov.pl/informacja-udsc-dot-wdrozenia-mos/";
+
+export const MOS_ATTACHMENTS_STUDY: MosAttachment[] = [
+  {
+    id: "photo",
+    titleEn: "Passport-style photo (digital file)",
+    titlePl: "Aktualna fotografia",
+    kind: "mandatory",
+    detail: "Colour, sharp, face 70-80% of the frame, plain light background, facing the camera, eyes open and visible, mouth closed, no head covering or dark glasses (exceptions need a signed statement). Taken within 6 months before you file.",
+    spec: "JPG file, at least 684 x 883 px (width x height), at most 2.5 MB, proportions of a 35 x 45 mm photo.",
+    sourceUrl: REG,
+    verified: true,
+  },
+  {
+    id: "passport",
+    titleEn: "Digital copy of every page of your passport",
+    titlePl: "Odwzorowanie cyfrowe wszystkich stron ważnego dokumentu podróży",
+    kind: "mandatory",
+    detail: "All pages, including blank ones and the cover if the office needs it. If you have no valid passport and cannot get one, another identity document replaces it.",
+    spec: "Scan or photo saved as PDF. Each file at most 10 MB, all files together at most 50 MB.",
+    sourceUrl: REG,
+    verified: true,
+  },
+  {
+    id: "university_certificate",
+    titleEn: "Annex 5, completed and signed by your university (replaces the paper certificate)",
+    titlePl: "Załącznik nr 5 (dawniej zaświadczenie jednostki prowadzącej studia o przyjęciu na studia lub o kontynuacji studiów)",
+    kind: "mandatory",
+    detail: "You give your university's e-mail address in the application. MOS sends the university a link; an authorised person fills in the study dates, programme, level, fees and language, and signs it electronically. You cannot sign and send your own application until the university has finished. Ask the international office early, because you cannot file until it is done.",
+    sourceUrl: REG,
+    verified: true,
+  },
+  {
+    id: "stamp_duty_proof",
+    titleEn: "Proof of payment of the stamp duty",
+    titlePl: "Potwierdzenie uiszczenia opłaty skarbowej",
+    kind: "payment",
+    detail: "A bank transfer confirmation or scan. You pay outside MOS to the voivodeship's account, with the permit type and your name as the title.",
+    spec: "PDF or image of the confirmation.",
+    sourceUrl: UDSC,
+    verified: false,
+    note: "UdSC says the stamp duty is the only application cost. Whether the proof must be uploaded at filing or only when the voivode calls for payment (art. 106e ust. 2 mentions such a call) differs between office notices, so check your voivodeship's current MOS instructions before paying.",
+  },
+  {
+    id: "card_fee_proof",
+    titleEn: "Proof of payment of the residence card fee",
+    titlePl: "Potwierdzenie uiszczenia opłaty za wydanie karty pobytu",
+    kind: "payment",
+    detail: "Paid to a UdSC account with a title naming you. A 50% reduction exists for people in difficult financial circumstances.",
+    sourceUrl: UDSC,
+    verified: false,
+    note: "UdSC lists the card fee as a cost of the procedure. The Poznań voivodeship office says the card fee need not be paid before the decision, so timing differs between sources.",
+  },
+  {
+    id: "health_insurance",
+    titleEn: "Health insurance policy",
+    titlePl: "Ubezpieczenie zdrowotne lub potwierdzenie pokrycia kosztów leczenia przez ubezpieczyciela",
+    kind: "supporting",
+    detail: "The Act requires you to have NFZ-type insurance or an insurer's confirmation that it covers treatment costs in Poland (art. 144 ust. 1 pkt 2 lit. a). You may attach the policy now; otherwise the voivode can ask for it (art. 106f, at least 14 days to respond).",
+    sourceUrl: "https://api.sejm.gov.pl/eli/acts/DU/2025/1079/text.pdf",
+    verified: true,
+    note: "A minimum cover of 30,000 EUR appears on a university slide but not in the Act text we checked, so it is not stated here as a rule.",
+  },
+  {
+    id: "means_of_subsistence",
+    titleEn: "Proof of means to live on, return travel and study costs",
+    titlePl: "Dokumenty potwierdzające wysokość miesięcznych środków finansowych oraz koszty utrzymania i podróży powrotnej",
+    kind: "supporting",
+    detail: "Bank statements, a scholarship letter or a sponsor's declaration. The Act requires enough money for living costs, return travel to your home country and the studies, with monthly means above the social-assistance income threshold after housing costs (art. 144 ust. 1 pkt 2 lit. b, ust. 1a).",
+    sourceUrl: "https://api.sejm.gov.pl/eli/acts/DU/2025/1079/text.pdf",
+    verified: true,
+    note: "The exact euro or zloty threshold is set outside the Act and changes, so it is not hard-coded here.",
+  },
+  {
+    id: "tuition_payment",
+    titleEn: "Proof of tuition payment for the semester or year (paid programmes only)",
+    titlePl: "Dowód uiszczenia opłaty za semestr lub rok studiów",
+    kind: "supporting",
+    detail: "Required by art. 144 ust. 1 pkt 1 lit. b if your studies are paid, whether you start or continue.",
+    sourceUrl: "https://api.sejm.gov.pl/eli/acts/DU/2025/1079/text.pdf",
+    verified: true,
+  },
+  {
+    id: "accommodation",
+    titleEn: "Proof of accommodation (rental agreement or dormitory contract)",
+    titlePl: "Umowa najmu lub potwierdzenie zakwaterowania",
+    kind: "supporting",
+    detail: "The Act does not list accommodation as a condition for a study permit, but your housing cost is deducted when your means are assessed (art. 144 ust. 1a, 1b), so the contract supports the amount you declare in section E.V.",
+    sourceUrl: "https://api.sejm.gov.pl/eli/acts/DU/2025/1079/text.pdf",
+    verified: true,
+    note: "Not mandatory for studies; offices may still ask for it.",
+  },
+  {
+    id: "return_travel",
+    titleEn: "Return travel cost",
+    titlePl: "Środki na podróż powrotną do państwa pochodzenia lub zamieszkania",
+    kind: "supporting",
+    detail: "No ticket is required. The Act only requires that your means cover the cost of returning, which your bank statements show.",
+    sourceUrl: "https://api.sejm.gov.pl/eli/acts/DU/2025/1079/text.pdf",
+    verified: true,
+  },
+];
+
+export const MOS_FEES: MosFee[] = [
+  {
+    id: "stamp_duty_study",
+    titleEn: "Stamp duty for a temporary residence permit (studies)",
+    amountPln: 340,
+    detail: "Standard rate for a temporary residence permit. The higher 440 zł applies to permits with work (art. 114, 127, 137a, 139a, 139o); 640 zł applies to permanent residence and EU long-term resident permits.",
+    sourceUrl: "https://api.sejm.gov.pl/eli/acts/DU/2026/1395/text.pdf",
+    verified: true,
+    note: "Ustawa o opłacie skarbowej, załącznik, część III, poz. 2; UdSC also states a range of 340-640 zł depending on the permit.",
+  },
+  {
+    id: "stamp_duty_work",
+    titleEn: "Stamp duty for a temporary residence and work permit",
+    amountPln: 440,
+    detail: "For comparison with the study permit.",
+    sourceUrl: "https://api.sejm.gov.pl/eli/acts/DU/2026/1395/text.pdf",
+    verified: true,
+    note: "Same table, poz. 2b. The EU Blue Card is art. 127 and is also 440 zł, not 640 zł.",
+  },
+  {
+    id: "stamp_duty_permanent",
+    titleEn: "Stamp duty for permanent residence or EU long-term resident",
+    amountPln: 640,
+    detail: "Not relevant for a first study permit; listed so nobody pays the wrong amount.",
+    sourceUrl: "https://api.sejm.gov.pl/eli/acts/DU/2026/1395/text.pdf",
+    verified: true,
+    note: "Same table, poz. 3 and 4.",
+  },
+  {
+    id: "residence_card",
+    titleEn: "Residence card issue fee",
+    amountPln: 100,
+    detail: "Paid separately from the stamp duty, to a different account.",
+    sourceUrl: UDSC,
+    verified: true,
+    note: "UdSC: opłata za wydanie karty pobytu (100 zł). When it must be paid relative to the decision is not consistent across office notices.",
+  },
+];

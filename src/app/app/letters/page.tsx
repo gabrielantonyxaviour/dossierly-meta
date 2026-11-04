@@ -1,7 +1,6 @@
-import { LettersFlow } from "@/components/app/letters/LettersFlow";
+import { redirect } from "next/navigation";
 
-export const metadata = { title: "Letters" };
-
+/** Letters are read through Look now (photo or screenshot → outlines → cited deadline). */
 export default function Page() {
-  return <LettersFlow />;
+  redirect("/app/look");
 }
