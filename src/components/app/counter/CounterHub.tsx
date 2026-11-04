@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Button, ButtonLink, Card, Pill, Row, Section, TopBar, useToast } from "@/components/ui";
-import { SampleCaseHint } from "@/components/voice/SampleCaseHint";
 import { useCaseData } from "../shell/case-data";
 import "@/components/voice/voice.css";
 import "./counter.css";
@@ -29,7 +28,7 @@ function PhoneRow() {
       icon="phone"
       title="Dossierly calls you"
       sub="When something urgent lands and you haven’t opened the app, Dossierly phones you and explains it."
-      end={enabled === null ? null : enabled ? <Button size="sm" variant="primary" loading={busy} onClick={() => void call()}>Call me now</Button> : <Pill>Coming soon</Pill>}
+      end={enabled === null ? null : enabled ? <Button variant="primary" loading={busy} onClick={() => void call()}>Call me now</Button> : <Pill>Coming soon</Pill>}
     />
   );
 }
@@ -47,8 +46,7 @@ export function CounterHub() {
           <span className="ch-half ch-half-you">Do you have health insurance?</span>
         </div>
         <h2>At the counter</h2>
-        <p>Lay the phone flat between you and the official. The top half speaks Polish to them, the bottom half is yours. When they ask for a document, Dossierly shows it. What you must do next goes straight into your case.</p>
-        <SampleCaseHint />
+        <p>Phone flat between you and the official: Polish on top for them, your language below for you. Documents and next steps come up as you talk.</p>
         <ButtonLink href="/app/counter/live" variant="agent" size="lg" icon="mic" block>Start at the counter</ButtonLink>
       </Card>
 

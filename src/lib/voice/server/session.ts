@@ -4,18 +4,21 @@
  */
 import { caseContext } from "../../case/context";
 import type { CaseSnapshot } from "../../case/types";
-import { clientEventSchema, type ServerEvent, type TurnMetric, type VoiceTurn } from "../protocol";
+import { clientEventSchema, type ServerEvent, type VoiceTurn } from "../protocol";
 import type { Ticket } from "../token";
 import { MetaAsr } from "./asr";
+import { TurnClock, type Metric } from "./metrics";
 import { VoiceCase, type CaseNamespace } from "./case";
 import { Speaker } from "./speaker";
 import type { Transport } from "./transport";
-import { caseKeywords, shortId } from "./util";
+import { MERGE_MS, caseKeywords, looksPolish, shortId, speechKey } from "./util";
 import { modeHandler, type ModeHandler } from "./modes";
 
 export type VoiceEnv = Record<string, unknown> & { CASE_DO?: CaseNamespace; ELEVENLABS_API_KEY?: string; MODEL_API_KEY?: string };
 
 export type Via = NonNullable<VoiceTurn["via"]>;
+
+const side = (u: Utterance) => u.as ?? (looksPolish(u.text) ? "official" : "user");
 
 export interface Utterance {
   id: string;
@@ -23,7 +26,9 @@ export interface Utterance {
   via: Via;
   /** Forced attribution (typed text or the test-official clip). */
   as?: "user" | "official";
-  metric: TurnMetric & { t0: number };
+  /** Held words this turn continues (a pause mid-sentence), already included in `text`. */
+  prefix?: string;
+  metric: Metric;
 }
 
 export class VoiceSession {
@@ -40,7 +45,7 @@ export class VoiceSession {
   /** Source when the current speech started: the clip may end before its transcript arrives. */
   private speechSource: "mic" | "clip" = "mic";
   private speechEndAt: number | null = null;
-  private metrics = new Map<string, TurnMetric & { t0: number }>();
+  private metrics = new TurnClock();
   private closed = false;
   readonly turns: VoiceTurn[] = [];
 
@@ -50,7 +55,7 @@ export class VoiceSession {
     this.speaker = new Speaker(String(env.ELEVENLABS_API_KEY ?? ""), t, {
       onFirstAudio: (u) => this.firstAudio(u),
       onError: (m) => this.emit({ t: "error", error: m, code: "tts" }),
-    });
+    }, typeof env.ELEVENLABS_TTS_MODEL === "string" ? env.ELEVENLABS_TTS_MODEL : undefined);
   }
 
   get mode() {
@@ -79,6 +84,7 @@ export class VoiceSession {
       onSpeechStart: () => {
         this.speechSource = this.source;
         this.emit({ t: "asr", phase: "start" });
+        this.holdForMore();
       },
       onPartial: (text) => this.onPartial(text),
       onSpeechEnd: (audioMs) => {
@@ -86,6 +92,7 @@ export class VoiceSession {
         const lag = audioMs !== null && this.asr ? Math.max(0, this.asr.sentMs - audioMs) : 0;
         this.speechEndAt = Date.now() - lag;
         this.emit({ t: "asr", phase: "end" });
+        this.speculate();
       },
       onFinal: (text) => this.onFinal(text),
       onError: (m) => this.emit({ t: "error", error: m, code: "asr" }),
@@ -112,21 +119,63 @@ export class VoiceSession {
   private async reconnectAsr(): Promise<void> {
     if (this.reconnects++ > 3 || !this.asr) return;
     await new Promise((r) => setTimeout(r, 500 * this.reconnects));
-    try {
-      await this.asr.connect();
-    } catch {
-      /* reported already */
-    }
+    await this.asr.connect().catch(() => undefined); // failure already reported
   }
 
   /** Partial transcript: captions, and barge-in for conversational modes. */
   private onPartial(text: string): void {
+    this.lastPartial = text;
     this.emit({ t: "asr", phase: "partial", text });
+    this.handler.partial?.(text);
     if (this.handler.bargeIn && this.speaker.speaking && text.split(/\s+/).length >= 2) this.interrupt();
+  }
+
+  private lastPartial = "";
+  /** Counter: the last turn, so a speaker who pauses mid-sentence is translated as one turn. */
+  private last: { u: Utterance; ctl: AbortController; at: number } | null = null;
+  private carry: Utterance | null = null;
+
+  /** More speech within MERGE_MS of the last turn, before its audio started: hold that turn to merge or resend it. */
+  private holdForMore(): void {
+    const l = this.last;
+    if (!this.handler?.merge || !l || Date.now() - l.at > MERGE_MS || l.ctl.signal.aborted || this.metrics.get(l.u.id)?.totalMs !== undefined) return;
+    this.last = null;
+    l.ctl.abort();
+    this.speaker.cut();
+    this.carry = l.u;
+  }
+  private spec: { u: Utterance; key: string; ctl: AbortController } | null = null;
+
+  /**
+   * Speech ended: start the turn on the last partial instead of waiting ~0.7 s for the final transcript. The final
+   * always lands before the model's first sentence, so a mismatch is cancelled and redone under the same turn id
+   * before anything is spoken.
+   */
+  private speculate(): void {
+    const text = this.lastPartial.trim();
+    this.lastPartial = "";
+    if (!this.handler?.speculate || !text || this.spec) return;
+    const id = shortId();
+    const metric = { turnId: id, t0: this.speechEndAt ?? Date.now(), asrMs: 0 };
+    this.metrics.set(id, metric);
+    const u: Utterance = { id, text, via: this.t.kind === "twilio" ? "phone" : this.speechSource, as: this.speechSource === "clip" ? "official" : undefined, metric };
+    const ctl = this.submit(u);
+    this.spec = { u: this.last?.u ?? u, key: speechKey(text), ctl };
   }
 
   private onFinal(text: string): void {
     const now = Date.now();
+    const spec = this.spec;
+    this.spec = null;
+    this.lastPartial = "";
+    if (spec) {
+      this.speechEndAt = null;
+      if (speechKey(text) === spec.key) return;
+      spec.ctl.abort();
+      this.speaker.cut();
+      this.submit({ ...spec.u, text: `${spec.u.prefix ?? ""}${text}`, metric: { ...spec.u.metric, asrMs: now - spec.u.metric.t0 } });
+      return;
+    }
     const id = shortId();
     const metric = { turnId: id, t0: this.speechEndAt ?? now, asrMs: this.speechEndAt ? now - this.speechEndAt : undefined };
     this.speechEndAt = null;
@@ -135,15 +184,26 @@ export class VoiceSession {
     this.submit(u);
   }
 
-  submit(u: Utterance): void {
+  submit(input: Utterance): AbortController {
+    let u = input;
+    const c = this.carry;
+    this.carry = null;
+    if (c && c.id !== u.id) {
+      // Same speaker carried on: one turn, one translation. Otherwise the held turn goes first, on its own.
+      if (side(c) === side(u)) u = { ...u, id: c.id, text: `${c.text} ${u.text}`, prefix: `${c.text} `, metric: { ...u.metric, turnId: c.id } };
+      else this.submit(c);
+    }
     if (this.handler.bargeIn) {
       this.turnAbort?.abort();
       this.speaker.cut();
     }
-    this.enqueue((signal) => this.handler.utterance(u, signal));
+    this.metrics.set(u.id, u.metric);
+    const ctl = this.enqueue((signal) => this.handler.utterance(u, signal));
+    this.last = { u, ctl, at: Date.now() };
+    return ctl;
   }
 
-  private enqueue(fn: (signal: AbortSignal) => Promise<void>): void {
+  private enqueue(fn: (signal: AbortSignal) => Promise<void>): AbortController {
     const ctl = new AbortController();
     this.chain = this.chain.then(async () => {
       if (this.closed || ctl.signal.aborted) return;
@@ -155,6 +215,7 @@ export class VoiceSession {
       }
     });
     if (this.handler?.bargeIn) this.turnAbort = ctl;
+    return ctl;
   }
 
   interrupt(): void {
@@ -162,30 +223,17 @@ export class VoiceSession {
     this.speaker.cut();
   }
 
-  /** Marks the moment the first spoken sentence of a turn is ready (before TTS). */
   sentenceReady(turnId: string, model?: string): void {
-    const m = this.metrics.get(turnId);
-    if (!m || m.llmMs !== undefined) return;
-    m.llmMs = Date.now() - m.t0 - (m.asrMs ?? 0);
-    if (model) m.model = model;
-    m.ttsMs = -Date.now();
+    this.metrics.sentenceReady(turnId, model);
   }
 
   private firstAudio(utterance: string): void {
-    const m = this.metrics.get(utterance);
-    if (!m || m.totalMs !== undefined) return;
-    const now = Date.now();
-    if (m.ttsMs !== undefined && m.ttsMs < 0) m.ttsMs = now + m.ttsMs;
-    m.totalMs = now - m.t0;
-    const { t0: _t0, ...metric } = m;
-    void _t0;
-    this.emit({ t: "metric", metric });
+    const metric = this.metrics.firstAudio(utterance);
+    if (metric) this.emit({ t: "metric", metric });
   }
 
-  newMetric(id: string): TurnMetric & { t0: number } {
-    const m = { turnId: id, t0: Date.now() };
-    this.metrics.set(id, m);
-    return m;
+  newMetric(id: string): Metric {
+    return this.metrics.start(id);
   }
 
   onClientText(raw: string): void {
@@ -199,7 +247,7 @@ export class VoiceSession {
     const ev = parsed.data;
     if (ev.t === "source") this.source = ev.source;
     else if (ev.t === "interrupt") this.interrupt();
-    else if (ev.t === "played") this.speaker.speaking = this.speaker.busy;
+    else if (ev.t === "played") this.speaker.played();
     else if (ev.t === "finish") void this.finish("user_ended");
     else if (ev.t === "debug" && this.env.APP_ENV !== "production") this.emit({ t: "debug", info: { asr: this.asr?.state, ...this.asr?.stats, audioIn: this.audioIn, source: this.source } });
     else if (ev.t === "text") {

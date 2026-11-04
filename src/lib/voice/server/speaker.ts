@@ -32,7 +32,7 @@ export class Speaker {
   /** Utterances whose audio_end was sent; the client reports back with `played`. */
   speaking = false;
 
-  constructor(private apiKey: string, private t: Transport, private hooks: SpeakHooks = {}) {}
+  constructor(private apiKey: string, private t: Transport, private hooks: SpeakHooks = {}, private model?: string) {}
 
   say(utterance: string, text: string, opts: { lang: string; voice?: VoiceName; side: "user" | "official" }): void {
     const clip: Clip = { utterance, side: opts.side, chunks: [], done: false, failed: false, wake: null, gen: this.gen };
@@ -40,7 +40,7 @@ export class Speaker {
     const signal = this.abort.signal;
     void (async () => {
       try {
-        for await (const c of speak(this.apiKey, { text, lang: opts.lang, voice: opts.voice, format: this.t.format, signal })) {
+        for await (const c of speak(this.apiKey, { text, lang: opts.lang, voice: opts.voice, format: this.t.format, signal, model: this.model })) {
           clip.chunks.push(c);
           clip.wake?.();
         }
@@ -111,6 +111,22 @@ export class Speaker {
     this.open.clear();
     this.speaking = false;
     this.t.clear();
+  }
+
+  private waiting: Array<() => void> = [];
+
+  /** The device finished playing what it had (client "played" event). */
+  played(): void {
+    this.speaking = this.busy;
+    if (!this.busy) for (const f of this.waiting.splice(0)) f();
+  }
+
+  /** Resolves once the device has played everything sent so far (or after timeoutMs). */
+  whenPlayed(timeoutMs: number): Promise<void> {
+    return new Promise((r) => {
+      this.waiting.push(r);
+      setTimeout(r, timeoutMs);
+    });
   }
 
   get busy(): boolean {

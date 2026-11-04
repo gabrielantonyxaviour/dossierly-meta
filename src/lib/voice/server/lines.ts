@@ -8,6 +8,8 @@
 
 const KEY_RE = /^([A-Z][A-Z_]{1,15}):\s?(.*)$/;
 const SENTENCE = /[.?!。？！।]+(?=\s)/g;
+/** First words of a field: a clause break after this many characters already starts speech. */
+const FIRST_CLAUSE = /^.{24,}?[,;:—–](?=\s)/su;
 
 export interface LineHandlers {
   onField(key: string, value: string): void;
@@ -57,6 +59,8 @@ export class LineStream {
         const rest = f.value.slice(from);
         let last = 0;
         for (const m of rest.matchAll(SENTENCE)) last = m.index + m[0].length;
+        // Speech starts on the first clause; later text goes sentence by sentence.
+        if (!last && !from && !complete) last = FIRST_CLAUSE.exec(rest)?.[0].length ?? 0;
         if (last > 0) {
           const s = rest.slice(0, last).trim();
           if (s) this.h.onSentence(f.key, s);

@@ -65,3 +65,20 @@ describe("ulaw", () => {
     expect(new Int16Array(ulaw8kToPcm16k(new Uint8Array([0xff, 0x00, 0x7f]))).length).toBe(6);
   });
 });
+
+describe("LineStream first clause", () => {
+  it("starts speech on the first clause of a long opening sentence, then goes by sentence", () => {
+    const said: string[] = [];
+    const ls = new LineStream({ onField: () => undefined, onSentence: (_k, s) => said.push(s) }, new Set(["SAY"]));
+    for (const d of ["SAY: The official says wait a moment, the address", " here is different. They're asking why."]) ls.push(d);
+    ls.end();
+    expect(said).toEqual(["The official says wait a moment,", "the address here is different.", "They're asking why."]);
+  });
+  it("does not cut a short opening at a comma", () => {
+    const said: string[] = [];
+    const ls = new LineStream({ onField: () => undefined, onSentence: (_k, s) => said.push(s) }, new Set(["SAY"]));
+    ls.push("SAY: Yes, she is asking for the lease.");
+    ls.end();
+    expect(said).toEqual(["Yes, she is asking for the lease."]);
+  });
+});

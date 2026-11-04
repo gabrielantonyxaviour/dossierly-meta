@@ -1,0 +1,15 @@
+/* Voice flows' full-screen frame around the shared mobile primitives (MobileFlowHeader, MobilePage, StickyActionBar). */
+.vs { position: fixed; inset: 0; z-index: 70; display: flex; flex-direction: column; background: var(--bg); color: var(--ink); overflow-y: auto; overscroll-behavior: contain; }
+.vs .ui-mhead-title small { display: block; font-weight: 500; font-size: var(--t-sm); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+/* Live: header fixed at the top, the page scrolls inside, the bar stays in the thumb zone. */
+.vs--live { overflow: hidden; }
+.vs--live .vs-page { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 14px; }
+.vs-page > .vc { flex: 1; }
+/* Call controls inside the shared bar: round buttons, not a full-width primary. */
+.vs .ui-actionbar-primary { justify-items: center; gap: 10px; }
+.vs .ui-actionbar-primary > .vc-type { width: 100%; }
+
+.vs-steps { list-style: none; margin: 0; padding: 0; display: grid; counter-reset: vs; }
+.vs-steps li { counter-increment: vs; display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; padding: 12px 0; border-top: 1px solid var(--line); font-size: var(--t-base); line-height: 1.45; }
+.vs-steps li::before { content: counter(vs); width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--ink-2); font-size: var(--t-sm); font-weight: 600; }
+.vs-fine { margin: 0; font-size: var(--t-sm); line-height: 1.45; color: var(--ink-3); }
