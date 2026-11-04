@@ -1,5 +1,5 @@
 "use client";
-import { Avatar, ErrorState, IconLink, Pill, Skeleton, TopBar, useNow } from "@/components/ui";
+import { Avatar, ErrorState, IconLink, Skeleton, TopBar, useNow } from "@/components/ui";
 import Link from "next/link";
 import { useUnread } from "../AppShell";
 import { firstName, greeting } from "../format";
