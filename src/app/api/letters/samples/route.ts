@@ -3,11 +3,12 @@ import { getEnv, type Env } from "@/lib/server/env";
 import { ApiError, errorResponse, readJson, jsonError } from "@/lib/server/http";
 import { accountFromCookie } from "@/lib/server/session";
 import { timingSafeEqual } from "@/lib/server/util";
-import { publicCatalogue, sampleLetterById, SAMPLE_ADMIN_ALLOWLIST, SAMPLE_SENDER, type SampleLetter } from "@/lib/features/letters-samples";
+import { publicCatalogue, sampleLetterById, SAMPLE_ADMIN_ALLOWLIST, SAMPLE_SENDER } from "@/lib/features/letters-samples";
+import { FILM_MAILS, warsawToday, type BuiltMail } from "@/lib/features/film-mails";
 
 export const dynamic = "force-dynamic";
 
-const Body = z.object({ id: z.string().min(1).max(60), to: z.string().max(200).optional() });
+const Body = z.object({ id: z.string().min(1).max(60), to: z.string().max(200).optional(), date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional() });
 const DAILY_LIMIT = 6;
 
 type Attachment = { filename: string; content: Uint8Array; type: string; disposition: "attachment" };
@@ -56,34 +57,45 @@ async function fetchBytes(env: Env, req: Request, path: string): Promise<Uint8Ar
   }
 }
 
-async function attachments(env: Env, req: Request, l: SampleLetter): Promise<Attachment[]> {
+async function attachments(env: Env, req: Request, paths: string[]): Promise<Attachment[]> {
   const out: Attachment[] = [];
-  for (const [path, type] of [[l.pdf, "application/pdf"], [l.png, "image/png"]] as const) {
+  for (const path of paths) {
     const content = await fetchBytes(env, req, path);
-    if (content) out.push({ filename: path.split("/").pop() as string, content, type, disposition: "attachment" });
+    if (content) out.push({ filename: path.split("/").pop() as string, content, type: path.endsWith(".pdf") ? "application/pdf" : "image/png", disposition: "attachment" });
   }
   return out;
+}
+
+/** A film inbox mail, or a catalogue letter with its PDF/PNG links appended. */
+function buildMail(id: string, date: string, origin: string): (BuiltMail & { ref: string }) | null {
+  const film = Object.hasOwn(FILM_MAILS, id) ? FILM_MAILS[id] : undefined;
+  if (film) return { ...film({ date }), ref: id };
+  const letter = sampleLetterById(id);
+  if (!letter) return null;
+  const links = [letter.pdf, letter.png].map((p) => `${origin}${p}`);
+  return {
+    ref: letter.id, from: SAMPLE_SENDER, subject: letter.email.subject, attachments: [letter.pdf, letter.png],
+    html: `${letter.email.html}<p style="font-size:13px"><a href="${links[0]}">PDF</a> · <a href="${links[1]}">PNG</a></p>`,
+    text: `${letter.email.text}\n\nPDF: ${links[0]}\nPNG: ${links[1]}`,
+  };
 }
 
 export async function POST(req: Request) {
   try {
     const env = getEnv();
-    const { id, to } = await readJson(req, Body);
-    const letter = sampleLetterById(id);
-    if (!letter) throw new ApiError(400, "Unknown sample id", "unknown_sample");
+    const { id, to, date } = await readJson(req, Body);
+    const origin = env.APP_URL || new URL(req.url).origin;
+    const m = buildMail(id, date ?? warsawToday(), origin);
+    if (!m) throw new ApiError(400, "Unknown sample id", "unknown_sample");
     const binding = (env as unknown as { EMAIL?: EmailBinding }).EMAIL;
     if (!binding || typeof binding.send !== "function") throw new ApiError(503, "Email delivery is unavailable", "email_unavailable");
     const rcpt = await resolveRecipient(req, env, to);
     if (rcpt.limitKey && (await overLimit(env, rcpt.limitKey))) throw new ApiError(429, "Daily sample email limit reached", "rate_limited");
-    const atts = await attachments(env, req, letter);
-    const origin = env.APP_URL || new URL(req.url).origin;
-    const links = [letter.pdf, letter.png].map((p) => `${origin}${p}`);
-    const html = `${letter.email.html}<p style="font-size:13px"><a href="${links[0]}">PDF</a> · <a href="${links[1]}">PNG</a></p>`;
-    const text = `${letter.email.text}\n\nPDF: ${links[0]}\nPNG: ${links[1]}`;
+    const atts = await attachments(env, req, m.attachments);
     const send = (list: Attachment[]) => binding.send({
       to: rcpt.name ? { email: rcpt.email, name: rcpt.name } : rcpt.email,
-      from: SAMPLE_SENDER, subject: letter.email.subject, html, text,
-      headers: { "X-Entity-Ref-ID": `dossierly-sample/${letter.id}` },
+      from: m.from, subject: m.subject, html: m.html, text: m.text,
+      headers: { "X-Entity-Ref-ID": `dossierly-sample/${m.ref}/${Date.now()}` },
       ...(list.length ? { attachments: list } : {}),
     });
     let result: { messageId: string };
@@ -93,7 +105,7 @@ export async function POST(req: Request) {
       if (!atts.length) throw e;
       result = await send([]); // attachments rejected: links in the body still carry the files
     }
-    return Response.json({ ok: true, messageId: result.messageId, id: letter.id, attachments: atts.length });
+    return Response.json({ ok: true, messageId: result.messageId, id: m.ref, attachments: atts.length });
   } catch (e) {
     if (e instanceof ApiError || e instanceof z.ZodError) return errorResponse(e);
     return jsonError(502, "Could not send the sample email", "email_failed");

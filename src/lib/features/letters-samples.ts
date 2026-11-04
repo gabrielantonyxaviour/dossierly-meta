@@ -1,5 +1,5 @@
 /** Fictional sample official letters, screens and emails (persona: Arjun Raman). Never from a real authority. */
-export const SAMPLE_CASE_NO = "WSC-II-S.6151.48213.2026";
+export const SAMPLE_CASE_NO = "WSC-II-P.6151.48213.2026";
 export const SAMPLE_FOOTER_PL = "PRZYKŁAD — dokument fikcyjny wygenerowany przez Dossierly do testów. Nie pochodzi z urzędu.";
 export const SAMPLE_FOOTER_EN = "SAMPLE — fictional test document made by Dossierly.";
 export const SAMPLE_SENDER = { email: "wsc-przyklad@dossierly.cosmiclan.com", name: "Wydział Spraw Cudzoziemców (PRZYKŁAD)" } as const;
@@ -54,10 +54,10 @@ export const SAMPLE_LETTERS: SampleLetter[] = [
     email: makeEmail({
       subjectPl: "Wezwanie do uzupełnienia braków formalnych wniosku", date: "22.10.2026",
       intro: "Na podstawie art. 64 § 2 Kodeksu postępowania administracyjnego wzywamy Pana do uzupełnienia braków formalnych wniosku poprzez:",
-      points: ["1. przedłożenie aktualnego zaświadczenia z uczelni o kontynuacji studiów,", "2. przedłożenie dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego,", "3. przedłożenie dowodu uiszczenia opłaty skarbowej w wysokości 340 zł."],
+      points: ["1. przedłożenie umowy najmu lokalu, w którym Pan obecnie zamieszkuje,", "2. przedłożenie dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego na cały okres pobytu,", "3. przedłożenie nowej, aktualnej fotografii spełniającej wymogi (35 × 45 mm)."],
       deadline: `Wymagane jest to ${DEADLINE_BRAKI}.`,
       outro: "Pozostajemy do dyspozycji.",
-      en: "You must provide a current university enrolment certificate, proof of health insurance and proof of the 340 PLN stamp duty within 14 days of receiving this letter, otherwise your application will be left unexamined.",
+      en: "You must send your lease, proof of health insurance for your whole stay and a new photo that meets the requirements within 14 days of receiving this letter, otherwise your application will be left unexamined.",
     }),
   },
   {
@@ -68,10 +68,23 @@ export const SAMPLE_LETTERS: SampleLetter[] = [
       subjectPl: "Wezwanie do osobistego stawiennictwa w celu pobrania odcisków linii papilarnych", date: "22.10.2026",
       intro: "Na podstawie art. 50 § 1 Kodeksu postępowania administracyjnego wzywamy Pana do osobistego stawiennictwa w celu pobrania odcisków linii papilarnych.",
       points: ["Należy zabrać ważny dokument podróży (paszport) oraz niniejsze wezwanie.", "Niestawiennictwo bez usprawiedliwienia może skutkować nałożeniem kary porządkowej (art. 88 § 1 KPA) oraz brakiem możliwości wydania karty pobytu."],
-      appointment: "dnia 12.11.2026 r. o godz. 10:30, Wydział Spraw Cudzoziemców, ul. Marszałkowska 3/5, 00-624 Warszawa.",
+      appointment: "dnia 04.11.2026 r. o godz. 10:40, Wydział Spraw Cudzoziemców, ul. Marszałkowska 3/5, 00-624 Warszawa.",
       deadline: "Usprawiedliwienie niemożności stawiennictwa należy zgłosić w terminie 3 dni od wyznaczonej daty (art. 89 § 1 KPA).",
       outro: "Prosimy o punktualne stawiennictwo.",
-      en: "You must appear in person on 12.11.2026 at 10:30 at ul. Marszałkowska 3/5, 00-624 Warszawa to give fingerprints. Bring your passport.",
+      en: "You must appear in person on 04.11.2026 at 10:40 at ul. Marszałkowska 3/5, 00-624 Warszawa to give fingerprints. Bring your passport.",
+    }),
+  },
+  {
+    id: "wezwanie-zaswiadczenie", kind: "letter", titleEn: "Request for a certificate of enrolment",
+    subjectPl: "Wezwanie do przedłożenia zaświadczenia o studiowaniu", dateOnLetter: "04.11.2026",
+    png: `${P}wezwanie-zaswiadczenie.png`, pdf: `${P}wezwanie-zaswiadczenie.pdf`, phonePhoto: null,
+    email: makeEmail({
+      subjectPl: "Wezwanie do przedłożenia zaświadczenia o studiowaniu", date: "04.11.2026",
+      intro: "Na podstawie art. 50 § 1 Kodeksu postępowania administracyjnego wzywamy Pana do przedłożenia:",
+      points: ["1. aktualnego zaświadczenia z uczelni potwierdzającego kontynuację studiów (zaświadczenie o studiowaniu)."],
+      deadline: "Termin: do dnia 25.11.2026 r.",
+      outro: "Pozostajemy do dyspozycji.",
+      en: "Send a current certificate of enrolment from your university by 25.11.2026.",
     }),
   },
   {

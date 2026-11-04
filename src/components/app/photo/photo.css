@@ -28,3 +28,20 @@
 @media (min-width: 768px) { .ph-spec { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .ph-recent { min-height: 44px; align-items: center; font-size: 1rem; }
 @media (max-width: 767px) { .ph-check, .ph-check p { font-size: 1rem; } .ph-stage { --ph-maxh: 52dvh; } }
+/* Before → after, sized to read at a glance (and in a phone panel at half scale). */
+.ph-outcome { display: grid; gap: 16px; box-shadow: 0 0 0 1.5px var(--ok); scroll-margin-top: calc(88px + env(safe-area-inset-top)); }
+.ph-compare { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: end; gap: 10px; }
+.ph-compare figure { margin: 0; display: grid; gap: 8px; }
+.ph-compare img { width: 100%; max-height: 220px; object-fit: cover; border-radius: var(--radius-sm); box-shadow: var(--ring); background: var(--surface-2); }
+.ph-compare figcaption { display: grid; gap: 2px; }
+.ph-compare figcaption b { font-size: clamp(1rem, 4.6vw, 1.25rem); white-space: nowrap; font-weight: 600; letter-spacing: -0.01em; }
+.ph-compare figcaption span.mono { font-size: 1.0625rem; color: var(--ink-2); }
+.ph-arrow { align-self: center; font-size: 1.5rem; color: var(--ink-3); padding-bottom: 40px; }
+.ph-ticks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: 6px 16px; }
+@media (min-width: 768px) { .ph-ticks { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ph-rules-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.ph-ticks li { display: flex; align-items: center; gap: 10px; min-height: 36px; font-size: 1.0625rem; font-weight: 500; }
+.ph-ticks li.is-pass .ph-mark { background: var(--ok-soft); color: var(--ok); }
+.ph-ticks li.is-fail .ph-mark { background: var(--deadline-soft); color: var(--deadline); }
+.ph-ticks li.is-unsure .ph-mark { background: var(--user-soft); color: var(--user); }
+.ui-btn.is-disabled { opacity: 0.55; cursor: not-allowed; }
