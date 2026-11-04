@@ -1,19 +1,18 @@
 "use client";
-import { daysBetween, warsawDate, warsawToday } from "@/lib/case/next-step";
+import { daysBetween, warsawToday } from "@/lib/case/next-step";
 import type { CaseDocument, CaseSnapshot } from "@/lib/case/types";
 import { ButtonLink, Card, CheckCircle, EmptyState, Pill, Row, Section, useToast } from "@/components/ui";
 import type { IconName } from "@/components/Icon";
-import { dayLabel, relDays, timeLabel } from "../format";
+import { dayLabel, relDays } from "../format";
 import { useCaseData } from "../shell/case-data";
 import { isMissingPhoto, isPhotoTask, openPhotoTask, photoCheckHref } from "../photo-link";
+import { CaseCalendar } from "./CaseCalendar";
+import { caseDates, type DateItem } from "./calendar-grid";
 
 export function DatesTab({ c }: { c: CaseSnapshot }) {
   const today = warsawToday();
-  type Item = { key: string; date: string; kind: "deadline" | "appointment"; title: string; sub: string; href?: string; status?: string; time?: string };
-  const items: Item[] = [
-    ...c.deadlines.map((d) => ({ key: d.id, date: d.dueDate, kind: "deadline" as const, title: d.title, sub: d.computation.rule ?? "Deadline", href: `/app/case/deadlines/${d.id}`, status: d.status })),
-    ...c.appointments.map((a) => ({ key: a.id, date: warsawDate(a.at), kind: "appointment" as const, title: a.title, sub: `${a.location.name}${a.location.address ? ` · ${a.location.address}` : ""}`, time: timeLabel(a.at) })),
-  ];
+  type Item = DateItem;
+  const items = caseDates(c);
   const upcoming = items.filter((i) => i.date >= today && i.status !== "done").sort((a, b) => a.date.localeCompare(b.date));
   const past = items.filter((i) => i.date < today || i.status === "done").sort((a, b) => b.date.localeCompare(a.date));
   if (!items.length) return <EmptyState icon="calendar" title="No dates yet">When a letter sets a deadline or the office gives you an appointment, it’s counted and shown here.</EmptyState>;
@@ -33,6 +32,7 @@ export function DatesTab({ c }: { c: CaseSnapshot }) {
   };
   return (
     <div className="cs-stack">
+      <CaseCalendar items={items} today={today} row={row} />
       <Section title="Upcoming">{upcoming.length ? <Card flush>{upcoming.map(row)}</Card> : <p className="ui-body">Nothing coming up.</p>}</Section>
       {past.length > 0 && <Section title="Past">{<Card flush>{past.map(row)}</Card>}</Section>}
     </div>
