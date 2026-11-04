@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
+import { DORM_ADDRESS, FILM_MAILS, FILM_SEED, FLAT_ADDRESS } from "@/lib/features/film-mails";
 import { SAMPLE_CASE_NO, SAMPLE_FOOTER_PL, SAMPLE_LETTERS, SAMPLE_SCREENS, SAMPLE_SENDER } from "@/lib/features/letters-samples";
 import { GET, POST } from "@/app/api/letters/samples/route";
 import { getEnv } from "@/lib/server/env";
@@ -27,7 +28,8 @@ describe("sample catalogue", () => {
     }
     const braki = SAMPLE_LETTERS[0].email.text;
     expect(braki).toContain("w terminie 14 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania");
-    expect(SAMPLE_LETTERS[1].email.text).toMatch(/12\.11\.2026 r\. o godz\. 10:30.*Marszałkowska 3\/5/);
+    expect(SAMPLE_LETTERS[1].email.text).toMatch(/04\.11\.2026 r\. o godz\. 10:40.*Marszałkowska 3\/5/);
+    expect(braki).toMatch(/umowy najmu[\s\S]*ubezpieczenia zdrowotnego na cały okres pobytu[\s\S]*fotografii/);
   });
   it("GET omits email bodies", async () => {
     const json = await (await GET()).json();
@@ -73,5 +75,40 @@ describe("sample email route", () => {
     const res = await POST(post({ id: "wezwanie-braki" }));
     t.restore();
     expect(res.status).toBe(401);
+  });
+});
+
+describe("film inbox mails", () => {
+  it("are marked as samples and carry the canonical facts in the body", () => {
+    for (const id of [...FILM_SEED, "film-enrolment-request"]) {
+      const m = FILM_MAILS[id]({ date: "2026-11-04" });
+      expect(m.from.name, id).toContain("(PRZYKŁAD)");
+      expect(m.from.email).not.toMatch(/gov\.pl/);
+      expect(m.text, id).toContain(SAMPLE_FOOTER_PL);
+      for (const p of m.attachments) expect(pub(p), p).toBe(true);
+    }
+    const t = (id: string, date = "2026-11-04") => FILM_MAILS[id]({ date }).text;
+    expect(t("film-summons")).toContain(DORM_ADDRESS);
+    expect(t("film-summons")).toContain("w terminie 14 dni od dnia doręczenia niniejszego wezwania");
+    expect(t("film-summons")).toContain("22.10.2026");
+    expect(t("film-fingerprints", "2026-11-05")).toMatch(/05\.11\.2026 r\., godz\. 10:40[\s\S]*Marszałkowska 3\/5/);
+    for (const f of [SAMPLE_CASE_NO, "18.09.2026", DORM_ADDRESS]) expect(t("film-mos-confirmation")).toContain(f);
+    expect(t("film-lease")).toContain(FLAT_ADDRESS);
+    expect(t("film-lease")).toContain("1 October 2026");
+    expect(t("film-agency")).toContain("Kompleksowa legalizacja pobytu: 4 900 zł");
+    expect(t("film-enrolment-request")).toContain("25.11.2026");
+    expect(FILM_SEED.at(-1)).toBe("film-summons");
+  });
+  it("route sends a film mail with the given date and its PDF", async () => {
+    const env = getEnv() as unknown as Record<string, unknown>;
+    const send = vi.fn(async (_m: Record<string, unknown>) => ({ messageId: "m2" }));
+    const saved = { EMAIL: env.EMAIL, SAMPLE_MAIL_TOKEN: env.SAMPLE_MAIL_TOKEN };
+    Object.assign(env, { EMAIL: { send }, SAMPLE_MAIL_TOKEN: "tok-9" });
+    const res = await POST(post({ id: "film-fingerprints", to: "darthstormer.ai@gmail.com", date: "2026-11-05" }, { "x-sample-token": "tok-9" }));
+    Object.assign(env, saved);
+    expect(res.status).toBe(200);
+    const msg = send.mock.calls[0][0] as { subject: string; from: { name: string } };
+    expect(msg.subject).toContain("05.11.2026");
+    expect(msg.from.name).toContain("PRZYKŁAD");
   });
 });
