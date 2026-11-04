@@ -20,6 +20,11 @@ export function warsawDate(iso: string): string {
   return warsawToday(new Date(iso));
 }
 
+/** Wall-clock time in Warsaw ("10:30"), whatever offset the ISO timestamp was stored with. */
+export function warsawTime(iso: string): string {
+  return new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Warsaw", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(iso));
+}
+
 export function daysBetween(from: string, to: string): number {
   return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000);
 }

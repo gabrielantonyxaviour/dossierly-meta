@@ -1,4 +1,4 @@
-import { nextStep, warsawDate, warsawToday } from "./next-step";
+import { nextStep, warsawDate, warsawTime, warsawToday } from "./next-step";
 import { FACT_KEYS, type CaseSnapshot } from "./types";
 
 const clip = (s: string, n = 160) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
@@ -21,7 +21,7 @@ export function caseContext(c: CaseSnapshot, now: Date = new Date(), opts: { max
   section("Documents", c.documents.map((d) => `${d.title} (${d.kind}) ${d.status}${d.pages ? `, ${d.pages}p` : ""}${Object.keys(d.extractedFields).length ? ` {${Object.entries(d.extractedFields).map(([k, v]) => `${k}: ${clip(v, 60)}`).join(", ")}}` : ""} #${d.id}`));
   section("Deadlines", c.deadlines.map((d) => `${d.dueDate} ${d.title} [${d.status}]${d.computation.rule ? ` (${d.computation.rule})` : ""}${d.computation.steps.length ? ` how: ${clip(d.computation.steps.join(" > "), 240)}` : ""} #${d.id}`));
   section("Tasks", c.tasks.filter((t) => t.status === "open").map((t) => `${t.title}${t.detail ? `: ${clip(t.detail)}` : ""}${t.dueDeadlineId ? ` (for #${t.dueDeadlineId})` : ""} #${t.id}`));
-  section("Appointments", c.appointments.map((a) => `${warsawDate(a.at)} ${a.at.slice(11, 16)}Z ${a.title} at ${a.location.name}${a.location.address ? `, ${a.location.address}` : ""}${a.purpose ? ` - ${clip(a.purpose, 100)}` : ""} #${a.id}`));
+  section("Appointments", c.appointments.map((a) => `${warsawDate(a.at)} ${warsawTime(a.at)} Warsaw time ${a.title} at ${a.location.name}${a.location.address ? `, ${a.location.address}` : ""}${a.purpose ? ` - ${clip(a.purpose, 100)}` : ""} #${a.id}`));
   section("Recent events", c.events.slice(0, opts.maxEvents ?? 10).map((e) => `${e.at.slice(0, 10)} ${e.type}: ${clip(e.summary)}`));
   const n = nextStep(c, now);
   out.push(`Next step: ${n ? `${n.title}${n.date ? ` (${n.date}${n.overdue ? ", OVERDUE" : `, ${n.daysLeft}d`})` : ""}` : "none"}`);

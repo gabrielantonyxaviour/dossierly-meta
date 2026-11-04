@@ -38,3 +38,12 @@ describe("nextStep", () => {
     expect(nextStep(s.snapshot(), now)).toMatchObject({ kind: "appointment", daysLeft: 2 });
   });
 });
+
+describe("warsawTime", () => {
+  it("renders Warsaw wall-clock time regardless of the stored offset", async () => {
+    const { warsawTime } = await import("@/lib/case/next-step");
+    expect(warsawTime("2026-11-12T10:30:00+01:00")).toBe("10:30");
+    expect(warsawTime("2026-11-12T09:30:00Z")).toBe("10:30");
+    expect(warsawTime("2026-07-01T08:15:00Z")).toBe("10:15");
+  });
+});
