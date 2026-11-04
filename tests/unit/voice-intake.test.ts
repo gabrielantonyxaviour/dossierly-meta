@@ -2,6 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 
 let release: () => void = () => undefined;
 vi.mock("@/lib/onboarding/intake", () => ({
+  // Older onboarding module: no streaming exports, so IntakeMode uses the one-shot intakeTurn.
+  INTAKE_REPLY_SYSTEM: undefined,
+  intakeInput: undefined,
+  intakeProfile: undefined,
   intakeTurn: vi.fn(async (_e: unknown, _u: string, _t: string, o?: { onReply?: (r: string, l: string) => void }) => {
     o?.onReply?.("Hi Arjun. Can I look at your email?", "en");
     await new Promise<void>((r) => (release = r)); // extraction still running
