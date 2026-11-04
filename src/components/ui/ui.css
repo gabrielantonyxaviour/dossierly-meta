@@ -5,7 +5,7 @@
 .ui-display.ui-num, .ui-bignum { font-weight: 300; letter-spacing: -0.02em; line-height: 1; }
 .ui-eyebrow { font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
 .ui-title { font-size: var(--t-lg); font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; margin: 0; }
-.ui-body { font-size: var(--t-md); color: var(--ink-2); line-height: 1.5; margin: 0; }
+.ui-body { font-size: 0.9375rem; color: var(--ink-2); line-height: 1.5; margin: 0; }
 .ui-meta { font-size: var(--t-sm); color: var(--ink-3); }
 .ui-num { font-variant-numeric: tabular-nums; }
 
@@ -112,10 +112,10 @@ a.ui-row:hover, button.ui-row:hover { background: var(--card-2); }
 
 /* Inputs */
 .ui-field { display: grid; gap: 6px; }
-.ui-field > span { font-size: var(--t-sm); font-weight: 600; color: var(--ink-2); }
-.ui-input { width: 100%; min-height: 48px; padding: 12px 14px; border: 0; border-radius: var(--r-sm); background: var(--card); box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--ink); font-size: var(--t-base); }
+.ui-field > span { font-size: var(--t-md); font-weight: 500; color: var(--ink-2); }
+.ui-input { width: 100%; min-height: 52px; padding: 14px 16px; border: 0; border-radius: var(--r-md); background: var(--card); box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--ink); font-size: var(--t-base); }
 .ui-input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--ink); }
-.ui-field small { color: var(--ink-3); font-size: var(--t-xs); }
+.ui-field small { color: var(--ink-3); font-size: var(--t-sm); }
 
 /* Switch */
 .ui-switch { position: relative; width: 50px; height: 30px; border-radius: var(--pill); border: 0; background: var(--line-strong); cursor: pointer; flex: none; transition: background var(--d-2); }
