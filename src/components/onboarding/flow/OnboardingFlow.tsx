@@ -5,6 +5,7 @@ import type { Profile } from "@/lib/case/types";
 import type { OnboardingState } from "@/lib/server/onboarding";
 import { failure, flowApi } from "@/lib/client/onboarding-flow";
 import { Logo } from "@/components/Logo";
+import { AgentOrb } from "@/components/ui";
 import { CaseFile } from "./CaseFile";
 import { InboxStep } from "./InboxStep";
 import { PhoneStep } from "./PhoneStep";
@@ -73,10 +74,10 @@ export function OnboardingFlow({ initial, profile: initialProfile, email, return
       </header>
       <div className="ob-grid">
         <section className="ob-talk" key={welcome ? "w" : step}>
-          <div className="ob-agent"><span className="ob-agent-dot" aria-hidden="true" /><span>Dossierly{welcome ? "" : ` · step ${step} of ${TOTAL}`}</span></div>
+          <div className="ob-agent"><AgentOrb size={22} state="idle" /><span>Dossierly{welcome ? "" : ` · step ${step} of ${TOTAL}`}</span></div>
           <h1 id="ob-say" tabIndex={-1} className="ob-say">{say}</h1>
           <p className="ob-sub">{sub}</p>
-          {error && <div className="ob-alert" role="alert"><p>{error.text}</p>{error.retry && <button type="button" className="btn btn-small" onClick={error.retry}>Try again</button>}</div>}
+          {error && <div className="ob-alert" role="alert"><p>{error.text}</p>{error.retry && <button type="button" className="ui-btn ui-btn--sm" onClick={error.retry}>Try again</button>}</div>}
           {welcome ? <WelcomeStep firstName={name} calendarAdded={calendarAdded} />
             : step === 1 ? <YouStep {...base} />
             : step === 2 ? <ReasonStep {...base} reason={reason} setReason={setReason} />

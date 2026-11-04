@@ -45,7 +45,7 @@ export function YouStep({ profile, busy, save }: Base) {
         <span className="ob-field-label">Country</span>
         <div className="ob-locked"><span className="ob-flag" aria-hidden="true" /><strong>Poland</strong><span>More countries coming soon</span></div>
       </div>
-      <button className="btn btn-primary ob-next" disabled={busy}>{busy ? "Saving…" : "Continue"}</button>
+      <button className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" disabled={busy}>{busy ? "Saving…" : "Continue"}</button>
     </form>
   );
 }
@@ -108,7 +108,7 @@ export function PlaceStep({ profile, busy, save, reason }: Base & { reason: Reas
         <DatePicker value={arrival} onChange={setArrival} max={today()} min="2015-01-01" labelledBy="ob-arrival" placeholder="Choose your arrival date" />
       </div>
       {touched && missing && <p className="ob-field-err" role="alert">{missing}</p>}
-      <button className="btn btn-primary ob-next" disabled={busy}>{busy ? "Saving…" : "Continue"}</button>
+      <button className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" disabled={busy}>{busy ? "Saving…" : "Continue"}</button>
     </form>
   );
 }

@@ -25,7 +25,7 @@ export function PhoneStep({ profile, setProfile, onDone }: { profile: Profile; s
         <strong>{saved ? "Calls are on for this number." : "Number saved."}</strong>
         <p>{saved ? "If an urgent letter arrives, I’ll phone you and explain it. You can switch calls off any time." : "Phone-call alerts are coming soon. Until then I’ll alert you in the app, and your number stays unverified and unused."}</p>
       </div>
-      <button type="button" className="btn btn-primary ob-next" disabled={busy} onClick={() => { setBusy(true); void onDone().finally(() => setBusy(false)); }}>{busy ? "Opening your case…" : "Finish setup"}</button>
+      <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" disabled={busy} onClick={() => { setBusy(true); void onDone().finally(() => setBusy(false)); }}>{busy ? "Opening your case…" : "Finish setup"}</button>
       <button type="button" className="ob-link" onClick={() => setSaved(null)}>Change number</button>
     </div>
   );
@@ -37,7 +37,7 @@ export function PhoneStep({ profile, setProfile, onDone }: { profile: Profile; s
         <small className="ob-hint">With country code. Polish or your home number both work.</small>
       </label>
       {error && <p className="ob-field-err" role="alert">{error}</p>}
-      <button className="btn btn-primary ob-next" disabled={busy || number.replace(/\D/g, "").length < 7}>{busy ? "Saving…" : "Save my number"}</button>
+      <button className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" disabled={busy || number.replace(/\D/g, "").length < 7}>{busy ? "Saving…" : "Save my number"}</button>
       <button type="button" className="ob-link" disabled={busy} onClick={() => void submit(true)}>Skip, alert me in the app only</button>
     </form>
   );
