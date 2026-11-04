@@ -47,3 +47,12 @@ describe("warsawTime", () => {
     expect(warsawTime("2026-07-01T08:15:00Z")).toBe("10:15");
   });
 });
+
+describe("dayLabel", () => {
+  it("spells out the weekday so prompts never need weekday arithmetic", async () => {
+    const { dayLabel } = await import("@/lib/case/context");
+    expect(dayLabel("2026-11-04")).toBe("Wednesday 4 November 2026 (2026-11-04)");
+    expect(dayLabel("2026-11-18")).toBe("Wednesday 18 November 2026 (2026-11-18)");
+    expect(dayLabel("soon")).toBe("soon");
+  });
+});

@@ -77,7 +77,7 @@ describe("caseContext", () => {
     s.create("deadlines", { title: "Supplement documents", dueDate: "2026-11-10" });
     const txt = caseContext(s.snapshot(), new Date("2026-11-04T10:00:00Z"));
     expect(txt).toContain("Supplement documents");
-    expect(txt).toContain("Next step: Supplement documents (2026-11-10, 6d)");
+    expect(txt).toContain("Next step: Supplement documents (Tuesday 10 November 2026 (2026-11-10), 6d)");
     expect(txt).not.toContain("secret/key");
     expect(txt).not.toContain("+48501234567");
   });

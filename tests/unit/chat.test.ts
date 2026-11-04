@@ -32,7 +32,7 @@ describe("buildSystemPrompt", () => {
   it("includes persona, case context and attached detail; ignores unknown ids", () => {
     const { system, sources } = buildSystemPrompt(snap, [{ kind: "deadline", id: deadline.id }, { kind: "task", id: "nope" }], new Date("2026-11-04T10:00:00Z"));
     expect(system).toContain(PERSONA);
-    expect(system).toContain("CASE (today 2026-11-04");
+    expect(system).toContain("CASE (today is Wednesday 4 November 2026 (2026-11-04)");
     expect(system).toContain("ATTACHED BY THE USER");
     expect(system).toContain("KPA art. 64");
     expect(sources).toHaveLength(1);
