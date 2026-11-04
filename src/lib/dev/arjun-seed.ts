@@ -46,7 +46,8 @@ export function buildArjunSeed(today: string) {
       stage: "waiting_decision" as const,
       organisation: "Warsaw University of Technology (MSc Computer Science)",
       arrivalDate: "2026-09-10",
-      phone: { number: null, verified: false, callsEnabled: false },
+      // Demo account: calls on (Twilio calls DEMO_CALL_NUMBER; no number is stored in the seed).
+      phone: { number: null, verified: true, callsEnabled: true },
       timezone: "Europe/Warsaw",
     },
     facts: {
@@ -112,6 +113,7 @@ export function buildArjunSeed(today: string) {
       { id: "task-passport", title: "Bring your original passport to fingerprints", detail: "Take the original passport and the case number.", dueDeadlineId: null, origin: "agent" as const, status: "open" as const },
     ],
     events: [
+      { id: "ev-calendar", at: at(0, "08:21"), type: "note" as const, summary: "Added to Google Calendar with reminders: fingerprints today 10:40; reply to the summons by Wed 18 Nov", refs: ["apt-fingerprints", "dl-summons"] },
       { id: "ev-read", at: at(0, "08:20"), type: "letter_read" as const, summary: "Read the summons: the office asks for your lease, health insurance and a new photo within 14 days", refs: ["doc-wezwanie"] },
       { id: "ev-deadline", at: at(0, "08:19"), type: "deadline_created" as const, summary: "Created a deadline to reply to the summons", refs: ["dl-summons"] },
       { id: "ev-email", at: at(-1, "21:40"), type: "email_received" as const, summary: "Email from the voivodeship office: summons to complete your application", refs: ["doc-wezwanie"] },
