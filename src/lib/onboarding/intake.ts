@@ -38,8 +38,14 @@ const PERMIT: Record<string, Profile["permitType"]> = { study: "temporary_reside
 
 export type IntakeResult = { reply: string; language: string; speechId: string | null; profile: Profile; firstName: string | null };
 
-/** Reads the transcript, saves what it states to the profile, and returns the spoken reply (PCM16 16 kHz, base64). */
+/** Reads the transcript, saves what it states to the profile, and returns the reply plus a speech id to stream it. */
 export async function runIntake(env: Env, userId: string, transcript: string): Promise<IntakeResult> {
+  const t = await intakeTurn(env, userId, transcript);
+  return { ...t, speechId: await queueSpeech(env, userId, t.reply, t.language) };
+}
+
+/** One spoken introduction → saved profile + the reply to say. Also used by the realtime voice session (mode "intake"). */
+export async function intakeTurn(env: Env, userId: string, transcript: string): Promise<Omit<IntakeResult, "speechId">> {
   const out = await retryTransient(() => runModel(
     { env, userId },
     {
@@ -58,7 +64,7 @@ export async function runIntake(env: Env, userId: string, transcript: string): P
   if (PERMIT[x.reason]) patch.permitType = PERMIT[x.reason];
   if (x.city) patch.city = x.city;
   const profile = await c.patchProfile(patch);
-  return { reply: x.reply, language: lang ?? "en", speechId: await queueSpeech(env, userId, x.reply, lang ?? "en"), profile, firstName: x.firstName };
+  return { reply: x.reply, language: lang ?? "en", profile, firstName: x.firstName };
 }
 
 const speechKey = (userId: string, id: string) => `obvoice:${userId}:${id}`;
