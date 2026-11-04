@@ -65,6 +65,7 @@ export async function readMail(env: Env, userId: string, msg: MessageBody, ctx: 
       images: msg.images.length ? msg.images : undefined,
       schema: extractionSchema,
       maxTokens: msg.images.length ? 6000 : 4000,
+      effort: "low",
       masker: maskerFor({ name: ctx.fullName ?? undefined }),
       replay: () => { throw new Error("no replay for mail_scan"); },
     },

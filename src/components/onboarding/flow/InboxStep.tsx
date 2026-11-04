@@ -42,7 +42,7 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned }: { retu
     const list = r.data.messages.map((msg): Row => ({ msg, state: "queued" }));
     setRows(list); setPhase("reading");
     const queue = [...list.map((x) => x.msg)];
-    await Promise.all(Array.from({ length: 3 }, async () => { for (let m = queue.shift(); m; m = queue.shift()) await readOne(m); }));
+    await Promise.all(Array.from({ length: 4 }, async () => { for (let m = queue.shift(); m; m = queue.shift()) await readOne(m); }));
   }
 
   const gmail = status?.connections.mail?.provider === "gmail" && status.connections.mail.status === "connected";
