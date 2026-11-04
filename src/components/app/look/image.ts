@@ -56,3 +56,27 @@ export async function prepareFromUrl(url: string, maxSide = MAX_SIDE): Promise<P
   if (!res.ok) throw new Error("Could not load the sample image.");
   return prepareImage(await res.blob(), maxSide);
 }
+
+/** Page 1 of a case document's stored file (the emailed PDF or a scan), from /api/case/documents/:id/file. */
+export async function prepareFromDocument(id: string, maxSide = MAX_SIDE): Promise<PreparedImage> {
+  const res = await fetch(`/api/case/documents/${encodeURIComponent(id)}/file`, { cache: "no-store" });
+  if (!res.ok) throw new Error(res.status === 404 ? "This document has no stored file to read." : "The document could not be opened.");
+  const blob = await res.blob();
+  if (blob.type !== "application/pdf") return prepareImage(blob, maxSide);
+  const pdfjs = await import("pdfjs-dist");
+  pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+  const doc = await pdfjs.getDocument({ data: new Uint8Array(await blob.arrayBuffer()) }).promise;
+  try {
+    const page = await doc.getPage(1);
+    const base = page.getViewport({ scale: 1 });
+    const viewport = page.getViewport({ scale: Math.min(3, (maxSide * 1.5) / Math.max(base.width, base.height)) });
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(viewport.width);
+    canvas.height = Math.round(viewport.height);
+    await page.render({ canvas, viewport, background: "#ffffff" }).promise;
+    const png = await new Promise<Blob>((ok, fail) => canvas.toBlob((b) => (b ? ok(b) : fail(new Error("The page could not be drawn."))), "image/png"));
+    return prepareImage(png, maxSide);
+  } finally {
+    await doc.destroy();
+  }
+}
