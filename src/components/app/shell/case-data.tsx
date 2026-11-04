@@ -86,3 +86,12 @@ export function useCaseData(): CaseData {
 
 /** Other flows call this after writing to the case so the shell refreshes immediately. */
 export const announceCaseChange = () => window.dispatchEvent(new Event("dossierly:case-changed"));
+
+/** Read-only provider over a fixed snapshot: the preview-only /kit layout checks render real screens with it. */
+export function StaticCaseData({ snapshot, children }: { snapshot: CaseSnapshot; children: ReactNode }) {
+  const value = useMemo<CaseData>(() => ({
+    status: "ready", error: null, snapshot, next: nextStep(snapshot),
+    refresh: async () => {}, patchItem: async () => false, patchProfile: async () => null,
+  }), [snapshot]);
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}
