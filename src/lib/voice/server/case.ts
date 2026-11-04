@@ -48,6 +48,10 @@ export class VoiceCase {
     return d;
   }
 
+  async patchDeadline(id: string, patch: Partial<Pick<Deadline, "reminders" | "status">>): Promise<Deadline> {
+    return this.call<Deadline>(`deadlines/${encodeURIComponent(id)}`, "PATCH", patch);
+  }
+
   async addEvent(input: { type: CaseEvent["type"]; summary: string; refs?: string[] }): Promise<CaseEvent | null> {
     try {
       return await this.call<CaseEvent>("events", "POST", { type: input.type, summary: input.summary.slice(0, 600), refs: (input.refs ?? []).slice(0, 20) });
