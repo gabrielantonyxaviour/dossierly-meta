@@ -209,7 +209,8 @@
       "vars": {
         "APP_ENV": "preview",
         "APP_URL": "https://dossierly-onboarding.cosmiclan.com",
-        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com"
+        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com",
+        "PREVIEW_FLOW": "onboarding"
       },
       "assets": {
         "directory": ".open-next/assets",
@@ -313,7 +314,8 @@
       "vars": {
         "APP_ENV": "preview",
         "APP_URL": "https://dossierly-app.cosmiclan.com",
-        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com"
+        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com",
+        "PREVIEW_FLOW": "app"
       },
       "assets": {
         "directory": ".open-next/assets",
@@ -417,7 +419,8 @@
       "vars": {
         "APP_ENV": "preview",
         "APP_URL": "https://dossierly-voice.cosmiclan.com",
-        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com"
+        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com",
+        "PREVIEW_FLOW": "voice"
       },
       "assets": {
         "directory": ".open-next/assets",
@@ -521,7 +524,8 @@
       "vars": {
         "APP_ENV": "preview",
         "APP_URL": "https://dossierly-look.cosmiclan.com",
-        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com"
+        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com",
+        "PREVIEW_FLOW": "look"
       },
       "assets": {
         "directory": ".open-next/assets",
