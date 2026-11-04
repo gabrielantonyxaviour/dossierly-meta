@@ -1,64 +1,427 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "settla-app",
   "main": "worker/index.ts",
   "compatibility_date": "2026-09-01",
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "name": "dossierly-meta",
   "workers_dev": false,
   "preview_urls": false,
-  "observability": { "enabled": true },
-  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
-  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "settla-app" }],
-  "d1_databases": [
-    { "binding": "DB", "database_name": "settla-db", "database_id": "a449449f-4d26-45c0-8f01-1524ff7dc20c", "migrations_dir": "migrations" }
-  ],
-  "kv_namespaces": [{ "binding": "CACHE", "id": "10ddcc50a6814f31b753e54cb74cb58f" }],
-  "r2_buckets": [{ "binding": "BLOBS", "bucket_name": "settla-blobs", "jurisdiction": "eu" }],
-  "durable_objects": { "bindings": [{ "name": "USER_DO", "class_name": "UserDO" }] },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["UserDO"] }],
-  "workflows": [
-    { "name": "settla-prepare-fallback", "binding": "PREPARE_FALLBACK", "class_name": "PrepareFallback" },
-    { "name": "settla-letter-pipeline", "binding": "LETTER_PIPELINE", "class_name": "LetterPipeline" },
-    { "name": "settla-nightly-watch", "binding": "NIGHTLY_WATCH", "class_name": "NightlyWatch" }
-  ],
-  "triggers": { "crons": ["0 2 * * *"] },
-  "env": {
-    "qa": {
-      "name": "dossierly-qa",
-      "workers_dev": true,
-      "preview_urls": false,
-      "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "dossierly-qa" }],
-      "d1_databases": [
-        { "binding": "DB", "database_name": "dossierly-qa-auth", "database_id": "1d80b377-29eb-4c24-9803-9c91bf988d40", "migrations_dir": "migrations" }
-      ],
-      "kv_namespaces": [{ "binding": "CACHE", "id": "d84242270e6f4bff91b378722f42ce27" }],
-      "r2_buckets": [{ "binding": "BLOBS", "bucket_name": "dossierly-qa-auth", "jurisdiction": "eu" }],
-      "durable_objects": { "bindings": [{ "name": "USER_DO", "class_name": "UserDO" }] },
-      "workflows": [
-        { "name": "dossierly-qa-prepare-fallback", "binding": "PREPARE_FALLBACK", "class_name": "PrepareFallback" },
-        { "name": "dossierly-qa-letter-pipeline", "binding": "LETTER_PIPELINE", "class_name": "LetterPipeline" },
-        { "name": "dossierly-qa-nightly-watch", "binding": "NIGHTLY_WATCH", "class_name": "NightlyWatch" }
-      ],
-      "triggers": { "crons": [] },
-      "vars": {
-        "APP_ENV": "preview",
-        "APP_URL": "https://dossierly-qa.gabrielaxy.workers.dev",
-        "MODELS_DISABLED": "1",
-        "DODO_ENV": "test",
-        "DODO_PRODUCT_CASE_PASS": "pdt_0Nqo8xdjjAa1SQUGHKfZ7",
-        "DODO_PRODUCT_CREDITS_10": "pdt_0Nqo8xo9gXhejHssrLeSZ",
-        "DODO_PRODUCT_CREDITS_25": "pdt_0Nqo8y23gjaWIvquo4g3U",
-        "DODO_PRODUCT_FAMILY": "pdt_0Nqo8y7aeu9duJkiA3Wmu"
-      }
+  "routes": [
+    {
+      "pattern": "dossierly.cosmiclan.com",
+      "custom_domain": true
     }
+  ],
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "dossierly-meta"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "dossierly-meta-db",
+      "database_id": "71b60363-0402-4d8d-8a7f-afc976cc6ebc",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "CACHE",
+      "id": "036b53cfc0b94280a0858d89d1fd7dab"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BLOBS",
+      "bucket_name": "dossierly-meta-blobs",
+      "jurisdiction": "eu"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "USER_DO",
+        "class_name": "UserDO"
+      }
+    ]
   },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "UserDO"
+      ]
+    }
+  ],
+  "workflows": [
+    {
+      "name": "dossierly-meta-prepare-fallback",
+      "binding": "PREPARE_FALLBACK",
+      "class_name": "PrepareFallback"
+    },
+    {
+      "name": "dossierly-meta-letter-pipeline",
+      "binding": "LETTER_PIPELINE",
+      "class_name": "LetterPipeline"
+    }
+  ],
+  "send_email": [
+    {
+      "name": "EMAIL",
+      "allowed_sender_addresses": [
+        "no-reply@dossierly.cosmiclan.com",
+        "wsc-przyklad@dossierly.cosmiclan.com"
+      ]
+    }
+  ],
   "vars": {
     "APP_ENV": "production",
-    "APP_URL": "https://dossierly.pages.dev",
-    "DODO_ENV": "test",
-    "DODO_PRODUCT_CASE_PASS": "pdt_0Nqo8xdjjAa1SQUGHKfZ7",
-    "DODO_PRODUCT_CREDITS_10": "pdt_0Nqo8xo9gXhejHssrLeSZ",
-    "DODO_PRODUCT_CREDITS_25": "pdt_0Nqo8y23gjaWIvquo4g3U",
-    "DODO_PRODUCT_FAMILY": "pdt_0Nqo8y7aeu9duJkiA3Wmu"
+    "APP_URL": "https://dossierly.cosmiclan.com"
+  },
+  "env": {
+    "onboarding": {
+      "name": "dossierly-meta-onboarding",
+      "workers_dev": false,
+      "preview_urls": false,
+      "routes": [
+        {
+          "pattern": "dossierly-onboarding.cosmiclan.com",
+          "custom_domain": true
+        }
+      ],
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "dossierly-meta-onboarding"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "dossierly-meta-preview-db",
+          "database_id": "2f3bd11a-55c5-42ff-82e0-0343abfd7ea5",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "CACHE",
+          "id": "deb138cc41e54c68a79e8a76316ef546"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "BLOBS",
+          "bucket_name": "dossierly-meta-preview-blobs",
+          "jurisdiction": "eu"
+        }
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "USER_DO",
+            "class_name": "UserDO"
+          }
+        ]
+      },
+      "migrations": [
+        {
+          "tag": "v1",
+          "new_sqlite_classes": [
+            "UserDO"
+          ]
+        }
+      ],
+      "workflows": [
+        {
+          "name": "dossierly-meta-onboarding-prepare-fallback",
+          "binding": "PREPARE_FALLBACK",
+          "class_name": "PrepareFallback"
+        },
+        {
+          "name": "dossierly-meta-onboarding-letter-pipeline",
+          "binding": "LETTER_PIPELINE",
+          "class_name": "LetterPipeline"
+        }
+      ],
+      "send_email": [
+        {
+          "name": "EMAIL",
+          "allowed_sender_addresses": [
+            "no-reply@dossierly.cosmiclan.com",
+            "wsc-przyklad@dossierly.cosmiclan.com"
+          ]
+        }
+      ],
+      "vars": {
+        "APP_ENV": "preview",
+        "APP_URL": "https://dossierly-onboarding.cosmiclan.com"
+      },
+      "assets": {
+        "directory": ".open-next/assets",
+        "binding": "ASSETS"
+      }
+    },
+    "app": {
+      "name": "dossierly-meta-app",
+      "workers_dev": false,
+      "preview_urls": false,
+      "routes": [
+        {
+          "pattern": "dossierly-app.cosmiclan.com",
+          "custom_domain": true
+        }
+      ],
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "dossierly-meta-app"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "dossierly-meta-preview-db",
+          "database_id": "2f3bd11a-55c5-42ff-82e0-0343abfd7ea5",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "CACHE",
+          "id": "deb138cc41e54c68a79e8a76316ef546"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "BLOBS",
+          "bucket_name": "dossierly-meta-preview-blobs",
+          "jurisdiction": "eu"
+        }
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "USER_DO",
+            "class_name": "UserDO"
+          }
+        ]
+      },
+      "migrations": [
+        {
+          "tag": "v1",
+          "new_sqlite_classes": [
+            "UserDO"
+          ]
+        }
+      ],
+      "workflows": [
+        {
+          "name": "dossierly-meta-app-prepare-fallback",
+          "binding": "PREPARE_FALLBACK",
+          "class_name": "PrepareFallback"
+        },
+        {
+          "name": "dossierly-meta-app-letter-pipeline",
+          "binding": "LETTER_PIPELINE",
+          "class_name": "LetterPipeline"
+        }
+      ],
+      "send_email": [
+        {
+          "name": "EMAIL",
+          "allowed_sender_addresses": [
+            "no-reply@dossierly.cosmiclan.com",
+            "wsc-przyklad@dossierly.cosmiclan.com"
+          ]
+        }
+      ],
+      "vars": {
+        "APP_ENV": "preview",
+        "APP_URL": "https://dossierly-app.cosmiclan.com"
+      },
+      "assets": {
+        "directory": ".open-next/assets",
+        "binding": "ASSETS"
+      }
+    },
+    "voice": {
+      "name": "dossierly-meta-voice",
+      "workers_dev": false,
+      "preview_urls": false,
+      "routes": [
+        {
+          "pattern": "dossierly-voice.cosmiclan.com",
+          "custom_domain": true
+        }
+      ],
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "dossierly-meta-voice"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "dossierly-meta-preview-db",
+          "database_id": "2f3bd11a-55c5-42ff-82e0-0343abfd7ea5",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "CACHE",
+          "id": "deb138cc41e54c68a79e8a76316ef546"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "BLOBS",
+          "bucket_name": "dossierly-meta-preview-blobs",
+          "jurisdiction": "eu"
+        }
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "USER_DO",
+            "class_name": "UserDO"
+          }
+        ]
+      },
+      "migrations": [
+        {
+          "tag": "v1",
+          "new_sqlite_classes": [
+            "UserDO"
+          ]
+        }
+      ],
+      "workflows": [
+        {
+          "name": "dossierly-meta-voice-prepare-fallback",
+          "binding": "PREPARE_FALLBACK",
+          "class_name": "PrepareFallback"
+        },
+        {
+          "name": "dossierly-meta-voice-letter-pipeline",
+          "binding": "LETTER_PIPELINE",
+          "class_name": "LetterPipeline"
+        }
+      ],
+      "send_email": [
+        {
+          "name": "EMAIL",
+          "allowed_sender_addresses": [
+            "no-reply@dossierly.cosmiclan.com",
+            "wsc-przyklad@dossierly.cosmiclan.com"
+          ]
+        }
+      ],
+      "vars": {
+        "APP_ENV": "preview",
+        "APP_URL": "https://dossierly-voice.cosmiclan.com"
+      },
+      "assets": {
+        "directory": ".open-next/assets",
+        "binding": "ASSETS"
+      }
+    },
+    "look": {
+      "name": "dossierly-meta-look",
+      "workers_dev": false,
+      "preview_urls": false,
+      "routes": [
+        {
+          "pattern": "dossierly-look.cosmiclan.com",
+          "custom_domain": true
+        }
+      ],
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "dossierly-meta-look"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "dossierly-meta-preview-db",
+          "database_id": "2f3bd11a-55c5-42ff-82e0-0343abfd7ea5",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "CACHE",
+          "id": "deb138cc41e54c68a79e8a76316ef546"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "BLOBS",
+          "bucket_name": "dossierly-meta-preview-blobs",
+          "jurisdiction": "eu"
+        }
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "USER_DO",
+            "class_name": "UserDO"
+          }
+        ]
+      },
+      "migrations": [
+        {
+          "tag": "v1",
+          "new_sqlite_classes": [
+            "UserDO"
+          ]
+        }
+      ],
+      "workflows": [
+        {
+          "name": "dossierly-meta-look-prepare-fallback",
+          "binding": "PREPARE_FALLBACK",
+          "class_name": "PrepareFallback"
+        },
+        {
+          "name": "dossierly-meta-look-letter-pipeline",
+          "binding": "LETTER_PIPELINE",
+          "class_name": "LetterPipeline"
+        }
+      ],
+      "send_email": [
+        {
+          "name": "EMAIL",
+          "allowed_sender_addresses": [
+            "no-reply@dossierly.cosmiclan.com",
+            "wsc-przyklad@dossierly.cosmiclan.com"
+          ]
+        }
+      ],
+      "vars": {
+        "APP_ENV": "preview",
+        "APP_URL": "https://dossierly-look.cosmiclan.com"
+      },
+      "assets": {
+        "directory": ".open-next/assets",
+        "binding": "ASSETS"
+      }
+    }
   }
 }

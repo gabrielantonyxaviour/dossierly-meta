@@ -14,12 +14,14 @@
     "smoke": "tsx scripts/smoke.ts",
     "build:cf": "opennextjs-cloudflare build",
     "preview:cf": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy:cf": "opennextjs-cloudflare build && wrangler deploy worker/index.ts --config wrangler.jsonc --name settla-app --env '' --no-autoconfig --keep-vars",
-    "qa:build": "opennextjs-cloudflare build --env qa",
-    "qa:deploy": "wrangler deploy worker/index.ts --config wrangler.jsonc --env qa --no-autoconfig --keep-vars",
-    "qa:migrate": "wrangler d1 migrations apply DB --config wrangler.jsonc --remote --env qa",
-    "db:migrate": "wrangler d1 migrations apply settla-db --remote",
-    "db:migrate:local": "wrangler d1 migrations apply settla-db --local"
+    "deploy:prod": "opennextjs-cloudflare build && wrangler deploy --config wrangler.jsonc --no-autoconfig --keep-vars --env=",
+    "deploy:onboarding": "opennextjs-cloudflare build && wrangler deploy --config wrangler.jsonc --no-autoconfig --keep-vars --env onboarding",
+    "deploy:app": "opennextjs-cloudflare build && wrangler deploy --config wrangler.jsonc --no-autoconfig --keep-vars --env app",
+    "deploy:voice": "opennextjs-cloudflare build && wrangler deploy --config wrangler.jsonc --no-autoconfig --keep-vars --env voice",
+    "deploy:look": "opennextjs-cloudflare build && wrangler deploy --config wrangler.jsonc --no-autoconfig --keep-vars --env look",
+    "db:migrate:prod": "wrangler d1 migrations apply DB --config wrangler.jsonc --remote",
+    "db:migrate:preview": "wrangler d1 migrations apply DB --config wrangler.jsonc --remote --env app",
+    "db:migrate:local": "wrangler d1 migrations apply DB --config wrangler.jsonc --local"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.20.14",
