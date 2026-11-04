@@ -1,22 +1,24 @@
 # Architecture
 
-Dossierly is one Cloudflare Worker: the Next.js 16 app (built with OpenNext) plus a thin entry (`worker/index.ts`) that routes voice WebSockets to a Durable Object and runs two crons. All model calls go through one model layer (`src/lib/model`), except the realtime voice lanes and the Wonder tool loop, which call the same Meta endpoints with their own streaming and tool-calling clients.
+Dossierly is one Cloudflare Worker: the Next.js 16 app (built with OpenNext) plus a thin entry (`worker/index.ts`) that routes voice WebSockets to a Durable Object and runs two crons. Model calls go through one model layer (`src/lib/model`): app routes and the watcher through `runModel` (masking, metering, run records), the voice lanes through its streaming client directly. The Wonder tool loop and the realtime ASR socket have their own clients, configured by the same role table.
 
 ```mermaid
 flowchart LR
   P[Phone · PWA] -- HTTPS --> W[Worker · Next.js routes]
-  P -- WebSocket audio --> R{worker/index.ts<br/>routeVoice}
+  P -- WebSocket audio --> R{routeVoice}
   T[Twilio Media Stream] --> R
   R -- ticket verified --> V[VoiceDO · weur]
-  W --> C[CaseDO · SQLite<br/>one per user]
-  W --> U[UserDO<br/>rate limits · alarms]
-  V --> C
+  W -- "cron */2" --> G[Inbox watcher]
+  W -- "cron 02:00 UTC" --> S[Case review · Muse Wonder]
+  W --> U[UserDO · rate limits, alarms]
+  W & V & G & S --> C[CaseDO · SQLite · one per user]
   W --> D[(D1 · runs, ledger, tokens, watch)]
-  W --> B[(R2 · EU jurisdiction<br/>looks, documents)]
-  W -- "cron */2" --> G[Inbox watcher] --> C
-  W -- "cron 02:00 UTC" --> S[Case review · Muse Wonder] --> C
-  W & G & S -- 404 from this edge --> X[ModelRelayDO pool · weur]
-  W & V & G & S & X --> M[api.meta.ai<br/>Spark 1.2 · 1.3 · Wonder · SAM 3.1<br/>Voice Transcribe · web search]
+  W --> B[(R2 · EU jurisdiction)]
+  W & G & V --> L[Model layer · src/lib/model]
+  L --> M[api.meta.ai · Spark 1.2, 1.3 · SAM 3.1 · web search]
+  L -. 404 from this edge .-> X[ModelRelayDO · weur] --> M
+  S -- tool calling --> M2[api.meta.ai · Muse Wonder 1.0]
+  V -- realtime ASR --> M3[api.meta.ai · Voice Transcribe]
   V --> E[ElevenLabs eleven_v4_turbo]
 ```
 
@@ -113,7 +115,7 @@ The model only reads the period and the sentence that sets it; the date arithmet
 sequenceDiagram
   autonumber
   participant Cr as Cron */2
-  participant Wt as watch/tick.ts
+  participant Wt as watch/tick.ts + process.ts
   participant Gm as Gmail via Composio (read-only)
   participant Sp as Spark 1.3
   participant C as CaseDO
