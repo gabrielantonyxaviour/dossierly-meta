@@ -20,7 +20,7 @@ export function HelloScreen({ onProfile, onEmail, onType }: { onProfile(p: Profi
   return (
     <div className="ob-answer ob-voice">
       <div className="ob-voice-orb" data-state={v.state}>
-        <button type="button" className="ob-voice-tap" disabled={busy || v.state === "done"} aria-label={v.state === "listening" ? "Done talking" : "Tap and talk"}
+        <button type="button" className="ob-voice-tap" disabled={busy || v.state === "done"} aria-label={v.state === "listening" ? "Stop listening" : "Tap and talk"}
           onClick={() => void (v.state === "listening" ? v.stop() : v.start())}>
           <AgentOrb size={112} state={live ? "live" : v.state === "idle" ? "still" : "idle"} icon={v.state === "idle" || v.state === "listening" ? "mic" : undefined} />
         </button>
@@ -52,7 +52,9 @@ export function HelloScreen({ onProfile, onEmail, onType }: { onProfile(p: Profi
           <Button variant="primary" size="lg" icon="mail" onClick={onEmail}>Yes, look at my email</Button>
         </StickyActionBar>
       ) : v.state === "listening" ? (
-        <StickyActionBar><Button variant="primary" size="lg" icon="stop" onClick={() => void v.stop()}>Done talking</Button></StickyActionBar>
+        <StickyActionBar secondary={<Button variant="ghost" onClick={() => v.stop()}>Cancel</Button>}>
+          <Button variant="primary" size="lg" icon="mic" disabled>Listening… just talk</Button>
+        </StickyActionBar>
       ) : (
         <StickyActionBar secondary={!busy && <Button variant="ghost" icon="keyboard" onClick={() => (typing ? onType() : setTyping(true))}>{typing ? "Answer step by step instead" : "Type instead"}</Button>}>
           <Button variant="primary" size="lg" icon="mic" disabled={busy} loading={busy} onClick={() => void v.start()}>
