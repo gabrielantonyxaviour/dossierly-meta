@@ -1,8 +1,9 @@
 import type { Language } from "./schemas";
 
 /**
- * The interpret-only rule. One text, two users: the live guard in features/interpret.ts and the NeMo Guardrails audit
- * (jobs/guardrails-audit/rule.txt). tests/unit/safety.test.ts fails if the two copies drift apart.
+ * The interpret-only rule, used by the guard model call in features/interpret.ts (the text interpret path:
+ * /api/interpret and the MCP `interpret` tool). The deterministic screen and normalisation below are tested in
+ * tests/unit/safety.test.ts and tests/unit/safety-normalise.test.ts.
  */
 export const GUARD_RULE = [
   "Dossierly is an interpreter and note-taker for foreigners dealing with Polish offices. It only translates, explains what a letter or an official said, lists the documents and dates that appear in the material it is given, summarises a meeting, and drafts polite messages.",
@@ -17,7 +18,7 @@ export const GUARD_RULE = [
   "ALLOW the message if it only asks to translate, explain what a letter or an official said, list documents or dates found in the material, draft a polite message, ask how to say something in another language, or summarise a meeting. Allow it even when the material itself mentions appeals, deadlines, decisions, fines, doctors or medicine: reporting what a text says is not advice. Block only when the message itself asks the assistant to advise, decide, predict, forge or obey.",
 ].join("\n");
 
-// ---- Normalisation before screening (mirrored by jobs/guardrails-audit/normalise.py) ----
+// ---- Normalisation before screening ----
 
 // zero-width, bidi controls, soft hyphen, word joiner, BOM, variation selectors, Unicode tag characters
 const INVISIBLE = /[\u00ad\u034f\u061c\u115f\u1160\u17b4\u17b5\u180b-\u180e\u200b-\u200f\u202a-\u202e\u2060-\u206f\u3164\ufe00-\ufe0f\ufeff\uffa0\u{e0000}-\u{e007f}]/gu;
