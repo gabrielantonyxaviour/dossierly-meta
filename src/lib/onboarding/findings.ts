@@ -59,12 +59,12 @@ export function buildFindings(msg: MessageBody, x: Extraction, language: string)
       if (value) out.push({ kind: "fact", id: stableId("fct", msg.id, key), key, label: FACT_LABELS[key], value, source });
     }
     const a = x.appointment;
-    if (a?.title && a.date) out.push({ kind: "appointment", id: stableId("apt", msg.id, a.date), title: a.title, date: a.date, time: a.time, place: a.place, address: a.address, purpose: a.purpose, bring: a.bring.filter(Boolean), source });
+    if (a?.title && a.date) out.push({ kind: "appointment", id: stableId("apt", msg.id, "appointment"), title: a.title, date: a.date, time: a.time, place: a.place, address: a.address, purpose: a.purpose, bring: a.bring.filter(Boolean), source });
     const d = x.deadline;
     const computed = d?.title ? deadlineFrom(d, msg.receivedAt, language) : null;
-    if (d && computed) out.push({ kind: "deadline", id: stableId("ddl", msg.id, d.title), title: d.title, ...computed, quote: d.quote, consequence: d.consequence, source });
-    x.documents.filter((doc) => doc.title).forEach((doc, i) => out.push({ kind: "document", id: stableId("doc", msg.id, `${i}:${doc.title}`), title: doc.title, docKind: doc.kind, status: doc.status, source }));
-    x.tasks.filter((task) => task.title).slice(0, 5).forEach((task, i) => out.push({ kind: "task", id: stableId("tsk", msg.id, `${i}:${task.title}`), title: task.title, detail: task.detail, source }));
+    if (d && computed) out.push({ kind: "deadline", id: stableId("ddl", msg.id, "deadline"), title: d.title, ...computed, quote: d.quote, consequence: d.consequence, source });
+    x.documents.filter((doc) => doc.title).forEach((doc, i) => out.push({ kind: "document", id: stableId("doc", msg.id, doc.kind !== "other" && doc.kind !== "letter" ? doc.kind : `${i}:${doc.title.toLowerCase()}`), title: doc.title, docKind: doc.kind, status: doc.status, source }));
+    x.tasks.filter((task) => task.title).slice(0, 5).forEach((task, i) => out.push({ kind: "task", id: stableId("tsk", msg.id, `task${i}`), title: task.title, detail: task.detail, source }));
   }
   const parsed = out.flatMap((f) => { const r = findingSchema.safeParse(f); return r.success ? [r.data] : []; });
   return { messageId: msg.id, relevant: x.relevant && parsed.length > 0, category: x.category, sender: x.sender || msg.from, summary: x.summary, findings: parsed };
