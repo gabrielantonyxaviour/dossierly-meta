@@ -62,17 +62,20 @@ export async function runIntake(env: Env, userId: string, transcript: string): P
 }
 
 /** One spoken introduction → saved profile + the reply to say. Also used by the realtime voice session (mode "intake"). */
-export async function intakeTurn(env: Env, userId: string, transcript: string): Promise<Omit<IntakeResult, "speechId">> {
-  const out = await retryTransient(() => runModel(
-    { env, userId },
-    {
-      task: "intake", system: SYSTEM, input: `Transcript: "${transcript.replace(/"/g, "'")}"`, schema: outSchema,
-      maxTokens: 800, effort: "minimal", masker: maskerFor({}), replay: () => { throw new Error("no replay for intake"); },
-    },
-  ));
-  const x = out.data;
+export async function intakeTurn(env: Env, userId: string, transcript: string, opts: { defer?: (work: Promise<unknown>) => void } = {}): Promise<Omit<IntakeResult, "speechId">> {
   const c = profileStore(env, userId);
-  const current = await c.get();
+  // The profile read runs alongside Spark; only the model call is on the critical path.
+  const [out, current] = await Promise.all([
+    retryTransient(() => runModel(
+      { env, userId },
+      {
+        task: "intake", system: SYSTEM, input: `Transcript: "${transcript.replace(/"/g, "'")}"`, schema: outSchema,
+        maxTokens: 400, effort: "minimal", masker: maskerFor({}), replay: () => { throw new Error("no replay for intake"); },
+      },
+    ), 600),
+    c.get(),
+  ]);
+  const x = out.data;
   const lang = (LANGUAGES as readonly string[]).includes(x.language) ? (x.language as Language) : null;
   const patch: Partial<Profile> = { country: "PL" };
   const name = x.fullName ?? x.firstName;
@@ -80,8 +83,13 @@ export async function intakeTurn(env: Env, userId: string, transcript: string): 
   if (lang) patch.preferredLanguage = lang;
   if (PERMIT[x.reason]) patch.permitType = PERMIT[x.reason];
   if (x.city) patch.city = x.city;
-  const profile = await c.patch(patch);
-  return { reply: x.reply, language: lang ?? "en", profile, firstName: x.firstName };
+  const result = { reply: x.reply, language: lang ?? "en", firstName: x.firstName };
+  // With `defer` (a voice session that stays alive), the reply goes out while the profile is saved.
+  if (opts.defer) {
+    opts.defer(c.patch(patch).catch(() => undefined));
+    return { ...result, profile: { ...current, ...patch, phone: current.phone } };
+  }
+  return { ...result, profile: await c.patch(patch) };
 }
 
 const speechKey = (userId: string, id: string) => `obvoice:${userId}:${id}`;
