@@ -1,30 +1,32 @@
 import { BuiltOn } from "@/components/landing/BuiltOn";
-import { CaseAgent } from "@/components/landing/CaseAgent";
+import { Compare } from "@/components/landing/Compare";
+import { Countries } from "@/components/landing/Countries";
 import { Faq, FinalCta } from "@/components/landing/Closing";
-import { Deadline } from "@/components/landing/Deadline";
 import { Hero } from "@/components/landing/Hero";
-import { Limits } from "@/components/landing/Limits";
+import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Moments } from "@/components/landing/Moments";
-import { Reveal } from "@/components/landing/Reveal";
-import { Toolkit } from "@/components/landing/Toolkit";
-import "@/components/landing/base.css";
-import "@/components/landing/mocks.css";
-import "@/components/landing/sections.css";
-import "@/components/landing/sections-2.css";
+import { LandingMotion } from "@/components/landing/Motion";
+import { PhoneSection } from "@/components/landing/PhoneSection";
+import { Privacy } from "@/components/landing/Privacy";
+import { Problem } from "@/components/landing/Problem";
+import "@/components/landing/landing-sections.css";
+import "@/components/landing/landing-mocks.css";
 
 export default function Landing() {
   return (
-    <div className="dl">
+    <div className="lp">
       <Hero />
+      <Problem />
+      <HowItWorks />
       <Moments />
-      <Deadline />
-      <CaseAgent />
-      <Toolkit />
-      <Limits />
+      <PhoneSection />
+      <Privacy />
       <BuiltOn />
-      <Faq />
+      <Compare />
+      <Countries />
       <FinalCta />
-      <Reveal />
+      <Faq />
+      <LandingMotion />
     </div>
   );
 }
