@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button, ButtonLink } from "@/components/ui";
+import { Button, ButtonLink, ScreenTitle } from "@/components/ui";
 import { useAgentCall } from "@/lib/voice/client/useAgentCall";
 import { TEST_OFFICIAL_LINES } from "@/lib/voice/clips";
 import { LANG_NAME } from "@/lib/voice/protocol";
@@ -42,11 +42,9 @@ export function CounterFlow() {
       <VoiceScreen
         label="At the counter"
         close="/app/counter"
-        center
         foot={<Button variant="agent" size="lg" icon="mic" block onClick={() => void call.start()}>{call.error ? "Try again" : "Start"}</Button>}
       >
-        <h1 className="vs-h1">At the counter</h1>
-        <p className="vs-lead">Lay the phone flat between you and the official, this end toward you.</p>
+        <ScreenTitle title="At the counter" sub="Lay the phone flat between you and the official, this end toward you." />
         <ol className="vs-steps">
           <li>The top half speaks Polish to the official. The bottom half is yours, in {LANG_NAME[call.lang] ?? "your language"}.</li>
           <li>When they ask for a document, it opens for them. Tasks go into your case.</li>

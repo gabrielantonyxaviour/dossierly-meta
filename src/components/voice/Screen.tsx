@@ -1,69 +1,38 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useRef, type ReactNode } from "react";
-import { IconButton } from "@/components/ui";
-import { Icon } from "../Icon";
+import type { ReactNode } from "react";
+import { MobileFlowHeader, MobilePage, StickyActionBar } from "@/components/ui";
 import "./screen.css";
-
-/** Keeps the bottom bar above the on-screen keyboard: --kb is the part of the layout viewport the keyboard covers. */
-function useKeyboardInset(ref: React.RefObject<HTMLElement | null>) {
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-    const update = () => ref.current?.style.setProperty("--kb", `${Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop))}px`);
-    update();
-    vv.addEventListener("resize", update);
-    vv.addEventListener("scroll", update);
-    return () => {
-      vv.removeEventListener("resize", update);
-      vv.removeEventListener("scroll", update);
-    };
-  }, [ref]);
-}
 
 export interface VoiceScreenProps {
   title?: ReactNode;
   /** Close target: a route, or a handler. */
   close: string | (() => void);
-  closeLabel?: string;
-  /** Right side of the top bar (a pill or one small control). */
-  end?: ReactNode;
-  /** Thin progress under the bar, 0–1. */
-  progress?: number;
-  /** Bottom action bar (thumb zone): primary button, call controls, a typing field. */
+  /** Right side of the top bar. */
+  action?: ReactNode;
+  progress?: { at: number; of: number };
+  /** Sticky bottom bar content (primary button, call controls, typing field). */
   foot?: ReactNode;
-  /** Centre the body content vertically (start and feedback screens). */
-  center?: boolean;
+  /** Secondary text action under the primary. */
+  secondary?: ReactNode;
+  /** Live views: the page fills the screen and scrolls inside (captions), instead of scrolling the document. */
+  live?: boolean;
+  /** Reserve room for a taller bar (typing field + controls). */
+  tall?: boolean;
   label?: string;
   children: ReactNode;
 }
 
 /**
- * Full-screen phone layout for the voice flows: compact top bar (close, title, one action), a scrolling body with the
- * 16px gutter and safe areas, and a bottom bar that stays above the keyboard. Desktop keeps a centred column.
+ * The voice flows' full-screen frame, built only from the shared mobile primitives:
+ * MobileFlowHeader (close) → MobilePage → StickyActionBar. `.vs` only pins it over the app shell.
  */
-export function VoiceScreen({ title, close, closeLabel = "Close", end, progress, foot, center, label, children }: VoiceScreenProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  useKeyboardInset(ref);
+export function VoiceScreen({ title, close, action, progress, foot, secondary, live, tall, label, children }: VoiceScreenProps) {
   return (
-    <div className="vs" ref={ref} aria-label={label}>
-      <header className="vs-bar">
-        {typeof close === "string" ? (
-          <Link href={close} className="ui-icon-btn" aria-label={closeLabel} title={closeLabel}><Icon name="close" size={22} /></Link>
-        ) : (
-          <IconButton icon="close" label={closeLabel} onClick={close} />
-        )}
-        <div className="vs-title">{title}</div>
-        <div className="vs-end">{end}</div>
-        {typeof progress === "number" && (
-          <div className="vs-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress * 100)}>
-            <span style={{ width: `${Math.min(1, Math.max(0, progress)) * 100}%` }} />
-          </div>
-        )}
-      </header>
-      <div className={`vs-body ${center ? "is-center" : ""}`}>{children}</div>
-      {foot && <footer className="vs-foot">{foot}</footer>}
+    <div className={`vs ${live ? "vs--live" : ""}`} aria-label={label}>
+      <MobileFlowHeader back={close} close title={title} progress={progress} action={action} />
+      <MobilePage actions={foot ? (tall ? "double" : true) : undefined} className="vs-page">{children}</MobilePage>
+      {foot && <StickyActionBar secondary={secondary}>{foot}</StickyActionBar>}
     </div>
   );
 }

@@ -149,10 +149,10 @@ export function AgentCall({ mode, script, onEnd, autoStart, immersive, onClose }
       <VoiceScreen
         label={TITLE[mode]}
         close={onClose ?? "/app"}
-        closeLabel="Close call"
         title={idle ? undefined : <>{TITLE[mode]}<small>{live ? clock : call.status === "ended" ? "Ended" : "Connecting…"}</small></>}
-        end={idle ? undefined : <Pill tone="agent">AI</Pill>}
-        center={idle}
+        action={idle ? undefined : <Pill tone="agent">AI</Pill>}
+        live={!idle}
+        tall={typing && live}
         foot={idle ? startBtn : <>{typeForm}{controls}</>}
       >
         <section className={`vc vc--immersive is-${call.status}`} aria-label={TITLE[mode]}>{body}</section>

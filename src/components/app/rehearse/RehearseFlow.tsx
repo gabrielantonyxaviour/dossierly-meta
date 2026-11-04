@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAgentCall } from "@/lib/voice/client/useAgentCall";
 import { LANG_NAME, type RehearseFeedback } from "@/lib/voice/protocol";
 import { Icon } from "@/components/Icon";
-import Link from "next/link";
-import { Button, Pill } from "@/components/ui";
+import { Button, ButtonLink, Pill, ScreenTitle } from "@/components/ui";
 import { LatencyLine } from "@/components/voice/bits";
 import { VoiceScreen } from "@/components/voice/Screen";
 import "@/components/voice/voice.css";
@@ -57,10 +56,8 @@ export function RehearseFlow() {
         label="Rehearsal feedback"
         title="Feedback"
         close="/app/counter"
-        foot={<>
-          <Button variant="primary" size="lg" block onClick={() => void call.start()}>Rehearse again</Button>
-          <Link href="/app/counter" className="vs-text-btn">Back to Counter</Link>
-        </>}
+        foot={<Button variant="primary" size="lg" block onClick={() => void call.start()}>Rehearse again</Button>}
+        secondary={<ButtonLink href="/app/counter" variant="ghost">Back to Counter</ButtonLink>}
       >
         <Feedback fb={call.feedback} />
       </VoiceScreen>
@@ -72,11 +69,9 @@ export function RehearseFlow() {
       <VoiceScreen
         label="Rehearse"
         close="/app/counter"
-        center
         foot={<Button variant="agent" size="lg" icon="mic" block onClick={() => void call.start()}>{call.error ? "Try again" : "Start rehearsal"}</Button>}
       >
-        <h1 className="vs-h1">Practise the interview</h1>
-        <p className="vs-lead">An AI official asks what the office would ask about your case, in Polish with {lang} subtitles.</p>
+        <ScreenTitle title="Practise the interview" sub={`An AI official asks what the office would ask about your case, in Polish with ${lang} subtitles.`} />
         <ol className="vs-steps">
           <li>Answer out loud, in Polish or {lang}. You can type instead.</li>
           <li>After {QUESTIONS} questions you get a readiness score and the phrases worth practising.</li>
@@ -93,8 +88,10 @@ export function RehearseFlow() {
       label="Rehearsal"
       title={<>Rehearsal<small>Question {Math.min(Math.max(asked, 1), QUESTIONS)} of {QUESTIONS}</small></>}
       close="/app/counter"
-      end={<Pill tone="official">AI official</Pill>}
-      progress={Math.min(asked, QUESTIONS) / QUESTIONS}
+      action={<Pill tone="official">AI official</Pill>}
+      progress={{ at: Math.min(asked, QUESTIONS), of: QUESTIONS }}
+      live
+      tall={live}
       foot={<>
         {live && (
           <form className="vc-type" onSubmit={(e) => { e.preventDefault(); if (draft.trim()) { call.sendText(draft.trim(), "user"); setDraft(""); } }}>
