@@ -19,11 +19,9 @@
 .cs-fact dt { grid-area: dt; font-size: var(--t-xs); color: var(--ink-3); font-weight: 600; }
 .cs-fact dd { grid-area: dd; margin: 0; font-weight: 500; overflow-wrap: anywhere; }
 .cs-fact .ui-pill { grid-area: pill; justify-self: end; }
-.cs-head-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: var(--s-4); border-top: 1px solid var(--line); }
 .cs-copy { display: grid; gap: 2px; border: 0; background: none; padding: 0; color: inherit; font: inherit; font-weight: 600; cursor: pointer; text-align: left; overflow-wrap: anywhere; min-width: 0; }
 .cs-copy-label { font-size: var(--t-xs); color: var(--ink-3); font-weight: 600; }
 .cs-copy svg { color: var(--ink-3); display: inline; vertical-align: -2px; }
-.cs-head-row .ui-btn { flex: none; }
 .cs-fact:first-child { border-top: 0; }
 
 .tl { display: grid; gap: var(--s-6); }
@@ -72,9 +70,7 @@
 .dt-preview { aspect-ratio: 0.72; max-height: 60vh; width: 100%; border-radius: var(--r-md); background: var(--card-2); box-shadow: var(--e-1); display: grid; place-items: center; overflow: hidden; }
 .dt-preview img { width: 100%; height: 100%; object-fit: contain; }
 .dt-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-.cs-copy .ui-num { font-family: var(--mono); font-size: 0.8125rem; font-weight: 500; letter-spacing: 0; white-space: nowrap; }
 .cs-stage-caption { display: none; margin: -4px 0 0; }
-.cs-head-row { flex-wrap: wrap; }
 /* Phones: dots only, with the current stage spelled out underneath (five labels don't fit at 360px). */
 @media (max-width: 599px) {
   .cs-stage-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -83,3 +79,27 @@
   .cs-stage-caption span { font-size: var(--t-sm); color: var(--ink-3); }
   .cs-tabs .ui-seg button { padding: 0 8px; flex: 1 0 auto; }
 }
+
+/* Case number block (film A4: legible at 45% scale) */
+.cs-id { display: grid; gap: 4px; }
+.cs-id-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 36px; }
+.cs-id .cs-copy { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); }
+.cs-id .cs-copy svg { color: var(--ink-3); flex: none; }
+.cs-num { font-family: var(--mono); font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; overflow-wrap: anywhere; }
+.cs-filed { margin: 2px 0 0; font-size: 1rem; color: var(--ink-2); }
+.cs-id + .cs-stages { padding-top: var(--s-4); border-top: 1px solid var(--line); }
+@media (max-width: 380px) { .cs-num { font-size: 1.125rem; } }
+
+/* Key cards: next appointment + nearest deadlines */
+.kc { display: grid; gap: 10px; }
+.kc-card { display: grid; gap: 4px; padding: 16px 18px; border-radius: var(--r-lg); background: var(--card); box-shadow: var(--e-1); color: var(--ink); text-decoration: none; -webkit-tap-highlight-color: transparent; transition: transform var(--d-1) var(--ease); }
+.kc-card:active { transform: scale(0.985); }
+.kc-label { display: flex; align-items: center; gap: 8px; font-size: 1rem; font-weight: 600; color: var(--ink-2); }
+.kc-card--appt .kc-label svg { color: var(--official); }
+.kc-card--deadline .kc-label svg { color: var(--ink-3); }
+.kc-card--deadline.is-urgent { box-shadow: inset 3px 0 0 var(--deadline), var(--e-1); }
+.kc-card--deadline.is-urgent .kc-label svg, .kc-card--deadline.is-urgent .kc-big { color: var(--deadline); }
+.kc-big { font-size: 1.875rem; line-height: 1.1; font-weight: 600; letter-spacing: -0.025em; font-variant-numeric: tabular-nums; }
+.kc-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 1.0625rem; color: var(--ink-2); }
+.kc-sub b { font-weight: 600; color: var(--ink); padding: 2px 8px; border-radius: 8px; background: var(--surface-2); font-size: 0.9375rem; }
+@media (min-width: 768px) { .kc { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
