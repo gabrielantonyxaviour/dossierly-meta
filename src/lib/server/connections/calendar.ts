@@ -46,6 +46,7 @@ export async function createEvent(env: ConnectionsEnv, accountId: string, input:
   const hash = await sha256Hex(JSON.stringify({ calendarId: data.calendarId, title: data.title, date: data.date, description: data.description, time: data.time ?? null }));
   const prior = await env.DB.prepare("SELECT * FROM connection_event_receipts WHERE account_id = ? AND request_key = ?").bind(accountId, data.idempotencyKey).first<Receipt>();
   if (prior) {
+    if (prior.request_hash !== hash && prior.result) return updateEvent(env, accountId, data, prior, hash);
     if (prior.request_hash !== hash) throw new ApiError(409, "Use a new request for a different event.", "idempotency_conflict");
     if (!prior.result) throw new ApiError(409, "The previous save needs checking in your calendar before trying again.", "calendar_write_uncertain");
     return { event: { ...JSON.parse(prior.result) as { id: string; date: string; url?: string }, title: data.title }, replayed: true };
@@ -68,6 +69,23 @@ export async function createEvent(env: ConnectionsEnv, accountId: string, input:
     await env.DB.prepare("UPDATE connection_event_receipts SET event_id = ?, result = ? WHERE account_id = ? AND request_key = ?").bind(result.id, JSON.stringify(receipt), accountId, data.idempotencyKey).run();
     return { event: { ...receipt, title: data.title }, replayed: false };
   } catch { throw new ApiError(409, "Check your calendar before retrying: the save could not be confirmed.", "calendar_write_uncertain"); }
+}
+
+/** The same idempotency key with new details (a re-read email): update the event this app created, in place. */
+async function updateEvent(env: ConnectionsEnv, accountId: string, data: EventInput, prior: Receipt, hash: string) {
+  const row = await owned(env, accountId, "calendar");
+  if (row.broker_id !== prior.broker_id) throw new ApiError(409, "Reconnect the original calendar account to change this event.", "connection_reconnect");
+  const end = new Date(`${data.date}T00:00:00Z`); end.setUTCDate(end.getUTCDate() + 1); const next = end.toISOString().slice(0, 10);
+  const google = row.provider === "googlecalendar";
+  const endpoint = google ? `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(prior.calendar_id)}/events/${encodeURIComponent(prior.event_id)}?sendUpdates=none`
+    : `https://graph.microsoft.com/v1.0/me/calendars/${encodeURIComponent(prior.calendar_id)}/events/${encodeURIComponent(prior.event_id)}`;
+  const { id: _id, ...gBody } = googleBody(prior.event_id, data, next); void _id;
+  const { transactionId: _t, ...mBody } = microsoftBody(data, next); void _t;
+  const result = z.object({ id: z.string(), htmlLink: z.string().optional(), webLink: z.string().optional() }).parse(await proxy(env, row, endpoint, "PATCH", google ? gBody : mBody));
+  const link = result.htmlLink ?? result.webLink;
+  const receipt = { id: result.id, date: data.date, ...(link?.startsWith("https://") ? { url: link } : {}) };
+  await env.DB.prepare("UPDATE connection_event_receipts SET request_hash = ?, result = ? WHERE account_id = ? AND request_key = ?").bind(hash, JSON.stringify(receipt), accountId, data.idempotencyKey).run();
+  return { event: { ...receipt, title: data.title }, replayed: true };
 }
 
 /** Cleanup is limited to an event receipt created by this account through this application. */

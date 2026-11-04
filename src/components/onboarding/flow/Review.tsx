@@ -5,6 +5,8 @@ import type { CalendarResult } from "@/lib/onboarding/commit";
 import type { Finding, MailReading } from "@/lib/onboarding/findings";
 import type { InboxMessage } from "@/lib/onboarding/inbox";
 import { failure, flowApi } from "@/lib/client/onboarding-flow";
+import type { Profile } from "@/lib/case/types";
+import { StageHint, suggestedStage } from "./StageHint";
 
 const dayLabel = (iso: string, opts: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short", year: "numeric" }) =>
   new Intl.DateTimeFormat("en-GB", { ...opts, timeZone: "UTC" }).format(new Date(`${iso}T00:00:00Z`));
@@ -60,13 +62,14 @@ const SECTIONS: { kind: Finding["kind"]; title: string }[] = [
   { kind: "document", title: "Documents mentioned" }, { kind: "task", title: "To do" },
 ];
 
-export function Review({ readings, rows, calendarConnected, onSaved }: { readings: MailReading[]; rows: InboxMessage[]; calendarConnected: boolean; onSaved(calendarAdded: boolean, saved: number): void }) {
+export function Review({ readings, rows, calendarConnected, onSaved, stage, applyStage }: { readings: MailReading[]; rows: InboxMessage[]; calendarConnected: boolean; onSaved(calendarAdded: boolean, saved: number): void; stage: Profile["stage"]; applyStage(s: Profile["stage"]): Promise<boolean> }) {
   const findings = useMemo(() => merge(readings), [readings]);
   const [off, setOff] = useState<Set<string>>(new Set());
   const [toCalendar, setToCalendar] = useState(calendarConnected);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<CalendarResult[] | null>(null);
+  const [hint, setHint] = useState<ReturnType<typeof suggestedStage>>(null);
   const chosen = findings.filter((f) => !off.has(f.id));
   const dated = chosen.filter((f) => f.kind === "deadline" || f.kind === "appointment").length;
   const toggle = (id: string, on: boolean) => setOff((s) => { const n = new Set(s); if (on) n.delete(id); else n.add(id); return n; });
@@ -78,18 +81,20 @@ export function Review({ readings, rows, calendarConnected, onSaved }: { reading
     const r = await flowApi.commit({ findings: chosen, summaries, addToCalendar: toCalendar && dated > 0 });
     setBusy(false);
     if (!r.ok) { setError(failure(r) ?? "Could not save."); return; }
-    if (!r.data.calendar.length) { onSaved(false, chosen.length); return; }
-    setResult(r.data.calendar);
+    const next = suggestedStage(chosen, stage);
+    if (!r.data.calendar.length && !next) { onSaved(false, chosen.length); return; }
+    setHint(next); setResult(r.data.calendar);
   }
 
   if (result) {
     const added = result.filter((x) => x.status !== "failed");
     return (
       <div className="ob-answer">
-        <div className="ob-note ob-note-ok"><strong>Saved to your case{added.length ? ` and ${added.length} ${added.length === 1 ? "date" : "dates"} added to Google Calendar` : ""}.</strong><p>Reminders are set for the day before and a few days ahead of each deadline.</p></div>
-        <ul className="ob-cal">{result.map((x) => (
+        <div className="ob-note ob-note-ok"><strong>Saved to your case{added.length ? ` and ${added.length} ${added.length === 1 ? "date" : "dates"} added to Google Calendar` : ""}.</strong>{added.length > 0 && <p>Reminders are set for the day before and a few days ahead of each deadline.</p>}</div>
+        {hint && <StageHint hint={hint} apply={applyStage} />}
+        {result.length > 0 && <ul className="ob-cal">{result.map((x) => (
           <li key={x.findingId} data-status={x.status}><span>{x.title}</span>{x.status === "failed" ? <em>{x.error}</em> : x.url ? <a href={x.url} target="_blank" rel="noreferrer">Open in Calendar</a> : <em>Added</em>}</li>
-        ))}</ul>
+        ))}</ul>}
         <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={() => onSaved(added.length > 0, chosen.length)}>Continue</button>
       </div>
     );

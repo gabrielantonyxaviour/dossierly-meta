@@ -6,6 +6,7 @@ import { runModel } from "../model";
 import type { Env } from "../server/env";
 import type { MessageBody } from "./inbox";
 import { buildFindings, type MailReading } from "./findings";
+import { retryTransient } from "./retry";
 
 const n = <T extends z.ZodTypeAny>(s: T) => s.nullable().catch(null);
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -56,7 +57,7 @@ export async function readMail(env: Env, userId: string, msg: MessageBody, ctx: 
     "",
     msg.text || "(empty body)",
   ].join("\n");
-  const out = await runModel(
+  const out = await retryTransient(() => runModel(
     { env, userId },
     {
       task: "mail_scan",
@@ -69,6 +70,6 @@ export async function readMail(env: Env, userId: string, msg: MessageBody, ctx: 
       masker: maskerFor({ name: ctx.fullName ?? undefined }),
       replay: () => { throw new Error("no replay for mail_scan"); },
     },
-  );
+  ));
   return buildFindings(msg, out.data, ctx.language);
 }
