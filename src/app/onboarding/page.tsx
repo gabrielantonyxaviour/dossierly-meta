@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { caseClient } from "@/lib/case/client";
 import { currentAccount } from "@/lib/server/account";
 import { getEnv } from "@/lib/server/env";
-import { getOnboarding } from "@/lib/server/onboarding";
+import { getOnboarding, restartOnboarding } from "@/lib/server/onboarding";
 import { OnboardingFlow } from "@/components/onboarding/flow/OnboardingFlow";
 import "./flow.css";
 import "./inbox.css";
@@ -21,8 +21,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
     caseClient(account.accountId).snapshot(),
     env.DB.prepare("SELECT email FROM email_identities WHERE user_id=? AND verified_at>0").bind(account.accountId).first<{ email: string }>(),
   ]);
-  if (initial.status === "completed") redirect("/app");
+  // A setup marked complete without the answers behind it (e.g. an older build) is set up again.
+  const answered = !!snapshot.profile.fullName && !!snapshot.profile.permitType;
+  if (initial.status === "completed" && answered) redirect("/app");
+  const state = initial.status === "completed" ? await restartOnboarding(env, account.accountId) : initial;
   const connection = (await searchParams).connection;
   const returned = connection === "connected" || connection === "failed" ? connection : null;
-  return <OnboardingFlow initial={initial} profile={snapshot.profile} email={identity?.email ?? null} returned={returned} />;
+  return <OnboardingFlow initial={state} profile={snapshot.profile} email={identity?.email ?? null} returned={returned} />;
 }

@@ -63,10 +63,10 @@
 .ob-cal li[data-status="failed"] em { color: var(--deadline); white-space: normal; }
 
 .ob-ring, .ob-call-head { display: flex; align-items: center; gap: 16px; }
-.ob-ring { padding: 20px; border-radius: var(--radius-lg); background: var(--ink); color: var(--brand-ink); }
+.ob-ring { padding: 20px; border-radius: var(--r-lg); background: var(--card); color: var(--ink); box-shadow: var(--e-2); }
 .ob-ring div, .ob-call-head div { display: grid; gap: 4px; }
 .ob-ring strong, .ob-call-head strong { font-size: 19px; }
-.ob-ring div span { font-size: 14px; opacity: .75; }
+.ob-ring div span { font-size: 14px; color: var(--ink-3); }
 .ob-answer-btn { background: var(--ok); border-color: var(--ok); color: #fff; }
 .ob-call { padding: 20px; border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-lg); display: grid; gap: 18px; }
 

@@ -105,7 +105,7 @@ export function PlaceStep({ profile, busy, save, reason }: Base & { reason: Reas
       </label>
       <div className="ob-field">
         <span className="ob-field-label" id="ob-arrival">When did you arrive? <em>(optional)</em></span>
-        <DatePicker value={arrival} onChange={setArrival} max={today()} min="2015-01-01" labelledBy="ob-arrival" placeholder="Choose your arrival date" />
+        <DatePicker value={arrival} onChange={setArrival} max={today()} min="2015-01-01" labelledBy="ob-arrival" placeholder="Choose a date" />
       </div>
       {touched && missing && <p className="ob-field-err" role="alert">{missing}</p>}
       <button className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" disabled={busy}>{busy ? "Saving…" : "Continue"}</button>

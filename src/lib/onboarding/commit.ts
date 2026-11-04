@@ -70,7 +70,7 @@ export async function commitFindings(env: ConnectionsEnv, ids: { userId: string;
   if (Object.keys(facts).length) await c.patchFacts(facts);
   for (const s of input.summaries) {
     const refs = (byMessage.get(s.messageId) ?? []).slice(0, 20);
-    if (!refs.length || !s.summary) continue;
+    if (!s.summary) continue;
     await upsert(c, "events", { id: `evt_${s.messageId}`.slice(0, 64), type: "email_received", at: s.receivedAt, summary: s.summary, refs });
   }
   const calendar = input.addToCalendar ? await addToCalendar(env, ids, input.findings) : [];
