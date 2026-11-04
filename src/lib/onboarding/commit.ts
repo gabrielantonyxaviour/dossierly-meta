@@ -108,7 +108,12 @@ async function storeAttachment(env: ConnectionsEnv, ids: { userId: string; accou
   try {
     const row = await owned(env, ids.accountId, "mail");
     if (row.provider !== "gmail") return null;
-    const got = await importGmail(env, row, f.source.messageId, f.file.attachmentId);
+    // Gmail attachment ids are not stable between reads of a message: find the file again by name.
+    const msg = await importGmail(env, row, f.source.messageId);
+    if (msg.kind !== "message") return null;
+    const match = msg.attachments.find((a) => a.name === f.file?.name && a.mime === f.file?.mime) ?? msg.attachments.find((a) => a.id === f.file?.attachmentId);
+    if (!match) return null;
+    const got = await importGmail(env, row, f.source.messageId, match.id);
     if (got.kind !== "attachment") return null;
     const b64 = got.file.dataUrl.slice(got.file.dataUrl.indexOf(",") + 1);
     const bytes = Uint8Array.from(atob(b64), (ch) => ch.charCodeAt(0));

@@ -14,7 +14,7 @@ export function docLabel(f: Doc): string {
   const t = f.title;
   switch (f.docKind) {
     case "rental_agreement": return "Lease";
-    case "health_insurance": return /nfz/i.test(t) ? "NFZ insurance" : "Health insurance";
+    case "health_insurance": return /nfz/i.test(`${t} ${f.source.from}`) ? "NFZ insurance" : "Health insurance";
     case "photo": return /new|nowe|meeting/i.test(t) ? "New photo" : "Photo";
     case "upo": return "MOS filing confirmation";
     case "university_certificate": return "Enrolment certificate";
@@ -22,7 +22,7 @@ export function docLabel(f: Doc): string {
     default: return t;
   }
 }
-const who = (from: string) => from.replace(/<[^>]+>/, "").replace(/"/g, "").trim();
+const who = (from: string) => from.replace(/<[^>]+>/, "").replace(/"/g, "").replace(/\s*\((PRZYKŁAD|SAMPLE)\)/gi, "").trim();
 
 /** Label, one value line and a status tag: the facts that matter stay large enough to read at a glance. */
 export function rowFor(f: Finding): { label: string; value: ReactNode; tag?: { text: string; tone: "ok" | "warn" | "deadline" } } {

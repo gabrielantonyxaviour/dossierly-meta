@@ -67,7 +67,7 @@ export function Review({ readings, rows, calendarConnected, onSaved, onShowResul
     return (
       <div className="ob-answer">
         <div className="ob-note ob-note-ok"><strong>Saved to your case{added.length ? ` and ${added.length} ${added.length === 1 ? "date" : "dates"} added to Google Calendar` : ""}.</strong>{added.length > 0 && <p>Reminders are set for the day before and a few days ahead of each deadline.</p>}</div>
-        {hint && <StageHint hint={hint} apply={applyStage} />}
+        {hint && <StageHint hint={hint} apply={applyStage} auto={stage === "just_arrived"} />}
         {result.length > 0 && <ul className="ob-cal">{result.map((x) => (
           <li key={x.findingId} data-status={x.status}><span>{x.title}</span>{x.status === "failed" ? <em>{x.error}</em> : x.url ? <a href={x.url} target="_blank" rel="noreferrer">Open in Calendar</a> : <em>Added</em>}</li>
         ))}</ul>}
