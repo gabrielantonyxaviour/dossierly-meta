@@ -118,7 +118,8 @@
       "name": "EMAIL",
       "allowed_sender_addresses": [
         "no-reply@dossierly.cosmiclan.com",
-        "wsc-przyklad@dossierly.cosmiclan.com"
+        "wsc-przyklad@dossierly.cosmiclan.com",
+        "wsc@dossierly.cosmiclan.com"
       ]
     }
   ],
@@ -234,7 +235,8 @@
           "name": "EMAIL",
           "allowed_sender_addresses": [
             "no-reply@dossierly.cosmiclan.com",
-            "wsc-przyklad@dossierly.cosmiclan.com"
+            "wsc-przyklad@dossierly.cosmiclan.com",
+            "wsc@dossierly.cosmiclan.com"
           ]
         }
       ],
@@ -355,7 +357,8 @@
           "name": "EMAIL",
           "allowed_sender_addresses": [
             "no-reply@dossierly.cosmiclan.com",
-            "wsc-przyklad@dossierly.cosmiclan.com"
+            "wsc-przyklad@dossierly.cosmiclan.com",
+            "wsc@dossierly.cosmiclan.com"
           ]
         }
       ],
@@ -476,7 +479,8 @@
           "name": "EMAIL",
           "allowed_sender_addresses": [
             "no-reply@dossierly.cosmiclan.com",
-            "wsc-przyklad@dossierly.cosmiclan.com"
+            "wsc-przyklad@dossierly.cosmiclan.com",
+            "wsc@dossierly.cosmiclan.com"
           ]
         }
       ],
@@ -597,7 +601,8 @@
           "name": "EMAIL",
           "allowed_sender_addresses": [
             "no-reply@dossierly.cosmiclan.com",
-            "wsc-przyklad@dossierly.cosmiclan.com"
+            "wsc-przyklad@dossierly.cosmiclan.com",
+            "wsc@dossierly.cosmiclan.com"
           ]
         }
       ],
