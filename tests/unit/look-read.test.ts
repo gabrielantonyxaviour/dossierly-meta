@@ -79,7 +79,7 @@ describe("toLookRead", () => {
   });
 
   it("normalises the letter block", () => {
-    expect(read.letter).toEqual({ ...raw.letter, deadlineRule: { amount: 14, unit: "days", from: "delivery", quote: "w terminie 14 dni" } });
+    expect(read.letter).toEqual({ ...raw.letter, deadlineRule: { amount: 14, unit: "days", from: "delivery", quote: "w terminie 14 dni" }, appointment: null });
   });
 
   it("falls back to role other for an unknown role", () => {

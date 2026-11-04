@@ -31,7 +31,7 @@ export function LookItems({ items, uncertain, active, traced, onSelect }: Props)
             <button type="button" className="lk-item-head" onClick={() => onSelect(active === it.id ? null : it.id)} aria-pressed={active === it.id}>
               <span className="lk-num" aria-hidden="true">{n + 1}</span>
               <span className="lk-item-label">{it.label}</span>
-              {unsure && <span className="chip chip-warn">Check this</span>}
+              {unsure && <span className="ui-pill ui-pill--warn">Check this</span>}
               {traced.has(it.id) && <span className="lk-traced" title="Outlined by SAM 3.1">Outlined</span>}
             </button>
             <blockquote className="lk-verbatim" lang="pl">{it.text}</blockquote>

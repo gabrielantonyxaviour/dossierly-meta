@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { VisitPlan } from "@/lib/visit/types";
 import { Icon } from "@/components/Icon";
+import { announceCaseChange } from "../shell/case-data";
 
 const WHEN = new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Warsaw" });
 const MARK = { have: "✓", missing: "", unknown: "?" } as const;
@@ -27,11 +28,12 @@ export function VisitPlanView({ plan, onAgain }: { plan: VisitPlan; onAgain(): v
       fetch("/api/case/tasks", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: taskId(base, i.id), title: `Bring: ${i.title.replace(/^bring:?\s*/i, "")}`.slice(0, 200), detail: i.detail.slice(0, 2000), origin: "agent" }) })
         .then((r) => r.ok || r.status === 409).catch(() => false)));
     setSaving(results.every(Boolean) ? "done" : "error");
+    if (results.some(Boolean)) announceCaseChange();
   };
 
   return (
     <div className="stack" style={{ ["--gap" as string]: "16px" }}>
-      <section className="card vp-hero">
+      <section className="ui-card vp-hero">
         <span className="tab-label"><Icon name="calendar" size={16} /> {plan.appointment ? "Your appointment" : "Your visit"}</span>
         <h2 style={{ margin: "6px 0 4px" }}>{plan.appointment?.title ?? plan.purpose}</h2>
         {plan.appointment && <p className="muted" style={{ margin: 0 }}>{WHEN.format(new Date(plan.appointment.at))} · {plan.appointment.location}</p>}
@@ -53,13 +55,13 @@ export function VisitPlanView({ plan, onAgain }: { plan: VisitPlan; onAgain(): v
         ))}
       </ul>
       {missing.length > 0 && (
-        <button type="button" className="btn btn-primary" onClick={() => void addTasks()} disabled={saving === "busy" || saving === "done"}>
+        <button type="button" className="ui-btn ui-btn--primary" onClick={() => void addTasks()} disabled={saving === "busy" || saving === "done"}>
           {saving === "done" ? <><Icon name="check" size={16} /> Added to your tasks</> : saving === "busy" ? "Adding…" : `Add ${missing.length} missing item${missing.length === 1 ? "" : "s"} to my tasks`}
         </button>
       )}
       {saving === "error" && <p className="small" role="alert">Some tasks could not be added. Try again.</p>}
       {plan.office && (
-        <section className="card card-flat vp-office">
+        <section className="ui-card vp-office">
           <span className="tab-label">Where</span>
           <b>{plan.office.name}</b>
           {plan.office.address && <span>{plan.office.address}</span>}
@@ -74,12 +76,12 @@ export function VisitPlanView({ plan, onAgain }: { plan: VisitPlan; onAgain(): v
         <span className="tab-label">Sources</span>
         <ol className="vp-sources">
           {plan.citations.map((c) => (
-            <li key={c.url}><a href={c.url} target="_blank" rel="noreferrer">{c.title || host(c.url)}</a> <span className={`chip ${c.official ? "chip-ok" : "chip-warn"}`}>{c.official ? "Official" : "Unofficial"}</span><small>{host(c.url)}</small></li>
+            <li key={c.url}><a href={c.url} target="_blank" rel="noreferrer">{c.title || host(c.url)}</a> <span className={`ui-pill ${c.official ? "ui-pill--ok" : "ui-pill--warn"}`}>{c.official ? "Official" : "Unofficial"}</span><small>{host(c.url)}</small></li>
           ))}
         </ol>
       </section>
       <p className="tiny muted">Searched live with Muse Spark&apos;s web search. Office rules change; if a page and this list disagree, the page wins.</p>
-      <button type="button" className="btn btn-ghost btn-small" style={{ justifySelf: "start" }} onClick={onAgain}>Plan another visit</button>
+      <button type="button" className="ui-btn ui-btn--ghost ui-btn--sm" style={{ justifySelf: "start" }} onClick={onAgain}>Plan another visit</button>
     </div>
   );
 }

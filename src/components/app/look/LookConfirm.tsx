@@ -7,6 +7,7 @@ import { DatePicker } from "@/components/ui/DatePicker";
 import { Icon } from "@/components/Icon";
 import { CitedDeadline, longDate, warsawToday } from "./CitedDeadline";
 import { commitLook } from "./useLook";
+import { announceCaseChange } from "../shell/case-data";
 
 type Via = "delivered" | "notice" | "electronic";
 const VIA: { id: Via; label: string; help: string }[] = [
@@ -38,6 +39,7 @@ export function LookConfirm({ read }: { read: LookRead }) {
     const delivery: CommitRequest["delivery"] = needsDelivery ? (via === "notice" ? { kind: "notice", firstNoticeDate: date } : { kind: via, date }) : undefined;
     try {
       setDone(await commitLook({ lookId: read.lookId, delivery, corrections: Object.keys(corrections).length ? corrections : undefined }));
+      announceCaseChange();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save to your case.");
     } finally {
@@ -50,6 +52,7 @@ export function LookConfirm({ read }: { read: LookRead }) {
       done.deadline && "a deadline with its working",
       done.taskIds.length > 0 && `${done.taskIds.length} task${done.taskIds.length === 1 ? "" : "s"}`,
       done.documentId && "this letter",
+      done.appointmentId && "the appointment",
       done.factsWritten.length > 0 && done.factsWritten.map((k) => FACT_LABEL[k]?.toLowerCase() ?? k).join(", "),
     ].filter(Boolean) as string[];
     return (
@@ -58,14 +61,14 @@ export function LookConfirm({ read }: { read: LookRead }) {
         <div className="lk-saved" role="status">
           <Icon name="check" size={18} />
           <span className="grow">Added to your case: {added.join(" · ") || "nothing new"}.</span>
-          <Link className="btn btn-small" href="/app">Open case</Link>
+          <Link className="ui-btn ui-btn--sm" href="/app">Open case</Link>
         </div>
       </div>
     );
   }
 
   return (
-    <section className="card lk-confirm stack" style={{ ["--gap" as string]: "14px" }} aria-label="Add to your case">
+    <section className="ui-card lk-confirm stack" style={{ ["--gap" as string]: "14px" }} aria-label="Add to your case">
       <div>
         <h3>Add this to your case</h3>
         <p className="small muted" style={{ margin: 0 }}>Check what I read. Nothing is saved until you confirm.</p>
@@ -74,15 +77,23 @@ export function LookConfirm({ read }: { read: LookRead }) {
         <dl className="lk-facts">
           {factKeys.map((k) => (
             <div key={k} className="lk-fact">
-              <dt>{FACT_LABEL[k] ?? k}{read.uncertain.includes(k) && <span className="chip chip-warn" style={{ marginLeft: 8 }}>Check this</span>}</dt>
+              <dt>{FACT_LABEL[k] ?? k}{read.uncertain.includes(k) && <span className="ui-pill ui-pill--warn" style={{ marginLeft: 8 }}>Check this</span>}</dt>
               {editing === k ? (
-                <dd><input className="input" value={facts[k]} onChange={(e) => setFacts({ ...facts, [k]: e.target.value })} onBlur={() => setEditing(null)} autoFocus aria-label={FACT_LABEL[k] ?? k} /></dd>
+                <dd><input className="ui-input" value={facts[k]} onChange={(e) => setFacts({ ...facts, [k]: e.target.value })} onBlur={() => setEditing(null)} autoFocus aria-label={FACT_LABEL[k] ?? k} /></dd>
               ) : (
-                <dd><span className={k === "office" || k.endsWith("Status") ? undefined : "mono"}>{facts[k]}</span><button type="button" className="btn btn-ghost btn-small" onClick={() => setEditing(k)}>Edit</button></dd>
+                <dd><span className={k === "office" || k.endsWith("Status") ? undefined : "mono"}>{facts[k]}</span><button type="button" className="ui-btn ui-btn--ghost ui-btn--sm" onClick={() => setEditing(k)}>Edit</button></dd>
               )}
             </div>
           ))}
         </dl>
+      )}
+      {read.letter?.appointment && (
+        <div className="lk-appt">
+          <span className="tab-label">Appointment in this letter</span>
+          <b>{longDate(read.letter.appointment.date)}{read.letter.appointment.time ? `, ${read.letter.appointment.time}` : ""}</b>
+          {read.letter.appointment.place && <span className="small">{read.letter.appointment.place}</span>}
+          {!read.letter.appointment.time && <span className="tiny muted">No time printed; check the letter.</span>}
+        </div>
       )}
       {isLetter && rule?.amount && rule.from === "letter_date" && read.letter?.dateOnLetter && (
         <p className="small" style={{ margin: 0 }}>The deadline counts from the date on the letter, {longDate(read.letter.dateOnLetter)}.</p>
@@ -102,8 +113,8 @@ export function LookConfirm({ read }: { read: LookRead }) {
           <DatePicker value={date} onChange={setDate} max={warsawToday()} ariaLabel={via === "notice" ? "Date on the first notice slip" : "Date it reached you"} />
         </fieldset>
       )}
-      {error && <div className="error-box small" role="alert">{error}</div>}
-      <button type="button" className="btn btn-primary btn-block" onClick={() => void save()} disabled={busy}>
+      {error && <div className="ui-inline-error small" role="alert">{error}</div>}
+      <button type="button" className="ui-btn ui-btn--primary ui-btn--block" onClick={() => void save()} disabled={busy}>
         {busy ? <><span className="spinner" aria-hidden="true" /> Working out your deadline…</> : needsDelivery ? "Work out my deadline and save" : "Save to my case"}
       </button>
     </section>
