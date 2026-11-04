@@ -19,7 +19,7 @@ export function LookCapture({ onFile, onSample, error }: Props) {
   const [asking, setAsking] = useState(false);
   const [samples, setSamples] = useState(false);
   const q = useRef(question);
-  q.current = question;
+  useEffect(() => { q.current = question; }, [question]);
 
   useEffect(() => {
     const onPaste = (e: ClipboardEvent) => {

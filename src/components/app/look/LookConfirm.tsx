@@ -78,7 +78,7 @@ export function LookConfirm({ read }: { read: LookRead }) {
               {editing === k ? (
                 <dd><input className="input" value={facts[k]} onChange={(e) => setFacts({ ...facts, [k]: e.target.value })} onBlur={() => setEditing(null)} autoFocus aria-label={FACT_LABEL[k] ?? k} /></dd>
               ) : (
-                <dd><span className="mono">{facts[k]}</span><button type="button" className="btn btn-ghost btn-small" onClick={() => setEditing(k)}>Edit</button></dd>
+                <dd><span className={k === "office" || k.endsWith("Status") ? undefined : "mono"}>{facts[k]}</span><button type="button" className="btn btn-ghost btn-small" onClick={() => setEditing(k)}>Edit</button></dd>
               )}
             </div>
           ))}

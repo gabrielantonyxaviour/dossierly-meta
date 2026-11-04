@@ -6,6 +6,7 @@ import type { CaseSnapshot } from "@/lib/case/types";
 import { MOS_FORM_SOURCE, MOS_SECTIONS, type MosField } from "@/lib/legal/mos-form";
 import { CopyButton } from "@/components/CopyButton";
 import { Icon } from "@/components/Icon";
+import { TopBar } from "@/components/ui";
 import { EmployerCheck } from "./EmployerCheck";
 import { MosAttachments } from "./MosAttachments";
 import { resolveCaseKey } from "./resolve";
@@ -38,13 +39,12 @@ export function MosSheet() {
   const values = useMemo(() => new Map(MOS_SECTIONS.flatMap((s) => s.fields.map((f) => [f.id, resolveCaseKey(snap, f.caseKey)] as const))), [snap]);
   const total = MOS_SECTIONS.reduce((n, s) => n + s.fields.length, 0);
   const ready = [...values.values()].filter(Boolean).length;
-  let n = 0;
+  const starts = MOS_SECTIONS.reduce<number[]>((acc, s, i) => [...acc, i === 0 ? 0 : acc[i - 1] + MOS_SECTIONS[i - 1].fields.length], []);
 
   return (
-    <div className="lk-page mos-page">
-      <header className="lk-head">
-        <h1>MOS sheet</h1>
-        <p className="muted">Every field of the temporary residence application, in the order MOS asks for it. What your case already knows is filled in: tap to copy, then paste it into MOS yourself.</p>
+    <div className="sh-page lk-page mos-page">
+      <TopBar title="MOS sheet" back={{ href: "/app/look", label: "Look" }} sub="Every field of the temporary residence application, in the order MOS asks for it. What your case already knows is filled in: tap to copy, then paste it into MOS yourself." />
+      <header>
         <div className="row">
           <a className="btn btn-primary" href="https://mos.cudzoziemcy.gov.pl/" target="_blank" rel="noreferrer"><Icon name="external" size={16} /> Open MOS</a>
           <Link className="btn" href="/app/photo-check"><Icon name="camera" size={16} /> Check my photo</Link>
@@ -63,8 +63,7 @@ export function MosSheet() {
       </section>
       <div className="mos-sections">
         {MOS_SECTIONS.map((s) => {
-          const start = n;
-          n += s.fields.length;
+          const start = starts[MOS_SECTIONS.indexOf(s)];
           const done = s.fields.filter((f) => values.get(f.id)).length;
           const isOpen = open === s.id;
           return (

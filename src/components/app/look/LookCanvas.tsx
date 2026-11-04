@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { ItemRole, LookItem, LookOutline } from "@/lib/look/types";
 import type { LookPhase } from "./useLook";
 
@@ -30,10 +30,32 @@ export function LookCanvas({ src, width, height, phase, items, outlines, active,
   const pad = Math.max(4, Math.round(Math.min(width, height) * 0.006));
   const busy = phase === "reading" || phase === "outlining";
   const activeItem = items.find((i) => i.id === active) ?? null;
+  const stage = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    const el = stage.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setShown(el.clientWidth));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  // Pins sit on each outline's top-left; stacked lines would overlap, so later pins step left until clear.
+  const pins = useMemo(() => {
+    const s = shown ? (28 * width) / shown : 0;
+    const placed: Array<{ id: string; x: number; y: number }> = [];
+    const order = items.map((it, n) => ({ it, n, b: outlines[it.id]?.box ?? it.box })).sort((a, b) => a.b[1] - b.b[1]);
+    for (const { it, b } of order) {
+      let x = b[0];
+      const y = b[1];
+      for (let guard = 0; guard < 6 && placed.some((p) => Math.abs(p.x - x) < s && Math.abs(p.y - y) < s); guard++) x -= s;
+      placed.push({ id: it.id, x: Math.max(s / 2, x), y: Math.max(s / 2, y) });
+    }
+    return new Map(placed.map((p) => [p.id, p]));
+  }, [items, outlines, shown, width]);
   const shapeOf = (it: LookItem) => outlines[it.id]?.path || rectPath(outlines[it.id]?.box ?? it.box, pad);
 
   return (
-    <div className={`lk-stage${busy ? " is-busy" : ""}${phase === "reading" ? " is-reading" : ""}`} style={{ aspectRatio: `${width} / ${height}`, width: `min(100%, calc((100dvh - 48px) * ${(width / height).toFixed(4)}))`, marginInline: "auto" }}>
+    <div ref={stage} className={`lk-stage${busy ? " is-busy" : ""}${phase === "reading" ? " is-reading" : ""}`} style={{ aspectRatio: `${width} / ${height}`, width: `min(100%, calc((100dvh - 48px) * ${(width / height).toFixed(4)}))`, marginInline: "auto" }}>
       {/* eslint-disable-next-line @next/next/no-img-element -- a local data URL, not an optimisable asset */}
       <img src={src} alt="The image you showed Dossierly" width={width} height={height} draggable={false} />
       {phase === "reading" && <div className="lk-scan" aria-hidden="true" />}
@@ -63,13 +85,14 @@ export function LookCanvas({ src, width, height, phase, items, outlines, active,
       </svg>
       {items.map((it, n) => {
         const b = outlines[it.id]?.box ?? it.box;
+        const pin = pins.get(it.id) ?? { x: b[0], y: b[1] };
         const tone = toneOf(it.role);
         return (
           <button
             key={it.id}
             type="button"
             className={`lk-pin tone-${tone}${active === it.id ? " is-active" : ""}`}
-            style={{ left: `${(b[0] / width) * 100}%`, top: `${(b[1] / height) * 100}%`, animationDelay: `${n * 70}ms` }}
+            style={{ left: `${(pin.x / width) * 100}%`, top: `${(pin.y / height) * 100}%`, animationDelay: `${n * 70}ms` }}
             onClick={() => onSelect(active === it.id ? null : it.id)}
             aria-pressed={active === it.id}
             aria-label={`${n + 1}. ${it.label}`}

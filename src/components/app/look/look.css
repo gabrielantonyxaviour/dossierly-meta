@@ -1,7 +1,5 @@
 /* Look: photo → Spark boxes → SAM outlines. Tones follow the system: red = deadline, amber = what you do, violet = what the office wrote. */
-.lk-page { padding: 20px 16px 32px; max-width: 1180px; margin: 0 auto; }
-.lk-head h1 { margin-bottom: 6px; }
-.lk-head p { max-width: 34em; margin-bottom: 20px; }
+.lk-page > * { min-width: 0; }
 .tone-deadline { --tone: var(--deadline); --tone-soft: var(--deadline-soft); }
 .tone-user { --tone: var(--user-fill); --tone-soft: var(--user-soft); }
 .tone-official { --tone: var(--official); --tone-soft: var(--official-soft); }
@@ -73,7 +71,7 @@
 .lk-sample-stamp { position: absolute; top: 10px; right: 10px; z-index: 3; box-shadow: var(--ring); }
 
 /* Panel */
-.lk-result .lk-panel { margin-top: 16px; }
+.lk-result .lk-panel { margin-top: 0; }
 .lk-progress { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; font-size: 0.875rem; }
 .lk-prog { display: flex; align-items: center; gap: 10px; }
 .lk-prog-dot { width: 18px; height: 18px; flex: none; border-radius: 50%; display: grid; place-items: center; box-shadow: inset 0 0 0 2px var(--line-strong); }
@@ -119,7 +117,6 @@
 .lk-saved .grow { color: var(--ink); }
 
 @media (min-width: 900px) {
-  .lk-page { padding: 32px 32px 48px; }
   .lk-result { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(360px, 1fr); gap: 32px; align-items: start; }
   .lk-result .lk-visual { position: sticky; top: 24px; }
   .lk-result .lk-panel { margin-top: 0; }

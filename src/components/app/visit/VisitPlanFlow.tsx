@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Appointment } from "@/lib/case/types";
 import type { VisitEvent, VisitPlan } from "@/lib/visit/types";
 import { Icon } from "@/components/Icon";
+import { TopBar } from "@/components/ui";
 import { errorText, readNdjson } from "../look/ndjson";
 import { VisitPlanView } from "./VisitPlanView";
 import "../look/look.css";
@@ -58,11 +59,8 @@ export function VisitPlanFlow() {
   const busy = stage === "searching" || stage === "comparing";
   const canBuild = !!pick || purpose.trim().length > 2;
   return (
-    <div className="lk-page vp-page">
-      <header className="lk-head">
-        <h1>Visit plan</h1>
-        <p className="muted">Before an appointment I search the official pages live, build what to bring, and check it against what&apos;s already in your case. Every line links to its source.</p>
-      </header>
+    <div className="sh-page lk-page vp-page">
+      <TopBar title="Visit plan" back={{ href: "/app/look", label: "Look" }} sub="Before an appointment I search the official pages live, build what to bring, and check it against what's already in your case. Every line links to its source." />
       {!plan && (
         <section className="card stack" style={{ ["--gap" as string]: "14px" }}>
           {appts === null && <div className="skeleton" style={{ height: 56 }} />}

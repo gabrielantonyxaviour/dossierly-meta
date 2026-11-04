@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { LookKind } from "@/lib/look/types";
 import { Icon } from "@/components/Icon";
+import { Row, Section, TopBar } from "@/components/ui";
 import { prepareFromUrl, prepareImage } from "./image";
 import { LookCanvas } from "./LookCanvas";
 import { LookCapture } from "./LookCapture";
@@ -25,11 +26,10 @@ function useElapsed(on: boolean): number {
   useEffect(() => {
     if (!on) return;
     const t0 = Date.now();
-    setT(0);
     const id = setInterval(() => setT(Math.floor((Date.now() - t0) / 1000)), 500);
     return () => clearInterval(id);
   }, [on]);
-  return t;
+  return on ? t : 0;
 }
 
 const READ_HINTS = ["Transcribing every line", "Finding the case number and dates", "Looking for what they ask you to do", "Matching it to your case"];
@@ -73,12 +73,14 @@ export function LookFlow() {
 
   if (state.phase === "idle" || !state.image) {
     return (
-      <div className="lk-page">
-        <header className="lk-head">
-          <h1>Look</h1>
-          <p className="muted">Show me any letter, MOS screen, receipt or ticket kiosk. I&apos;ll point at exactly what matters and put it in your case.</p>
-        </header>
+      <div className="sh-page sh-page--wide lk-page">
+        <TopBar title="Look" sub="Show me any letter, MOS screen, receipt or ticket kiosk. I'll point at exactly what matters and put it in your case." />
         <LookCapture onFile={onFile} onSample={onSample} error={prepError} />
+        <Section title="Paperwork tools">
+          <Row href="/app/mos-sheet" icon="prepare" title="MOS sheet" sub="Every form field in order, filled from your case" chevron />
+          <Row href="/app/photo-check" icon="camera" title="Photo check" sub="Crop your photo to exactly 684 × 883 px" chevron />
+          <Row href="/app/visit-plan" icon="calendar" title="Visit plan" sub="What to bring, from official pages, checked against your case" chevron />
+        </Section>
       </div>
     );
   }
@@ -86,7 +88,7 @@ export function LookFlow() {
   const { read, image, phase } = state;
   const items = read?.items ?? [];
   return (
-    <div className="lk-page lk-result">
+    <div className="sh-page sh-page--wide lk-page lk-result">
       <div className="lk-visual">
         <LookCanvas src={image.dataUrl} width={image.width} height={image.height} phase={phase} items={items} outlines={state.outlines} active={active} onSelect={setActive} />
         {state.sample && <span className="stamp lk-sample-stamp">Fictional sample</span>}

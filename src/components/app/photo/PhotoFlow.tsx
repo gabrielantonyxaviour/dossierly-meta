@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
+import { TopBar } from "@/components/ui";
 import { formatBytes } from "@/components/ui/Dropzone";
 import { prepareImage, type PreparedImage } from "../look/image";
 import { errorText } from "../look/ndjson";
@@ -53,10 +54,9 @@ export function PhotoFlow() {
 
   const fails = result?.checks.filter((c) => c.status === "fail") ?? [];
   return (
-    <div className="lk-page">
-      <header className="lk-head">
-        <h1>Photo check</h1>
-        <p className="muted">MOS rejects photos that are the wrong size or framing. I find your head with SAM 3.1, check the rules, and crop to exactly what MOS asks for. I never retouch your face or background.</p>
+    <div className="sh-page sh-page--wide lk-page">
+      <TopBar title="Photo check" back={{ href: "/app/look", label: "Look" }} sub="MOS rejects photos with the wrong size or framing. I find your head with SAM 3.1, check the rules, and crop to exactly what MOS asks for. I never retouch your face or background." />
+      <header>
         <div className="lk-kinds">
           {[`${MOS_W} × ${MOS_H} px`, "35 × 45 mm proportion", "Up to 2.5 MB", "Taken in the last 6 months"].map((s) => <span key={s} className="chip">{s}</span>)}
         </div>

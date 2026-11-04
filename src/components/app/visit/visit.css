@@ -1,5 +1,5 @@
 /* Visit plan */
-.vp-page { max-width: 760px; }
+.vp-page { gap: 18px; }
 .vp-page > .stack { display: grid; }
 .vp-appts { display: grid; gap: 8px; }
 .vp-appt { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--surface); box-shadow: var(--ring); cursor: pointer; color: var(--ink-2); }
