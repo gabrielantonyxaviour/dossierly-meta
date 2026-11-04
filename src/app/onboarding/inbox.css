@@ -38,8 +38,9 @@
 .ob-find { border-radius: var(--r-md); background: var(--card); box-shadow: var(--e-1); padding: 14px; border-left: 3px solid var(--official); transition: opacity .2s; }
 .ob-find-group[data-kind="deadline"] .ob-find { border-left-color: var(--deadline); }
 .ob-find[data-off="true"] { opacity: .5; }
-.ob-find .ui-check { align-items: flex-start; width: 100%; }
-.ob-find .ui-check-label { flex: 1; min-width: 0; }
+.ob-find { display: flex; gap: 12px; align-items: flex-start; }
+.ob-find > .ob-find-body { flex: 1; min-width: 0; }
+.ob-cal-toggle { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 14px; border-radius: var(--r-md); background: var(--card); box-shadow: var(--e-1); font-size: 14.5px; }
 .ob-find-body { display: grid; gap: 4px; font-size: 14.5px; line-height: 1.45; }
 .ob-find-body strong { font-size: 16px; font-weight: 600; }
 .ob-find-body > span { color: var(--ink-2); }

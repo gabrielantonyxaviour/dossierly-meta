@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { CheckCircle, Switch } from "@/components/ui";
 import type { CalendarResult } from "@/lib/onboarding/commit";
 import type { Finding, MailReading } from "@/lib/onboarding/findings";
 import type { InboxMessage } from "@/lib/onboarding/inbox";
@@ -104,7 +104,7 @@ export function Review({ readings, rows, calendarConnected, onSaved }: { reading
             <h2>{s.title}</h2>
             <ul>{items.map((f) => (
               <li key={f.id} className="ob-find" data-off={off.has(f.id)}>
-                <Checkbox checked={!off.has(f.id)} onChange={(on) => toggle(f.id, on)} aria-label={`Keep ${"title" in f ? f.title : f.label}`}><Item f={f} /></Checkbox>
+                <CheckCircle checked={!off.has(f.id)} onChange={(on) => toggle(f.id, on)} label={`Keep ${"title" in f ? f.title : f.label}`} /><Item f={f} />
               </li>
             ))}</ul>
           </section>
@@ -112,7 +112,7 @@ export function Review({ readings, rows, calendarConnected, onSaved }: { reading
       })}
       <div className="ob-commit">
         {calendarConnected ? (
-          <Checkbox checked={toCalendar} onChange={setToCalendar} disabled={!dated}>Add {dated} {dated === 1 ? "date" : "dates"} to Google Calendar, with reminders</Checkbox>
+          <div className="ob-cal-toggle"><span>Add {dated} {dated === 1 ? "date" : "dates"} to Google Calendar, with reminders</span><Switch checked={toCalendar && dated > 0} onChange={setToCalendar} disabled={!dated} label="Add dates to Google Calendar" /></div>
         ) : <p className="ob-more-note">Connect Google Calendar on the previous screen to add these dates with reminders.</p>}
         {error && <div className="ob-alert" role="alert"><p>{error}</p></div>}
         <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" disabled={busy || !chosen.length} onClick={() => void save()}>
