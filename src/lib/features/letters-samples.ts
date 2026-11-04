@@ -1,8 +1,10 @@
-/** Fictional sample official letters, screens and emails (persona: Arjun Raman). Never from a real authority. */
+/**
+ * Test letters, screens and emails for the fictional applicant Arjun Raman. The documents read like real ones (no
+ * sample stamp), but the case number, people and addresses are fictional, there is no state emblem and no real
+ * official is named. Sent only from dossierly.cosmiclan.com, never from a gov.pl address.
+ */
 export const SAMPLE_CASE_NO = "WSC-II-P.6151.48213.2026";
-export const SAMPLE_FOOTER_PL = "PRZYKŁAD — dokument fikcyjny wygenerowany przez Dossierly do testów. Nie pochodzi z urzędu.";
-export const SAMPLE_FOOTER_EN = "SAMPLE — fictional test document made by Dossierly.";
-export const SAMPLE_SENDER = { email: "wsc-przyklad@dossierly.cosmiclan.com", name: "Wydział Spraw Cudzoziemców (PRZYKŁAD)" } as const;
+export const SAMPLE_SENDER = { email: "wsc@dossierly.cosmiclan.com", name: "Wydział Spraw Cudzoziemców" } as const;
 export const SAMPLE_ADMIN_ALLOWLIST: Readonly<Record<string, string>> = { "darthstormer.ai@gmail.com": "Arjun Raman" };
 
 export type SampleEmail = { subject: string; html: string; text: string };
@@ -23,7 +25,7 @@ const OFFICE = "Mazowiecki Urząd Wojewódzki w Warszawie, Wydział Spraw Cudzoz
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 function makeEmail(o: { subjectPl: string; date: string; intro: string; points: string[]; deadline?: string; appointment?: string; outro: string; en: string }): SampleEmail {
-  const subject = `[PRZYKŁAD] ${o.subjectPl} — ${SAMPLE_CASE_NO}`;
+  const subject = `${o.subjectPl} — ${SAMPLE_CASE_NO}`;
   const lines = [
     "Szanowny Panie Arjunie Ramanie,",
     `Uprzejmie informujemy, że w sprawie o znaku ${SAMPLE_CASE_NO} (wniosek z dnia 18.09.2026 r. o udzielenie zezwolenia na pobyt czasowy w celu kontynuacji studiów) wydano pismo z dnia ${o.date} r.: ${o.subjectPl}.`,
@@ -34,12 +36,9 @@ function makeEmail(o: { subjectPl: string; date: string; intro: string; points: 
     ...(o.deadline ? [o.deadline] : []),
     o.outro,
     "W załączeniu przekazujemy treść pisma (PDF i PNG).",
-    `EN: ${o.en}`,
     "z upoważnienia Wojewody Mazowieckiego — Inspektor",
-    SAMPLE_FOOTER_PL,
-    SAMPLE_FOOTER_EN,
   ];
-  const html = `<div style="font-family:Georgia,serif;font-size:15px;line-height:1.55;color:#111;max-width:640px">${lines.map((l, i) => i >= lines.length - 2 ? `<p style="font-size:12px;color:#666;border-top:1px solid #ccc;padding-top:8px;margin:4px 0">${esc(l)}</p>` : `<p>${esc(l)}</p>`).join("")}</div>`;
+  const html = `<div style="font-family:Georgia,serif;font-size:15px;line-height:1.55;color:#111;max-width:640px">${lines.map((l) => `<p>${esc(l)}</p>`).join("")}</div>`;
   return { subject, html, text: lines.join("\n\n") };
 }
 

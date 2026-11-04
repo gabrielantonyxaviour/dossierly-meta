@@ -61,7 +61,6 @@
 .lk-pin.is-active { transform: scale(1.18); }
 .lk-pin:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 @keyframes lk-pop { from { transform: scale(0); opacity: 0; } }
-.lk-sample-stamp { position: absolute; bottom: 10px; left: 10px; z-index: 3; box-shadow: var(--ring); }
 
 /* Panel */
 .lk-result .lk-panel { margin-top: 0; }

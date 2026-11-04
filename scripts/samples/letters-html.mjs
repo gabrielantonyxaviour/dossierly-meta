@@ -1,26 +1,21 @@
-// Fictional sample letters (Arjun Raman). Not from any authority.
+// Film letters for the fictional applicant Arjun Raman: fictional case number, people and addresses;
+// no state emblem and no real official's name or signature.
 export const CASE_NO = "WSC-II-P.6151.48213.2026";
-export const FOOTER_PL = "PRZYKŁAD — dokument fikcyjny wygenerowany przez Dossierly do testów. Nie pochodzi z urzędu.";
-export const FOOTER_EN = "SAMPLE — fictional test document made by Dossierly.";
 
 const css = `*{box-sizing:border-box}html,body{margin:0;background:#fff}
 body{width:1240px;height:1754px;padding:100px 110px;font-family:"Times New Roman","Liberation Serif",Times,serif;font-size:29px;line-height:1.5;color:#111;position:relative}
 .r{text-align:right}.b{font-weight:bold}.c{text-align:center}h1{font-size:34px;margin:50px 0 4px;text-align:center}
 h2{font-size:29px;text-align:center;margin:0 0 34px}p{margin:0 0 18px;text-align:justify}ol,ul{margin:0 0 18px;padding-left:50px}li{margin-bottom:6px}
-.hd{margin-top:26px}.sig{margin-top:60px;text-align:right}.sm{font-size:24px;line-height:1.4}
-.foot{position:absolute;left:110px;right:110px;bottom:70px;border-top:1px solid #999;padding-top:12px;font-size:21px;color:#444;font-family:Arial,Helvetica,sans-serif}
-.stamp{position:absolute;top:96px;left:110px;font:bold 20px Arial;border:2px solid #b00;color:#b00;padding:3px 12px;transform:rotate(-3deg)}`;
+.hd{margin-top:26px}.sig{margin-top:60px;text-align:right}.sm{font-size:24px;line-height:1.4}`;
 
 export const DORM = ["DS Babilon", "ul. Kickiego 12", "04-369 Warszawa"];
 export const FLAT = ["ul. Grzybowska 43A m. 12", "00-855 Warszawa"];
-const head = (date, to = DORM) => `<div class="stamp">PRZYKŁAD / SAMPLE</div>
-<div class="r" style="margin-top:6px">Warszawa, dnia ${date} r.</div>
+const head = (date, to = DORM) => `<div class="r" style="margin-top:6px">Warszawa, dnia ${date} r.</div>
 <div class="hd"><span class="b">MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE</span><br>Wydział Spraw Cudzoziemców<br>pl. Bankowy 3/5, 00-950 Warszawa</div>
 <div class="r hd">Znak sprawy: <span class="b">${CASE_NO}</span></div>
 <div class="hd" style="margin-top:34px">Pan Arjun Raman<br>${to.join("<br>")}</div>`;
 const sig = `<div class="sig">z upoważnienia Wojewody Mazowieckiego<br>Inspektor</div>`;
-const foot = `<div class="foot">${FOOTER_PL}<br>${FOOTER_EN}</div>`;
-const page = (date, body, to) => `<!doctype html><html lang="pl"><meta charset="utf-8"><style>${css}</style><body>${head(date, to)}${body}${sig}${foot}</body></html>`;
+const page = (date, body, to) => `<!doctype html><html lang="pl"><meta charset="utf-8"><style>${css}</style><body>${head(date, to)}${body}${sig}</body></html>`;
 
 const braki = page("22.10.2026", `<h1>WEZWANIE</h1><h2>do uzupełnienia braków formalnych wniosku</h2>
 <p>Na podstawie art. 64 § 2 Kodeksu postępowania administracyjnego wzywam Pana do uzupełnienia braków formalnych wniosku o udzielenie zezwolenia na pobyt czasowy w celu kontynuacji studiów, złożonego w dniu 18.09.2026 r., poprzez przedłożenie:</p>
@@ -37,7 +32,6 @@ const zaswiadczenie = page("04.11.2026", `<h1>WEZWANIE</h1><h2>do przedłożenia
 
 const leaseCss = css.replace("padding:100px 110px", "padding:110px 120px").replace("font-size:29px", "font-size:27px");
 const lease = `<!doctype html><html lang="pl"><meta charset="utf-8"><style>${leaseCss}</style><body>
-<div class="stamp">PRZYKŁAD / SAMPLE</div>
 <h1 style="margin-top:70px">UMOWA NAJMU LOKALU MIESZKALNEGO</h1>
 <p class="c">zawarta w dniu 28.09.2026 r. w Warszawie pomiędzy:</p>
 <p><span class="b">Panią Martą Kowalczyk</span>, zwaną dalej „Wynajmującą”,<br>a <span class="b">Panem Arjunem Ramanem</span>, obywatelem Indii, legitymującym się paszportem nr Z7341982, zwanym dalej „Najemcą”.</p>
@@ -50,7 +44,7 @@ const lease = `<!doctype html><html lang="pl"><meta charset="utf-8"><style>${lea
 <p class="c b">§ 4. Postanowienia końcowe</p>
 <p>W sprawach nieuregulowanych stosuje się przepisy Kodeksu cywilnego. Umowę sporządzono w dwóch jednobrzmiących egzemplarzach, po jednym dla każdej ze stron.</p>
 <div style="display:flex;justify-content:space-between;margin-top:90px"><span>Wynajmująca<br><i>Marta Kowalczyk</i></span><span class="r">Najemca<br><i>Arjun Raman</i></span></div>
-${foot}</body></html>`;
+</body></html>`;
 
 const odciski = page("22.10.2026", `<h1>WEZWANIE</h1><h2>do osobistego stawiennictwa w celu pobrania odcisków linii papilarnych</h2>
 <p>W związku z postępowaniem w sprawie udzielenia zezwolenia na pobyt czasowy w celu kontynuacji studiów, na podstawie art. 50 § 1 Kodeksu postępowania administracyjnego oraz przepisów ustawy z dnia 12 grudnia 2013 r. o cudzoziemcach dotyczących pobrania odcisków linii papilarnych, wzywam Pana do osobistego stawiennictwa:</p>
