@@ -83,6 +83,14 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
 
   const done = rows.filter((r) => r.state === "done" || r.state === "error").length;
   const finished = phase === "reading" && rows.length > 0 && done === rows.length;
+  const found = rows.some((r) => r.reading?.relevant);
+  const failedAny = rows.some((r) => r.state === "error");
+  // Everything read and something found: show it after a beat, no tap needed. A failed email keeps the retry in view.
+  useEffect(() => {
+    if (!finished || !found || failedAny) return;
+    const t = setTimeout(() => setPhase("review"), 1400);
+    return () => clearTimeout(t);
+  }, [finished, found, failedAny]);
 
   if (phase === "connect" || phase === "listing") {
     return (

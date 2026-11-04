@@ -136,3 +136,6 @@
 .ob-voice-wait { color: var(--ink-3); }
 .ob-voice-text { min-height: 96px; resize: vertical; padding-top: 14px; line-height: 1.4; }
 .ob-demo-phone { width: 100%; text-align: left; color: var(--ink); font: inherit; border: 0; box-shadow: inset 0 0 0 1px var(--ok); }
+.ob-voice-tap { border: 0; padding: 0; background: none; border-radius: 50%; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.ob-voice-tap:disabled { cursor: default; }
+.ob-voice-tap:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }

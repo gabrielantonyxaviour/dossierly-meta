@@ -12,7 +12,7 @@ const RATE = 16000;
 const SPEECH_LEVEL = 0.025;
 const END_SILENCE_MS = 1700;
 const MAX_MS = 16_000;
-const PARTIAL_EVERY_MS = 1200;
+const PARTIAL_EVERY_MS = 400; // checked often; one request in flight at a time
 const ASR_LANGS = ["pl", "en", "uk", "hi", "ta"] as const;
 
 function wav(chunks: Int16Array[]): string {
@@ -48,7 +48,9 @@ export function useVoiceIntake(onResult: (r: Result) => void) {
   const ctx = useRef<AudioContext | null>(null);
   const mic = useRef<Mic | null>(null);
   const chunks = useRef<Int16Array[]>([]);
-  const timing = useRef({ started: 0, lastVoice: 0, spoke: false, finishing: false, partialBusy: false });
+  const timing = useRef({ started: 0, lastVoice: 0, voiceFrames: 0, spoke: false, finishing: false, partialBusy: false });
+  /** Partial transcripts: the newest result and the request in flight, each with how many frames of audio it covers. */
+  const partial = useRef<{ done: { frames: number; text: string } | null; flight: { frames: number; result: Promise<string> } | null }>({ done: null, flight: null });
   const ticker = useRef<ReturnType<typeof setInterval> | null>(null);
   const result = useRef(onResult);
   useEffect(() => { result.current = onResult; }, [onResult]);
@@ -81,9 +83,17 @@ export function useVoiceIntake(onResult: (r: Result) => void) {
     stopMic();
     if (!t.spoke) { setError("I didn’t hear anything. Tap the microphone and talk, or type instead."); setState("idle"); return; }
     setState("thinking");
-    const r = await api.asrTranscribe(wav(chunks.current), asrLang());
-    const text = r.ok ? r.data.text.trim() : "";
-    if (!text) { setError(r.ok ? "I didn’t catch that. Try once more, or type instead." : failure(r) ?? "Speech recognition is unavailable. Type instead."); setState("idle"); return; }
+    // A partial that already covers everything said (only silence came after) is the final transcript: no second wait.
+    const p = partial.current;
+    let text = p.done && p.done.frames >= t.voiceFrames ? p.done.text : "";
+    if (!text && p.flight && p.flight.frames >= t.voiceFrames) text = await p.flight.result;
+    let failed = "";
+    if (!text) {
+      const r = await api.asrTranscribe(wav(chunks.current), asrLang());
+      text = r.ok ? r.data.text.trim() : "";
+      if (!r.ok) failed = failure(r) ?? "Speech recognition is unavailable. Type instead.";
+    }
+    if (!text) { setError(failed || "I didn’t catch that. Try once more, or type instead."); setState("idle"); return; }
     setHeard(text);
     await answer(text);
   }, [answer, stopMic]);
@@ -91,7 +101,8 @@ export function useVoiceIntake(onResult: (r: Result) => void) {
   const start = useCallback(async () => {
     setError(""); setHeard(""); setReply(""); setState("starting");
     chunks.current = [];
-    timing.current = { started: Date.now(), lastVoice: 0, spoke: false, finishing: false, partialBusy: false };
+    timing.current = { started: Date.now(), lastVoice: 0, voiceFrames: 0, spoke: false, finishing: false, partialBusy: false };
+    partial.current = { done: null, flight: null };
     try {
       ctx.current ??= new AudioContext();
       await Promise.race([ctx.current.resume(), new Promise((r) => setTimeout(r, 700))]);
@@ -101,7 +112,7 @@ export function useVoiceIntake(onResult: (r: Result) => void) {
         if (t.finishing) return;
         chunks.current.push(new Int16Array(pcm));
         const now = Date.now();
-        if (level > SPEECH_LEVEL) { t.spoke = true; t.lastVoice = now; }
+        if (level > SPEECH_LEVEL) { t.spoke = true; t.lastVoice = now; t.voiceFrames = chunks.current.length; }
         if ((t.spoke && now - t.lastVoice > END_SILENCE_MS) || now - t.started > MAX_MS) void finish();
       });
       mic.current = m;
@@ -110,9 +121,14 @@ export function useVoiceIntake(onResult: (r: Result) => void) {
         const t = timing.current;
         if (!t.spoke || t.partialBusy || t.finishing) return;
         t.partialBusy = true;
-        const r = await api.asrTranscribe(wav(chunks.current), asrLang());
+        const frames = chunks.current.length;
+        const result = api.asrTranscribe(wav(chunks.current), asrLang()).then((r) => (r.ok ? r.data.text.trim() : ""));
+        partial.current.flight = { frames, result };
+        const text = await result;
         t.partialBusy = false;
-        if (r.ok && r.data.text.trim() && !timing.current.finishing) setHeard(r.data.text.trim());
+        if (partial.current.flight?.result === result) partial.current.flight = null;
+        if (text && (!partial.current.done || partial.current.done.frames < frames)) partial.current.done = { frames, text };
+        if (text && !timing.current.finishing) setHeard(text);
       }, PARTIAL_EVERY_MS);
     } catch (e) {
       stopMic();

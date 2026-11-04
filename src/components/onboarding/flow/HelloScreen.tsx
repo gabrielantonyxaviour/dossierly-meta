@@ -20,7 +20,10 @@ export function HelloScreen({ onProfile, onEmail, onType }: { onProfile(p: Profi
   return (
     <div className="ob-answer ob-voice">
       <div className="ob-voice-orb" data-state={v.state}>
-        <AgentOrb size={112} state={live ? "live" : v.state === "idle" ? "still" : "idle"} icon={v.state === "idle" || v.state === "listening" ? "mic" : undefined} />
+        <button type="button" className="ob-voice-tap" disabled={busy || v.state === "done"} aria-label={v.state === "listening" ? "Done talking" : "Tap and talk"}
+          onClick={() => void (v.state === "listening" ? v.stop() : v.start())}>
+          <AgentOrb size={112} state={live ? "live" : v.state === "idle" ? "still" : "idle"} icon={v.state === "idle" || v.state === "listening" ? "mic" : undefined} />
+        </button>
         <span className="ob-voice-status" aria-live="polite">{STATUS[v.state]}</span>
       </div>
       {(v.heard || v.state === "listening") && (
