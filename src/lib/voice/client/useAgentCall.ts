@@ -189,7 +189,7 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
         // No microphone: keep going with typing and the test official; say why.
         const name = (micErr as { name?: string })?.name ?? "";
         mic.current = null;
-        setError(`${ERRORS[name] ?? "The microphone is unavailable."} You can still type.`);
+        setError(`${ERRORS[name] ?? "The microphone is unavailable."} ${optsRef.current.mode === "counter" ? "The test official still works." : "You can still type."}`);
       }
       setMicWaiting(false);
       const res = await fetch("/api/voice/session", {

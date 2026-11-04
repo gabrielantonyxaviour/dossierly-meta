@@ -2,18 +2,18 @@
 .ct {
   --side: max(16px, env(safe-area-inset-left), env(safe-area-inset-right));
   position: fixed; inset: 0; z-index: 70; background: var(--bg); margin: 0 auto; max-width: 820px; padding-top: env(safe-area-inset-top);
-  display: grid; grid-template-rows: minmax(0, 1fr) auto minmax(0, 1.2fr) auto;
+  display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto minmax(0, 1.2fr) auto; overflow: hidden;
   border-left: 1px solid var(--line); border-right: 1px solid var(--line);
   box-shadow: 0 0 0 100vmax var(--bg); /* covers the app shell around the centred column */
 }
-.ct-wrap { min-height: 0; display: flex; }
+.ct-wrap { min-width: 0; min-height: 0; display: flex; }
 .ct.is-flat .ct-wrap-official { transform: rotate(180deg); }
 .ct-half { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 10px; padding: 12px var(--side); }
 .ct-half-official { background: color-mix(in srgb, var(--official-soft) 80%, var(--bg)); color: var(--ink); }
 .ct-half-user { background: color-mix(in srgb, var(--user-soft) 55%, var(--bg)); }
 .ct-label { display: flex; align-items: baseline; gap: 8px; min-width: 0; font-size: var(--t-sm); color: var(--ink-3); }
 .ct-label > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ct-label b { flex: none; font-size: var(--t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--official); }
+.ct-label b { flex: none; font-size: var(--t-sm); letter-spacing: 0.06em; text-transform: uppercase; color: var(--official); }
 .ct-half-user .ct-label b { color: var(--user); }
 .ct-more { margin: -12px -8px -12px auto; min-height: 44px; padding: 0 8px; flex: none; border: 0; background: transparent; color: var(--ink-2); font: inherit; font-size: var(--t-sm); text-decoration: underline; cursor: pointer; }
 .ct-turns { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 10px; }
@@ -85,3 +85,5 @@
 .ch-half-off { background: var(--official-soft); color: color-mix(in srgb, var(--official) 70%, var(--ink)); transform: rotate(180deg); text-align: right; }
 .ch-half-you { background: var(--user-soft); color: var(--ink); }
 .ch-when { color: var(--ink-3); font-size: var(--t-sm); white-space: nowrap; }
+.ct-error { padding: 8px 12px; font-size: var(--t-md); }
+.ct-half .vc-cap { padding: 8px 12px; }

@@ -88,8 +88,8 @@ export function UserHalf({ call }: { call: AgentCall }) {
         )}
         {call.partial && <p className="ct-you is-partial"><span>Hearing</span>{call.partial}</p>}
       </div>
-      <Captured items={call.captured} />
-      {call.error && <p className="vc-error" role="alert">{call.error}</p>}
+      <Captured items={call.captured.slice(-2)} />
+      {call.error && <p className="vc-error ct-error" role="alert">{call.error}</p>}
     </section>
   );
 }

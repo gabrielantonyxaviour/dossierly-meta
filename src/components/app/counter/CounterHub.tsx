@@ -28,7 +28,7 @@ function PhoneRow() {
       icon="phone"
       title="Dossierly calls you"
       sub="When something urgent lands and you haven’t opened the app, Dossierly phones you and explains it."
-      end={enabled === null ? null : enabled ? <Button size="sm" variant="primary" loading={busy} onClick={() => void call()}>Call me now</Button> : <Pill>Coming soon</Pill>}
+      end={enabled === null ? null : enabled ? <Button variant="primary" loading={busy} onClick={() => void call()}>Call me now</Button> : <Pill>Coming soon</Pill>}
     />
   );
 }
