@@ -66,8 +66,12 @@ export async function commitFindings(env: ConnectionsEnv, ids: { userId: string;
   }
   for (const f of input.findings) {
     if (f.kind === "deadline") {
+      const asked = f.source.subject.slice(0, 160);
+      const asks = mergeDocuments(input.findings).filter((x) => x.fields?.requestedBy === asked || (x.source.messageId === f.source.messageId && x.status !== "have")).map((x) => x.title);
+      const letterId = await saveLetter(env, ids, c, f, asks);
+      note({ ...f, id: letterId });
       const remind = { at: warsawIso(dayBefore(f.dueDate), "09:00"), channel: calls ? "call" : "in_app", sentAt: null };
-      await upsert(c, "deadlines", { id: f.id, title: f.title, dueDate: f.dueDate, computation: { steps: f.steps.length ? f.steps : ["Date read from the email."], rule: f.rule || null, legalRefUrl: f.rule.includes("KPA") ? KPA_URL : null }, triggeredBy: null, status: "open", reminders: [remind] });
+      await upsert(c, "deadlines", { id: f.id, title: f.title, dueDate: f.dueDate, computation: { steps: f.steps.length ? f.steps : ["Date read from the email."], rule: f.rule || null, legalRefUrl: f.rule.includes("KPA") ? KPA_URL : null }, triggeredBy: letterId, status: "open", reminders: [remind] });
     }
     if (f.kind === "appointment") {
       let prep: string[] = [];
@@ -102,28 +106,56 @@ async function inferCity(c: CaseClient, profile: { city: string | null }, facts:
   if (city) await c.patchProfile({ city });
 }
 
-/** Copies the email attachment that is this document into the case's private storage. Best effort. */
-async function storeAttachment(env: ConnectionsEnv, ids: { userId: string; accountId: string }, f: Extract<Finding, { kind: "document" }>): Promise<string | null> {
-  if (!f.file) return null;
+type Ids = { userId: string; accountId: string };
+type Attachment = { id: string; name: string; mime: string; size: number };
+
+/** Copies one attachment of an email into the case's private storage. Best effort: null when anything is missing. */
+async function storeFile(env: ConnectionsEnv, ids: Ids, messageId: string, docId: string, pick: (a: Attachment[]) => Attachment | undefined): Promise<string | null> {
   try {
     const row = await owned(env, ids.accountId, "mail");
     if (row.provider !== "gmail") return null;
-    // Gmail attachment ids are not stable between reads of a message: find the file again by name.
-    const msg = await importGmail(env, row, f.source.messageId);
+    // Gmail attachment ids are not stable between reads of a message: find the file again in a fresh read.
+    const msg = await importGmail(env, row, messageId);
     if (msg.kind !== "message") return null;
-    const match = msg.attachments.find((a) => a.name === f.file?.name && a.mime === f.file?.mime) ?? msg.attachments.find((a) => a.id === f.file?.attachmentId);
+    const match = pick(msg.attachments);
     if (!match) return null;
-    const got = await importGmail(env, row, f.source.messageId, match.id);
+    const got = await importGmail(env, row, messageId, match.id);
     if (got.kind !== "attachment") return null;
     const b64 = got.file.dataUrl.slice(got.file.dataUrl.indexOf(",") + 1);
     const bytes = Uint8Array.from(atob(b64), (ch) => ch.charCodeAt(0));
-    const ext = f.file.mime === "application/pdf" ? "pdf" : f.file.mime.split("/")[1];
-    const key = `case/${ids.userId}/documents/${f.id}.${ext}`;
+    const ext = match.mime === "application/pdf" ? "pdf" : match.mime.split("/")[1];
+    const key = `case/${ids.userId}/documents/${docId}.${ext}`;
     await env.BLOBS.put(key, bytes);
     return key;
   } catch {
     return null;
   }
+}
+
+/** The email attachment that is this document, by name (ids change between reads). */
+const storeAttachment = (env: ConnectionsEnv, ids: Ids, f: Extract<Finding, { kind: "document" }>) =>
+  f.file ? storeFile(env, ids, f.source.messageId, f.id, (a) => a.find((x) => x.name === f.file?.name && x.mime === f.file?.mime) ?? a.find((x) => x.id === f.file?.attachmentId)) : Promise.resolve(null);
+
+const LETTER_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+/** The letter's own scan: the email's first PDF (else image) under 4 MB. */
+const letterFile = (a: Attachment[]) => {
+  const ok = a.filter((x) => LETTER_TYPES.includes(x.mime) && x.size <= 4_000_000);
+  return ok.find((x) => x.mime === "application/pdf") ?? ok[0];
+};
+export const letterIdFor = (messageId: string) => `doc_ltr_${messageId}`.slice(0, 64);
+const SUMMONS = /wezwani|summons|braków|brakow|art\. ?64/i;
+
+/** The official letter behind a deadline, saved as a case document with its file; the deadline points at it. */
+async function saveLetter(env: ConnectionsEnv, ids: Ids, c: CaseClient, d: Extract<Finding, { kind: "deadline" }>, asks: string[]): Promise<string> {
+  const id = letterIdFor(d.source.messageId);
+  const summons = SUMMONS.test(`${d.source.subject} ${d.rule} ${d.title}`);
+  const fileKey = await storeFile(env, ids, d.source.messageId, id, letterFile);
+  const extractedFields: Record<string, string> = {
+    fromEmail: d.source.subject.slice(0, 200), received: d.source.receivedAt.slice(0, 10), sender: d.source.from.slice(0, 300),
+    ...(asks.length ? { asks: asks.join("; ").slice(0, 1000) } : {}),
+  };
+  await upsert(c, "documents", { id, kind: "letter", title: summons ? "Summons to complete the application" : `Letter: ${d.title}`.slice(0, 200), status: "have", source: "email", extractedFields, ...(fileKey ? { fileKey } : {}) });
+  return id;
 }
 
 async function addToCalendar(env: ConnectionsEnv, ids: { userId: string; accountId: string }, findings: Finding[]): Promise<CalendarResult[]> {
