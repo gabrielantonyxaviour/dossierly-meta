@@ -35,7 +35,7 @@
 .ob-mail-row[data-relevant="yes"] .ob-mail-state { color: var(--official); }
 
 .ob-find-group h2 { margin: 0 0 10px; font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
-.ob-find-group ul { list-style: none; margin: 0; padding: 0; display: grid; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); overflow: hidden; }
+.ob-found { list-style: none; margin: 0; padding: 0; display: grid; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); overflow: hidden; }
 .ob-find { padding: 14px; border-top: 1px solid var(--line); transition: opacity .2s; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .ob-find:first-child { border-top: 0; }
 
@@ -45,8 +45,17 @@
 .ob-cal-toggle { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 60px; padding: 10px 14px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); cursor: pointer; }
 .ob-cal-toggle > span { display: grid; gap: 2px; font-size: 15px; }
 .ob-cal-toggle small { font-size: 13px; color: var(--ink-3); }
-.ob-find-body { display: grid; gap: 4px; font-size: 15px; line-height: 1.45; }
-.ob-find-body strong { font-size: 16px; font-weight: 500; }
+.ob-find-body { display: grid; gap: 4px; font-size: 15px; line-height: 1.4; }
+.ob-find-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.ob-find-head strong { font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
+.ob-find-value { font-size: 16px; color: var(--ink-2); overflow-wrap: anywhere; }
+.ob-mono { font-family: var(--mono); font-size: 15px; color: var(--ink); }
+.ob-tag { flex: none; font: 500 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .04em; padding: 5px 7px; border-radius: 5px; white-space: nowrap; }
+.ob-tag[data-tone="ok"] { color: var(--ok); background: var(--ok-soft); }
+.ob-tag[data-tone="warn"] { color: var(--user); background: var(--user-soft); }
+.ob-tag[data-tone="deadline"] { color: var(--deadline); background: var(--deadline-soft); }
+.ob-found[data-small] .ob-find-head strong { font-size: 15px; font-weight: 500; }
+.ob-found[data-small] .ob-find-value { font-size: 14px; }
 .ob-find-body > span { color: var(--ink-2); }
 .ob-find-fact { grid-template-columns: minmax(0, 1fr); }
 .ob-find-fact > span:first-child { font-size: 13px; color: var(--ink-3); }
@@ -113,3 +122,16 @@
 
 .ob-hint-card { background: var(--official-soft); box-shadow: none; }
 .ob-hint-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+
+/* Voice-first hello: the orb, then what you said and what Dossierly said, large enough to read across a room. */
+.ob-voice { gap: 20px; }
+.ob-voice-orb { display: grid; justify-items: center; gap: 10px; padding: 8px 0 4px; }
+.ob-voice-status { min-height: 16px; font: 500 13px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.ob-voice-orb[data-state="listening"] .ob-voice-status { color: var(--ok); }
+.ob-voice-line { margin: 0; display: grid; gap: 6px; }
+.ob-voice-line figcaption { font: 500 12px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.ob-voice-line blockquote { margin: 0; font-size: 22px; line-height: 1.35; font-weight: 500; letter-spacing: -.01em; color: var(--ink); }
+.ob-voice-line[data-who="you"] blockquote { color: var(--ink-2); }
+.ob-voice-line[data-who="agent"] { padding: 14px 16px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
+.ob-voice-wait { color: var(--ink-3); }
+.ob-voice-text { min-height: 96px; resize: vertical; padding-top: 14px; line-height: 1.4; }

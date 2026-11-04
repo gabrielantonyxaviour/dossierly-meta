@@ -12,13 +12,18 @@ type Row = { msg: InboxMessage; state: "queued" | "reading" | "done" | "error"; 
 export type InboxPhase = "connect" | "listing" | "reading" | "review" | "empty" | "saved";
 type Phase = Exclude<InboxPhase, "saved">;
 
-export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, applyStage, onPhase }: { onPhase(p: InboxPhase): void; returned: string | null; stage: Profile["stage"]; applyStage(s: Profile["stage"]): Promise<boolean>; onDone(saved: number): void; onSkip(): void; setCalendarAdded(v: boolean): void }) {
+const CHAIN = "ob-google-chain";
+const chained = () => { try { return sessionStorage.getItem(CHAIN) === "1"; } catch { return false; } };
+const chain = (on: boolean) => { try { if (on) sessionStorage.setItem(CHAIN, "1"); else sessionStorage.removeItem(CHAIN); } catch { /* private mode */ } };
+
+export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, applyStage, onPhase, auto }: { auto: boolean; onPhase(p: InboxPhase): void; returned: string | null; stage: Profile["stage"]; applyStage(s: Profile["stage"]): Promise<boolean>; onDone(saved: number): void; onSkip(): void; setCalendarAdded(v: boolean): void }) {
   const [status, setStatus] = useState<ConnectionStatus | null>(null);
   const [statusError, setStatusError] = useState("");
   const [phase, setPhase] = useState<Phase>("connect");
   const [rows, setRows] = useState<Row[]>([]);
   const [account, setAccount] = useState("");
   const [error, setError] = useState("");
+  const [opening, setOpening] = useState<"" | "mail" | "calendar">("");
   const started = useRef(false);
   useEffect(() => { onPhase(phase === "listing" ? "connect" : phase); }, [phase, onPhase]);
 
@@ -49,18 +54,32 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
     await Promise.all(Array.from({ length: 4 }, async () => { for (let m = queue.shift(); m; m = queue.shift()) await readOne(m); }));
   }
 
+  /** Google consent, Gmail first then Calendar: one "yes" and two Allow taps, nothing typed. */
+  async function google(category: "mail" | "calendar") {
+    setOpening(category); setError("");
+    const r = await flowApi.connect(category, category === "mail" ? "gmail" : "googlecalendar");
+    if (r.ok) { window.location.assign(r.data.redirectUrl); return; }
+    chain(false); setOpening(""); setError(failure(r) ?? "Could not open Google.");
+  }
+
   const gmail = status?.connections.mail?.provider === "gmail" && status.connections.mail.status === "connected";
   const calendar = status?.connections.calendar?.provider === "googlecalendar" && status.connections.calendar.status === "connected";
-  // Back from Google with both connected: start reading straight away.
+  // Voice "yes" → Gmail consent → Calendar consent → back here with both: start reading straight away.
   useEffect(() => {
-    if (!gmail || !calendar || started.current || phase !== "connect") return;
-    if (returned === "connected") {
-      started.current = true;
+    if (!status || started.current || phase !== "connect") return;
+    if (returned === "failed") { chain(false); return; }
+    const going = auto || chained();
+    started.current = true;
+    /* eslint-disable react-hooks/set-state-in-effect -- one hand-off per visit: open the next consent or start the read */
+    if (going && !gmail) void google("mail");
+    else if (going && gmail && !calendar) void google("calendar");
+    else if (gmail && calendar && (going || returned === "connected")) {
+      chain(false);
       window.history.replaceState(null, "", "/onboarding");
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- starts the async inbox read once
       void scan();
-    }
-  }, [gmail, calendar]); // eslint-disable-line react-hooks/exhaustive-deps
+    } else started.current = false;
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const done = rows.filter((r) => r.state === "done" || r.state === "error").length;
   const finished = phase === "reading" && rows.length > 0 && done === rows.length;
@@ -71,10 +90,16 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
         {statusError && <div className="ob-alert" role="alert"><p>{statusError}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void load()}>Try again</button></div>}
         <ConnectCards status={status} gmail={gmail} calendar={calendar} returned={returned} />
         {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void scan()}>Try again</button></div>}
-        <StickyActionBar secondary={<Button variant="ghost" onClick={onSkip}>Skip for now</Button>}>
-          <Button variant="primary" size="lg" disabled={!gmail || phase === "listing"} loading={phase === "listing"} onClick={() => { started.current = true; void scan(); }}>
-            {phase === "listing" ? "Looking for official emails…" : gmail ? "Read my official emails" : "Connect Gmail to continue"}
-          </Button>
+        <StickyActionBar secondary={<Button variant="ghost" onClick={() => { chain(false); onSkip(); }}>Skip for now</Button>}>
+          {gmail ? (
+            <Button variant="primary" size="lg" disabled={phase === "listing" || !!opening} loading={phase === "listing" || !!opening} onClick={() => { started.current = true; void scan(); }}>
+              {opening === "calendar" ? "Opening Google Calendar…" : phase === "listing" ? "Looking for official emails…" : "Read my official emails"}
+            </Button>
+          ) : (
+            <Button variant="primary" size="lg" disabled={!status || !!opening} loading={!!opening} onClick={() => { chain(true); started.current = true; void google("mail"); }}>
+              {opening ? "Opening Google…" : "Connect Google"}
+            </Button>
+          )}
         </StickyActionBar>
       </div>
     );

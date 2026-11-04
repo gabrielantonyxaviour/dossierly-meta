@@ -7,13 +7,14 @@ import { CaseFile } from "./CaseFile";
 import { InboxStep, type InboxPhase } from "./InboxStep";
 import { Button, MobileFlowHeader, MobilePage, ScreenTitle } from "@/components/ui";
 import { PhoneStep } from "./PhoneStep";
+import { HelloScreen } from "./HelloScreen";
 import { CityScreen, DetailsScreen, LanguageScreen, NameScreen, ReasonScreen, StageScreen } from "./Questions";
 import { WelcomeStep } from "./WelcomeStep";
 import { firstName, type Reason } from "./options";
 
 /** One short question per screen. Several screens can share a server step (1: name + language, 4: city + details). */
 const SCREENS = [
-  { id: "name", step: 1, title: "About you" }, { id: "language", step: 1, title: "About you" },
+  { id: "hello", step: 1, title: "Welcome" }, { id: "name", step: 1, title: "About you" }, { id: "language", step: 1, title: "About you" },
   { id: "reason", step: 2, title: "Your permit" }, { id: "stage", step: 3, title: "Your permit" },
   { id: "city", step: 4, title: "Where you live" }, { id: "details", step: 4, title: "Where you live" },
   { id: "inbox", step: 5, title: "Official mail" }, { id: "phone", step: 6, title: "Alerts" },
@@ -25,6 +26,7 @@ function copy(id: ScreenId | "welcome", name: string, profile: Profile, inbox: I
   const study = profile.permitType === "temporary_residence_study", work = profile.permitType === "temporary_residence_work";
   switch (id) {
     case "welcome": return [`Your case is ready${name ? `, ${name}` : ""}`, "Let me tell you what I found. It takes a minute."];
+    case "hello": return ["Hi, I’m Dossierly", "Tell me who you are and what’s going on. Just talk."];
     case "name": return ["What should I call you?", "I’m Dossierly, your caseworker for life in Poland."];
     case "language": return ["Which language should I speak?", "I’ll write and call you in it."];
     case "reason": return [`What brings you to Poland${name ? `, ${name}` : ""}?`, "It decides which residence rules apply to you."];
@@ -33,8 +35,8 @@ function copy(id: ScreenId | "welcome", name: string, profile: Profile, inbox: I
     case "details": return [study ? "Which university?" : work ? "Who do you work for?" : "A few more details", "And when you arrived, if you know."];
     case "phone": return ["Can I call you when it’s urgent?", "Like a summons with a 14-day deadline."];
     case "inbox": return inbox === "saved" ? ["Saved to your case", "Everything you ticked is in your case now."]
-      : inbox === "review" ? ["Here’s what I found", "Untick anything that’s wrong. Only ticked items are saved."]
-      : inbox === "reading" ? ["Reading your official mail", "Muse Spark reads each email and notes where every fact came from."]
+      : inbox === "review" ? ["Found in your inbox", "Untick anything that’s wrong. Only ticked items are saved."]
+      : inbox === "reading" ? ["Reading your inbox…", "Muse Spark reads each official email and notes where every fact came from."]
       : inbox === "empty" ? ["Nothing official yet", "I’ll read new letters when they arrive."]
       : ["Let me read your official mail", "Read-only. I look for the office, MOS and your university."];
   }
@@ -49,6 +51,7 @@ export function OnboardingFlow({ initial, profile: initialProfile, returned }: {
   const [error, setError] = useState<{ text: string; retry?: () => void } | null>(null);
   const [welcome, setWelcome] = useState(initial.status === "completed");
   const [inbox, setInbox] = useState<InboxPhase>("connect");
+  const [auto, setAuto] = useState(false);
   const [found, setFound] = useState(0);
   const [calendarAdded, setCalendarAdded] = useState(false);
   const current = SCREENS[screen];
@@ -79,6 +82,11 @@ export function OnboardingFlow({ initial, profile: initialProfile, returned }: {
     await move(Math.min(screen + 1, SCREENS.length - 1));
     setBusy(false);
   }
+  /** Voice path: "Yes, look at my email" goes straight to Google; the remaining questions come from the inbox. */
+  async function toEmail() {
+    try { sessionStorage.setItem("ob-google-chain", "1"); } catch { /* private mode: one consent at a time */ }
+    setAuto(true); setBusy(true); await move(SCREENS.findIndex((s) => s.id === "inbox")); setBusy(false);
+  }
   async function back() { setBusy(true); await move(Math.max(0, screen - 1)); setBusy(false); }
   async function complete() {
     setError(null);
@@ -98,13 +106,14 @@ export function OnboardingFlow({ initial, profile: initialProfile, returned }: {
           <ScreenTitle title={say} sub={sub} />
           {error && <div className="ob-alert" role="alert"><p>{error.text}</p>{error.retry && <Button size="sm" onClick={error.retry}>Try again</Button>}</div>}
           {id === "welcome" ? <WelcomeStep firstName={name} calendarAdded={calendarAdded} />
+            : id === "hello" ? <HelloScreen onProfile={setProfile} onEmail={() => void toEmail()} onType={() => void next()} />
             : id === "name" ? <NameScreen {...base} />
             : id === "language" ? <LanguageScreen {...base} />
             : id === "reason" ? <ReasonScreen {...base} reason={reason} setReason={setReason} />
             : id === "stage" ? <StageScreen {...base} answered={initial.step > 3 || state.step > 3 || !!profile.city} />
             : id === "city" ? <CityScreen {...base} />
             : id === "details" ? <DetailsScreen {...base} reason={reason} />
-            : id === "inbox" ? <InboxStep returned={returned} stage={profile.stage} onPhase={setInbox}
+            : id === "inbox" ? <InboxStep returned={returned} auto={auto} stage={profile.stage} onPhase={setInbox}
                 applyStage={async (stage) => { const r = await flowApi.profile({ stage }); if (r.ok) setProfile(r.data); return r.ok; }}
                 setCalendarAdded={setCalendarAdded} onSkip={() => void next()} onDone={(saved) => { setFound(saved); void next(); }} />
             : <PhoneStep profile={profile} setProfile={setProfile} onDone={complete} />}

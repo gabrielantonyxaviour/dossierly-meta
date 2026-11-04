@@ -29,7 +29,10 @@ export const extractionSchema = z.object({
     title: str(160), days: n(z.number().int().min(1).max(365)), from: n(z.enum(["delivery", "letter_date"])),
     letterDate: n(day), statedDate: n(day), quote: str(400).catch(""), consequence: str(300).catch(""),
   })),
-  documents: z.array(z.object({ title: str(160), kind: z.enum(DOC_KINDS).catch("other"), status: z.enum(["have", "missing", "requested"]).catch("requested") })).max(12).catch([]),
+  addresses: z.object({ application: n(str(300)), current: n(str(300)), currentFrom: n(day) }).catch({ application: null, current: null, currentFrom: null }),
+  documents: z.array(z.object({
+    title: str(160), kind: z.enum(DOC_KINDS).catch("other"), status: z.enum(["have", "missing", "requested"]).catch("requested"), attachment: n(str(160)),
+  })).max(12).catch([]),
   tasks: z.array(z.object({ title: str(160), detail: str(400).catch("") })).max(8).catch([]),
 });
 export type Extraction = z.infer<typeof extractionSchema>;
@@ -44,9 +47,14 @@ Rules:
 - deadline: something the person must do by a deadline. days = the number of days the text states ("w terminie 14 dni" = 14) and from = "delivery" when counted from receiving/delivery of the letter ("od dnia doręczenia"), "letter_date" when counted from the letter's date. statedDate only when an explicit calendar date is given instead. quote = the exact deadline sentence in the original language. consequence = what happens if missed, as stated, in short plain English (e.g. "Your application will be left unexamined"). title in English. null if none. Only something the PERSON must do counts: a date by which the OFFICE will decide (an art. 36 KPA delay notice, "nowy termin załatwienia sprawy") is NOT a deadline; put it in facts.inpolStatus as "Decision expected by YYYY-MM-DD". A decision letter: put the outcome in facts.inpolStatus (e.g. "Positive decision issued YYYY-MM-DD"); its appeal period ("odwołanie ... w terminie 14 dni") is a deadline only if the decision is negative.
 - Emails marked "(PRZYKŁAD)" are fictional samples; read them exactly like real ones.
 - documents: each distinct document the email requests or confirms, ONCE, with a short English title ("Health insurance proof", "University certificate", "Stamp duty payment proof (340 zł)"), status "requested" when asked for, "have" when it confirms receipt.
+- addresses: application = the address the person gave IN THEIR RESIDENCE APPLICATION, only when a MOS filing confirmation / UPO / office letter states it (a dorm counts). current = the address of a flat in a lease or landlord email; currentFrom = the date the lease starts. Copy addresses exactly as written. null when not stated.
+- A landlord email with a lease (umowa najmu), or an insurance confirmation (NFZ, a policy), IS relevant: it is proof the office asks for. List it as a document with status "have" and, in attachment, the exact file name of the attached PDF or image that is that document (null if none).
+- A MOS filing confirmation is relevant: facts (caseNumber, office, filedAt) plus a document kind "upo" titled "MOS filing confirmation", status "have".
+- Offers from paid agencies or law firms are NOT relevant.
+- A summons asking for documents: list EACH requested document with status "requested" and its real kind (lease = rental_agreement, insurance = health_insurance, photo = photo). Title them plainly: "Lease", "Health insurance for the whole stay", "New photo meeting the requirements".
 - tasks: at most 3 concrete actions that are NOT already covered by a listed document or the appointment (e.g. "Pay the 100 zł residence card fee"). Short imperative English titles. Usually 0–2.
 - summary: one plain-English sentence a friend would say ("The Mazowiecki office wants your health insurance and rental agreement within 14 days.").
-Return only JSON: {"relevant":bool,"category":"summons|appointment|application_confirmation|decision|university|insurance|registration|other","sender":"","summary":"","facts":{"caseNumber":null,"office":null,"filedAt":null,"mosStatus":null,"inpolStatus":null},"appointment":null|{"title":"","date":"","time":null,"place":"","address":"","purpose":"","bring":[]},"deadline":null|{"title":"","days":null,"from":null,"letterDate":null,"statedDate":null,"quote":"","consequence":""},"documents":[{"title":"","kind":"${DOC_KINDS.join("|")}","status":"requested"}],"tasks":[{"title":"","detail":""}]}`;
+Return only JSON: {"relevant":bool,"category":"summons|appointment|application_confirmation|decision|university|insurance|registration|other","sender":"","summary":"","facts":{"caseNumber":null,"office":null,"filedAt":null,"mosStatus":null,"inpolStatus":null},"appointment":null|{"title":"","date":"","time":null,"place":"","address":"","purpose":"","bring":[]},"deadline":null|{"title":"","days":null,"from":null,"letterDate":null,"statedDate":null,"quote":"","consequence":""},"addresses":{"application":null,"current":null,"currentFrom":null},"documents":[{"title":"","kind":"${DOC_KINDS.join("|")}","status":"requested","attachment":null}],"tasks":[{"title":"","detail":""}]}`;
 
 export async function readMail(env: Env, userId: string, msg: MessageBody, ctx: { fullName: string | null; language: string }): Promise<MailReading> {
   const input = [

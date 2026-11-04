@@ -8,60 +8,35 @@ import { failure, flowApi } from "@/lib/client/onboarding-flow";
 import type { Profile } from "@/lib/case/types";
 import { Button, StickyActionBar } from "@/components/ui";
 import { StageHint, suggestedStage } from "./StageHint";
+import { mergeDocuments } from "@/lib/onboarding/merge";
+import { HowCounted, rowFor } from "./FoundRow";
 
-const dayLabel = (iso: string, opts: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short", year: "numeric" }) =>
-  new Intl.DateTimeFormat("en-GB", { ...opts, timeZone: "UTC" }).format(new Date(`${iso}T00:00:00Z`));
-const warsawToday = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw" }).format(new Date());
-const daysLeft = (iso: string) => Math.round((Date.parse(`${iso}T00:00:00Z`) - Date.parse(`${warsawToday()}T00:00:00Z`)) / 86_400_000);
 const keyOf = (f: Finding) =>
   f.kind === "fact" ? `fact:${f.key}` : f.kind === "appointment" ? `apt:${f.date}:${f.time}` : f.kind === "deadline" ? `ddl:${f.dueDate}:${f.title.toLowerCase()}`
-  : f.kind === "document" && f.docKind !== "other" && f.docKind !== "letter" ? `document:${f.docKind}`
   : `${f.kind}:${f.title.toLowerCase().replace(/\W+/g, " ").trim()}`;
 
-/** One list across emails: the newest email wins a duplicate (same fact, same appointment, same document). */
+/** One list across emails: one document per kind (a copy beats a request), the newest email wins other duplicates. */
 function merge(readings: MailReading[]): Finding[] {
   const all = readings.flatMap((r) => r.findings).sort((a, b) => b.source.receivedAt.localeCompare(a.source.receivedAt));
   const seen = new Map<string, Finding>();
-  for (const f of all) if (!seen.has(keyOf(f))) seen.set(keyOf(f), f);
-  return [...seen.values()];
+  for (const f of all) if (f.kind !== "document" && !seen.has(keyOf(f))) seen.set(keyOf(f), f);
+  return [...seen.values(), ...mergeDocuments(all)];
 }
 
-function Source({ f }: { f: Finding }) {
-  const subject = f.source.subject.replace(/\s+[—–-]\s+[A-Z]{2,}-[\w./-]+$/, "");
-  return <span className="ob-src">From “{subject.length > 64 ? `${subject.slice(0, 63)}…` : subject}” · {dayLabel(f.source.receivedAt.slice(0, 10), { day: "numeric", month: "short" })}</span>;
-}
-
-function Item({ f }: { f: Finding }) {
-  if (f.kind === "appointment") return (
-    <div className="ob-find-body">
-      <span className="ob-find-when">{dayLabel(f.date)}{f.time ? ` · ${f.time}` : ""}</span>
-      <strong>{f.title}</strong>
-      {(f.place || f.address) && <span>{[f.place, f.address].filter(Boolean).join(", ")}</span>}
-      {f.bring.length > 0 && <span className="ob-find-bring">Bring: {f.bring.join(", ")}</span>}
-      <Source f={f} />
-    </div>
-  );
-  if (f.kind === "deadline") {
-    const left = daysLeft(f.dueDate);
-    return (
-      <div className="ob-find-body">
-        <span className="ob-find-when" data-urgent={left <= 7}>{dayLabel(f.dueDate)} · {left < 0 ? `${-left} days ago` : left === 0 ? "today" : `${left} days left`}</span>
-        <strong>{f.title}</strong>
-        {f.consequence && <span className="ob-find-warn">If missed: {f.consequence}</span>}
-        <details className="ob-how"><summary>How I counted</summary>{f.quote && <blockquote lang="pl">{f.quote}</blockquote>}<ol>{f.steps.map((s, i) => <li key={i}>{s}</li>)}</ol></details>
-        <Source f={f} />
-      </div>
-    );
+const DOC_ORDER = ["rental_agreement", "health_insurance", "university_certificate", "passport", "photo"];
+/** The headline list ("Found in your inbox") and everything else that is saved with it. */
+function split(findings: Finding[]) {
+  const main: Finding[] = [], more: Finding[] = [];
+  const docRank = (f: Finding) => (f.kind !== "document" ? 99 : (f.status === "have" ? 0 : 10) + Math.max(0, DOC_ORDER.indexOf(f.docKind)));
+  for (const f of findings) {
+    const headline = (f.kind === "fact" && f.key === "caseNumber") || f.kind === "deadline" || f.kind === "appointment" || (f.kind === "document" && f.docKind !== "upo" && f.docKind !== "other" && f.docKind !== "letter");
+    (headline ? main : more).push(f);
   }
-  if (f.kind === "fact") return <div className="ob-find-body ob-find-fact"><span>{f.label}</span><strong>{f.value}</strong><Source f={f} /></div>;
-  if (f.kind === "document") return <div className="ob-find-body"><strong>{f.title}</strong><span>{f.status === "requested" ? "Asked for by the office" : f.status === "have" ? "Confirmed received" : "Missing"}</span><Source f={f} /></div>;
-  return <div className="ob-find-body"><strong>{f.title}</strong>{f.detail && <span>{f.detail}</span>}<Source f={f} /></div>;
+  const order = (f: Finding) => (f.kind === "fact" ? 0 : f.kind === "deadline" ? 1 : f.kind === "appointment" ? 2 : 3);
+  main.sort((a, b) => order(a) - order(b) || docRank(a) - docRank(b));
+  more.sort((a, b) => order(a) - order(b));
+  return { main, more };
 }
-
-const SECTIONS: { kind: Finding["kind"]; title: string }[] = [
-  { kind: "deadline", title: "Deadlines" }, { kind: "appointment", title: "Appointments" }, { kind: "fact", title: "Your case" },
-  { kind: "document", title: "Documents mentioned" }, { kind: "task", title: "To do" },
-];
 
 export function Review({ readings, rows, calendarConnected, onSaved, onShowResult, stage, applyStage }: { onShowResult(): void; readings: MailReading[]; rows: InboxMessage[]; calendarConnected: boolean; onSaved(calendarAdded: boolean, saved: number): void; stage: Profile["stage"]; applyStage(s: Profile["stage"]): Promise<boolean> }) {
   const findings = useMemo(() => merge(readings), [readings]);
@@ -100,25 +75,29 @@ export function Review({ readings, rows, calendarConnected, onSaved, onShowResul
       </div>
     );
   }
+  const { main, more } = split(findings);
+  const list = (items: Finding[], small = false) => (
+    <ul className="ob-found" data-small={small || undefined}>{items.map((f) => {
+      const r = rowFor(f);
+      return (
+        <li key={f.id} className="ob-find" data-off={off.has(f.id)} onClick={(e) => { if (!(e.target as HTMLElement).closest("details, a, button")) toggle(f.id, off.has(f.id)); }}>
+          <CheckCircle checked={!off.has(f.id)} onChange={(on) => toggle(f.id, on)} label={`Keep ${r.label}`} />
+          <div className="ob-find-body">
+            <div className="ob-find-head"><strong>{r.label}</strong>{r.tag && <span className="ob-tag" data-tone={r.tag.tone}>{r.tag.text}</span>}</div>
+            {r.value && <span className="ob-find-value">{r.value}</span>}
+            <HowCounted f={f} />
+          </div>
+        </li>
+      );
+    })}</ul>
+  );
   return (
     <div className="ob-answer">
+      {list(main)}
+      {more.length > 0 && <section className="ob-find-group"><h2>Also saved</h2>{list(more, true)}</section>}
       {calendarConnected ? (
         <label className="ob-cal-toggle"><span><strong>Add {dated} {dated === 1 ? "date" : "dates"} to Google Calendar</strong><small>With reminders before each one</small></span><Switch checked={toCalendar && dated > 0} onChange={setToCalendar} disabled={!dated} label="Add dates to Google Calendar" /></label>
       ) : <p className="ob-more-note">Connect Google Calendar on the previous screen to add these dates with reminders.</p>}
-      {SECTIONS.map((s) => {
-        const items = findings.filter((f) => f.kind === s.kind);
-        if (!items.length) return null;
-        return (
-          <section key={s.kind} className="ob-find-group" data-kind={s.kind}>
-            <h2>{s.title}</h2>
-            <ul>{items.map((f) => (
-              <li key={f.id} className="ob-find" data-off={off.has(f.id)} onClick={(e) => { if (!(e.target as HTMLElement).closest("details, a, button")) toggle(f.id, off.has(f.id)); }}>
-                <CheckCircle checked={!off.has(f.id)} onChange={(on) => toggle(f.id, on)} label={`Keep ${"title" in f ? f.title : f.label}`} /><Item f={f} />
-              </li>
-            ))}</ul>
-          </section>
-        );
-      })}
       {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void save()}>Try again</button></div>}
       <StickyActionBar>
         <Button variant="primary" size="lg" disabled={busy || !chosen.length} loading={busy} onClick={() => void save()}>

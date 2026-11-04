@@ -2,10 +2,12 @@ import { z } from "zod";
 import { caseClient, CaseClientError, type CaseClient } from "../case/client";
 import { ApiError } from "../server/http";
 import { calendars, createEvent } from "../server/connections/calendar";
+import { importGmail } from "../server/connections/mail";
 import { owned, rowFor } from "../server/connections/store";
 import type { ConnectionsEnv } from "../server/connections/types";
 import { sha256Hex } from "../server/util";
 import { findingSchema, KPA_URL, type Finding } from "./findings";
+import { mergeDocuments } from "./merge";
 import { warsawIso } from "./time";
 
 export const commitSchema = z.object({
@@ -48,8 +50,15 @@ export async function commitFindings(env: ConnectionsEnv, ids: { userId: string;
   for (const f of input.findings) {
     if (f.kind === "fact") facts[f.key] = { value: f.value, source: { type: "email", ref: f.source.messageId }, confirmedByUser: true };
     if (f.kind === "task") await upsert(c, "tasks", { id: f.id, title: f.title, detail: f.detail, origin: "email", dueDeadlineId: null, status: "open" });
-    if (f.kind === "document") await upsert(c, "documents", { id: f.id, kind: f.docKind, title: f.title, status: f.status, source: "email", extractedFields: { fromEmail: f.source.subject.slice(0, 200) } });
+    if (f.kind !== "document") note(f);
+  }
+  for (const f of mergeDocuments(input.findings)) {
+    const fileKey = f.file && f.status === "have" ? await storeAttachment(env, ids, f) : null;
+    const extractedFields: Record<string, string> = { fromEmail: f.source.subject.slice(0, 200), ...f.fields, ...(fileKey && f.file ? { file: f.file.name } : {}) };
+    await upsert(c, "documents", { id: f.id, kind: f.docKind, title: f.title, status: f.status, source: "email", extractedFields, ...(fileKey ? { fileKey } : {}) });
     note(f);
+    // Asked for and not found anywhere in the inbox: a task to get it, due with the summons.
+    if (f.status === "missing") await upsert(c, "tasks", { id: `get_${f.id.slice(4)}`.slice(0, 64), title: `Get: ${f.title}`.slice(0, 200), detail: `The office asked for this in “${f.source.subject.slice(0, 160)}” and I could not find it in your email.`, origin: "email", dueDeadlineId: deadlineFor.get(f.source.messageId) ?? null, status: "open" });
   }
   for (const f of input.findings) {
     if (f.kind === "deadline") {
@@ -74,7 +83,38 @@ export async function commitFindings(env: ConnectionsEnv, ids: { userId: string;
     await upsert(c, "events", { id: `evt_${s.messageId}`.slice(0, 64), type: "email_received", at: s.receivedAt, summary: s.summary, refs });
   }
   const calendar = input.addToCalendar ? await addToCalendar(env, ids, input.findings) : [];
+  const added = calendar.filter((x) => x.status !== "failed");
+  // On the timeline, so the agent (welcome call, chat) knows the dates are in the person's calendar.
+  if (added.length) await upsert(c, "events", { id: `evt_cal_${(await sha256Hex(added.map((x) => x.findingId).join(","))).slice(0, 20)}`, type: "note", at: new Date().toISOString(), summary: `Added to Google Calendar with reminders: ${added.map((x) => x.title).join("; ")}`.slice(0, 600), refs: added.map((x) => x.findingId).slice(0, 20) });
+  await inferCity(c, profile, facts);
   return { saved: input.findings.length, calendar };
+}
+
+const OFFICE_CITY: [RegExp, string][] = [[/mazowieck/i, "Warsaw"], [/małopolsk|malopolsk/i, "Kraków"], [/dolnośląsk|dolnoslask/i, "Wrocław"], [/pomorsk/i, "Gdańsk"], [/wielkopolsk/i, "Poznań"], [/łódzk|lodzk/i, "Łódź"]];
+/** Voice setup skips the city question: the voivodeship office on the letters says which city handles the case. */
+async function inferCity(c: CaseClient, profile: { city: string | null }, facts: Record<string, unknown>) {
+  const office = (facts.office as { value?: string } | undefined)?.value;
+  const city = !profile.city && office ? OFFICE_CITY.find(([re]) => re.test(office))?.[1] : undefined;
+  if (city) await c.patchProfile({ city });
+}
+
+/** Copies the email attachment that is this document into the case's private storage. Best effort. */
+async function storeAttachment(env: ConnectionsEnv, ids: { userId: string; accountId: string }, f: Extract<Finding, { kind: "document" }>): Promise<string | null> {
+  if (!f.file) return null;
+  try {
+    const row = await owned(env, ids.accountId, "mail");
+    if (row.provider !== "gmail") return null;
+    const got = await importGmail(env, row, f.source.messageId, f.file.attachmentId);
+    if (got.kind !== "attachment") return null;
+    const b64 = got.file.dataUrl.slice(got.file.dataUrl.indexOf(",") + 1);
+    const bytes = Uint8Array.from(atob(b64), (ch) => ch.charCodeAt(0));
+    const ext = f.file.mime === "application/pdf" ? "pdf" : f.file.mime.split("/")[1];
+    const key = `case/${ids.userId}/documents/${f.id}.${ext}`;
+    await env.BLOBS.put(key, bytes);
+    return key;
+  } catch {
+    return null;
+  }
 }
 
 async function addToCalendar(env: ConnectionsEnv, ids: { userId: string; accountId: string }, findings: Finding[]): Promise<CalendarResult[]> {
