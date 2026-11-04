@@ -1,8 +1,9 @@
 /* Renders markdown tables from one or more result files: npx tsx eval/report.ts eval/results/a.json [b.json ...] */
 import { readFileSync } from "node:fs";
+import type { aggregate } from "./lib/aggregate";
 
 const files = process.argv.slice(2);
-const merged: Record<string, any> = {};
+const merged: Record<string, ReturnType<typeof aggregate>> = {};
 let spent = 0;
 for (const f of files) {
   const r = JSON.parse(readFileSync(f, "utf8"));
@@ -30,5 +31,5 @@ console.log(table(["config", "look p50", "look p95", "SAM p50", "tokens in/out",
   sel("all").map(([i, b]) => [i, s(b.latencyReadP50), s(b.latencyReadP95), s(b.latencySamP50), `${Math.round(b.tokensInMean)} / ${Math.round(b.tokensOutMean)}`, `$${b.costPerLetterUsd.toFixed(4)}`, `$${b.totalUsd.toFixed(2)}`])));
 console.log("\n### By letter type (deadline correct / docs F1 / Spark IoU; appointments: exact date+time)\n");
 const types = [...new Set(ids.flatMap((i) => Object.keys(merged[i].byType)))];
-console.log(table(["config", ...types], ids.map((i) => [i, ...types.map((t) => { const b = merged[i].byType[t]; return b ? `${t === "appointment" ? `appt ${p(b.appointmentExact)}` : `${p(b.deadlineCorrect)} / ${b.type === 0 ? "" : ""}${t === "decision" ? "n/a" : f2(b.docsF1)} / ${t === "appointment" ? "n/a" : f2(b.iouSparkMean)}`} (n=${b.n})` : "-"; })])));
+console.log(table(["config", ...types], ids.map((i) => [i, ...types.map((t) => { const b = merged[i].byType[t]; return b ? `${t === "appointment" ? `appt ${p(b.appointmentExact)}` : `${p(b.deadlineCorrect)} / ${t === "decision" ? "n/a" : f2(b.docsF1)} / ${t === "appointment" ? "n/a" : f2(b.iouSparkMean)}`} (n=${b.n})` : "-"; })])));
 console.log(`\nSpend across the result files: $${spent.toFixed(2)}`);

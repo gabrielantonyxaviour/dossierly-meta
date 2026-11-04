@@ -6,6 +6,7 @@ const config = [
   ...nextTs,
   { ignores: [".next/**", "node_modules/**", "next-env.d.ts", "playwright-report/**", "test-results/**", "public/pdf.worker.min.mjs"] },
   { rules: { "no-console": "error" } },
+  { files: ["scripts/**", "eval/**"], rules: { "no-console": "off" } },
 ];
 
 export default config;
