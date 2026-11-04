@@ -1,22 +1,26 @@
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
 
-/** "Don't take our word for it": the sample case, live. */
+/** "Don't take our word for it": the path to try a real read in a minute (sign up, Look, a test letter). */
 export function FinalCta() {
   return (
     <section className="lp-sec" aria-labelledby="final-h">
       <div className="lp-wrap lp-final">
         <div>
-          <p className="lp-mono">Sample case</p>
-          <h2 id="final-h" className="lp-h2 lp-final-h"><span className="lp-h2-muted">Don&apos;t take our word for it.</span>Open Arjun&apos;s case now.</h2>
+          <p className="lp-mono">Try it in a minute</p>
+          <h2 id="final-h" className="lp-h2 lp-final-h"><span className="lp-h2-muted">Don&apos;t take our word for it.</span>Watch it read a letter.</h2>
           <p className="lp-body">
-            Arjun Raman is a fictional applicant. His office, his letter type and his deadline rules are real. Read his
-            letter, count his deadline and try table mode.
+            Sign up with your email, open Look and tap &ldquo;Use a test letter&rdquo;. Muse Spark reads it live, SAM 3.1
+            outlines the date, the case number and what the office asks for, and Dossierly counts the deadline.
           </p>
-          <p className="lp-grad" aria-label="Reply by 10 November">Reply by 10 Nov</p>
+          <ol className="lp-steps" aria-label="How to try it">
+            <li><b>1</b>Sign up</li>
+            <li><b>2</b>Open Look</li>
+            <li><b>3</b>Use a test letter</li>
+          </ol>
           <div className="lp-hero-ctas lp-ctas-l">
-            <Link className="lp-btn lp-btn-dark" href="/signup?start=sample"><Icon name="case" size={16} /> Open the sample</Link>
-            <Link className="lp-btn lp-btn-line" href="/signup">Get started</Link>
+            <Link className="lp-btn lp-btn-dark" href="/signup"><Icon name="case" size={16} /> Start your case</Link>
+            <Link className="lp-btn lp-btn-line" href="/app/look">Open Look</Link>
           </div>
         </div>
         <div className="lp-final-panel" data-reveal>

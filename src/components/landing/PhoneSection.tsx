@@ -83,7 +83,6 @@ export function PhoneSection() {
           </p>
           <div className="lp-hero-ctas">
             <Link className="lp-btn lp-btn-dark" href="/signup">Get started</Link>
-            <Link className="lp-btn lp-btn-line" href="/signup?start=sample">Try the sample</Link>
           </div>
         </header>
         <div className="lp-ph-tabs" role="tablist" aria-label="Phone screens">

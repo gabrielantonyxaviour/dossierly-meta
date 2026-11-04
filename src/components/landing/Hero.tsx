@@ -55,8 +55,8 @@ export function Hero() {
           the counter, reads the letters that follow and counts every deadline.
         </p>
         <div className="lp-hero-ctas">
-          <Link className="lp-btn lp-btn-dark" href="/signup">Get started free</Link>
-          <Link className="lp-btn lp-btn-soft" href="/signup?start=sample">See the sample case</Link>
+          <Link className="lp-btn lp-btn-dark" href="/signup">Start your case</Link>
+          <Link className="lp-btn lp-btn-soft" href="/pricing">Free during the beta</Link>
         </div>
         <p className="lp-hero-link">
           <Link href="/countries" className="lp-ulink">Which offices are covered?</Link>

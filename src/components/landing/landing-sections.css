@@ -200,3 +200,8 @@
 .lp-faq-ic::after { transform: rotate(90deg); }
 .lp-faq-item[open] .lp-faq-ic { transform: rotate(45deg); }
 .lp-faq-item p { padding: 0 20px 20px; font-size: 15px; line-height: 24px; color: var(--lp-muted); max-width: 680px; }
+
+/* Final CTA: the three-step path to a live read */
+.lp-steps { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 0; }
+.lp-steps li { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px 8px 8px; border: 1px solid var(--lp-hair); border-radius: 999px; font-size: 15px; line-height: 20px; }
+.lp-steps b { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--lp-ink); color: var(--bg, #121110); font-size: 13px; font-weight: 600; }
