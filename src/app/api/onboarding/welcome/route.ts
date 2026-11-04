@@ -5,6 +5,7 @@ import { LANGUAGE_META } from "@/lib/config";
 import { maskerFor } from "@/lib/mask";
 import { runModel } from "@/lib/model";
 import { withOnboarding } from "@/lib/onboarding/route";
+import { retryTransient } from "@/lib/onboarding/retry";
 import { LanguageSchema } from "@/lib/schemas";
 
 export const dynamic = "force-dynamic";
@@ -27,7 +28,7 @@ export const POST = (req: Request) => withOnboarding(req, async ({ env, userId }
   const calendarAdded = z.object({ calendarAdded: z.boolean().optional() }).catch({}).parse(body).calendarAdded === true;
   const snap = await caseClient(userId).snapshot();
   const lang = LanguageSchema.catch("en").parse(snap.profile.preferredLanguage);
-  const out = await runModel(
+  const out = await retryTransient(() => runModel(
     { env, userId },
     {
       task: "welcome",
@@ -39,6 +40,6 @@ export const POST = (req: Request) => withOnboarding(req, async ({ env, userId }
       masker: maskerFor({}),
       replay: () => { throw new Error("no replay for welcome"); },
     },
-  );
+  ));
   return { script: out.data.script, language: lang };
 });
