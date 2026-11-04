@@ -61,9 +61,15 @@ export async function importGmail(env: ConnectionsEnv, row: AccountRow, id: stri
     const b = p.body as Record<string, unknown>; return { id: string(b.attachmentId, 1024), name: string(p.filename, 160), mime: string(p.mimeType, 100), size: typeof b.size === "number" ? b.size : 0 };
   }).filter(p => p.id).slice(0, 20);
   if (attachmentId) {
-    const a = attachments.find(p => p.id === attachmentId); if (!a) throw new ApiError(404, "Attachment not found.", "not_found");
-    if (a.size > 4_000_000) throw new ApiError(413, "Choose an attachment smaller than 4 MB.", "attachment_too_large");
+    // Gmail hands out a new id for the same attachment on every read of the message; an id from an earlier read still
+    // fetches it, so an unmatched id is fetched and then named by its size among this message's own attachments.
+    const exact = attachments.find(p => p.id === attachmentId);
+    const small = attachments.filter(p => p.size <= 4_000_000);
+    if (exact && exact.size > 4_000_000) throw new ApiError(413, "Choose an attachment smaller than 4 MB.", "attachment_too_large");
+    if (!exact && !small.length) throw new ApiError(404, "Attachment not found.", "not_found");
     const b = z.object({ data: z.string(), size: z.number().optional() }).parse(await proxy(env, row, `${url}/attachments/${encodeURIComponent(attachmentId)}`, "GET", undefined, 6_000_000));
+    const a = exact ?? small.find(p => p.size === b.size) ?? (small.length === 1 ? small[0] : undefined);
+    if (!a) throw new ApiError(404, "Attachment not found.", "not_found");
     return file(a.name, a.mime, b.data, b.size);
   }
   const selected = all.find(p => p.mimeType === "text/plain") ?? all.find(p => p.mimeType === "text/html");
