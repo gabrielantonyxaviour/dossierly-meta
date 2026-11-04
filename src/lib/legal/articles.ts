@@ -5,7 +5,7 @@
  * KPA = Kodeks postępowania administracyjnego. UoC = ustawa o cudzoziemcach.
  */
 
-export type ArticleId = "kpa44" | "kpa57" | "kpa64" | "uoc108" | "uoc106f";
+export type ArticleId = "kpa41" | "kpa44" | "kpa57" | "kpa64" | "uoc108" | "uoc106f";
 
 export interface LegalArticle {
   act: "KPA" | "UoC";
@@ -24,6 +24,19 @@ export interface LegalArticle {
 }
 
 const ARTICLE_DATA: Record<ArticleId, Omit<LegalArticle, "textPl" | "verifiedOn" | "verified"> & { marker: "§" | "ust." }> = {
+  kpa41: {
+    act: "KPA",
+    article: "41",
+    title: "Duty to report a change of address",
+    marker: "§",
+    paragraphs: {
+      "1": "W toku postępowania strony oraz ich przedstawiciele i pełnomocnicy mają obowiązek zawiadomić organ administracji publicznej o każdej zmianie swojego adresu.",
+      "2": "W razie zaniedbania obowiązku określonego w § 1 doręczenie pisma pod dotychczasowym adresem ma skutek prawny.",
+    },
+    sourceUrl: "https://api.sejm.gov.pl/eli/acts/DU/2025/1691/text.pdf",
+    isapUrl: "https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20250001691",
+    sourceNote: "Kodeks postępowania administracyjnego, tekst jednolity Dz. U. 2025 poz. 1691 (no later amendments found in the Sejm ELI register as of 2026-11-04).",
+  },
   kpa44: {
     act: "KPA",
     article: "44",
