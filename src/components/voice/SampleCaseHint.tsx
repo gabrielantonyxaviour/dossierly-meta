@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui";
 
 /** Preview deployments only: offers Arjun's labelled SAMPLE case when the signed-in case is empty. */
 export function SampleCaseHint() {
@@ -21,16 +22,17 @@ export function SampleCaseHint() {
     <p className="vc-sample" role="status">
       {state === "done" ? "Sample case loaded. Start when ready." : state === "error" ? "Could not load the sample case." : "Your case is empty on this preview."}
       {(state === "offer" || state === "error") && (
-        <button
-          className="btn btn-small"
+        <Button
+          size="sm"
           onClick={async () => {
             setState("loading");
             const r = await fetch("/api/voice/demo-seed", { method: "POST" }).catch(() => null);
             setState(r?.ok ? "done" : "error");
+            if (r?.ok) window.dispatchEvent(new Event("dossierly:case-changed"));
           }}
         >
           Load Arjun&rsquo;s sample case
-        </button>
+        </Button>
       )}
       {state === "loading" && <span>Loading…</span>}
     </p>

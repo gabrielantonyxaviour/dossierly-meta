@@ -6,6 +6,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CapturedItem, CoachNote, DocCard, RehearseFeedback, ServerEvent, TurnMetric, VoiceMode, VoiceTurn } from "../protocol";
+import { announceCaseChange } from "@/components/app/shell/case-data";
 import { frames, Mic, Player } from "./audio";
 
 export type CallStatus = "idle" | "connecting" | "live" | "ended" | "error";
@@ -137,6 +138,7 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
         break;
       case "captured":
         setCaptured((c) => [...c, ev.item]);
+        announceCaseChange();
         break;
       case "metric":
         setMetrics((m) => [...m, ev.metric]);
@@ -150,6 +152,7 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
         break;
       case "ended":
         setStatus("ended");
+        announceCaseChange();
         break;
     }
   }, []);
@@ -167,7 +170,9 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
     try {
       const ac = new AudioContext();
       ctx.current = ac;
-      await ac.resume();
+      // Without a recent tap (e.g. a hard reload of a live route) browsers keep audio locked: ask for a tap.
+      await Promise.race([ac.resume(), new Promise((r) => setTimeout(r, 700))]);
+      if (ac.state !== "running") throw Object.assign(new Error("Tap start to turn on sound."), { name: "AudioLocked" });
       player.current = new Player(ac, (id) => send(JSON.stringify({ t: "played", id })), () => setSpeaking(null));
       // Ask for the microphone first: a pending permission prompt must not stall a live session.
       setMicWaiting(true);
@@ -219,8 +224,8 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
       });
     } catch (e) {
       const name = (e as { name?: string })?.name ?? "";
-      setError(ERRORS[name] ?? (e instanceof Error ? e.message : "Could not start the call"));
-      setStatus("error");
+      setError(name === "AudioLocked" ? null : ERRORS[name] ?? (e instanceof Error ? e.message : "Could not start the call"));
+      setStatus(name === "AudioLocked" ? "idle" : "error");
       setMicWaiting(false);
       ws.current?.close();
       teardown();

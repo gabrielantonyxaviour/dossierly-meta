@@ -1,11 +1,7 @@
-import { AgentCall } from "@/components/voice/AgentCall";
+import { CallScreen } from "@/components/voice/CallScreen";
 
 export const metadata = { title: "Talk to Dossierly" };
 
 export default function Page() {
-  return (
-    <div className="app-pad">
-      <AgentCall mode="agent" />
-    </div>
-  );
+  return <CallScreen />;
 }

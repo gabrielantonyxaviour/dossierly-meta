@@ -1,12 +1,11 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import { Button, ButtonLink, IconLink } from "@/components/ui";
 import { SampleCaseHint } from "@/components/voice/SampleCaseHint";
-import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useAgentCall } from "@/lib/voice/client/useAgentCall";
 import { TEST_OFFICIAL_LINES } from "@/lib/voice/clips";
 import { LANG_NAME } from "@/lib/voice/protocol";
-import { Icon } from "@/components/Icon";
 import { LatencyLine } from "@/components/voice/bits";
 import { DocSheet } from "./DocSheet";
 import { OfficialHalf, UserHalf } from "./Halves";
@@ -20,6 +19,15 @@ export function CounterFlow() {
   const [clip, setClip] = useState(0);
   const live = call.status === "live";
   const doc = call.docs[call.docs.length - 1] ?? null;
+  const started = useRef(false);
+  const { start } = call;
+
+  // Opened from the Counter tab: start straight away (falls back to the start card if sound is locked).
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    void start();
+  }, [start]);
 
   useEffect(() => {
     if (!live) return;
@@ -29,22 +37,22 @@ export function CounterFlow() {
     return () => void sentinel?.release().catch(() => undefined);
   }, [live]);
 
-  if (call.status === "idle" || call.status === "error" && !call.turns.length) {
+  if (call.status === "idle" || (call.status === "error" && !call.turns.length)) {
     return (
-      <div className="app-pad">
-        <section className="card ct-intro">
-          <span className="tab-label"><Icon name="meet" size={16} /> Counter</span>
-          <h1>At the counter, Dossierly speaks for you</h1>
-          <p className="muted">Lay the phone flat between you and the official. The top half turns to them in Polish; the bottom half is yours in {LANG_NAME[call.lang] ?? "your language"}. Dossierly knows your case, so it pulls up the document they ask for and writes down what you must do next.</p>
+      <div className="ct-start">
+        <div className="ct-start-bar"><IconLink href="/app/counter" icon="close" label="Close" /></div>
+        <section className="ct-intro">
+          <h1>At the counter</h1>
+          <p>Put the phone flat between you and the official, this end toward you. The top half speaks Polish to them; the bottom half is yours in {LANG_NAME[call.lang] ?? "your language"}.</p>
           <ol className="ct-steps">
-            <li>Start, then put the phone down with this end toward you.</li>
             <li>Speak normally. Dossierly says it in Polish and tells you what the official said.</li>
-            <li>No Polish speaker around? Use the labelled test official below.</li>
+            <li>When they ask for a document, it opens for them. Tasks go into your case.</li>
+            <li>No Polish speaker around? Use the labelled test official.</li>
           </ol>
           <SampleCaseHint />
           {call.error && <p className="vc-error" role="alert">{call.error}</p>}
-          <button className="btn btn-primary ct-go" onClick={() => void call.start()}><Icon name="mic" size={18} /> {call.error ? "Try again" : "Start at the counter"}</button>
-          <p className="vc-fine">Audio goes through our server to Meta&rsquo;s speech model and is not stored. Dossierly interprets and guides; it is not a lawyer and does not file anything for you.</p>
+          <Button variant="agent" size="lg" icon="mic" block onClick={() => void call.start()}>{call.error ? "Try again" : "Start"}</Button>
+          <p className="vc-fine">Audio goes through our server to Meta&rsquo;s speech model and is not stored. Dossierly interprets and guides; it is not a lawyer and files nothing for you.</p>
         </section>
       </div>
     );
@@ -66,8 +74,10 @@ export function CounterFlow() {
         <LatencyLine metrics={call.metrics.slice(-6)} />
         <div className="ct-tools">
           {live && (
-            <button
-              className="btn btn-small ct-test"
+            <Button
+              size="sm"
+              className="ct-test"
+              icon="speak"
               disabled={call.clipBusy}
               onClick={() => {
                 void call.playClip(clip);
@@ -75,17 +85,19 @@ export function CounterFlow() {
               }}
               title="Plays a synthetic Polish voice into the real speech pipeline"
             >
-              <Icon name="speak" size={16} /> Test official {clip + 1}/{TEST_OFFICIAL_LINES.length}
-            </button>
+              Test official {clip + 1}/{TEST_OFFICIAL_LINES.length}
+            </Button>
           )}
-          <button className="btn btn-small btn-ghost" onClick={() => setFlat((f) => !f)} aria-pressed={flat} title="Turn the official's half upside down for a phone lying flat">
-            <Icon name="flip" size={16} /><span className="ct-hide-sm">{flat ? "Flat" : "Upright"}</span>
-          </button>
+          <Button size="sm" variant="ghost" icon="flip" onClick={() => setFlat((f) => !f)} aria-pressed={flat} title="Turn the official's half upside down for a phone lying flat">
+            <span className="ct-hide-sm">{flat ? "Flat" : "Upright"}</span>
+          </Button>
           {live ? (
-            <button className="btn btn-small btn-danger" onClick={call.stop}>End</button>
+            <Button size="sm" variant="danger" onClick={call.stop}>End</Button>
           ) : call.status === "ended" ? (
-            <Link className="btn btn-small" href="/app">Back to case</Link>
-          ) : null}
+            <ButtonLink size="sm" variant="primary" href="/app/counter">Done</ButtonLink>
+          ) : (
+            <ButtonLink size="sm" variant="ghost" href="/app/counter">Cancel</ButtonLink>
+          )}
         </div>
       </div>
 

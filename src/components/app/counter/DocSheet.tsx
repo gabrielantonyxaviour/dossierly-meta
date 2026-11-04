@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui";
 import type { DocCard } from "@/lib/voice/protocol";
 
 const LABEL_PL: Record<string, string> = {
@@ -28,7 +29,7 @@ export function DocSheet({ doc, flat, onClose }: { doc: DocCard; flat: boolean; 
       </div>
       <div className="ct-doc-user">
         <p>Showing <b>{doc.title}</b> to the official, because they asked for it.</p>
-        <button className="btn btn-primary" onClick={onClose} autoFocus>Done</button>
+        <Button variant="primary" onClick={onClose} autoFocus>Done</Button>
       </div>
     </div>
   );

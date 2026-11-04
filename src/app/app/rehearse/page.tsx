@@ -1,7 +1,5 @@
-import { RehearseFlow } from "@/components/app/rehearse/RehearseFlow";
-
-export const metadata = { title: "Rehearse" };
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <RehearseFlow />;
+  redirect("/app/rehearse/live");
 }

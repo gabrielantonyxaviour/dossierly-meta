@@ -1,11 +1,12 @@
 "use client";
 
-import { SampleCaseHint } from "./SampleCaseHint";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAgentCall } from "@/lib/voice/client/useAgentCall";
 import type { VoiceTurn } from "@/lib/voice/protocol";
+import { AgentOrb, Button, Pill } from "@/components/ui";
 import { Icon } from "../Icon";
 import { Captured, LatencyLine } from "./bits";
+import { SampleCaseHint } from "./SampleCaseHint";
 import "./voice.css";
 
 export type AgentCallMode = "welcome" | "agent" | "counter" | "rehearse";
@@ -15,25 +16,21 @@ export interface AgentCallProps {
   /** welcome: the server-generated opening line Dossierly speaks first. */
   script?: string;
   onEnd?: () => void;
-  /** Start as soon as it mounts (needs a prior user gesture on the page for audio). */
+  /** Start as soon as it mounts (falls back to a Start button when the browser keeps sound locked). */
   autoStart?: boolean;
+  /** Full-height call screen (the /app/call route) instead of an embeddable card. */
+  immersive?: boolean;
 }
 
-const TITLE: Record<AgentCallMode, string> = {
-  welcome: "Your welcome call",
-  agent: "Talk to Dossierly",
-  counter: "Counter",
-  rehearse: "Rehearse",
-};
+const TITLE: Record<AgentCallMode, string> = { welcome: "Your welcome call", agent: "Talk to Dossierly", counter: "Counter", rehearse: "Rehearse" };
 
 function useClock(on: boolean): string {
   const [s, setS] = useState(0);
   useEffect(() => {
     if (!on) return;
-    const t0 = Date.now() - s * 1000;
+    const t0 = Date.now();
     const id = setInterval(() => setS(Math.floor((Date.now() - t0) / 1000)), 500);
     return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [on]);
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
@@ -47,8 +44,8 @@ function Line({ t, name }: { t: VoiceTurn; name: string }) {
   );
 }
 
-/** Voice call with the caseworker. Used in-app ("Talk to Dossierly") and by Onboarding for the welcome call. */
-export function AgentCall({ mode, script, onEnd, autoStart }: AgentCallProps) {
+/** Voice call with the caseworker. In-app ("Talk to Dossierly") and Onboarding's welcome call. */
+export function AgentCall({ mode, script, onEnd, autoStart, immersive }: AgentCallProps) {
   const call = useAgentCall({ mode, script, onEnd });
   const [typing, setTyping] = useState(false);
   const [draft, setDraft] = useState("");
@@ -56,13 +53,14 @@ export function AgentCall({ mode, script, onEnd, autoStart }: AgentCallProps) {
   const clock = useClock(live);
   const scroller = useRef<HTMLDivElement>(null);
   const started = useRef(false);
+  const { start } = call;
 
   useEffect(() => {
     if (autoStart && !started.current) {
       started.current = true;
-      void call.start();
+      void start();
     }
-  }, [autoStart, call]);
+  }, [autoStart, start]);
 
   useEffect(() => {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: "smooth" });
@@ -72,30 +70,30 @@ export function AgentCall({ mode, script, onEnd, autoStart }: AgentCallProps) {
   const state = useMemo(() => {
     if (call.micWaiting) return "Allow the microphone to start";
     if (call.status === "connecting") return "Connecting…";
-    if (call.status !== "live") return null;
-    if (call.speaking) return "Dossierly is speaking";
+    if (call.status !== "live") return call.status === "ended" ? "Call ended" : "";
+    if (call.speaking) return "Speaking";
     if (call.partial) return "Listening…";
     if (last && last.who === "user") return "Thinking…";
     return call.muted ? "Muted" : "Listening";
   }, [call.status, call.speaking, call.partial, call.muted, call.micWaiting, last]);
 
   const name = call.userName?.split(/\s+/)[0] ?? "You";
-  const orbScale = 1 + Math.min(0.35, call.level * 4);
+  const shell = `vc ${immersive ? "vc--immersive" : "vc--card"} is-${call.status}`;
 
   if (call.status === "idle" || ((call.status === "ended" || call.status === "error") && !call.turns.length)) {
     return (
-      <section className="vc card" aria-label={TITLE[mode]}>
+      <section className={shell} aria-label={TITLE[mode]}>
         <div className="vc-idle">
-          <div className="vc-orb is-idle" aria-hidden><Icon name="speak" size={30} /></div>
+          <AgentOrb size={immersive ? 112 : 76} icon="phone" />
           <h2>{TITLE[mode]}</h2>
-          <p className="muted">
+          <p className="vc-sub">
             {mode === "welcome" ? "Dossierly walks you through what it found in your case." : "Ask anything about your case, out loud. Dossierly knows your letters, deadlines and documents."}
           </p>
           <SampleCaseHint />
           {call.error && <p className="vc-error" role="alert">{call.error}</p>}
-          <button className="btn btn-primary vc-start" onClick={() => void call.start()}>
-            <Icon name="mic" size={18} /> {call.error ? "Try again" : mode === "welcome" ? "Start the call" : "Call Dossierly"}
-          </button>
+          <Button variant="agent" size="lg" icon="mic" onClick={() => void call.start()}>
+            {call.error ? "Try again" : mode === "welcome" ? "Start the call" : "Call Dossierly"}
+          </Button>
           <p className="vc-fine">Your voice goes through our server to Meta&rsquo;s speech model, never straight from your browser. You are talking to an AI.</p>
         </div>
       </section>
@@ -103,19 +101,18 @@ export function AgentCall({ mode, script, onEnd, autoStart }: AgentCallProps) {
   }
 
   return (
-    <section className={`vc card is-${call.status}`} aria-label={TITLE[mode]}>
+    <section className={shell} aria-label={TITLE[mode]}>
       <header className="vc-head">
-        <span className={`vc-dot ${live ? "on" : ""}`} aria-hidden />
+        <Pill tone={live ? "ok" : "neutral"} dot>{live ? clock : call.status === "ended" ? "Ended" : "Connecting"}</Pill>
         <b>{TITLE[mode]}</b>
-        <span className="vc-clock">{live ? clock : call.status === "ended" ? "Call ended" : ""}</span>
-        <span className="chip chip-ai" title="You are talking to an AI system">AI</span>
+        <Pill tone="agent">AI</Pill>
       </header>
 
       <div className="vc-stage">
-        <div className={`vc-orb ${call.speaking ? "is-speaking" : ""} ${call.partial ? "is-hearing" : ""}`} style={{ transform: call.partial ? `scale(${orbScale})` : undefined }} aria-hidden>
-          <span /><span /><span />
-        </div>
-        <p className="vc-state" aria-live="polite">{state ?? (call.status === "ended" ? "Call ended" : "")}</p>
+        <span className="vc-orb" style={{ transform: call.partial ? `scale(${1 + Math.min(0.3, call.level * 4)})` : undefined }}>
+          <AgentOrb size={immersive ? 136 : 104} state={call.speaking || call.partial ? "live" : live ? "idle" : "still"} />
+        </span>
+        <p className="vc-state" aria-live="polite">{state}</p>
       </div>
 
       <div className="vc-captions" ref={scroller} aria-live="polite">
@@ -130,7 +127,7 @@ export function AgentCall({ mode, script, onEnd, autoStart }: AgentCallProps) {
       {typing && live && (
         <form className="vc-type" onSubmit={(e) => { e.preventDefault(); if (draft.trim()) { call.sendText(draft.trim()); setDraft(""); } }}>
           <input className="input" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Type instead of speaking" aria-label="Type a message" autoFocus />
-          <button className="btn" type="submit" disabled={!draft.trim()}>Send</button>
+          <Button type="submit" variant="primary" disabled={!draft.trim()}>Send</Button>
         </form>
       )}
 
@@ -144,13 +141,13 @@ export function AgentCall({ mode, script, onEnd, autoStart }: AgentCallProps) {
               <Icon name="keyboard" size={20} /><small>Type</small>
             </button>
             <button className="vc-round vc-end" onClick={call.stop} aria-label="End call">
-              <Icon name="out" size={20} /><small>End</small>
+              <Icon name="phone" size={20} /><small>End</small>
             </button>
           </>
         ) : call.status === "connecting" ? (
-          <button className="btn btn-block" disabled>Connecting…</button>
+          <Button block disabled loading>Connecting…</Button>
         ) : (
-          <button className="btn btn-primary btn-block" onClick={() => void call.start()}>Call again</button>
+          <Button variant="agent" block icon="phone" onClick={() => void call.start()}>Call again</Button>
         )}
       </div>
     </section>
