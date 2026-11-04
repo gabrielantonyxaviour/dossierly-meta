@@ -1,23 +1,55 @@
 "use client";
+import { Avatar, ErrorState, IconLink, Skeleton, TopBar, useNow } from "@/components/ui";
 import Link from "next/link";
-import { useDossier } from "@/lib/client/store";
-import { longDate } from "@/lib/client/format";
-import { CaseChat } from "../chat/CaseChat";
-import { needLabel } from "@/components/onboarding-preview/content";
+import { useUnread } from "../AppShell";
+import { firstName, greeting } from "../format";
+import { useCaseData } from "../shell/case-data";
+import { NextStepCard } from "./NextStepCard";
+import { OpenTasks, QuickActions, RecentActivity, UpcomingAppointment } from "./HomeSections";
+import { CaseStrip } from "./CaseStrip";
+import "./home.css";
+
+function HomeSkeleton() {
+  return (
+    <div className="sh-page" aria-busy="true" aria-label="Loading your case">
+      <div style={{ height: 56 }} />
+      <Skeleton h={44} w="70%" />
+      <Skeleton h={250} r={22} />
+      <Skeleton h={96} r={22} />
+      <Skeleton h={180} r={22} />
+    </div>
+  );
+}
 
 export function CaseHome() {
-  const dossier = useDossier(); const c = dossier.case;
-  return <div className="cc-home">
-    <header className="cc-home-heading"><div><span className="tab-label">{dossier.sample ? "Fictional sample case" : "Your private case"} · Poland</span><h1>{c.profile.name.split(" ")[0]}’s case</h1><p>{[c.context?.reason, c.context?.stage, c.context?.city].filter(Boolean).join(" · ") || c.type}</p>{c.caseNumber && <p>{c.caseNumber}</p>}</div><Link href="/onboarding?new=1" className="btn btn-small">Start another case</Link></header>
-    <nav className="cc-shortcuts" aria-label="Case actions"><Link href="/app/letters">Read a letter</Link><Link href="/app/prepare">Prepare documents</Link><Link href="/app/connections">Mail and calendar</Link><Link href="/app/meet">Communicate at an appointment</Link></nav>
-    <CaseChat />
-    <details className="cc-case-record"><summary>Reviewed case information</summary>
-      {dossier.onboarding && <><h3>Your priorities</h3><ul>{dossier.onboarding.answers.needs.map((need) => <li key={need}>{needLabel(need)} · {dossier.onboarding?.reviews[need]?.state === "reviewed" ? "Reviewed" : "Skipped during setup"}{dossier.onboarding?.notes[need] && <p>{dossier.onboarding.notes[need]}</p>}</li>)}</ul></>}
-      <h3>Recorded deadlines</h3>{c.deadlines.length ? <ul>{c.deadlines.map((deadline) => <li key={deadline.id}><strong>{longDate(deadline.date)}</strong> · {deadline.what}</li>)}</ul> : <p>No deadline has been recorded. A new case without a letter has no inferred deadlines.</p>}
-      <h3>Documents</h3>{c.documents.length ? <ul>{c.documents.map((item) => <li key={item.name}>{item.name} · {item.have ? "Have" : "Missing / to check"}</li>)}</ul> : <p>No document checklist has been saved yet.</p>}
-      {dossier.onboarding?.results?.prepared && <><h3>Prepared phrases</h3>{dossier.onboarding.results.prepared.phrases.map((phrase, i) => <p key={i}><span lang="pl">{phrase.local}</span><br />{phrase.user}</p>)}</>}
-      {dossier.onboarding?.results?.interpretation && <><h3>Reviewed translation</h3><p lang="pl">{dossier.onboarding.results.interpretation.translation}</p></>}
-      <h3>Case history</h3>{c.events.length ? <ol>{c.events.map((event) => <li key={event.id}><b>{event.title}</b><br />{longDate(event.date)}<p>{event.summary}</p></li>)}</ol> : <p>Your case starts here. Only information you review and save appears in its history.</p>}
-    </details>
-  </div>;
+  const { status, snapshot, next, error, refresh } = useCaseData();
+  const unread = useUnread();
+  const now = useNow();
+  if (status === "loading") return <HomeSkeleton />;
+  if (!snapshot) return <div className="sh-page"><ErrorState message={error ?? "Your case didn’t load."} onRetry={() => void refresh()} /></div>;
+  const today = new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Warsaw" }).format(now);
+  return (
+    <div className="sh-page sh-page--wide hm">
+      <TopBar
+        title={`${greeting(now)}, ${firstName(snapshot.profile.fullName)}`}
+        eyebrow={today}
+        actions={<>
+          <IconLink href="/app/notifications" icon="bell" label={unread ? `Notifications, ${unread} unread` : "Notifications"} dot={unread > 0} />
+          <Link href="/app/settings" className="hm-me" aria-label="Settings and profile"><Avatar name={snapshot.profile.fullName} size={34} /></Link>
+        </>}
+      />
+      <div className="hm-grid">
+        <div className="hm-col">
+          <NextStepCard next={next} snapshot={snapshot} />
+          <QuickActions />
+          <UpcomingAppointment c={snapshot} />
+        </div>
+        <div className="hm-col">
+          <OpenTasks c={snapshot} />
+          <RecentActivity c={snapshot} />
+          <CaseStrip c={snapshot} />
+        </div>
+      </div>
+    </div>
+  );
 }

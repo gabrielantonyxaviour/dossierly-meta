@@ -2,119 +2,108 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CaseProvider, useCase } from "@/lib/client/store";
-import { Icon, type IconName } from "../Icon";
+import { useEffect, useState } from "react";
+import { Icon } from "../Icon";
 import { Logo } from "../Logo";
-import { IdentityMenu } from "./IdentityMenu";
-import { Loading } from "../States";
+import { AgentOrb, Avatar, ToastProvider } from "@/components/ui";
+import { CaseDataProvider, useCaseData } from "./shell/case-data";
+import { isLegacyRoute, LegacyBoundary } from "./shell/Legacy";
+import { AGENT, IMMERSIVE, isActive, SIDE_MAIN, SIDE_MORE, TABS_LEFT, TABS_RIGHT, type NavItem } from "./shell/nav";
+import { deriveNotices, readIds } from "./notifications/derive";
+import "@/components/ui/shell.css";
 
-type NavItem = { href: string; label: string; icon: IconName };
-const TABS: NavItem[] = [
-  { href: "/app", label: "Case", icon: "case" },
-  { href: "/app/prepare", label: "Prepare", icon: "prepare" },
-  { href: "/app/meet", label: "Meet", icon: "meet" },
-  { href: "/app/letters", label: "Letters", icon: "letter" },
-  { href: "/app/privacy", label: "Privacy", icon: "shield" },
-];
-/** Desktop sidebar groups; phones use TABS in the bottom bar and reach Learn through the account menu. */
-const GROUPS: { label: string; items: NavItem[] }[] = [
-  { label: "Case", items: [{ href: "/app", label: "Overview", icon: "case" }] },
-  { label: "Work", items: [TABS[1], TABS[2], TABS[3]] },
-  { label: "Records", items: [{ href: "/app/privacy", label: "Privacy ledger", icon: "shield" }] },
-  { label: "Learn", items: [
-    { href: "/app/help", label: "How it works", icon: "book" },
-    { href: "/app/plan", label: "Plan and billing", icon: "card" },
-  ] },
-];
-const isActive = (path: string, href: string) => (href === "/app" ? path === "/app" : path.startsWith(href));
-
-function AgentBadge() {
-  const { dossier } = useCase();
-  return <span className="chip">{dossier?.sample ? "Sample case" : "Private case"}</span>;
+function useUnread(): number {
+  const { snapshot } = useCaseData();
+  const [read, setRead] = useState<Set<string>>(() => new Set());
+  useEffect(() => {
+    const sync = () => setRead(readIds());
+    sync();
+    window.addEventListener("dossierly:notices-read", sync);
+    return () => window.removeEventListener("dossierly:notices-read", sync);
+  }, []);
+  return snapshot ? deriveNotices(snapshot).filter((n) => !read.has(n.id)).length : 0;
 }
 
-function Body({ children }: { children: React.ReactNode }) {
-  const { phase } = useCase();
-  if (phase === "loading") return <div className="app-pad"><Loading label="Opening your encrypted case…" /></div>;
-  if (phase === "unavailable")
-    return (
-      <div className="app-pad card">
-        <h2>This browser blocks private storage</h2>
-        <p>Dossierly keeps your case encrypted on this device, which needs IndexedDB. Private browsing windows often switch it off. Open Dossierly in a normal window to continue.</p>
-      </div>
-    );
-  if (phase === "locked")
-    return (
-      <div className="app-pad card stack">
-        <span className="tab-label"><Icon name="lock" size={16} /> Stored case locked</span>
-        <h2>Your existing case is preserved</h2>
-        <p className="muted">This case uses an earlier encryption setup that is not available in the current sign-in flow. Email sign-in cannot unlock it. The stored case has not been changed.</p>
-      </div>
-    );
-  if (phase === "empty") return <div className="app-pad card stack"><h1>Your case is not on this device</h1><p>Your account has completed setup, but its encrypted case is stored on the device where you created it. This sign-in has not restored those documents.</p><Link href="/onboarding?new=1" className="btn">Start a new case on this device</Link></div>;
-  return <>{children}</>;
+function TabLink({ item, path }: { item: NavItem; path: string }) {
+  const active = isActive(path, item);
+  return (
+    <Link href={item.href} className={`sh-tab${active ? " is-active" : ""}`} aria-current={active ? "page" : undefined}>
+      <Icon name={item.icon} size={23} />
+      <span>{item.label}</span>
+    </Link>
+  );
+}
+
+function SideLink({ item, path, badge }: { item: NavItem; path: string; badge?: number }) {
+  const active = isActive(path, item);
+  return (
+    <Link href={item.href} className={`sh-side-link${active ? " is-active" : ""}`} aria-current={active ? "page" : undefined}>
+      <Icon name={item.icon} size={20} />
+      <span>{item.label}</span>
+      {!!badge && <span className="sh-count" aria-label={`${badge} unread`}>{badge}</span>}
+    </Link>
+  );
+}
+
+function Sidebar({ path }: { path: string }) {
+  const { snapshot } = useCaseData();
+  const unread = useUnread();
+  const name = snapshot?.profile.fullName;
+  return (
+    <aside className="sh-side" aria-label="Main navigation">
+      <Link href="/app" className="sh-logo" aria-label="Dossierly home"><Logo size={22} /></Link>
+      <nav className="sh-side-nav">
+        {SIDE_MAIN.map((n) => <SideLink key={n.href} item={n} path={path} />)}
+        <hr />
+        {SIDE_MORE.map((n) => <SideLink key={n.href} item={n} path={path} badge={n.href === "/app/notifications" ? unread : undefined} />)}
+      </nav>
+      <Link href="/app/call" className="sh-talk">
+        <AgentOrb size={36} icon="phone" />
+        <span><b>Talk to Dossierly</b><small>Voice, any time</small></span>
+      </Link>
+      <Link href="/app/settings" className="sh-me">
+        <Avatar name={name} size={34} />
+        <span><b>{name ?? "Your profile"}</b><small>{snapshot?.profile.city ?? "Poland"} · Temporary residence</small></span>
+      </Link>
+    </aside>
+  );
+}
+
+function TabBar({ path }: { path: string }) {
+  const agentActive = isActive(path, AGENT);
+  return (
+    <nav className="sh-tabbar" aria-label="Main navigation">
+      {TABS_LEFT.map((n) => <TabLink key={n.href} item={n} path={path} />)}
+      <Link href={AGENT.href} className={`sh-tab sh-tab--agent${agentActive ? " is-active" : ""}`} aria-label="Ask Dossierly" aria-current={agentActive ? "page" : undefined}>
+        <AgentOrb size={52} icon="sparkle" />
+      </Link>
+      {TABS_RIGHT.map((n) => <TabLink key={n.href} item={n} path={path} />)}
+    </nav>
+  );
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
-  const { dossier } = useCase();
+  const immersive = IMMERSIVE.some((r) => path === r || path.startsWith(`${r}/`));
   return (
-    <div className="app">
-      <aside className="app-side" aria-label="Case navigation">
-        <div className="side-top">
-          <Link href="/app" className="logo-link" aria-label="Dossierly, your case"><Logo size={24} /></Link>
-          <span className="chip chip-ai" title="You are using an AI system">AI</span>
-        </div>
-        <nav className="side-nav" aria-label="Sections">
-          {GROUPS.map((g) => (
-            <div key={g.label} className="side-group">
-              <span className="side-label">{g.label}</span>
-              {g.items.map((n) => {
-                const active = isActive(path, n.href);
-                return (
-                  <Link key={n.href} href={n.href} className={active ? "active" : undefined} aria-current={active ? "page" : undefined}>
-                    <Icon name={n.icon} size={18} /><span>{n.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
-        </nav>
-        <div className="side-bottom">
-          <AgentBadge />
-          <IdentityMenu />
-        </div>
-      </aside>
-      <header className="app-header">
-        <Link href="/app" className="logo-link" aria-label="Dossierly, your case"><Logo size={22} /></Link>
-        <span className="chip chip-ai" title="You are using an AI system">AI</span>
-        {dossier?.sample && <span className="stamp" title="Fictional sample case">Sample</span>}
-        <span className="grow" />
-        <AgentBadge />
-        <IdentityMenu compact />
-      </header>
-      <nav className="app-nav" aria-label="Case sections">
-        {TABS.map((n) => {
-          const active = isActive(path, n.href);
-          return (
-            <Link key={n.href} href={n.href} className={active ? "active" : undefined} aria-current={active ? "page" : undefined}>
-              <Icon name={n.icon} />
-              <span>{n.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
-      <main className="app-main" id="main">
-        <Body>{children}</Body>
+    <div className={`sh${immersive ? " sh--immersive" : ""}`}>
+      <Sidebar path={path} />
+      <main className="sh-main" id="main">
+        {isLegacyRoute(path) ? <LegacyBoundary>{children}</LegacyBoundary> : children}
       </main>
+      {!immersive && <TabBar path={path} />}
     </div>
   );
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <CaseProvider>
-      <Shell>{children}</Shell>
-    </CaseProvider>
+    <CaseDataProvider>
+      <ToastProvider>
+        <Shell>{children}</Shell>
+      </ToastProvider>
+    </CaseDataProvider>
   );
 }
+
+export { useUnread };

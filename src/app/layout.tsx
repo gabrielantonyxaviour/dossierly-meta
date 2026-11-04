@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Instrument_Serif, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import "@/components/ui/tokens.css";
+import "@/components/ui/ui.css";
+import "@/components/ui/overlay.css";
 import "./site.css";
 import "./landing.css";
 import "./app.css";
@@ -9,6 +12,7 @@ import "./meet.css";
 import "./controls.css";
 
 const text = Inter({ subsets: ["latin", "latin-ext"], variable: "--font-text", display: "swap" });
+const serif = Instrument_Serif({ subsets: ["latin", "latin-ext"], weight: "400", variable: "--font-serif", display: "swap" });
 const mono = JetBrains_Mono({ subsets: ["latin", "latin-ext"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
@@ -28,9 +32,15 @@ export const viewport: Viewport = {
   ],
 };
 
+const THEME_SCRIPT = `try{var t=localStorage.getItem("dossierly:theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${text.variable} ${mono.variable}`}>
+    <html lang="en" className={`${text.variable} ${serif.variable} ${mono.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Applies a saved light/dark choice before paint; "system" leaves the media query in charge. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body>{children}</body>
     </html>
   );

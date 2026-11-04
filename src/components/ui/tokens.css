@@ -1,0 +1,76 @@
+/*
+ * Dossierly design tokens (v2). Extends the base palette in src/app/globals.css (--ink, --surface, --official,
+ * --user, --deadline, --ok …), which stays the single source for semantic colours. Calm, warm-paper canvas,
+ * ink-filled primary actions, one signature gradient for the agent. See src/components/ui/README.md.
+ */
+:root {
+  /* Surfaces */
+  --canvas: #f6f5f1;
+  --card: #ffffff;
+  --card-2: #fbfaf7;
+  --sunken: #efede8;
+  --scrim: rgb(20 18 16 / 38%);
+  --glass: color-mix(in srgb, var(--canvas) 82%, transparent);
+
+  /* Agent signature: violet (the official side) meeting amber (you) */
+  --agent-a: #6d4dd6;
+  --agent-b: #f0a531;
+  --agent-c: #e86a8a;
+  --agent-grad: radial-gradient(120% 120% at 20% 15%, #9d84ff 0%, var(--agent-a) 38%, var(--agent-c) 72%, var(--agent-b) 100%);
+  --agent-soft: #f1ecff;
+
+  /* Info (neutral blue for links, focus-adjacent accents; never for warnings) */
+  --info: #2457c5;
+  --info-soft: #e9effc;
+  --warn: #9a5b00;
+  --warn-soft: #fdf2df;
+
+  /* Type */
+  --font-display: var(--font-serif), "Iowan Old Style", "Palatino", Georgia, serif;
+  --t-xs: 0.75rem;   /* 12 */
+  --t-sm: 0.8125rem; /* 13 */
+  --t-md: 0.9375rem; /* 15 */
+  --t-base: 1rem;    /* 16 */
+  --t-lg: 1.125rem;  /* 18 */
+  --t-xl: 1.375rem;  /* 22 */
+  --t-2xl: 1.75rem;  /* 28 */
+  --t-3xl: 2.25rem;  /* 36 */
+  --t-4xl: 3.25rem;  /* 52 */
+
+  /* Space (4px grid) */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px; --s-7: 32px; --s-8: 40px; --s-9: 56px;
+  --gutter: 16px;
+  --content: 720px;
+  --tabbar-h: 64px;
+
+  /* Radius */
+  --r-xs: 8px; --r-sm: 12px; --r-md: 16px; --r-lg: 22px; --r-xl: 28px;
+
+  /* Elevation */
+  --e-1: 0 0 0 1px rgb(30 29 28 / 6%), 0 1px 2px rgb(30 29 28 / 4%);
+  --e-2: 0 0 0 1px rgb(30 29 28 / 6%), 0 4px 14px rgb(30 29 28 / 6%), 0 1px 3px rgb(30 29 28 / 4%);
+  --e-3: 0 0 0 1px rgb(30 29 28 / 6%), 0 18px 48px rgb(30 29 28 / 14%), 0 4px 12px rgb(30 29 28 / 6%);
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --d-1: 120ms; --d-2: 200ms; --d-3: 320ms; --d-4: 480ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --canvas: #0f0e0d; --card: #1a1918; --card-2: #201f1d; --sunken: #141312; --scrim: rgb(0 0 0 / 60%);
+    --agent-soft: #221b3b; --info: #8fb0ff; --info-soft: #17223d; --warn: #f6b955; --warn-soft: #2e230f;
+    --e-1: 0 0 0 1px rgb(255 255 255 / 7%);
+    --e-2: 0 0 0 1px rgb(255 255 255 / 8%), 0 6px 18px rgb(0 0 0 / 35%);
+    --e-3: 0 0 0 1px rgb(255 255 255 / 9%), 0 24px 60px rgb(0 0 0 / 55%);
+  }
+}
+:root[data-theme="dark"] {
+  --canvas: #0f0e0d; --card: #1a1918; --card-2: #201f1d; --sunken: #141312; --scrim: rgb(0 0 0 / 60%);
+  --agent-soft: #221b3b; --info: #8fb0ff; --info-soft: #17223d; --warn: #f6b955; --warn-soft: #2e230f;
+  --e-1: 0 0 0 1px rgb(255 255 255 / 7%);
+  --e-2: 0 0 0 1px rgb(255 255 255 / 8%), 0 6px 18px rgb(0 0 0 / 35%);
+  --e-3: 0 0 0 1px rgb(255 255 255 / 9%), 0 24px 60px rgb(0 0 0 / 55%);
+}
