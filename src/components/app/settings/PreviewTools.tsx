@@ -31,6 +31,10 @@ export function PreviewTools({ flow }: { flow: PreviewFlow }) {
           <Row icon="case" title="Reload the sample case" sub="Replaces this account’s case with Arjun’s fictional sample case."
             end={<Button size="sm" loading={busy === "sample"} disabled={!!busy} onClick={() => void run(true)}>Reload</Button>} />
         )}
+        {flow !== "onboarding" && (
+          <Row icon="mail" title="Add the evening letter scene" sub="Writes a labelled new letter, two drafts and a 09:00 reminder, then opens Ready for you. No call is placed."
+            end={<Button size="sm" disabled={!!busy} onClick={() => window.location.assign("/api/dev/demo?scene=ready")}>Add</Button>} />
+        )}
       </Card>
       <p className="ui-meta st-note">Only on preview deployments. Production never shows this.</p>
     </Section>
