@@ -28,7 +28,7 @@ const who = (from: string) => from.replace(/<[^>]+>/, "").replace(/"/g, "").repl
 export function rowFor(f: Finding): { label: string; value: ReactNode; tag?: { text: string; tone: "ok" | "warn" | "deadline" } } {
   if (f.kind === "fact") return { label: f.label, value: f.key === "filedAt" && /^\d{4}-\d{2}-\d{2}$/.test(f.value) ? dayLabel(f.value, { day: "numeric", month: "short", year: "numeric" }) : <span className="ob-mono">{f.value}</span> };
   if (f.kind === "deadline") {
-    const days = /(\d+) days/.exec(f.rule)?.[1];
+    const days = f.days ?? /(\d+) days/.exec(f.rule)?.[1];
     const left = daysLeft(f.dueDate);
     return { label: f.title, value: `${days ? `Within ${days} days · ` : ""}by ${dayLabel(f.dueDate)}`, tag: { text: left < 0 ? "Overdue" : left === 0 ? "Today" : `${left} days left`, tone: "deadline" } };
   }

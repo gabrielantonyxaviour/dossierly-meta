@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { extractionSchema } from "@/lib/onboarding/extract";
-import { buildFindings, docIdFor, type Finding } from "@/lib/onboarding/findings";
+import { buildFindings, docIdFor, legalBasisLabel, type Finding } from "@/lib/onboarding/findings";
 import type { MessageBody } from "@/lib/onboarding/inbox";
 import { mergeDocuments } from "@/lib/onboarding/merge";
 
@@ -42,9 +42,20 @@ describe("inbox findings across emails", () => {
     expect(by.upo.fields).toEqual({ applicationAddress: "DS Babilon, ul. Kickiego 12, 04-369 Warszawa" });
   });
 
-  it("counts the summons deadline from the day the email arrived", () => {
+  it("counts the summons deadline from the day the email arrived, under its legal basis", () => {
     const d = summons.find((f) => f.kind === "deadline");
-    expect(d && d.kind === "deadline" && d.dueDate).toBe("2026-11-18");
+    if (!d || d.kind !== "deadline") throw new Error("no deadline");
+    expect(d.dueDate).toBe("2026-11-18");
+    expect(d.rule).toBe("KPA art. 64 § 2");
+    expect(d.days).toBe(14);
+    expect(d.steps.join(" ")).toMatch(/art\. 57 § 1.*art\. 57 § 4.*art\. 57 § 5/);
+  });
+
+  it("names the cited provision the way the case shows it", () => {
+    expect(legalBasisLabel("art. 64 § 2 Kodeksu postępowania administracyjnego")).toBe("KPA art. 64 § 2");
+    expect(legalBasisLabel("art. 64 §2 k.p.a.")).toBe("KPA art. 64 § 2");
+    expect(legalBasisLabel("art. 108 ust. 1 ustawy o cudzoziemcach")).toBe("art. 108 ust. 1 ustawy o cudzoziemcach");
+    expect(legalBasisLabel(null)).toBeNull();
   });
 
   it("never attaches a file to a document the office only asked for", () => {

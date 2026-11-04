@@ -18,7 +18,7 @@ export const sourceSchema = z.object({ messageId: z.string().regex(/^[A-Za-z0-9_
 export const findingSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("fact"), id: fid, key: z.enum(FACT_KEYS), label: t(60), value: t(300), source: sourceSchema }),
   z.object({ kind: z.literal("appointment"), id: fid, title: t(200), date: day, time: z.string().regex(/^\d{2}:\d{2}$/).nullable(), place: o(160), address: o(300), purpose: o(500), bring: z.array(t(160)).max(12), source: sourceSchema }),
-  z.object({ kind: z.literal("deadline"), id: fid, title: t(200), dueDate: day, steps: z.array(t(400)).max(20), rule: o(200), quote: o(400), consequence: o(300), source: sourceSchema }),
+  z.object({ kind: z.literal("deadline"), id: fid, title: t(200), dueDate: day, steps: z.array(t(400)).max(20), rule: o(200), days: z.number().int().min(1).max(365).optional(), quote: o(400), consequence: o(300), source: sourceSchema }),
   z.object({
     kind: z.literal("document"), id: fid, title: t(200), docKind: z.enum(DOC_KINDS), status: z.enum(["have", "missing", "requested"]),
     /** Details read from the email, e.g. { address, startDate } for a lease or { applicationAddress } for the MOS confirmation. */
@@ -48,17 +48,35 @@ function stableId(prefix: string, messageId: string, part: string): string {
   return `${prefix}_${messageId.slice(0, 24)}${h.toString(36)}`;
 }
 
-function deadlineFrom(e: NonNullable<Extraction["deadline"]>, received: string, language: string) {
+/** "art. 64 § 2 Kodeksu postępowania administracyjnego" → "KPA art. 64 § 2"; other acts stay as written. */
+export function legalBasisLabel(raw: string | null | undefined): string | null {
+  const text = (raw ?? "").trim();
+  const m = /art\.?\s*(\d+[a-z]?)\s*(?:§\s*(\d+))?/i.exec(text);
+  if (!m) return null;
+  const kpa = /kpa|k\.p\.a|postępowania administracyjnego|postepowania administracyjnego/i.test(text);
+  return kpa ? `KPA art. ${m[1]}${m[2] ? ` § ${m[2]}` : ""}` : text.slice(0, 120);
+}
+
+/** Days are counted under KPA art. 57; the rule shown on the case is what the letter is based on (a summons: art. 64 § 2). */
+const COUNTING = [
+  "Counted under KPA art. 57 § 1: the day of delivery is not counted.",
+  "KPA art. 57 § 4: a deadline that ends on a Sunday, a public holiday or a Saturday moves to the next working day.",
+  "KPA art. 57 § 5: posting your reply at a Polish post office or sending it through e-Doręczenia by that day counts as on time.",
+];
+
+function deadlineFrom(e: NonNullable<Extraction["deadline"]>, received: string, language: string, category: string) {
   const lang = LanguageSchema.catch("en").parse(language);
+  const basis = legalBasisLabel(e.legalBasis) ?? (category === "summons" ? "KPA art. 64 § 2" : null);
   if (e.days && e.from) {
     const deliveryDate = warsawDate(received);
     const c = computeDeadline({ rule: { days: e.days, from: e.from, quote: e.quote }, deliveryDate, letterDate: e.letterDate, language: lang });
     if (c) {
       const why = e.from === "delivery" ? [`Delivery taken as the day this email arrived (${deliveryDate}); if the letter was delivered on another day, tell me and I will recount.`] : [];
-      return { dueDate: c.date, steps: [...why, ...c.steps].slice(0, 20), rule: `${e.days} days from ${e.from === "delivery" ? "delivery" : "the letter date"} (KPA art. 57)` };
+      const steps = [...why, ...c.steps.slice(0, -1), ...COUNTING, ...c.steps.slice(-1)];
+      return { dueDate: c.date, steps: steps.slice(0, 20), days: e.days, rule: basis ?? `${e.days} days from ${e.from === "delivery" ? "delivery" : "the letter date"} (KPA art. 57)` };
     }
   }
-  if (e.statedDate) return { dueDate: e.statedDate, steps: [`The email states the date ${e.statedDate} directly.`], rule: "Date stated in the letter" };
+  if (e.statedDate) return { dueDate: e.statedDate, steps: [`The email states the date ${e.statedDate} directly.`], rule: basis ?? "Date stated in the letter" };
   return null;
 }
 
@@ -81,7 +99,7 @@ export function buildFindings(msg: MessageBody, x: Extraction, language: string)
     const a = x.appointment;
     if (a?.title && a.date) out.push({ kind: "appointment", id: stableId("apt", msg.id, "appointment"), title: a.title, date: a.date, time: a.time, place: a.place, address: a.address, purpose: a.purpose, bring: a.bring.filter(Boolean), source });
     const d = x.deadline;
-    const computed = d?.title ? deadlineFrom(d, msg.receivedAt, language) : null;
+    const computed = d?.title ? deadlineFrom(d, msg.receivedAt, language, x.category) : null;
     if (d && computed) out.push({ kind: "deadline", id: stableId("ddl", msg.id, "deadline"), title: d.title, ...computed, quote: d.quote, consequence: d.consequence, source });
     const docs = x.documents.filter((doc) => doc.title);
     const ad = x.addresses;

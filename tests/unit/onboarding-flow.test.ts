@@ -30,7 +30,7 @@ describe("phone", () => {
 
 describe("findings", () => {
   it("counts a 14-day summons from the day the email arrived, moving off a weekend", () => {
-    const r = buildFindings(msg, { ...base, deadline: { title: "Send missing documents", days: 14, from: "delivery", letterDate: "2026-10-22", statedDate: null, quote: "w terminie 14 dni od dnia doręczenia", consequence: "left unexamined" } }, "en");
+    const r = buildFindings(msg, { ...base, deadline: { title: "Send missing documents", days: 14, from: "delivery", letterDate: "2026-10-22", statedDate: null, quote: "w terminie 14 dni od dnia doręczenia", consequence: "left unexamined", legalBasis: null } }, "en");
     const d = r.findings.find((f) => f.kind === "deadline");
     // Delivered Fri 23 Oct → day 14 is Fri 6 Nov (a working day).
     expect(d && d.kind === "deadline" && d.dueDate).toBe("2026-11-06");
