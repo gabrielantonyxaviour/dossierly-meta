@@ -2,7 +2,7 @@
 import type { NextStep } from "@/lib/case/next-step";
 import type { CaseSnapshot } from "@/lib/case/types";
 import { ButtonLink, Pill } from "@/components/ui";
-import { longDay } from "../format";
+import { longDay, timeLabel } from "../format";
 
 const KIND_LABEL: Record<NextStep["kind"], string> = { deadline: "Deadline", appointment: "Appointment", task: "To do", document: "Document", stage: "Next step" };
 
@@ -29,6 +29,8 @@ export function NextStepCard({ next, snapshot }: { next: NextStep | null; snapsh
   const urgent = next.overdue || (next.daysLeft !== null && next.daysLeft <= 7);
   const deadline = next.kind === "deadline" ? snapshot.deadlines.find((d) => d.id === next.id) : undefined;
   const task = next.kind === "task" ? snapshot.tasks.find((t) => t.id === next.id) : undefined;
+  const appt = next.kind === "appointment" ? snapshot.appointments.find((a) => a.id === next.id) : undefined;
+  const apptToday = !!appt && next.daysLeft === 0;
   const ask = encodeURIComponent(`Walk me through my next step: ${next.title}`);
   const attach = next.kind === "deadline" || next.kind === "task" || next.kind === "document" ? `&attach=${next.kind}:${next.id}` : "";
   return (
@@ -40,7 +42,13 @@ export function NextStepCard({ next, snapshot }: { next: NextStep | null; snapsh
         </Pill>
       </div>
       <div className="hm-next-body">
-        {dated && (
+        {apptToday && (
+          <div className="hm-count" aria-label={`Today at ${timeLabel(appt!.at)}`}>
+            <span className="hm-count-n ui-display ui-num">{timeLabel(appt!.at)}</span>
+            <span className="hm-count-u">today</span>
+          </div>
+        )}
+        {dated && !apptToday && (
           <div className="hm-count" aria-label={next.overdue ? `${-next.daysLeft!} days overdue` : `${next.daysLeft} days left`}>
             <span className="hm-count-n ui-display ui-num">{next.overdue ? -next.daysLeft! : next.daysLeft}</span>
             <span className="hm-count-u">{next.overdue ? "days overdue" : next.daysLeft === 1 ? "day left" : next.daysLeft === 0 ? "due today" : "days left"}</span>
@@ -48,7 +56,7 @@ export function NextStepCard({ next, snapshot }: { next: NextStep | null; snapsh
         )}
         <div className="hm-next-text">
           <h2 id="next-title" className="hm-next-title">{next.title}</h2>
-          {dated && <p className="hm-next-date">{next.kind === "appointment" ? "On" : "Due"} {longDay(next.date!)}</p>}
+          {dated && <p className="hm-next-date">{appt ? `${apptToday ? "Today" : longDay(next.date!)} · ${appt.location.address || appt.location.name}` : `Due ${longDay(next.date!)}`}</p>}
           <p className="ui-body">{task?.detail || next.reason}</p>
         </div>
       </div>
