@@ -1,8 +1,9 @@
-import { MODEL_IDS } from "../config";
 import { costUsd, makeRun } from "../model/cost";
 import { extractJson } from "../model/json";
+import { ModelError } from "../model/types";
 import { assertModelsEnabled, meterClient } from "../model/meter";
-import { createTokenFactoryClient } from "../model/tokenfactory";
+import { createMetaClient } from "../model/meta";
+import { resolveRole } from "../model/roles";
 import type { ChatClient } from "../model/types";
 import type { Env } from "../server/env";
 import { recordLedger } from "../server/ledger";
@@ -17,16 +18,16 @@ import {
   type AskInput, type PrepareInput, type TraceStep,
 } from "./schemas";
 
-/** Same files the sandbox agent reads, rendered inline for a plain model call. */
+/** The case memory, task input, passages and playbook, rendered as labelled sections for one model call. */
 export function buildCloudMessages(row: Pick<TaskRow, "kind" | "input">) {
   const input = InputSchemas[row.kind].parse(JSON.parse(row.input ?? "{}"));
   const { passages = [], skill, ...rest } = input as typeof input & { passages?: unknown[]; skill?: string };
   const memory = renderCaseMemory(input.case);
   const files = [
-    `=== /sandbox/case.md ===\n${memory}`,
-    `=== /sandbox/task/input.json ===\n${JSON.stringify(rest)}`,
-    `=== /sandbox/task/passages.json ===\n${JSON.stringify(passages)}`,
-    `=== /sandbox/task/skill.md ===\n${skill ?? "(none)"}`,
+    `=== CASE MEMORY ===\n${memory}`,
+    `=== TASK INPUT ===\n${JSON.stringify(rest)}`,
+    `=== PASSAGES ===\n${JSON.stringify(passages)}`,
+    `=== PLAYBOOK ===\n${skill ?? "(none)"}`,
   ].join("\n\n");
   const language = "language" in input ? input.language : "en";
   return {
@@ -54,30 +55,32 @@ export function finalise(kind: TaskRow["kind"], raw: unknown, input: unknown): {
   return { data: parsed };
 }
 
-/** Runs one claimed task in the cloud with Super VL. The caller must have won claimForCloud. */
+/** Runs one claimed task in the Worker with the agent role (Muse Spark). The caller must have won claimForCloud. */
 export async function runCloudTask(
   env: Env,
   row: TaskRow,
   opts: { client?: ChatClient; reason?: string } = {},
 ): Promise<void> {
-  const trace: TraceStep[] = [...parseTrace(row.trace), { step: opts.reason ?? "no bridge claimed the task in time, running in the cloud", ms: 0 }];
+  const trace: TraceStep[] = [...parseTrace(row.trace), { step: opts.reason ?? "running in your agent", ms: 0 }];
   const started = Date.now();
   const fail = (error: string) => finishTask(env, row.id, { status: "failed", ranOn: "cloud", trace, error });
   try {
     if (row.kind === "file") {
-      // Memory lives in the user's sandbox; with no sandbox online there is nothing to update.
+      // The case itself lives on the device and is sent with every request, so filing needs no model call.
       const ev = FileInputSchema.parse(JSON.parse(row.input ?? "{}")).event;
-      trace.push({ step: "agent offline: memory update deferred", ms: Date.now() - started });
+      trace.push({ step: "event filed with the case on your device", ms: Date.now() - started });
       await finishTask(env, row.id, {
         status: "done", ranOn: "cloud", trace,
-        result: { data: { filed: false, memoryUpdated: false, summary: `Saved on your device: ${ev.title}. Your agent will take it into memory when it is back online.` } },
+        result: { data: { filed: true, memoryUpdated: false, summary: `Saved on your device: ${ev.title}. It is included in every later answer about your case.` } },
       });
       return;
     }
     const { messages, input } = buildCloudMessages(row);
     // Metered per call: over the daily cap (or with models switched off) the task fails with that message; it never spends.
     assertModelsEnabled(env);
-    const client = meterClient(env, opts.client ?? createTokenFactoryClient(env.NEBIUS_API_KEY));
+    const cfg = resolveRole("agent", env);
+    if (!opts.client && !cfg.apiKey) throw new ModelError("The model service is not configured", "no_key", 503);
+    const client = meterClient(env, opts.client ?? createMetaClient(env));
     let usage = { tokensIn: 0, tokensOut: 0, cachedTokens: 0 };
     let lastError = "";
     let lastRaw = "";
@@ -87,7 +90,7 @@ export async function runCloudTask(
         { role: "assistant" as const, content: lastRaw.slice(0, 2000) || "(empty)" },
         { role: "user" as const, content: `That was not valid: ${lastError}. Reply again with only the corrected JSON object.` },
       ];
-      const res = await client.chat({ model: MODEL_IDS.superVl, messages: msgs, maxTokens: 2500, thinking: false, json: "json_object", temperature: 0.2 });
+      const res = await client.chat({ model: cfg.model, role: "agent", messages: msgs, maxTokens: 6000, reasoningEffort: cfg.effort, json: "json_object" });
       usage = {
         tokensIn: usage.tokensIn + res.usage.tokensIn, tokensOut: usage.tokensOut + res.usage.tokensOut,
         cachedTokens: usage.cachedTokens + res.usage.cachedTokens,
@@ -96,14 +99,14 @@ export async function runCloudTask(
       try {
         const { data, note } = finalise(row.kind, extractJson(res.content), input);
         const ms = Date.now() - started;
-        trace.push({ step: "Nemotron 3.5 Super VL answered", tool: "tokenfactory", ms });
+        trace.push({ step: "Muse Spark answered", tool: "meta", ms });
         if (note) trace.push({ step: note, ms: 0 });
-        const run: Run = makeRun(MODEL_IDS.superVl, ms, usage, "cloud");
+        const run: Run = makeRun(cfg.model, ms, usage, "cloud");
         await finishTask(env, row.id, { status: "done", ranOn: "cloud", trace, result: { data, run } });
         await recordRun(env, row.user_id, run, `agent:${row.kind}`);
         await recordLedger(env, {
-          userId: row.user_id, kind: "model", what: `Nemotron 3.5 Super VL, ${row.kind} (cloud fallback)`,
-          action: "allowed", detail: { ranOn: "cloud", costUsd: costUsd(MODEL_IDS.superVl, usage), attempts: attempt + 1 },
+          userId: row.user_id, kind: "model", what: `${cfg.model}, ${row.kind}`,
+          action: "allowed", detail: { ranOn: "worker", costUsd: costUsd(cfg.model, usage), attempts: attempt + 1 },
         });
         return;
       } catch (err) {
@@ -112,6 +115,6 @@ export async function runCloudTask(
     }
     await fail(`The model answer failed validation (${lastError})`);
   } catch (err) {
-    await fail(err instanceof Error && err.name === "ModelError" ? err.message : "The cloud fallback could not finish this task");
+    await fail(err instanceof Error && err.name === "ModelError" ? err.message : "The agent could not finish this task");
   }
 }

@@ -1,6 +1,6 @@
 import type { ZodType } from "zod";
 import { addUsage, emptyUsage } from "./cost";
-import type { ChatClient, ChatMessage, ChatRequest, TokenLogprob, Usage } from "./types";
+import type { ChatClient, ChatMessage, ChatRequest, Usage } from "./types";
 import { ModelError } from "./types";
 
 /** Drop reasoning blocks and code fences, then take the outermost JSON object. */
@@ -26,7 +26,6 @@ export interface JsonCall<T> {
   data: T;
   raw: string;
   usage: Usage;
-  logprobs?: TokenLogprob[];
   attempts: number;
 }
 
@@ -51,7 +50,7 @@ export async function callJson<T>(client: ChatClient, req: ChatRequest, schema: 
     usage = addUsage(usage, res.usage);
     lastRaw = res.content;
     try {
-      return { data: parseModelOutput(res.content, schema), raw: res.content, usage, logprobs: res.logprobs, attempts: attempt };
+      return { data: parseModelOutput(res.content, schema), raw: res.content, usage, attempts: attempt };
     } catch (err) {
       lastError = err instanceof Error ? err.message : "unparseable";
     }

@@ -1,10 +1,17 @@
 import type { Env } from "./env";
 import { dayKey } from "./util";
 
-export type BudgetKind = "tf_usd" | "tavily_credits";
+export type BudgetKind = "model_usd" | "search_calls";
 const MICRO = 1_000_000;
-export const GLOBAL_CAPS: Record<BudgetKind, number> = { tf_usd: 0.25, tavily_credits: 10 };
-const USER_CAPS: Partial<Record<BudgetKind, number>> = { tavily_credits: 1 };
+/** Daily global caps; MODEL_DAILY_USD_CAP and SEARCH_DAILY_CAP override them. */
+export const GLOBAL_CAPS: Record<BudgetKind, number> = { model_usd: 5, search_calls: 40 };
+const USER_CAPS: Partial<Record<BudgetKind, number>> = { search_calls: 5 };
+
+function globalCap(env: Env, kind: BudgetKind): number {
+  const raw = (env as unknown as Record<string, unknown>)[kind === "model_usd" ? "MODEL_DAILY_USD_CAP" : "SEARCH_DAILY_CAP"];
+  const n = typeof raw === "string" ? Number(raw) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : GLOBAL_CAPS[kind];
+}
 
 async function spend(env: Env, scope: string, kind: BudgetKind, micro: number, capMicro: number): Promise<boolean> {
   const day = dayKey();
@@ -36,7 +43,7 @@ export async function checkAndSpend(
   const userCap = USER_CAPS[kind];
   const userScope = opts?.userId && userCap !== undefined ? `user:${opts.userId}` : null;
   if (userScope && !(await spend(env, userScope, kind, micro, Math.round(userCap! * MICRO)))) return false;
-  if (await spend(env, "global", kind, micro, Math.round(GLOBAL_CAPS[kind] * MICRO))) return true;
+  if (await spend(env, "global", kind, micro, Math.round(globalCap(env, kind) * MICRO))) return true;
   if (userScope) {
     await env.DB.prepare("UPDATE budgets SET spent_micro = spent_micro - ? WHERE day = ? AND scope = ? AND kind = ?")
       .bind(micro, dayKey(), userScope, kind).run();
@@ -59,9 +66,8 @@ export async function getBudgets(env: Env) {
   const { results } = await env.DB.prepare("SELECT kind, spent_micro FROM budgets WHERE day = ? AND scope = 'global'")
     .bind(dayKey()).all<{ kind: BudgetKind; spent_micro: number }>();
   const spent = (k: BudgetKind) => (results.find((r) => r.kind === k)?.spent_micro ?? 0) / MICRO;
-  return {
-    day: dayKey(),
-    tf_usd: { spent: spent("tf_usd"), cap: GLOBAL_CAPS.tf_usd },
-    tavily_credits: { spent: spent("tavily_credits"), cap: GLOBAL_CAPS.tavily_credits },
-  };
+  const model = { spent: spent("model_usd"), cap: globalCap(env, "model_usd") };
+  const search = { spent: spent("search_calls"), cap: globalCap(env, "search_calls") };
+  // tf_usd / tavily_credits are the keys older clients read; they mirror the model and search rows.
+  return { day: dayKey(), model_usd: model, search_calls: search, tf_usd: model, tavily_credits: search };
 }

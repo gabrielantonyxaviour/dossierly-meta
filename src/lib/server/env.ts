@@ -42,9 +42,8 @@ export type Env = {
   LETTER_PIPELINE?: WorkflowLike;
   NIGHTLY_WATCH?: WorkflowLike;
   /* secrets (empty string when unset) */
-  NEBIUS_API_KEY: string;
-  TAVILY_API_KEY: string;
-  NVIDIA_API_KEY: string;
+  /** Meta Model API key; per-role overrides name another env var through MODEL_<ROLE>_KEY_ENV. */
+  MODEL_API_KEY: string;
   BRIDGE_SECRET: string;
   SESSION_SECRET: string;
   RESEND_API_KEY?: string;
@@ -69,12 +68,12 @@ export type Env = {
   DODO_PRODUCT_FAMILY: string;
   APP_URL: string;
   APP_ENV: "local" | "preview" | "production";
-  /** "1" switches every Token Factory call off (set as a secret or var; see docs/BUILD.md). */
+  /** "1" switches every model call off (set as a secret or var; see docs/BUILD.md). */
   MODELS_DISABLED?: string;
 };
 
 const STRING_KEYS = [
-  "NEBIUS_API_KEY", "TAVILY_API_KEY", "NVIDIA_API_KEY", "BRIDGE_SECRET", "SESSION_SECRET",
+  "MODEL_API_KEY", "BRIDGE_SECRET", "SESSION_SECRET",
   "DODO_PAYMENTS_API_KEY", "DODO_WEBHOOK_KEY", "JUDGE_CODE", "DODO_PRODUCT_CASE_PASS",
   "DODO_PRODUCT_CREDITS_10", "DODO_PRODUCT_CREDITS_25", "DODO_PRODUCT_FAMILY", "APP_URL",
   "RESEND_API_KEY", "EMAIL_FROM",

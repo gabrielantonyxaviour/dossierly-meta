@@ -2,43 +2,33 @@ import { ASR_MODEL, asrOnline } from "@/lib/server/asr";
 import { getBudgets } from "@/lib/server/budget";
 import { getEnv } from "@/lib/server/env";
 import { errorResponse } from "@/lib/server/http";
+import { hasModelKey, resolveRole } from "@/lib/model/roles";
 
 export const dynamic = "force-dynamic";
 
-const ONLINE_WINDOW_MS = 60_000;
-const MODELS = [
-  { id: "nvidia/Nemotron-3_5-Lightning", role: "turns, guard, summaries" },
-  { id: "nvidia/Nemotron-3.5-Super-VL", role: "agent, vision, watcher, drafts" },
-  { id: "nvidia/Nemotron-3-Ultra-550b-a55b", role: "whole-case reasoning" },
+const ROLE_NOTES = [
+  { role: "interpret" as const, note: "turns, translation" },
+  { role: "guard" as const, note: "safety guard" },
+  { role: "agent" as const, note: "agent, prepare, ask" },
+  { role: "vision" as const, note: "letter reading, grounding" },
+  { role: "reason" as const, note: "whole-case reasoning" },
 ];
-
-/** The bridge writes `bridge:lastSeen` (epoch ms or ISO) and optionally `bridge:sandboxes` (integer) to KV. */
-function parseTime(v: string | null): number | null {
-  if (!v) return null;
-  const n = /^\d+$/.test(v) ? Number(v) : Date.parse(v);
-  return Number.isFinite(n) ? n : null;
-}
 
 export async function GET() {
   try {
     const env = getEnv();
-    const [seenRaw, sandboxesRaw, budgets, asr] = await Promise.all([
-      env.CACHE.get("bridge:lastSeen"),
-      env.CACHE.get("bridge:sandboxes"),
-      getBudgets(env),
-      asrOnline(env),
-    ]);
-    const seen = parseTime(seenRaw);
-    const sandboxes = Number(sandboxesRaw);
+    const ready = hasModelKey(env);
+    const models = [...new Map(ROLE_NOTES.map((r) => [resolveRole(r.role, env).model, r])).values()].map((r) => ({
+      id: resolveRole(r.role, env).model,
+      role: ROLE_NOTES.filter((n) => resolveRole(n.role, env).model === resolveRole(r.role, env).model).map((n) => n.note).join(", "),
+      ready,
+    }));
     return Response.json({
-      models: MODELS.map((m) => ({ ...m, ready: !!env.NEBIUS_API_KEY })),
-      bridge: {
-        online: seen !== null && Date.now() - seen < ONLINE_WINDOW_MS,
-        lastSeen: seen ? new Date(seen).toISOString() : null,
-        sandboxes: Number.isFinite(sandboxes) ? sandboxes : 0,
-      },
-      budgets,
-      asr: { online: asr, model: ASR_MODEL },
+      models,
+      // The sandbox bridge is retired; the field stays so older clients keep rendering.
+      bridge: { online: false, lastSeen: null, sandboxes: 0 },
+      budgets: await getBudgets(env),
+      asr: { online: asrOnline(env), model: ASR_MODEL },
     }, { headers: { "cache-control": "no-store" } });
   } catch (e) {
     return errorResponse(e);

@@ -1,7 +1,7 @@
 /*
  * Nightly source watcher (exported for builder A's NightlyWatch Workflow).
  * For each watched source: extract the page live, hash the content, compare with the latest
- * hub_snapshots row, and when it differs let Lightning (flex tier) summarise what changed into
+ * hub_snapshots row, and when it differs let the draft model summarise what changed into
  * hub_changes. First sight of a page has nothing to diff against: a static page is just baselined, and an
  * announcements listing (kind "komunikat", newest first) reports its latest items, as they appear on the page.
  */
@@ -14,7 +14,7 @@ import type { Env } from "../server/env";
 import { COUNTRY, coverage, sources, watchedSources } from "./data";
 import { warmHub } from "./pipeline";
 import { insertChange, insertSnapshot, latestSnapshot } from "./store";
-import { liveExtract, type Page } from "./tavily";
+import { liveExtract, type Page } from "./search";
 import { sha256Hex } from "../server/util";
 
 export interface WatchReport {
@@ -46,8 +46,7 @@ async function summarise(env: Env, input: string, today: string, client?: ChatCl
       context: `Today: ${today}`,
       input,
       schema: HubSummaryOut,
-      maxTokens: 900,
-      flex: true,
+      maxTokens: 3000,
       masker: new Masker(),
       replay: () => ({ changes: [] }),
     },
@@ -55,7 +54,7 @@ async function summarise(env: Env, input: string, today: string, client?: ChatCl
   return out;
 }
 
-/** `pages` lets a caller supply already-fetched text (offline seeding, tests) instead of a live Tavily extract. */
+/** `pages` lets a caller supply already-fetched text (offline seeding, tests) instead of a live fetch. */
 const words = (s: string) => new Set(s.toLowerCase().match(/[\p{L}]{4,}/gu) ?? []);
 
 /** The page extract carries no dates; the verified notices in coverage.json (read from the HTML listing) supply them. */

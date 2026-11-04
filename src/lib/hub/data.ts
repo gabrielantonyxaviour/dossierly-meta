@@ -43,7 +43,7 @@ export const coverage = coverageJson as unknown as Record<string, unknown> & {
 };
 export const phrases = (phrasesJson as unknown as { situations: PhraseSituation[] }).situations;
 export const seedChanges = (seedChangesJson as unknown as { changes: SeedChange[] }).changes;
-/** Nightly watch set: at most 5 verified, non-statute pages so one Tavily extract call (1 credit) covers them all. */
+/** Nightly watch set: at most 5 verified, non-statute pages to keep each nightly run small. */
 const WATCH_ORDER = ["wsc-komunikaty", "wsc-oplaty", "udsc-info-mos", "udsc-oplaty", "wsc-proc-praca", "udsc-mos-qa", "govpl-edoreczenia"];
 export const watchedSources = () =>
   sources

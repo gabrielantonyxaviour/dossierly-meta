@@ -10,8 +10,8 @@ export interface ListenHandle {
 }
 
 /**
- * Swap point for speech. NVIDIA Parakeet (src/lib/speech/parakeet.ts) handles pl/en/uk when the agent host is
- * online; the browser Web Speech API covers the rest.
+ * Swap point for speech. Muse Voice Transcribe (src/lib/speech/metavoice.ts) handles pl/en/uk/hi/ta when a model key is
+ * configured; the browser Web Speech API covers the rest.
  */
 export interface SpeechProvider {
   readonly id: string;

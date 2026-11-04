@@ -39,31 +39,3 @@ export function chunkText(text: string, size = 900): string[] {
   push();
   return out;
 }
-
-export function cosine(a: Float32Array, b: Float32Array): number {
-  let dot = 0;
-  let na = 0;
-  let nb = 0;
-  const n = Math.min(a.length, b.length);
-  for (let i = 0; i < n; i++) {
-    dot += a[i] * b[i];
-    na += a[i] * a[i];
-    nb += b[i] * b[i];
-  }
-  return na && nb ? dot / Math.sqrt(na * nb) : 0;
-}
-
-export function vecToB64(v: number[] | Float32Array): string {
-  const f = v instanceof Float32Array ? v : Float32Array.from(v);
-  const bytes = new Uint8Array(f.buffer, f.byteOffset, f.byteLength);
-  let s = "";
-  for (const b of bytes) s += String.fromCharCode(b);
-  return btoa(s);
-}
-
-export function b64ToVec(s: string): Float32Array {
-  const bin = atob(s);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return new Float32Array(bytes.buffer);
-}

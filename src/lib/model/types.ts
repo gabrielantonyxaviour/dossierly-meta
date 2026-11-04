@@ -8,22 +8,17 @@ export interface ChatMessage {
 }
 
 export interface ChatRequest {
+  /** Resolved model id (from the role). */
   model: string;
+  /** Selects base URL and key at call time; absent means the default role. */
+  role?: import("../config").Role;
   messages: ChatMessage[];
+  /** Reasoning tokens count against this cap, so keep it generous (>=1500; >=4000 for vision). */
   maxTokens: number;
-  /** false sends chat_template_kwargs.enable_thinking=false (measured: ~10x fewer tokens, valid JSON). */
-  thinking: boolean;
-  /** Background work only (the nightly watch). */
-  flex?: boolean;
-  logprobs?: boolean;
-  /** "json_object" or a JSON schema for response_format: json_schema. Both are accepted by all three models once thinking is off. */
+  reasoningEffort?: import("../config").ReasoningEffort;
+  /** "json_object" or a JSON schema for response_format: json_schema. */
   json?: "json_object" | Record<string, unknown>;
   temperature?: number;
-}
-
-export interface TokenLogprob {
-  token: string;
-  logprob: number;
 }
 
 export interface Usage {
@@ -35,10 +30,9 @@ export interface Usage {
 export interface ChatResult {
   content: string;
   usage: Usage;
-  logprobs?: TokenLogprob[];
 }
 
-/** The only surface the features depend on. Token Factory and test doubles implement it. */
+/** The only surface the features depend on. The Meta provider and test doubles implement it. */
 export interface ChatClient {
   chat(req: ChatRequest): Promise<ChatResult>;
 }

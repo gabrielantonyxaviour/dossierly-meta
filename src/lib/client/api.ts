@@ -16,7 +16,7 @@ export function friendlyError(f: ApiFailure): string {
   if (isRateLimited(f)) return "Lots of requests just now. Wait a few seconds and try again.";
   if (needsPlan(f)) return "You have reached the free limit. Upgrade to Dossierly Plus to continue.";
   if (f.status === 0) return "You seem to be offline. Check the connection and try again.";
-  if (f.code === "model_unavailable") return "This model is briefly unavailable at Nebius. Try again in a few minutes.";
+  if (f.code === "model_unavailable") return "The model is briefly unavailable. Try again in a few minutes.";
   return f.error || "Something went wrong. Try again.";
 }
 
@@ -155,10 +155,10 @@ export const api = {
   reminder: (date: string, label: string) => post<unknown>("/api/me/deadlines", { date, label: label.slice(0, 120) }),
   task: <R>(id: string) => call<AgentTask<R>>(`/api/agent/tasks/${encodeURIComponent(id)}`),
   hubChanges: () => call<{ changes: { title: string; summary: string; url: string; detectedAt: string }[]; checkedAt?: string | null; kind?: "official_pages"; personalApplicationStatus?: false }>("/api/hub/changes?country=pl"),
-  asrStart: (audioB64: string, lang: "pl" | "en" | "uk" | "hi" | "ta", translate?: "en" | "pl") =>
-    post<{ id: string }>("/api/asr", translate ? { audio: audioB64, lang, translate } : { audio: audioB64, lang }),
-  asrGet: (id: string) =>
-    call<{ status: "queued" | "running" | "done" | "failed"; text?: string; error?: string; ms?: number; model?: string; translation?: string; translationModel?: string }>(`/api/asr/${encodeURIComponent(id)}`),
+  asrTranscribe: (audioB64: string, lang: "pl" | "en" | "uk" | "hi" | "ta", translate?: "en" | "pl") =>
+    post<{ status: "done"; text: string; ms: number; model: string; translation?: string; translationModel?: string }>(
+      "/api/asr", translate ? { audio: audioB64, lang, translate } : { audio: audioB64, lang },
+    ),
   checkout: (product: Product, code?: string) => post<{ checkoutUrl: string }>("/api/checkout", code ? { product, code } : { product }),
   redeem: (code: string) => post<{ plan: Plan }>("/api/redeem", { code }),
 };

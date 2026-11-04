@@ -144,4 +144,4 @@ export const SAFETY_NOTICE: Record<Language, string> = {
 };
 
 export const NO_AUDIO_NOTICE =
-  "This app never stores audio. Each spoken turn is transcribed by NVIDIA Parakeet on the private-agent host and deleted; only text is sent to the interpreter.";
+  "This app never stores audio. Each spoken turn is transcribed once by Meta Muse Voice Transcribe and the recording is discarded; only text is sent to the interpreter.";

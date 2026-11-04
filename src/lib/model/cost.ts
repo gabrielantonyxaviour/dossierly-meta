@@ -1,4 +1,4 @@
-import { EMBEDDING_PRICE_PER_M, PRICES, keyForModelId } from "../config";
+import { ASR_USD_PER_HOUR, PRICES, SPARK_PRICE } from "../config";
 import type { Run } from "../server/runs";
 import type { Usage } from "./types";
 
@@ -6,12 +6,16 @@ export type { Run };
 
 /** List-price cost in USD; cached input tokens bill at the cached rate. */
 export function costUsd(modelId: string, u: Usage): number {
-  const p = PRICES[keyForModelId(modelId)];
+  const p = priceFor(modelId);
   const fresh = Math.max(0, u.tokensIn - u.cachedTokens);
   return (fresh * p.in + u.cachedTokens * p.cached + u.tokensOut * p.out) / 1_000_000;
 }
 
-export const embeddingCostUsd = (tokens: number) => (tokens * EMBEDDING_PRICE_PER_M) / 1_000_000;
+/** Unknown models (a role moved to another host) bill at Spark rates, the safe upper estimate. */
+export const priceFor = (modelId: string) => PRICES[modelId] ?? SPARK_PRICE;
+
+/** Speech-to-text cost for `seconds` of audio. */
+export const asrCostUsd = (seconds: number) => (Math.max(0, seconds) / 3600) * ASR_USD_PER_HOUR;
 
 export function emptyUsage(): Usage {
   return { tokensIn: 0, tokensOut: 0, cachedTokens: 0 };

@@ -1,26 +1,18 @@
-import type { TokenLogprob } from "../model/types";
-
 const DATE_KEYS = ["dateOnLetter", "deadlineRule.days"];
+const KNOWN = new Set(["dateOnLetter", "deadlineRule.days", "deadlineRule.quote", "caseNumber", "office", "asks", "title", "kind", "fields"]);
 
 /**
- * Fields whose digit tokens the model was unsure about (probability below `threshold`).
- * Without logprobs every date-bearing field is marked for confirmation instead.
+ * Fields the model said it was unsure about (its own "uncertain" list; the provider exposes no token
+ * probabilities). Only known letter fields are kept. When the model omitted the list entirely, every
+ * date-bearing field is marked for confirmation instead.
  */
-export function lowConfidenceFields(raw: string, tokens: TokenLogprob[] | undefined, threshold = 0.85): string[] {
-  if (!tokens?.length) return [...DATE_KEYS, "asks"];
-  const limit = Math.log(threshold);
+export function lowConfidenceFields(uncertain: string[] | undefined): string[] {
+  if (!uncertain) return [...DATE_KEYS, "asks"];
   const out = new Set<string>();
-  let pos = 0;
-  const keyPositions: Array<{ key: string; at: number }> = [];
-  for (const m of raw.matchAll(/"([A-Za-z]+)"\s*:/g)) keyPositions.push({ key: m[1], at: m.index ?? 0 });
-  for (const t of tokens) {
-    const at = raw.indexOf(t.token, pos);
-    const start = at === -1 ? pos : at;
-    pos = start + t.token.length;
-    if (t.logprob >= limit || !/\d/.test(t.token)) continue;
-    const owner = [...keyPositions].reverse().find((k) => k.at < start)?.key;
-    if (!owner) continue;
-    out.add(owner === "days" ? "deadlineRule.days" : owner === "quote" ? "deadlineRule.quote" : owner);
+  for (const raw of uncertain) {
+    const k = raw.trim().replace(/^deadline(?:Rule)?\.?days$/i, "deadlineRule.days").replace(/^deadlineRule\.quote$/i, "deadlineRule.quote");
+    const hit = [...KNOWN].find((n) => n.toLowerCase() === k.toLowerCase());
+    if (hit) out.add(hit);
   }
   return [...out];
 }

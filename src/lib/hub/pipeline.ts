@@ -1,14 +1,14 @@
 /*
- * Prepare pipeline: source selection -> cached/live page text -> chunking -> embedding rank -> passages.
+ * Prepare pipeline: source selection -> cached/live page text -> chunking -> keyword rank -> passages.
  * No model writes text here; the agent (sandbox) or the cloud fallback turns passages into a checklist.
  */
 import { HUB_LIMITS } from "../config";
 import type { Language } from "../schemas";
 import type { Env } from "../server/env";
 import { COUNTRY, bundledPages, coverage, phrases, seedChanges, sources, type HubSource } from "./data";
-import { lexicalRank, rankPassages, type EmbedProvider, type Passage, type Ranked } from "./embed";
+import { lexicalRank, type Passage, type Ranked } from "./rank";
 import { latestSnapshot, listChanges, type HubChange } from "./store";
-import { cachedExtract, type Origin } from "./tavily";
+import { cachedExtract, groundedSearch, type Origin } from "./search";
 import { chunkText } from "./util";
 
 export interface HubContext {
@@ -17,7 +17,7 @@ export interface HubContext {
   passages: Array<{ url: string; title: string; text: string; score: number }>;
   changes: HubChange[];
   phrases: Array<{ local: string; user: string }>;
-  retrieval: { embeddings: EmbedProvider; pages: number; origin: Origin | "snapshot" | "none"; sources: Array<{ url: string; fetchedAt: string | null; kind: "snapshot" | "bundled" | "extract" }> };
+  retrieval: { embeddings: "keyword"; pages: number; origin: Origin | "snapshot" | "none"; sources: Array<{ url: string; fetchedAt: string | null; kind: "snapshot" | "bundled" | "extract" }> };
 }
 
 const TOPIC_WORDS: Array<[string, RegExp]> = [
@@ -95,7 +95,7 @@ export async function buildHubContext(
   }
   let origin: HubContext["retrieval"]["origin"] = pages.length ? "snapshot" : "none";
   if (!pages.length && missing.length) {
-    // Nothing stored or bundled: read-through cache, and a live call only if the cache is cold and today's Tavily budget allows it.
+    // Nothing stored or bundled: read-through cache of the official pages themselves.
     const ex = await cachedExtract(env, missing.map((m) => m.url), { userId: i.userId, demo: true });
     origin = ex.origin;
     for (const p of ex.pages) {
@@ -103,26 +103,27 @@ export async function buildHubContext(
       if (source) { pages.push({ source, text: p.text }); provenance.push({ url: source.url, fetchedAt: null, kind: "extract" }); }
     }
   }
+  const search = pages.length ? null : await groundedSearch(env, query, { userId: i.userId, demo: true });
+  if (search?.passages.length) origin = "live";
   const passages: Passage[] = [
     ...pages.flatMap(({ source, text }) =>
       chunkText(text, HUB_LIMITS.chunkChars).map((t, n) => ({ id: `${source.id}#${n}`, url: source.url, title: source.title, text: t })),
     ),
     ...coveragePassages(topics),
+    ...(search?.passages ?? []).map((p, n) => ({ id: `search#${n}`, url: p.url, title: p.title, text: p.text })),
   ];
-  const shortlist: Passage[] = lexicalRank(query, passages, 40);
-  const { ranked, provider } = await rankPassages(env, query, shortlist, HUB_LIMITS.topK);
-  const top: Ranked[] = ranked;
+  const top: Ranked[] = lexicalRank(query, passages, HUB_LIMITS.topK);
   return {
     query,
     topics,
     passages: top.map((p) => ({ url: p.url, title: p.title, text: p.text, score: Number(p.score.toFixed(4)) })),
     changes: (await mergedChanges(env, 5)),
     phrases: phrasesFor(topics, i.language),
-    retrieval: { embeddings: provider, pages: pages.length, origin, sources: provenance },
+    retrieval: { embeddings: "keyword", pages: pages.length, origin, sources: provenance },
   };
 }
 
-/** Pre-computes embeddings for the usual prepare topics so the first user request is served from the KV cache. */
+/** Pre-reads the usual prepare topics so the first user request is served from the KV cache. */
 export async function warmHub(env: Env): Promise<void> {
   for (const purpose of ["Residence card fingerprints", "Letter wezwanie documents"]) {
     await buildHubContext(env, { userId: "warm", appointment: { office: "Mazowiecki Urząd Wojewódzki w Warszawie", purpose }, language: "en" }).catch(() => undefined);

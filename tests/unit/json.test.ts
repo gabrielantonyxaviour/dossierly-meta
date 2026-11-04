@@ -4,7 +4,7 @@ import { callJson, extractJson } from "@/lib/model/json";
 import { ModelError, type ChatClient, type ChatRequest } from "@/lib/model/types";
 
 const schema = z.object({ translation: z.string().min(1) });
-const req: ChatRequest = { model: "m", messages: [{ role: "user", content: "hi" }], maxTokens: 100, thinking: false };
+const req: ChatRequest = { model: "m", messages: [{ role: "user", content: "hi" }], maxTokens: 100 };
 
 function scripted(replies: string[]) {
   const seen: ChatRequest[] = [];

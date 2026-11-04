@@ -1,9 +1,10 @@
 import type { Run } from "./types";
 
 const MODEL_NAMES: Record<string, string> = {
-  "nvidia/Nemotron-3_5-Lightning": "Nemotron 3.5 Lightning",
-  "nvidia/Nemotron-3.5-Super-VL": "Nemotron 3.5 Super VL",
-  "nvidia/Nemotron-3-Ultra-550b-a55b": "Nemotron 3 Ultra",
+  "muse-spark-1.3": "Muse Spark 1.3",
+  "muse-spark-1.2": "Muse Spark 1.2",
+  "muse-voice-transcribe-1.0": "Muse Voice Transcribe",
+  "sam-3.1": "SAM 3.1",
 };
 
 export function modelName(id: string): string {
@@ -14,7 +15,7 @@ export function modelName(id: string): string {
 
 export const seconds = (ms: number) => `${(ms / 1000).toFixed(ms < 10_000 ? 1 : 0)} s`;
 
-/** "Nemotron 3.5 Lightning · 0.9 s" */
+/** "Muse Spark 1.3 · 0.9 s" */
 export const runLabel = (r: Run) => `${modelName(r.model)} · ${seconds(r.ms)}`;
 
 export function usd(n: number): string {

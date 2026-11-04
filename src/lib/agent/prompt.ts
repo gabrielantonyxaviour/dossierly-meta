@@ -1,4 +1,4 @@
-/** Shared by the Worker fallback and the M2 bridge; no imports so Node can strip types and run it. */
+/** Prompt helpers for the in-Worker agent run. */
 export const LANGUAGE_NAMES = { en: "English", uk: "Ukrainian", ru: "Russian", hi: "Hindi", ta: "Tamil", zh: "Chinese", ja: "Japanese", vi: "Vietnamese" } as const;
 
 export function fillPrompt(template: string, language: keyof typeof LANGUAGE_NAMES): string {
@@ -7,4 +7,4 @@ export function fillPrompt(template: string, language: keyof typeof LANGUAGE_NAM
 
 /** The JSON-only tail appended whenever a model (not a tool-using agent) answers directly. */
 export const DIRECT_ANSWER_NOTE =
-  "The files named above are given inline below under their sandbox paths. You cannot edit files here: skip any instruction to edit or re-read a file and only produce the final JSON answer.";
+  "The sections named above are given inline below under their labels. You cannot edit anything here: only produce the final JSON answer.";
