@@ -59,3 +59,4 @@
 .ob-more-note { margin: 0; font-size: 13px; color: var(--ink-3); text-align: center; }
 .ob-top > a { text-decoration: none; }
 @media (max-width: 480px) { .ob-who { display: none; } .ob-steps { max-width: none; margin-inline: 8px 0; } }
+.ob strong { font-weight: 500; }
