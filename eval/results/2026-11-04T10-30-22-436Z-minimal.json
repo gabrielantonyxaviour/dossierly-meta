@@ -1,0 +1,4658 @@
+{
+ "generatedAt": "2026-11-04T10:31:36.179Z",
+ "budgetUsd": 1.9,
+ "spentUsd": 0.7502,
+ "datasetLetters": 28,
+ "images": 28,
+ "summary": {
+  "spark-1.2-minimal": {
+   "all": {
+    "n": 28,
+    "failures": 0,
+    "caseNumber": 1,
+    "letterDate": 1,
+    "periodAmountUnit": 1,
+    "startRuleDelivery": 1,
+    "letterType": 1,
+    "docsF1": 1,
+    "docsPrecision": 1,
+    "docsRecall": 1,
+    "deadlineCorrect": 1,
+    "appointmentExact": 1,
+    "boxFound": 1,
+    "iouSparkMean": 0.08626786933233634,
+    "iouSamMean": 0.1108809675083202,
+    "iouSparkGe50": 0.041666666666666664,
+    "iouSamGe50": 0.041666666666666664,
+    "iouSparkGe75": 0.041666666666666664,
+    "iouSamGe75": 0.041666666666666664,
+    "samUsedMask": 1,
+    "latencyReadP50": 6666,
+    "latencyReadP95": 18390.649999999998,
+    "latencySamP50": 1732,
+    "costPerLetterUsd": 0.026793632142857144,
+    "costModelOnlyUsd": 0.024650775000000007,
+    "tokensInMean": 7759.107142857143,
+    "tokensOutMean": 4676.678571428572,
+    "totalUsd": 0.7502216999999999
+   },
+   "clean": {
+    "n": 28,
+    "failures": 0,
+    "caseNumber": 1,
+    "letterDate": 1,
+    "periodAmountUnit": 1,
+    "startRuleDelivery": 1,
+    "letterType": 1,
+    "docsF1": 1,
+    "docsPrecision": 1,
+    "docsRecall": 1,
+    "deadlineCorrect": 1,
+    "appointmentExact": 1,
+    "boxFound": 1,
+    "iouSparkMean": 0.08626786933233634,
+    "iouSamMean": 0.1108809675083202,
+    "iouSparkGe50": 0.041666666666666664,
+    "iouSamGe50": 0.041666666666666664,
+    "iouSparkGe75": 0.041666666666666664,
+    "iouSamGe75": 0.041666666666666664,
+    "samUsedMask": 1,
+    "latencyReadP50": 6666,
+    "latencyReadP95": 18390.649999999998,
+    "latencySamP50": 1732,
+    "costPerLetterUsd": 0.026793632142857144,
+    "costModelOnlyUsd": 0.024650775000000007,
+    "tokensInMean": 7759.107142857143,
+    "tokensOutMean": 4676.678571428572,
+    "totalUsd": 0.7502216999999999
+   },
+   "photo": {
+    "n": 0,
+    "failures": 0,
+    "caseNumber": null,
+    "letterDate": null,
+    "periodAmountUnit": null,
+    "startRuleDelivery": null,
+    "letterType": null,
+    "docsF1": 0,
+    "docsPrecision": 0,
+    "docsRecall": 0,
+    "deadlineCorrect": null,
+    "appointmentExact": null,
+    "boxFound": null,
+    "iouSparkMean": 0,
+    "iouSamMean": 0,
+    "iouSparkGe50": null,
+    "iouSamGe50": null,
+    "iouSparkGe75": null,
+    "iouSamGe75": null,
+    "samUsedMask": null,
+    "latencyReadP50": 0,
+    "latencyReadP95": 0,
+    "latencySamP50": 0,
+    "costPerLetterUsd": 0,
+    "costModelOnlyUsd": 0,
+    "tokensInMean": 0,
+    "tokensOutMean": 0,
+    "totalUsd": 0
+   },
+   "byType": {
+    "wezwanie_braki": {
+     "n": 12,
+     "failures": 0,
+     "caseNumber": 1,
+     "letterDate": 1,
+     "periodAmountUnit": 1,
+     "startRuleDelivery": 1,
+     "letterType": 1,
+     "docsF1": 1,
+     "docsPrecision": 1,
+     "docsRecall": 1,
+     "deadlineCorrect": 1,
+     "appointmentExact": null,
+     "boxFound": 1,
+     "iouSparkMean": 0.13321306870636107,
+     "iouSamMean": 0.14837293907654622,
+     "iouSparkGe50": 0.08333333333333333,
+     "iouSamGe50": 0.08333333333333333,
+     "iouSparkGe75": 0.08333333333333333,
+     "iouSamGe75": 0.08333333333333333,
+     "samUsedMask": 1,
+     "latencyReadP50": 6825,
+     "latencyReadP95": 13028.349999999991,
+     "latencySamP50": 2186,
+     "costPerLetterUsd": 0.026024387500000006,
+     "costModelOnlyUsd": 0.023524387500000004,
+     "tokensInMean": 7467.583333333333,
+     "tokensOutMean": 4455,
+     "totalUsd": 0.31229265000000006
+    },
+    "wezwanie_dokumenty": {
+     "n": 6,
+     "failures": 0,
+     "caseNumber": 1,
+     "letterDate": 1,
+     "periodAmountUnit": 1,
+     "startRuleDelivery": 1,
+     "letterType": 1,
+     "docsF1": 1,
+     "docsPrecision": 1,
+     "docsRecall": 1,
+     "deadlineCorrect": 1,
+     "appointmentExact": null,
+     "boxFound": 1,
+     "iouSparkMean": 0,
+     "iouSamMean": 0.03239286195705146,
+     "iouSparkGe50": 0,
+     "iouSamGe50": 0,
+     "iouSparkGe75": 0,
+     "iouSamGe75": 0,
+     "samUsedMask": 1,
+     "latencyReadP50": 6442.5,
+     "latencyReadP95": 14822,
+     "latencySamP50": 1069,
+     "costPerLetterUsd": 0.02696835,
+     "costModelOnlyUsd": 0.02446835,
+     "tokensInMean": 7885.166666666667,
+     "tokensOutMean": 4578.166666666667,
+     "totalUsd": 0.1618101
+    },
+    "decision": {
+     "n": 6,
+     "failures": 0,
+     "caseNumber": 1,
+     "letterDate": 1,
+     "periodAmountUnit": 1,
+     "startRuleDelivery": 1,
+     "letterType": 1,
+     "docsF1": 0,
+     "docsPrecision": 0,
+     "docsRecall": 0,
+     "deadlineCorrect": 1,
+     "appointmentExact": null,
+     "boxFound": 1,
+     "iouSparkMean": 0.07864533991662319,
+     "iouSamMean": 0.11438512992313689,
+     "iouSparkGe50": 0,
+     "iouSamGe50": 0,
+     "iouSparkGe75": 0,
+     "iouSamGe75": 0,
+     "samUsedMask": 1,
+     "latencyReadP50": 6765.5,
+     "latencyReadP95": 22560.5,
+     "latencySamP50": 1732,
+     "costPerLetterUsd": 0.027998924999999997,
+     "costModelOnlyUsd": 0.025498925000000002,
+     "tokensInMean": 7883.833333333333,
+     "tokensOutMean": 4937,
+     "totalUsd": 0.16799355000000002
+    },
+    "appointment": {
+     "n": 4,
+     "failures": 0,
+     "caseNumber": 1,
+     "letterDate": 1,
+     "periodAmountUnit": null,
+     "startRuleDelivery": null,
+     "letterType": 1,
+     "docsF1": 0,
+     "docsPrecision": 0,
+     "docsRecall": 0,
+     "deadlineCorrect": null,
+     "appointmentExact": 1,
+     "boxFound": null,
+     "iouSparkMean": 0,
+     "iouSamMean": 0,
+     "iouSparkGe50": null,
+     "iouSamGe50": null,
+     "iouSparkGe75": null,
+     "iouSamGe75": null,
+     "samUsedMask": null,
+     "latencyReadP50": 6370.5,
+     "latencyReadP95": 11558.949999999997,
+     "latencySamP50": 0,
+     "costPerLetterUsd": 0.027031350000000003,
+     "costModelOnlyUsd": 0.027031350000000003,
+     "tokensInMean": 8257.5,
+     "tokensOutMean": 5099,
+     "totalUsd": 0.10812540000000001
+    }
+   }
+  }
+ },
+ "jobs": {
+  "spark-1.2-minimal": [
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L01",
+    "type": "wezwanie_braki",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     108,
+     1165,
+     1104,
+     1238
+    ],
+    "sam": [
+     108,
+     1165,
+     1104,
+     1238
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1080,
+     1130,
+     1156
+    ],
+    "iouSpark": 0,
+    "iouSam": 0,
+    "readMs": 6561,
+    "groundMs": 6551,
+    "samMs": 2346,
+    "costUsd": 0.0202916,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3452,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to complete missing documents",
+     "summary": "This is a summons (Wezwanie) from the Małopolska Voivode's Office to complete formal deficiencies in an application for a temporary residence permit for the purpose of continuing studies filed on 30.11.2026. It lists 3 missing documents and sets a 14-day deadline from delivery, warning that failure to comply will leave the application without consideration.",
+     "actions": [
+      "Submit the 3 missing documents within 14 days of receiving this letter",
+      "Quote case number WSO-III.6151.47784.2026 on all submissions and correspondence",
+      "Keep proof of delivery/submission for your records"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Wymagane dokumenty należy złożyć w ciągu 14 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+       "meaning": "You must submit the requested documents within 14 days counted from the day you receive this letter, or the application will be left without consideration.",
+       "box": [
+        108,
+        1165,
+        1104,
+        1238
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSO-III.6151.47784.2026",
+       "meaning": "Use this exact case number in all contacts with the office about this case.",
+       "box": [
+        640,
+        356,
+        1105,
+        391
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Kraków, dnia 27.01.2027 r.",
+       "meaning": "This is the date and place the office issued the letter.",
+       "box": [
+        802,
+        116,
+        1187,
+        149
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "office",
+       "label": "Office",
+       "text": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+       "meaning": "This is the office that sent the letter and handles your case.",
+       "box": [
+        109,
+        184,
+        872,
+        217
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "documents",
+       "label": "Requested document 1",
+       "text": "1. umowy o pracę lub zaświadczenia o zatrudnieniu,",
+       "meaning": "You must submit an employment contract or a certificate of employment.",
+       "box": [
+        126,
+        951,
+        787,
+        984
+       ]
+      },
+      {
+       "id": "i6",
+       "role": "documents",
+       "label": "Requested document 2",
+       "text": "2. dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego na cały okres pobytu oraz",
+       "meaning": "You must submit a document proving you have health insurance for the whole period of your stay.",
+       "box": [
+        128,
+        998,
+        1105,
+        1075
+       ]
+      },
+      {
+       "id": "i7",
+       "role": "documents",
+       "label": "Requested document 3",
+       "text": "3. dowodu uiszczenia opłaty skarbowej.",
+       "meaning": "You must submit proof that you paid the stamp duty.",
+       "box": [
+        128,
+        1087,
+        652,
+        1121
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSO-III.6151.47784.2026",
+      "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2027-01-27",
+      "asks": [
+       "employment contract or certificate of employment",
+       "document confirming possession of health insurance for the entire period of stay",
+       "proof of payment of the stamp duty"
+      ],
+      "asksLocal": [
+       "umowy o pracę lub zaświadczenia o zatrudnieniu",
+       "dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego na cały okres pobytu",
+       "dowodu uiszczenia opłaty skarbowej"
+      ],
+      "deadlineRule": {
+       "amount": 14,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Wymagane dokumenty należy złożyć w ciągu 14 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania."
+      },
+      "legalBasis": "art. 64 § 2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L02",
+    "type": "wezwanie_braki",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     104,
+     1217,
+     1109,
+     1298
+    ],
+    "sam": [
+     104,
+     1217,
+     1109,
+     1298
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1130,
+     1130,
+     1205
+    ],
+    "iouSpark": 0,
+    "iouSam": 0,
+    "readMs": 8026,
+    "groundMs": 8008,
+    "samMs": 1156,
+    "costUsd": 0.0179663,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3928,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to complete missing documents for temporary residence permit",
+     "summary": "This is a summons (Wezwanie) to correct formal defects in an application for a temporary residence permit to continue studies, filed on 14.11.2026. It lists 4 missing documents that must be submitted and warns that failure to submit them within the deadline will result in the application being left without examination.",
+     "actions": [
+      "Submit the 4 requested documents within 7 days of receiving this letter",
+      "Keep the case number WSO-III.6151.86383.2026 on all submissions and correspondence",
+      "Contact Małopolski Urząd Wojewódzki in Krakow if you cannot meet the deadline"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Wymagane dokumenty należy złożyć w ciągu 7 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+       "meaning": "You have 7 days from the day you receive this letter to submit the documents, or your application will be left unexamined.",
+       "box": [
+        104,
+        1217,
+        1109,
+        1298
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSO-III.6151.86383.2026",
+       "meaning": "This is your file reference number to use in all contacts with the office.",
+       "box": [
+        641,
+        363,
+        1107,
+        395
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Kraków, dnia 08.12.2026 r.",
+       "meaning": "This is the place and date when the letter was issued.",
+       "box": [
+        794,
+        116,
+        1159,
+        147
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "office",
+       "label": "Office",
+       "text": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+       "meaning": "This is the office that sent the letter and handles your case.",
+       "box": [
+        107,
+        184,
+        869,
+        214
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "documents",
+       "label": "Document 1",
+       "text": "1. umowy o pracę lub zaświadczenia o zatrudnieniu,",
+       "meaning": "You are asked to provide an employment contract or employment certificate.",
+       "box": [
+        126,
+        965,
+        827,
+        1000
+       ]
+      },
+      {
+       "id": "i6",
+       "role": "documents",
+       "label": "Document 2",
+       "text": "2. umowy najmu lokalu, w którym Pani obecnie zamieszkuje,",
+       "meaning": "You are asked to provide the rental agreement for where you currently live.",
+       "box": [
+        128,
+        1014,
+        903,
+        1049
+       ]
+      },
+      {
+       "id": "i7",
+       "role": "documents",
+       "label": "Document 3",
+       "text": "3. wyciągu z rachunku bankowego potwierdzającego posiadanie stabilnego i regularnego źródła dochodu oraz",
+       "meaning": "You are asked to provide a bank statement proving you have a stable and regular income.",
+       "box": [
+        126,
+        1063,
+        1055,
+        1142
+       ]
+      },
+      {
+       "id": "i8",
+       "role": "documents",
+       "label": "Document 4",
+       "text": "4. nowej, aktualnej fotografii spełniającej wymogi (35 × 45 mm).",
+       "meaning": "You are asked to provide a new, current photograph meeting the 35x45 mm requirements.",
+       "box": [
+        126,
+        1158,
+        889,
+        1193
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSO-III.6151.86383.2026",
+      "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2026-12-08",
+      "asks": [
+       "employment contract or certificate of employment",
+       "rental agreement for the apartment where you currently live",
+       "bank account statement confirming stable and regular source of income",
+       "new, current photograph meeting requirements (35 x 45 mm)"
+      ],
+      "asksLocal": [
+       "umowy o pracę lub zaświadczenia o zatrudnieniu",
+       "umowy najmu lokalu, w którym Pani obecnie zamieszkuje",
+       "wyciągu z rachunku bankowego potwierdzającego posiadanie stabilnego i regularnego źródła dochodu",
+       "nowej, aktualnej fotografii spełniającej wymogi (35 × 45 mm)"
+      ],
+      "deadlineRule": {
+       "amount": 7,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Wymagane dokumenty należy złożyć w ciągu 7 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania."
+      },
+      "legalBasis": "art. 64 § 2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L03",
+    "type": "wezwanie_braki",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     107,
+     1233,
+     1109,
+     1317
+    ],
+    "sam": [
+     107,
+     1233,
+     1109,
+     1317
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1124,
+     1130,
+     1199
+    ],
+    "iouSpark": 0,
+    "iouSam": 0,
+    "readMs": 8257,
+    "groundMs": 8238,
+    "samMs": 1231,
+    "costUsd": 0.020064600000000002,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3726,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to complete missing documents for temporary residence permit",
+     "summary": "This is a summons (Wezwanie) from the Mazowiecki Voivodeship Office to fix formal defects in your temporary residence permit application for scientific research, filed on 18.08.2026. It lists 3 missing documents you must provide within 14 days of receipt, otherwise the application will be left unexamined.",
+     "actions": [
+      "Submit the 3 missing documents within 14 days of receiving this letter",
+      "Quote case number WSC-II-P.6151.81354.2026 in all correspondence and submissions",
+      "Contact the Mazowiecki Urząd Wojewódzki in Warsaw if you cannot meet the deadline"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Wymagane dokumenty należy złożyć w ciągu 14 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+       "meaning": "You must submit the requested documents within 14 days after you receive this letter, otherwise your application will be left without examination.",
+       "box": [
+        107,
+        1233,
+        1109,
+        1317
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSC-II-P.6151.81354.2026",
+       "meaning": "This is the official reference number for your case to use in all contact with the office.",
+       "box": [
+        613,
+        379,
+        1106,
+        416
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Warszawa, dnia 11.10.2026 r.",
+       "meaning": "This is when and where the letter was issued.",
+       "box": [
+        769,
+        118,
+        1130,
+        149
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "office",
+       "label": "Office",
+       "text": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+       "meaning": "This is the authority handling your case.",
+       "box": [
+        107,
+        188,
+        919,
+        221
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "documents",
+       "label": "Document 1",
+       "text": "1. kopii wszystkich wypełnionych stron ważnego dokumentu podróży,",
+       "meaning": "You need to provide a copy of all filled pages of your valid travel document (passport).",
+       "box": [
+        134,
+        1024,
+        1011,
+        1063
+       ]
+      },
+      {
+       "id": "i6",
+       "role": "documents",
+       "label": "Document 2",
+       "text": "2. dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego na cały okres pobytu oraz",
+       "meaning": "You need to provide a document proving you have health insurance for the entire stay.",
+       "box": [
+        134,
+        1075,
+        1109,
+        1159
+       ]
+      },
+      {
+       "id": "i7",
+       "role": "documents",
+       "label": "Document 3",
+       "text": "3. dowodu uiszczenia opłaty skarbowej.",
+       "meaning": "You need to provide proof that you paid the stamp duty fee.",
+       "box": [
+        134,
+        1173,
+        626,
+        1207
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSC-II-P.6151.81354.2026",
+      "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2026-10-11",
+      "asks": [
+       "copy of all filled pages of a valid travel document",
+       "document confirming possession of health insurance for the entire period of stay",
+       "proof of payment of the stamp duty"
+      ],
+      "asksLocal": [
+       "kopii wszystkich wypełnionych stron ważnego dokumentu podróży",
+       "dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego na cały okres pobytu",
+       "dowodu uiszczenia opłaty skarbowej"
+      ],
+      "deadlineRule": {
+       "amount": 14,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Wymagane dokumenty należy złożyć w ciągu 14 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania."
+      },
+      "legalBasis": "art. 64 § 2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L06",
+    "type": "wezwanie_braki",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     109,
+     1307,
+     1102,
+     1382
+    ],
+    "sam": [
+     109,
+     1307,
+     1102,
+     1382
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1217,
+     1130,
+     1292
+    ],
+    "iouSpark": 0,
+    "iouSam": 0,
+    "readMs": 7415,
+    "groundMs": 7412,
+    "samMs": 1170,
+    "costUsd": 0.022453100000000004,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 4288,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to complete missing documents",
+     "summary": "This is a summons (Wezwanie) from the Małopolski Urząd Wojewódzki in Krakow to complete missing formal defects of an application for a temporary residence permit for scientific research filed on 25.09.2026. It lists 4 missing documents and sets a 21-day deadline from delivery, otherwise the application will be left unexamined.",
+     "actions": [
+      "Submit the 4 missing documents within 21 days of receiving this letter",
+      "Quote your case number WSO-III.6151.78785.2026 on everything you send",
+      "Keep proof of delivery and check the address: Małopolski Urząd Wojewódzki w Krakowie, Wydział Spraw Obcokrajowców"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Wymagane dokumenty należy złożyć w terminie 21 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+       "meaning": "You have 21 days from when this letter is delivered to you to submit the documents, otherwise your application will be left without examination.",
+       "box": [
+        109,
+        1307,
+        1102,
+        1382
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSO-III.6151.78785.2026",
+       "meaning": "Use this reference number in all contact with the office about this case.",
+       "box": [
+        639,
+        346,
+        1095,
+        377
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Kraków, dnia 20.11.2026 r.",
+       "meaning": "This is when and where the letter was issued.",
+       "box": [
+        781,
+        114,
+        1156,
+        149
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "office",
+       "label": "Office name",
+       "text": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+       "meaning": "This is the office handling your case.",
+       "box": [
+        109,
+        186,
+        842,
+        219
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "documents",
+       "label": "Requested document 1",
+       "text": "1. dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego na cały okres pobytu,",
+       "meaning": "You must provide proof of health insurance for the entire stay.",
+       "box": [
+        133,
+        1024,
+        1151,
+        1105
+       ]
+      },
+      {
+       "id": "i6",
+       "role": "documents",
+       "label": "Requested document 2",
+       "text": "2. nowej, aktualnej fotografii spełniającej wymogi (35 × 45 mm),",
+       "meaning": "You must provide a new recent photo meeting the 35x45 mm requirements.",
+       "box": [
+        133,
+        1119,
+        957,
+        1156
+       ]
+      },
+      {
+       "id": "i7",
+       "role": "documents",
+       "label": "Requested document 3",
+       "text": "3. umowy najmu lokalu, w którym Pani obecnie zamieszkuje oraz",
+       "meaning": "You must provide the rental contract for where you currently live.",
+       "box": [
+        131,
+        1166,
+        1052,
+        1201
+       ]
+      },
+      {
+       "id": "i8",
+       "role": "documents",
+       "label": "Requested document 4",
+       "text": "4. wyciągu z rachunku bankowego potwierdzającego posiadanie stabilnego i regularnego źródła dochodu.",
+       "meaning": "You must provide a bank statement proving a stable and regular source of income.",
+       "box": [
+        131,
+        1212,
+        1074,
+        1289
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSO-III.6151.78785.2026"
+     },
+     "letter": {
+      "dateOnLetter": "2026-11-20",
+      "asks": [
+       "document confirming health insurance for the entire period of stay",
+       "new, recent photograph meeting requirements (35 x 45 mm)",
+       "rental contract for the premises where you currently reside",
+       "bank account statement confirming stable and regular source of income"
+      ],
+      "asksLocal": [
+       "dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego na cały okres pobytu",
+       "nowej, aktualnej fotografii spełniającej wymogi (35 × 45 mm)",
+       "umowy najmu lokalu, w którym Pani obecnie zamieszkuje",
+       "wyciągu z rachunku bankowego potwierdzającego posiadanie stabilnego i regularnego źródła dochodu"
+      ],
+      "deadlineRule": {
+       "amount": 21,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Wymagane dokumenty należy złożyć w terminie 21 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania."
+      },
+      "legalBasis": "art. 64 § 2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L05",
+    "type": "wezwanie_braki",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     103,
+     1214,
+     1105,
+     1298
+    ],
+    "sam": [
+     103,
+     1214,
+     1105,
+     1298
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1124,
+     1130,
+     1199
+    ],
+    "iouSpark": 0,
+    "iouSam": 0,
+    "readMs": 6992,
+    "groundMs": 6984,
+    "samMs": 2838,
+    "costUsd": 0.02009435,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3733,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to complete formal deficiencies of application",
+     "summary": "This is a summons (Wezwanie) from the Małopolska Voivode Office to correct formal deficiencies in an application for a temporary residence permit for family reunification filed on 25.12.2026. You must supply the listed documents within 7 days of delivery, or the application will be left without examination.",
+     "actions": [
+      "Submit the 3 requested documents within 7 days of receiving this letter",
+      "Quote case number WSO-III.6151.18211.2026 in all contacts and on the envelope",
+      "Contact the office at ul. Basztowa 22, 31-156 Krakow if you cannot meet the deadline"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Wymagane dokumenty należy złożyć w terminie 7 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+       "meaning": "You must submit the requested documents within 7 days counted from the day this letter is delivered to you, or your application will not be examined.",
+       "box": [
+        103,
+        1214,
+        1105,
+        1298
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSO-III.6151.18211.2026",
+       "meaning": "This is the reference number of your case to use in all correspondence.",
+       "box": [
+        644,
+        374,
+        1106,
+        409
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Kraków, dnia 29.01.2027 r.",
+       "meaning": "This is the date and place the office issued the letter.",
+       "box": [
+        802,
+        128,
+        1158,
+        163
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "office",
+       "label": "Office",
+       "text": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+       "meaning": "This is the office that issued the letter and is handling your case.",
+       "box": [
+        103,
+        203,
+        833,
+        237
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "documents",
+       "label": "Requested document 1",
+       "text": "1. umowy najmu lokalu, w którym Pan obecnie zamieszkuje,",
+       "meaning": "You must provide the rental contract for the flat where you currently live.",
+       "box": [
+        131,
+        972,
+        897,
+        1007
+       ]
+      },
+      {
+       "id": "i6",
+       "role": "documents",
+       "label": "Requested document 2",
+       "text": "2. dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego na cały okres pobytu oraz",
+       "meaning": "You must provide a document proving you have health insurance for the whole period of stay.",
+       "box": [
+        130,
+        1017,
+        1105,
+        1100
+       ]
+      },
+      {
+       "id": "i7",
+       "role": "documents",
+       "label": "Requested document 3",
+       "text": "3. wyciągu z rachunku bankowego potwierdzającego posiadanie stabilnego i regularnego źródła dochodu.",
+       "meaning": "You must provide a bank statement proving you have a stable and regular source of income.",
+       "box": [
+        130,
+        1112,
+        1055,
+        1194
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSO-III.6151.18211.2026",
+      "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2027-01-29",
+      "asks": [
+       "rental contract for the flat where you currently live",
+       "document confirming health insurance for the entire period of stay",
+       "bank account statement confirming a stable and regular source of income"
+      ],
+      "asksLocal": [
+       "umowy najmu lokalu, w którym Pan obecnie zamieszkuje",
+       "dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego na cały okres pobytu",
+       "wyciągu z rachunku bankowego potwierdzającego posiadanie stabilnego i regularnego źródła dochodu"
+      ],
+      "deadlineRule": {
+       "amount": 7,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Wymagane dokumenty należy złożyć w terminie 7 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania."
+      },
+      "legalBasis": "art. 64 § 2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L07",
+    "type": "wezwanie_braki",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     108,
+     1175,
+     1101,
+     1252
+    ],
+    "sam": [
+     108,
+     1175,
+     1101,
+     1252
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1080,
+     1130,
+     1156
+    ],
+    "iouSpark": 0,
+    "iouSam": 0,
+    "readMs": 6270,
+    "groundMs": 6264,
+    "samMs": 4747,
+    "costUsd": 0.0203961,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3804,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to complete formal deficiencies of application",
+     "summary": "This is a summons (Wezwanie) from the Małopolski Voivode Office in Kraków to complete formal deficiencies in an application for a temporary residence permit for studies, submitted on 30.11.2026. It lists three missing documents you must provide. If you do not submit them within the stated deadline, your application will be left without examination.",
+     "actions": [
+      "Submit the 3 missing documents within 14 days of receiving this letter",
+      "Quote your case number WSO-III.6151.21506.2026 on all submissions and correspondence",
+      "Keep proof of delivery/submission; if you cannot meet the deadline, contact the office immediately and request an extension"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Wymagane dokumenty należy złożyć w terminie 14 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+       "meaning": "You must submit the requested documents within 14 days counted from the day this summons is delivered to you, otherwise your application will be left unexamined.",
+       "box": [
+        108,
+        1175,
+        1101,
+        1252
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSO-III.6151.21506.2026",
+       "meaning": "This is your case reference number to use in all contacts with the office.",
+       "box": [
+        640,
+        379,
+        1106,
+        410
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Kraków, dnia 04.01.2027 r.",
+       "meaning": "This is the date and place where the letter was issued.",
+       "box": [
+        807,
+        114,
+        1158,
+        149
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "office",
+       "label": "Office name",
+       "text": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+       "meaning": "This is the office that issued the letter and handles your case.",
+       "box": [
+        109,
+        184,
+        872,
+        217
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "documents",
+       "label": "Requested document 1",
+       "text": "1. umowy o pracę lub zaświadczenia o zatrudnieniu,",
+       "meaning": "You need to provide an employment contract or certificate of employment.",
+       "box": [
+        130,
+        975,
+        774,
+        1009
+       ]
+      },
+      {
+       "id": "i6",
+       "role": "documents",
+       "label": "Requested document 2",
+       "text": "2. kopii wszystkich wypełnionych stron ważnego dokumentu podróży oraz",
+       "meaning": "You need to provide a copy of all filled pages of your valid travel document.",
+       "box": [
+        130,
+        1019,
+        1038,
+        1052
+       ]
+      },
+      {
+       "id": "i7",
+       "role": "documents",
+       "label": "Requested document 3",
+       "text": "3. wyciągu z rachunku bankowego potwierdzającego posiadanie stabilnego i regularnego źródła dochodu.",
+       "meaning": "You need to provide a bank statement proving a stable and regular source of income.",
+       "box": [
+        130,
+        1061,
+        1078,
+        1140
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSO-III.6151.21506.2026"
+     },
+     "letter": {
+      "dateOnLetter": "2027-01-04",
+      "asks": [
+       "employment contract or certificate of employment",
+       "copy of all filled pages of a valid travel document",
+       "bank statement confirming a stable and regular source of income"
+      ],
+      "asksLocal": [
+       "umowy o pracę lub zaświadczenia o zatrudnieniu",
+       "kopii wszystkich wypełnionych stron ważnego dokumentu podróży",
+       "wyciągu z rachunku bankowego potwierdzającego posiadanie stabilnego i regularnego źródła dochodu"
+      ],
+      "deadlineRule": {
+       "amount": 14,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Wymagane dokumenty należy złożyć w terminie 14 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania."
+      },
+      "legalBasis": "art. 64 § 2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L04",
+    "type": "wezwanie_braki",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     108,
+     1130,
+     1106,
+     1203
+    ],
+    "sam": [
+     108,
+     1130,
+     1106,
+     1203
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1080,
+     1130,
+     1156
+    ],
+    "iouSpark": 0.20803676151609118,
+    "iouSam": 0.20803676151609118,
+    "readMs": 18860,
+    "groundMs": 7622,
+    "samMs": 2064,
+    "costUsd": 0.05968785,
+    "samUsd": 0.0025,
+    "tokensIn": 11797,
+    "tokensOut": 11660,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to complete missing documents",
+     "summary": "This is a summons to remedy formal defects in a temporary residence application for family reunification filed on 10.12.2026. The office requires three documents within 14 days of delivery. If you miss the deadline, your application will be left without examination.",
+     "actions": [
+      "Submit the 3 requested documents within 14 days of delivery",
+      "Quote case number WSC-II-P.6151.40794.2026 on all submissions",
+      "Contact Mazowiecki Urząd Wojewódzki Wydział Spraw Cudzoziemców if you cannot meet deadline"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Wymagane dokumenty należy złożyć w terminie 14 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+       "meaning": "You have 14 days from when this letter is delivered to you to submit the documents, or your application will not be examined.",
+       "box": [
+        108,
+        1130,
+        1106,
+        1203
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSC-II-P.6151.40794.2026",
+       "meaning": "Use this reference number in all contacts and submissions to the office.",
+       "box": [
+        615,
+        377,
+        1107,
+        407
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Warszawa, dnia 06.01.2027 r.",
+       "meaning": "This is when and where the letter was issued.",
+       "box": [
+        791,
+        112,
+        1133,
+        149
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "office",
+       "label": "Office",
+       "text": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+       "meaning": "This is the authority handling your case.",
+       "box": [
+        107,
+        196,
+        864,
+        225
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "documents",
+       "label": "Requested document 1",
+       "text": "1. dowodu uiszczenia opłaty skarbowej,",
+       "meaning": "You must provide proof that the administrative fee has been paid.",
+       "box": [
+        129,
+        933,
+        672,
+        966
+       ]
+      },
+      {
+       "id": "i6",
+       "role": "documents",
+       "label": "Requested document 2",
+       "text": "2. umowy najmu lokalu, w którym Pani obecnie zamieszkuje oraz",
+       "meaning": "You must provide the rental agreement for the flat where you currently live.",
+       "box": [
+        128,
+        979,
+        981,
+        1012
+       ]
+      },
+      {
+       "id": "i7",
+       "role": "documents",
+       "label": "Requested document 3",
+       "text": "3. dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego na cały okres pobytu.",
+       "meaning": "You must provide proof of health insurance covering the entire period of stay.",
+       "box": [
+        128,
+        1023,
+        1105,
+        1096
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSC-II-P.6151.40794.2026",
+      "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2027-01-06",
+      "asks": [
+       "proof of payment of stamp duty",
+       "rental agreement for the premises where you currently reside",
+       "document confirming possession of health insurance for the entire period of stay"
+      ],
+      "asksLocal": [
+       "dowodu uiszczenia opłaty skarbowej",
+       "umowy najmu lokalu, w którym Pani obecnie zamieszkuje",
+       "dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego na cały okres pobytu"
+      ],
+      "deadlineRule": {
+       "amount": 14,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Wymagane dokumenty należy złożyć w terminie 14 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania."
+      },
+      "legalBasis": "art. 64 § 2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L09",
+    "type": "wezwanie_braki",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     105,
+     1098,
+     1131,
+     1186
+    ],
+    "sam": [
+     105,
+     1098,
+     1131,
+     1186
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     981,
+     1130,
+     1057
+    ],
+    "iouSpark": 0,
+    "iouSam": 0,
+    "readMs": 5366,
+    "groundMs": 5365,
+    "samMs": 1958,
+    "costUsd": 0.019482350000000002,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3589,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to complete missing documents for temporary residence application",
+     "summary": "This is a summons to remedy formal deficiencies in an application for a temporary residence permit for family reunification, filed on 15.11.2026. The office requires a certificate of registration at the new address. If the document is not submitted within 14 days of delivery, the application will be left without consideration.",
+     "actions": [
+      "Submit the registration certificate at the new address within 14 days of receiving this letter.",
+      "Quote the case number WSC-II-P.6151.56036.2026 on all submissions and correspondence.",
+      "Keep proof of delivery/submission for your records."
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Wymagane dokumenty należy złożyć w terminie 14 dni od daty doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+       "meaning": "This is the time limit to deliver the requested document, counted from when you receive the letter; missing it means the application will be left without examination.",
+       "box": [
+        105,
+        1098,
+        1131,
+        1186
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSC-II-P.6151.56036.2026",
+       "meaning": "This is the official file reference you must use when contacting the office.",
+       "box": [
+        611,
+        375,
+        1083,
+        414
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Warszawa, dnia 23.01.2027 r.",
+       "meaning": "This is the date and place where the letter was issued.",
+       "box": [
+        781,
+        116,
+        1168,
+        153
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "documents",
+       "label": "Requested document",
+       "text": "1. zaświadczenia o zameldowaniu pod nowym adresem pobytu.",
+       "meaning": "The office is asking for proof that you are registered at your new address.",
+       "box": [
+        134,
+        1033,
+        900,
+        1072
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "office",
+       "label": "Office",
+       "text": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+       "meaning": "This is the authority that sent the letter and handles your case.",
+       "box": [
+        105,
+        191,
+        920,
+        230
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSC-II-P.6151.56036.2026",
+      "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2027-01-23",
+      "asks": [
+       "certificate of registration at the new place of residence"
+      ],
+      "asksLocal": [
+       "zaświadczenia o zameldowaniu pod nowym adresem pobytu"
+      ],
+      "deadlineRule": {
+       "amount": 14,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Wymagane dokumenty należy złożyć w terminie 14 dni od daty doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania."
+      },
+      "legalBasis": "art. 64 § 2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L08",
+    "type": "wezwanie_braki",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     108,
+     1117,
+     1070,
+     1191
+    ],
+    "sam": [
+     101,
+     1120,
+     1077,
+     1168
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1080,
+     1130,
+     1156
+    ],
+    "iouSpark": 0.33648488334471727,
+    "iouSam": 0.38871767385769795,
+    "readMs": 7233,
+    "groundMs": 7232,
+    "samMs": 3698,
+    "costUsd": 0.02143735,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 4049,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to complete formal gaps in temporary residence application",
+     "summary": "This is a summons (Wezwanie) from the Masovian Voivode Office to complete formal gaps in an application for a temporary residence permit for studies, filed on 04.11.2026. It lists three missing documents that must be submitted within 30 days of delivery, or the application will be left without examination.",
+     "actions": [
+      "Submit the 3 requested documents within 30 days of receiving this letter",
+      "Quote case number WSC-II-P.6151.12701.2026 on all submissions",
+      "If you cannot supply a document, contact the office before the deadline - otherwise your application will be left without examination"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Wymagane dokumenty należy złożyć w ciągu 30 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+       "meaning": "You have 30 days from the day you receive this letter to deliver the documents; if you miss it, the application will not be examined.",
+       "box": [
+        108,
+        1117,
+        1070,
+        1191
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSC-II-P.6151.12701.2026",
+       "meaning": "This is the reference number you must use when contacting the office or sending documents.",
+       "box": [
+        627,
+        375,
+        1074,
+        409
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Warszawa, dnia 12.01.2027 r.",
+       "meaning": "The date and place where this letter was issued.",
+       "box": [
+        781,
+        118,
+        1185,
+        147
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "office",
+       "label": "Office",
+       "text": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+       "meaning": "The authority handling your case.",
+       "box": [
+        107,
+        205,
+        890,
+        233
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "documents",
+       "label": "Requested document 1",
+       "text": "1. umowy o pracę lub zaświadczenia o zatrudnieniu,",
+       "meaning": "You must provide an employment contract or a certificate of employment.",
+       "box": [
+        128,
+        937,
+        717,
+        966
+       ]
+      },
+      {
+       "id": "i6",
+       "role": "documents",
+       "label": "Requested document 2",
+       "text": "2. dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego na cały okres pobytu oraz",
+       "meaning": "You must provide proof of health insurance for the entire stay.",
+       "box": [
+        128,
+        977,
+        1073,
+        1052
+       ]
+      },
+      {
+       "id": "i7",
+       "role": "documents",
+       "label": "Requested document 3",
+       "text": "3. kopii wszystkich wypełnionych stron ważnego dokumentu podróży.",
+       "meaning": "You must provide a copy of all filled pages of your valid travel document.",
+       "box": [
+        128,
+        1063,
+        802,
+        1098
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSC-II-P.6151.12701.2026",
+      "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2027-01-12",
+      "asks": [
+       "employment contract or certificate of employment",
+       "document confirming possession of health insurance for the entire period of stay",
+       "copy of all filled pages of the valid travel document"
+      ],
+      "asksLocal": [
+       "umowy o pracę lub zaświadczenia o zatrudnieniu",
+       "dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego na cały okres pobytu",
+       "kopii wszystkich wypełnionych stron ważnego dokumentu podróży"
+      ],
+      "deadlineRule": {
+       "amount": 30,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Wymagane dokumenty należy złożyć w ciągu 30 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania."
+      },
+      "legalBasis": "art. 64 § 2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L11",
+    "type": "wezwanie_braki",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     108,
+     1117,
+     1106,
+     1200
+    ],
+    "sam": [
+     108,
+     1117,
+     1106,
+     1200
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1074,
+     1130,
+     1150
+    ],
+    "iouSpark": 0.2578165445617558,
+    "iouSam": 0.2578165445617558,
+    "readMs": 6658,
+    "groundMs": 6657,
+    "samMs": 1453,
+    "costUsd": 0.020974100000000002,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3940,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to complete formal defects of application",
+     "summary": "This is a summons (Wezwanie) from the Masovian Voivode Office to complete formal defects in a temporary residence application for family reunification filed on 18.08.2026. It requires you to submit proof of registration at the new address and a written statement about the address change within 14 days of delivery, or the application will not be examined.",
+     "actions": [
+      "Submit the two documents within 14 days of receiving this letter",
+      "Quote case number WSC-II-P.6151.58915.2026 on all submissions and correspondence",
+      "Keep proof of delivery / submission for your records"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Wymagane dokumenty należy złożyć w terminie 14 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+       "meaning": "You must submit the requested documents within 14 days after this letter is delivered, otherwise your application will be left unexamined.",
+       "box": [
+        108,
+        1117,
+        1106,
+        1200
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSC-II-P.6151.58915.2026",
+       "meaning": "This is the office file reference you must cite in all contacts about this case.",
+       "box": [
+        632,
+        342,
+        1106,
+        382
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Warszawa, dnia 02.10.2026 r.",
+       "meaning": "This is when and where the letter was issued.",
+       "box": [
+        785,
+        118,
+        1158,
+        147
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "documents",
+       "label": "Requested document 1",
+       "text": "1. zaświadczenia o zameldowaniu pod nowym adresem pobytu oraz",
+       "meaning": "You must provide a certificate proving registration of residence at the new address.",
+       "box": [
+        131,
+        1012,
+        1018,
+        1049
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "documents",
+       "label": "Requested document 2",
+       "text": "2. pisemnego oświadczenia o zmianie adresu zamieszkania.",
+       "meaning": "You must provide a written statement declaring the change of residence address.",
+       "box": [
+        130,
+        1058,
+        847,
+        1091
+       ]
+      },
+      {
+       "id": "i6",
+       "role": "office",
+       "label": "Office",
+       "text": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+       "meaning": "This is the authority that sent the letter and is handling your case.",
+       "box": [
+        108,
+        191,
+        864,
+        223
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSC-II-P.6151.58915.2026",
+      "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2026-10-02",
+      "asks": [
+       "certificate of registration at the new address of stay",
+       "written declaration of change of residence address"
+      ],
+      "asksLocal": [
+       "zaświadczenia o zameldowaniu pod nowym adresem pobytu",
+       "pisemnego oświadczenia o zmianie adresu zamieszkania."
+      ],
+      "deadlineRule": {
+       "amount": 14,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Wymagane dokumenty należy złożyć w terminie 14 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania."
+      },
+      "legalBasis": "art. 64 § 2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L10",
+    "type": "wezwanie_braki",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     109,
+     1066,
+     1081,
+     1144
+    ],
+    "sam": [
+     102,
+     1073,
+     1111,
+     1153
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1074,
+     1130,
+     1150
+    ],
+    "iouSpark": 0.7962186350537684,
+    "iouSam": 0.9259042889830096,
+    "readMs": 6184,
+    "groundMs": 6182,
+    "samMs": 2619,
+    "costUsd": 0.020213349999999998,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3761,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to complete missing documents",
+     "summary": "This is a summons to remedy formal defects in your application for a temporary residence permit for work, filed on 22.11.2026 r., in connection with change of residence address. The office asks for proof of your new housing and registration and warns that if you do not submit them within 7 days of delivery, the application will be left unexamined.",
+     "actions": [
+      "Submit the requested rental agreement and registration certificate within 7 days of receiving this letter",
+      "Quote your case number WSC-II-P.6151.99645.2026 on all submissions and correspondence",
+      "Keep proof of delivery/submission for your files"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Wymagane dokumenty należy złożyć w ciągu 7 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+       "meaning": "You must submit the documents within 7 days after you receive this letter, otherwise your application will not be examined.",
+       "box": [
+        109,
+        1066,
+        1081,
+        1144
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSC-II-P.6151.99645.2026",
+       "meaning": "This is the office file number you must cite when contacting the office or sending documents.",
+       "box": [
+        601,
+        319,
+        1073,
+        353
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Warszawa, dnia 19.12.2026 r.",
+       "meaning": "This is when and where the letter was issued.",
+       "box": [
+        775,
+        86,
+        1159,
+        119
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "documents",
+       "label": "Requested document 1",
+       "text": "1. umowy najmu lokalu, w którym Pani obecnie zamieszkuje oraz",
+       "meaning": "You need to provide the rental contract for the flat where you currently live.",
+       "box": [
+        129,
+        958,
+        949,
+        991
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "documents",
+       "label": "Requested document 2",
+       "text": "2. zaświadczenia o zameldowaniu pod nowym adresem pobytu.",
+       "meaning": "You need to provide the certificate confirming your registration at the new address.",
+       "box": [
+        128,
+        1003,
+        802,
+        1035
+       ]
+      },
+      {
+       "id": "i6",
+       "role": "office",
+       "label": "Office",
+       "text": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+       "meaning": "This is the authority that sent the letter and handles your case.",
+       "box": [
+        109,
+        163,
+        832,
+        196
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSC-II-P.6151.99645.2026",
+      "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2026-12-19",
+      "asks": [
+       "rental agreement for the premises where you currently live",
+       "certificate of registration at the new place of stay"
+      ],
+      "asksLocal": [
+       "umowy najmu lokalu, w którym Pani obecnie zamieszkuje",
+       "zaświadczenia o zameldowaniu pod nowym adresem pobytu"
+      ],
+      "deadlineRule": {
+       "amount": 7,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Wymagane dokumenty należy złożyć w ciągu 7 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania."
+      },
+      "legalBasis": "art. 64 § 2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L12",
+    "type": "wezwanie_braki",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     109,
+     1080,
+     1130,
+     1159
+    ],
+    "sam": [
+     109,
+     1080,
+     1130,
+     1159
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     981,
+     1130,
+     1057
+    ],
+    "iouSpark": 0,
+    "iouSam": 0,
+    "readMs": 5424,
+    "groundMs": 5422,
+    "samMs": 2308,
+    "costUsd": 0.0192316,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3530,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to complete missing documents of the application",
+     "summary": "This is a summons (Wezwanie) from the Mazovian Voivodeship Office to fix formal deficiencies in an application for temporary residence to continue studies filed on 02.12.2026. It relates to a notified change of residence address. You must submit the missing document within 21 days of delivery or the application will be left without examination.",
+     "actions": [
+      "Submit the certificate of registration at the new address within 21 days of receiving this letter",
+      "Keep proof of delivery and submission for your records",
+      "Do not ignore the summons - the application will otherwise be left unexamined"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Wymagane dokumenty należy złożyć w ciągu 21 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+       "meaning": "You must file the required documents within 21 days from when you receive this summons, otherwise the application will not be examined.",
+       "box": [
+        109,
+        1080,
+        1130,
+        1159
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSC-II-P.6151.22550.2026",
+       "meaning": "Use this reference number in all contacts with the office about this case.",
+       "box": [
+        629,
+        351,
+        1101,
+        389
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Warszawa, dnia 25.12.2026 r.",
+       "meaning": "The date and place where this letter was issued.",
+       "box": [
+        794,
+        116,
+        1127,
+        149
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "documents",
+       "label": "Requested document",
+       "text": "1. zaświadczenia o zameldowaniu pod nowym adresem pobytu.",
+       "meaning": "The office is asking for proof that you registered your residence at the new address.",
+       "box": [
+        136,
+        1024,
+        899,
+        1056
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "office",
+       "label": "Office",
+       "text": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+       "meaning": "The authority handling your case and sending this summons.",
+       "box": [
+        109,
+        189,
+        920,
+        221
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSC-II-P.6151.22550.2026",
+      "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2026-12-25",
+      "asks": [
+       "certificate of registration at the new address of stay"
+      ],
+      "asksLocal": [
+       "zaświadczenia o zameldowaniu pod nowym adresem pobytu"
+      ],
+      "deadlineRule": {
+       "amount": 21,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Wymagane dokumenty należy złożyć w ciągu 21 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania."
+      },
+      "legalBasis": "art. 64 § 2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L13",
+    "type": "wezwanie_dokumenty",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     108,
+     1137,
+     1106,
+     1170
+    ],
+    "sam": [
+     108,
+     1137,
+     1106,
+     1170
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     981,
+     1130,
+     1057
+    ],
+    "iouSpark": 0,
+    "iouSam": 0,
+    "readMs": 6017,
+    "groundMs": 6016,
+    "samMs": 1123,
+    "costUsd": 0.017200100000000003,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3052,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to submit document",
+     "summary": "This is a summons (Wezwanie) from the Małopolska Voivodeship Office, Department for Foreigners, in a procedure for a temporary residence permit for work. It requires you to submit a current university certificate confirming continuation of studies within 7 days of delivery.",
+     "actions": [
+      "Submit the current university enrollment certificate within 7 days of receiving this letter, quoting the case number.",
+      "Deliver it in person to the office or send by post.",
+      "Keep proof of submission and the case number for contact."
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Dokumenty należy przedłożyć w terminie 7 dni od dnia doręczenia niniejszego wezwania.",
+       "meaning": "You must submit the requested documents within 7 days after you receive this letter.",
+       "box": [
+        108,
+        1137,
+        1106,
+        1170
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSO-III.6151.84550.2026",
+       "meaning": "Quote this reference number in all contacts and on your submission.",
+       "box": [
+        637,
+        375,
+        1106,
+        410
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Kraków, dnia 17.01.2027 r.",
+       "meaning": "This is the date and place where the letter was issued.",
+       "box": [
+        791,
+        119,
+        1158,
+        149
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "documents",
+       "label": "Requested document",
+       "text": "1. aktualnego zaświadczenia z uczelni potwierdzającego kontynuację studiów (zaświadczenie o studiowaniu).",
+       "meaning": "The office asks you to provide a current certificate from your university confirming you are continuing your studies.",
+       "box": [
+        131,
+        1035,
+        1039,
+        1112
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "office",
+       "label": "Office",
+       "text": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+       "meaning": "This is the authority handling your case.",
+       "box": [
+        108,
+        188,
+        842,
+        221
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSO-III.6151.84550.2026",
+      "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2027-01-17",
+      "asks": [
+       "current certificate from the university confirming continuation of studies (certificate of studying)"
+      ],
+      "asksLocal": [
+       "aktualnego zaświadczenia z uczelni potwierdzającego kontynuację studiów (zaświadczenie o studiowaniu)"
+      ],
+      "deadlineRule": {
+       "amount": 7,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Dokumenty należy przedłożyć w terminie 7 dni od dnia doręczenia niniejszego wezwania."
+      },
+      "legalBasis": "art. 50 § 1 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L14",
+    "type": "wezwanie_dokumenty",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     104,
+     1082,
+     1137,
+     1117
+    ],
+    "sam": [
+     104,
+     1082,
+     1137,
+     1117
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     981,
+     1130,
+     1057
+    ],
+    "iouSpark": 0,
+    "iouSam": 0,
+    "readMs": 6538,
+    "groundMs": 6537,
+    "samMs": 982,
+    "costUsd": 0.01805435,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3253,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to submit document",
+     "summary": "This is a summons (Wezwanie) from the Mazovian Voivodeship Office in Warsaw regarding your application for a temporary residence permit for family reunification filed on 18.12.2026. The office asks you to provide a current university certificate within 14 days of delivery of the letter, otherwise your case cannot proceed.",
+     "actions": [
+      "Submit the requested certificate within 14 days of receiving this letter, quoting the case number",
+      "Submit in person at the office or send by post to pl. Bankowy 3/5, 00-950 Warszawa",
+      "Keep proof of submission/delivery"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Dokumenty należy przedłożyć w terminie 14 dni od dnia doręczenia niniejszego wezwania.",
+       "meaning": "You must submit the documents within 14 days counted from the day this summons is delivered to you.",
+       "box": [
+        104,
+        1082,
+        1137,
+        1117
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSC-II-P.6151.15363.2026",
+       "meaning": "This is the reference number to quote in all contacts and on mailed documents.",
+       "box": [
+        627,
+        363,
+        1140,
+        400
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Warszawa, dnia 07.01.2027 r.",
+       "meaning": "The date and place the office issued this letter.",
+       "box": [
+        763,
+        114,
+        1138,
+        147
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "documents",
+       "label": "Requested document",
+       "text": "1. aktualnego zaświadczenia z uczelni potwierdzającego kontynuację studiów (zaświadczenie o studiowaniu).",
+       "meaning": "You are asked to provide a current university certificate confirming continuation of studies.",
+       "box": [
+        125,
+        982,
+        1009,
+        1061
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "office",
+       "label": "Office",
+       "text": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+       "meaning": "The authority handling your case and where to submit the documents.",
+       "box": [
+        104,
+        188,
+        950,
+        221
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSC-II-P.6151.15363.2026",
+      "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2027-01-07",
+      "asks": [
+       "current certificate from the university confirming continuation of studies (certificate of studying)"
+      ],
+      "asksLocal": [
+       "aktualnego zaświadczenia z uczelni potwierdzającego kontynuację studiów (zaświadczenie o studiowaniu)"
+      ],
+      "deadlineRule": {
+       "amount": 14,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Dokumenty należy przedłożyć w terminie 14 dni od dnia doręczenia niniejszego wezwania."
+      },
+      "legalBasis": "art. 50 § 1 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L15",
+    "type": "wezwanie_dokumenty",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     108,
+     1156,
+     1128,
+     1193
+    ],
+    "sam": [
+     108,
+     1156,
+     1128,
+     1193
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1031,
+     1130,
+     1063
+    ],
+    "iouSpark": 0,
+    "iouSam": 0,
+    "readMs": 6014,
+    "groundMs": 6012,
+    "samMs": 2528,
+    "costUsd": 0.0205151,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3832,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to submit documents",
+     "summary": "This is a summons (Wezwanie) from the Mazowiecki Voivodeship Office, Department for Foreigners, regarding your temporary residence permit for work. It requires you to submit missing documents - a university continuation certificate and proof of tuition payment - within 7 days of receiving the letter.",
+     "actions": [
+      "Submit both requested documents within 7 days of receiving this summons, quoting the case number.",
+      "Submit in person at the office or send by post.",
+      "Keep the proof of submission or postal receipt."
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Dokumenty należy przedłożyć w ciągu 7 dni od dnia otrzymania niniejszego wezwania.",
+       "meaning": "This sentence sets the deadline - you have 7 days from the day you receive this letter to submit the documents.",
+       "box": [
+        108,
+        1156,
+        1128,
+        1193
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSC-II-P.6151.54438.2026",
+       "meaning": "This is the official file number you must quote in all contacts and submissions.",
+       "box": [
+        630,
+        367,
+        1105,
+        405
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Warszawa, dnia 05.01.2027 r.",
+       "meaning": "This is the date and place the office issued the letter.",
+       "box": [
+        796,
+        112,
+        1185,
+        151
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "documents",
+       "label": "Requested document 1",
+       "text": "1. aktualnego zaświadczenia z uczelni potwierdzającego kontynuację studiów (zaświadczenie o studiowaniu) oraz",
+       "meaning": "The office asks for a current university certificate confirming you are continuing your studies.",
+       "box": [
+        131,
+        982,
+        1071,
+        1063
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "documents",
+       "label": "Requested document 2",
+       "text": "2. dowodu opłacenia czesnego za bieżący rok akademicki.",
+       "meaning": "The office also asks for proof that you have paid tuition for the current academic year.",
+       "box": [
+        131,
+        1077,
+        800,
+        1112
+       ]
+      },
+      {
+       "id": "i6",
+       "role": "office",
+       "label": "Office",
+       "text": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+       "meaning": "This is the office that sent the letter and handles your case.",
+       "box": [
+        108,
+        191,
+        918,
+        228
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSC-II-P.6151.54438.2026",
+      "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2027-01-05",
+      "asks": [
+       "current certificate from the university confirming continuation of studies (certificate of studying)",
+       "proof of payment of tuition for the current academic year"
+      ],
+      "asksLocal": [
+       "aktualnego zaświadczenia z uczelni potwierdzającego kontynuację studiów (zaświadczenie o studiowaniu)",
+       "dowodu opłacenia czesnego za bieżący rok akademicki"
+      ],
+      "deadlineRule": {
+       "amount": 7,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Dokumenty należy przedłożyć w ciągu 7 dni od dnia otrzymania niniejszego wezwania."
+      },
+      "legalBasis": "art. 50 § 1 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L16",
+    "type": "wezwanie_dokumenty",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": null,
+     "startRule": null,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     109,
+     1159,
+     1132,
+     1240
+    ],
+    "sam": [
+     109,
+     1159,
+     1132,
+     1240
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1074,
+     891,
+     1106
+    ],
+    "iouSpark": 0,
+    "iouSam": 0,
+    "readMs": 6731,
+    "groundMs": 6729,
+    "samMs": 1196,
+    "costUsd": 0.0187131,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3408,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to submit documents",
+     "summary": "This is a summons (wezwanie) from the Małopolski Urząd Wojewódzki to complete your temporary residence permit application for continuation of studies. It asks for a current university enrolment certificate and proof of health insurance. You must submit the documents by 03.12.2026 quoting the case number.",
+     "actions": [
+      "Submit the two requested documents by 03.12.2026 citing the case number",
+      "Submit in person at the office or send by post with the case number",
+      "Keep a copy of the submitted documents and proof of submission"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Dokumenty należy przedłożyć w terminie do dnia 03.12.2026 r. Dokumenty można złożyć osobiście w urzędzie lub przesłać pocztą, podając znak sprawy.",
+       "meaning": "You must submit the documents by the date stated in this sentence.",
+       "box": [
+        109,
+        1159,
+        1132,
+        1240
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSO-III.6151.68749.2026",
+       "meaning": "Quote this case number in all contacts and submissions to the office.",
+       "box": [
+        637,
+        379,
+        1075,
+        410
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Kraków, dnia 06.11.2026 r.",
+       "meaning": "This is when and where the letter was issued.",
+       "box": [
+        808,
+        114,
+        1127,
+        147
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "documents",
+       "label": "Requested document 1",
+       "text": "1. aktualnego zaświadczenia z uczelni potwierdzającego kontynuację studiów (zaświadczenie o studiowaniu) oraz",
+       "meaning": "You need to provide a current university certificate proving you are continuing your studies.",
+       "box": [
+        130,
+        949,
+        1070,
+        1030
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "documents",
+       "label": "Requested document 2",
+       "text": "2. dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego na cały okres pobytu.",
+       "meaning": "You need to provide a document proving you have health insurance for the whole stay.",
+       "box": [
+        129,
+        1045,
+        1097,
+        1130
+       ]
+      },
+      {
+       "id": "i6",
+       "role": "office",
+       "label": "Office",
+       "text": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+       "meaning": "This is the office handling your case.",
+       "box": [
+        109,
+        188,
+        842,
+        217
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSO-III.6151.68749.2026",
+      "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2026-11-06",
+      "asks": [
+       "current certificate from the university confirming continuation of studies (certificate of enrolment)",
+       "document confirming possession of health insurance for the whole period of stay"
+      ],
+      "asksLocal": [
+       "aktualnego zaświadczenia z uczelni potwierdzającego kontynuację studiów (zaświadczenie o studiowaniu)",
+       "dokumentu potwierdzającego posiadanie ubezpieczenia zdrowotnego na cały okres pobytu"
+      ],
+      "deadlineRule": {
+       "amount": null,
+       "unit": null,
+       "from": null,
+       "quote": "Dokumenty należy przedłożyć w terminie do dnia 03.12.2026 r."
+      },
+      "legalBasis": "art. 50 § 1 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L18",
+    "type": "wezwanie_dokumenty",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": null,
+     "startRule": null,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     103,
+     1193,
+     1168,
+     1277
+    ],
+    "sam": [
+     103,
+     1193,
+     1168,
+     1277
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1025,
+     891,
+     1057
+    ],
+    "iouSpark": 0,
+    "iouSam": 0,
+    "readMs": 6347,
+    "groundMs": 6346,
+    "samMs": 990,
+    "costUsd": 0.02003485,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3719,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to submit document",
+     "summary": "This is a summons (Wezwanie) from the Mazowiecki Voivodeship Office regarding a temporary residence permit for scientific research. It asks you to submit a current university certificate confirming continuation of studies and sets a fixed deadline of 22.10.2026.",
+     "actions": [
+      "Submit the requested university certificate by 22.10.2026, quoting the case number.",
+      "Send or deliver documents to Mazowiecki Urząd Wojewódzki w Warszawie and keep proof of submission.",
+      "If you cannot meet the deadline, contact the office immediately quoting your case number."
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Dokumenty należy przedłożyć w terminie do dnia 22.10.2026 r. Dokumenty można złożyć osobiście w urzędzie lub przesłać pocztą, podając znak sprawy.",
+       "meaning": "This is the last date by which the office must receive your documents.",
+       "box": [
+        103,
+        1193,
+        1168,
+        1277
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSC-II-P.6151.83600.2026",
+       "meaning": "Quote this number in all contacts and on all documents you send.",
+       "box": [
+        635,
+        363,
+        1125,
+        405
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Warszawa, dnia 28.09.2026 r.",
+       "meaning": "This is the date and place the letter was issued.",
+       "box": [
+        823,
+        116,
+        1169,
+        151
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "documents",
+       "label": "Requested document",
+       "text": "1. aktualnego zaświadczenia z uczelni potwierdzającego kontynuację studiów (zaświadczenie o studiowaniu).",
+       "meaning": "The office asks you to provide a current university certificate confirming continuation of studies.",
+       "box": [
+        126,
+        1070,
+        1106,
+        1154
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "office",
+       "label": "Office",
+       "text": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+       "meaning": "This is the authority handling your case.",
+       "box": [
+        103,
+        186,
+        1063,
+        219
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSC-II-P.6151.83600.2026",
+      "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2026-09-28",
+      "asks": [
+       "current certificate from the university confirming continuation of studies (certificate of enrollment)"
+      ],
+      "asksLocal": [
+       "aktualnego zaświadczenia z uczelni potwierdzającego kontynuację studiów (zaświadczenie o studiowaniu)"
+      ],
+      "deadlineRule": {
+       "amount": null,
+       "unit": null,
+       "from": null,
+       "quote": "Dokumenty należy przedłożyć w terminie do dnia 22.10.2026 r."
+      },
+      "legalBasis": "art. 50 § 1 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L19",
+    "type": "decision",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": null,
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     109,
+     1072,
+     1131,
+     1170
+    ],
+    "sam": [
+     100,
+     1047,
+     1141,
+     1197
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1026,
+     1130,
+     1120
+    ],
+    "iouSpark": 0.33288911855095327,
+    "iouSam": 0.41932758911978374,
+    "readMs": 7199,
+    "groundMs": 7197,
+    "samMs": 920,
+    "costUsd": 0.02226185,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 4243,
+    "retries": 0,
+    "read": {
+     "kind": "decision",
+     "title": "Decision granting temporary residence permit for scientific research",
+     "summary": "This is a DECISION (DECYZJA) from the Małopolska Voivode granting Sergei Antonov a temporary residence permit for scientific research until 29.11.2028. It was issued after examination of the application of 21.10.2026. You can appeal within 14 days of delivery, otherwise the permit is granted and you wait for information to collect the residence card.",
+     "actions": [
+      "Check your appeal deadline - 14 days from delivery if you disagree",
+      "Wait for notification that your residence card is ready - then collect it in person",
+      "Keep the decision and case number WSO-III.6151.91096.2026 for your records"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Appeal deadline",
+       "text": "Pouczenie. Od niniejszej decyzji służy odwołanie do Szefa Urzędu do Spraw Cudzoziemców za pośrednictwem Wojewody w terminie 14 dni od dnia doręczenia decyzji (art. 127 § 1 oraz art. 129 § 1–2 KPA).",
+       "meaning": "This sentence says you have 14 days from delivery of the decision to appeal to the Head of the Office for Foreigners via the Voivode.",
+       "box": [
+        109,
+        1072,
+        1131,
+        1170
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSO-III.6151.91096.2026",
+       "meaning": "This is the official file number to quote in any contact with the office.",
+       "box": [
+        639,
+        365,
+        1076,
+        402
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Kraków, dnia 30.11.2026 r.",
+       "meaning": "This is the date and place the decision was issued.",
+       "box": [
+        789,
+        112,
+        1101,
+        147
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "office",
+       "label": "Office",
+       "text": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+       "meaning": "This is the office that issued the decision.",
+       "box": [
+        109,
+        184,
+        867,
+        216
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "other",
+       "label": "Decision",
+       "text": "udzielam zezwolenia na pobyt czasowy w celu prowadzenia badań naukowych do dnia 29.11.2028 r.",
+       "meaning": "This is the operative part: you are granted a temporary residence permit for scientific research until 29 November 2028.",
+       "box": [
+        135,
+        858,
+        1105,
+        928
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSO-III.6151.91096.2026",
+      "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+      "filedAt": "2026-10-21"
+     },
+     "letter": {
+      "dateOnLetter": "2026-11-30",
+      "asks": [
+       "Collect residence card in person after notification of readiness"
+      ],
+      "asksLocal": [
+       "Kartę pobytu odbiera się osobiście po powiadomieniu o jej gotowości."
+      ],
+      "deadlineRule": {
+       "amount": 14,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Od niniejszej decyzji służy odwołanie do Szefa Urzędu do Spraw Cudzoziemców za pośrednictwem Wojewody w terminie 14 dni od dnia doręczenia decyzji (art. 127 § 1 oraz art. 129 § 1–2 KPA)."
+      },
+      "legalBasis": "art. 104 i art. 107 KPA oraz przepisy ustawy z dnia 12 grudnia 2013 r. o cudzoziemcach",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L21",
+    "type": "decision",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": null,
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     108,
+     1142,
+     1128,
+     1242
+    ],
+    "sam": [
+     100,
+     1141,
+     1136,
+     1232
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1060,
+     1130,
+     1153
+    ],
+    "iouSpark": 0.06031390376059721,
+    "iouSam": 0.0691931982633864,
+    "readMs": 6807,
+    "groundMs": 6806,
+    "samMs": 1234,
+    "costUsd": 0.021365099999999998,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 4032,
+    "retries": 0,
+    "read": {
+     "kind": "decision",
+     "title": "Decision granting temporary residence for scientific research",
+     "summary": "This is a DECISION (DECYZJA) from the Masovian Voivode granting you temporary residence in Poland for scientific research until 29.09.2028. You were assigned case number WSC-II-P.6151.18439.2026. You can appeal within 14 days of delivery if you disagree.",
+     "actions": [
+      "Collect your residence card in person after you are notified it is ready.",
+      "If you disagree with the decision, file an appeal to the Head of the Office for Foreigners via the Voivode within 14 days of delivery."
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Appeal deadline",
+       "text": "Pouczenie. Od niniejszej decyzji służy odwołanie do Szefa Urzędu do Spraw Cudzoziemców za pośrednictwem Wojewody w terminie 14 dni od dnia doręczenia decyzji (art. 127 § 1 oraz art. 129 § 1–2 KPA).",
+       "meaning": "You have 14 days from when this decision is delivered to you to file an appeal.",
+       "box": [
+        108,
+        1142,
+        1128,
+        1242
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSC-II-P.6151.18439.2026",
+       "meaning": "This is the official reference number to use when contacting the office about this case.",
+       "box": [
+        614,
+        379,
+        1126,
+        412
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Decision date",
+       "text": "Warszawa, dnia 30.09.2026 r.",
+       "meaning": "This is when and where the decision was issued.",
+       "box": [
+        794,
+        116,
+        1132,
+        149
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "office",
+       "label": "Issuing office",
+       "text": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+       "meaning": "This is the office that issued the decision.",
+       "box": [
+        107,
+        191,
+        1075,
+        223
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "other",
+       "label": "Decision content",
+       "text": "udzielam zezwolenia na pobyt czasowy w celu prowadzenia badań naukowych do dnia 29.09.2028 r.",
+       "meaning": "This is the main decision – you were granted temporary residence for scientific research until 29.09.2028.",
+       "box": [
+        136,
+        900,
+        1101,
+        973
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSC-II-P.6151.18439.2026",
+      "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2026-09-30",
+      "asks": [],
+      "asksLocal": [],
+      "deadlineRule": {
+       "amount": 14,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Pouczenie. Od niniejszej decyzji służy odwołanie do Szefa Urzędu do Spraw Cudzoziemców za pośrednictwem Wojewody w terminie 14 dni od dnia doręczenia decyzji (art. 127 § 1 oraz art. 129 § 1–2 KPA)."
+      },
+      "legalBasis": "art. 127 § 1 oraz art. 129 § 1-2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L22",
+    "type": "decision",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": null,
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     104,
+     1079,
+     1102,
+     1186
+    ],
+    "sam": [
+     97,
+     1081,
+     1109,
+     1159
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     983,
+     1130,
+     1076
+    ],
+    "iouSpark": 0,
+    "iouSam": 0,
+    "readMs": 5665,
+    "groundMs": 5664,
+    "samMs": 1859,
+    "costUsd": 0.02057035,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3845,
+    "retries": 0,
+    "read": {
+     "kind": "decision",
+     "title": "Decision refusing temporary residence permit for studies",
+     "summary": "This is a negative decision (DECYZJA) from the Mazovian Voivode refusing a temporary residence permit for continuation of studies. It states you did not prove a stable and regular source of income and did not submit requested documents in time. You can appeal within 14 days from delivery via the Voivode to the Head of the Office for Foreigners.",
+     "actions": [
+      "Appeal within 14 days from delivery if you disagree",
+      "Send the appeal through the Mazovian Voivode to the Head of the Office for Foreigners",
+      "Keep this decision and proof of delivery for filing"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Pouczenie. Od niniejszej decyzji służy odwołanie do Szefa Urzędu do Spraw Cudzoziemców za pośrednictwem Wojewody w terminie 14 dni od dnia doręczenia decyzji (art. 127 § 1 oraz art. 129 § 1–2 KPA).",
+       "meaning": "You have 14 days from when you receive this decision to file an appeal.",
+       "box": [
+        104,
+        1079,
+        1102,
+        1186
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSC-II-P.6151.53472.2026",
+       "meaning": "Use this number in all contacts and on your appeal.",
+       "box": [
+        616,
+        361,
+        1091,
+        396
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Warszawa, dnia 06.02.2027 r.",
+       "meaning": "The date and place the decision was issued.",
+       "box": [
+        799,
+        111,
+        1169,
+        147
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "office",
+       "label": "Office",
+       "text": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+       "meaning": "The authority that issued the decision.",
+       "box": [
+        104,
+        189,
+        921,
+        223
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "other",
+       "label": "Decision outcome",
+       "text": "odmawiam udzielenia zezwolenia na pobyt czasowy w celu kontynuacji studiów",
+       "meaning": "The authority refuses to grant you a temporary residence permit for continuation of studies.",
+       "box": [
+        130,
+        873,
+        1076,
+        907
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSC-II-P.6151.53472.2026"
+     },
+     "letter": {
+      "dateOnLetter": "2027-02-06",
+      "asks": [],
+      "asksLocal": [],
+      "deadlineRule": {
+       "amount": 14,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "w terminie 14 dni od dnia doręczenia decyzji"
+      },
+      "legalBasis": "art. 127 § 1 oraz art. 129 § 1–2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L17",
+    "type": "wezwanie_dokumenty",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": null,
+     "startRule": null,
+     "docs": {
+      "p": 1,
+      "r": 1,
+      "f1": 1
+     },
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     108,
+     1068,
+     1101,
+     1147
+    ],
+    "sam": [
+     99,
+     1023,
+     1136,
+     1147
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1025,
+     891,
+     1057
+    ],
+    "iouSpark": 0,
+    "iouSam": 0.19435717174230877,
+    "readMs": 17519,
+    "groundMs": 6080,
+    "samMs": 1015,
+    "costUsd": 0.0522926,
+    "samUsd": 0.0025,
+    "tokensIn": 11941,
+    "tokensOut": 10205,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to submit document",
+     "summary": "This is a summons (Wezwanie) from the Małopolska Voivodeship Office regarding a pending application for a temporary residence permit for scientific research. The office asks you to submit a current university certificate confirming continuation of studies by 07.10.2026. Quote the case number when submitting.",
+     "actions": [
+      "Submit the requested document by 07.10.2026 quoting the case number",
+      "Quote case number WSO-III.6151.67749.2026 on all correspondence",
+      "Submit in person at the office or send by post"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Your deadline",
+       "text": "Dokumenty należy przedłożyć w terminie do dnia 07.10.2026 r. Dokumenty można złożyć osobiście w urzędzie lub przesłać pocztą, podając znak sprawy.",
+       "meaning": "You must submit the documents by 07.10.2026, in person or by post, quoting the case number.",
+       "box": [
+        108,
+        1068,
+        1101,
+        1147
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSO-III.6151.67749.2026",
+       "meaning": "This is the official reference number for your case.",
+       "box": [
+        637,
+        354,
+        1102,
+        389
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Kraków, dnia 21.09.2026 r.",
+       "meaning": "The letter was issued in Kraków on 21.09.2026.",
+       "box": [
+        804,
+        88,
+        1102,
+        119
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "documents",
+       "label": "Requested document",
+       "text": "1. aktualnego zaświadczenia z uczelni potwierdzającego kontynuację studiów (zaświadczenie o studiowaniu).",
+       "meaning": "The office asks for a current university certificate confirming continuation of studies.",
+       "box": [
+        129,
+        965,
+        1069,
+        1044
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "office",
+       "label": "Office",
+       "text": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+       "meaning": "The office handling your case is the Małopolska Voivodeship Office in Kraków.",
+       "box": [
+        108,
+        188,
+        841,
+        217
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSO-III.6151.67749.2026",
+      "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2026-09-21",
+      "asks": [
+       "current certificate from the university confirming continuation of studies (certificate of studying)"
+      ],
+      "asksLocal": [
+       "aktualnego zaświadczenia z uczelni potwierdzającego kontynuację studiów (zaświadczenie o studiowaniu)"
+      ],
+      "deadlineRule": {
+       "amount": null,
+       "unit": null,
+       "from": null,
+       "quote": "Dokumenty należy przedłożyć w terminie do dnia 07.10.2026 r."
+      },
+      "legalBasis": "art. 50 § 1 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L25",
+    "type": "appointment",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": null,
+     "startRule": null,
+     "docs": null,
+     "deadlineCorrect": null,
+     "appointment": true
+    },
+    "spark": null,
+    "sam": null,
+    "samSource": null,
+    "truthBox": null,
+    "iouSpark": null,
+    "iouSam": null,
+    "readMs": 5931,
+    "groundMs": 5929,
+    "samMs": null,
+    "costUsd": 0.017727100000000003,
+    "samUsd": 0,
+    "tokensIn": 7074,
+    "tokensOut": 3176,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to appear in person to give fingerprints",
+     "summary": "This is a summons (Wezwanie) from the Małopolska Voivode Office in Kraków summoning you to appear in person to give fingerprints for your temporary residence permit for family reunification. You must appear on 23.10.2026 at 08:30 at ul. Mikołajska 5 in Kraków and bring your passport and this summons; failure to appear without justification may result in a fine.",
+     "actions": [
+      "Appear in person on 2026-10-23 at 08:30 at the office to give fingerprints",
+      "Bring your valid passport and this summons with you",
+      "Quote your case number WSO-III.6151.35470.2026 in any contact with the office"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "office",
+       "label": "Office",
+       "text": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+       "meaning": "This is the office that sent the letter and where you should go.",
+       "box": [
+        108,
+        188,
+        872,
+        221
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSO-III.6151.35470.2026",
+       "meaning": "Quote this number when you contact the office about your case.",
+       "box": [
+        640,
+        368,
+        1132,
+        407
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Kraków, dnia 13.10.2026 r.",
+       "meaning": "This is the date and place when the letter was issued.",
+       "box": [
+        802,
+        118,
+        1157,
+        153
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "other",
+       "label": "Summons purpose",
+       "text": "WEZWANIE do osobistego stawiennictwa w celu pobrania odcisków linii papilarnych",
+       "meaning": "You are summoned to appear in person so they can take your fingerprints.",
+       "box": [
+        148,
+        670,
+        1105,
+        752
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "other",
+       "label": "Appointment",
+       "text": "dnia 23.10.2026 r. o godz. 08:30 Wydział Spraw Obcokrajowców, ul. Mikołajska 5, 31-027 Kraków",
+       "meaning": "This is the exact date, time and place where you must appear.",
+       "box": [
+        134,
+        958,
+        1097,
+        1042
+       ]
+      },
+      {
+       "id": "i6",
+       "role": "other",
+       "label": "What to bring",
+       "text": "w celu pobrania odcisków linii papilarnych. Należy zabrać ze sobą ważny dokument podróży (paszport) oraz niniejsze wezwanie.",
+       "meaning": "You must bring a valid passport and this summons with you to the appointment.",
+       "box": [
+        108,
+        1059,
+        1132,
+        1137
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSO-III.6151.35470.2026",
+      "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2026-10-13",
+      "asks": [
+       "appear in person to give fingerprints on 2026-10-23 at 08:30",
+       "bring valid passport and this summons"
+      ],
+      "asksLocal": [
+       "stawiennictwo osobiste w celu pobrania odcisków linii papilarnych dnia 23.10.2026 r. o godz. 08:30",
+       "Należy zabrać ze sobą ważny dokument podróży (paszport) oraz niniejsze wezwanie"
+      ],
+      "deadlineRule": {
+       "amount": null,
+       "unit": null,
+       "from": null,
+       "quote": ""
+      },
+      "legalBasis": "art. 50 § 1 KPA",
+      "appointment": {
+       "date": "2026-10-23",
+       "time": "08:30",
+       "place": "Wydział Spraw Obcokrajowców, ul. Mikołajska 5, 31-027 Kraków",
+       "purpose": "to give fingerprints"
+      }
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L23",
+    "type": "decision",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": null,
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     107,
+     1131,
+     1126,
+     1237
+    ],
+    "sam": [
+     107,
+     1131,
+     1126,
+     1237
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     983,
+     1130,
+     1076
+    ],
+    "iouSpark": 0,
+    "iouSam": 0,
+    "readMs": 6724,
+    "groundMs": 6722,
+    "samMs": 2653,
+    "costUsd": 0.01928685,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3543,
+    "retries": 0,
+    "read": {
+     "kind": "decision",
+     "title": "Decision refusing temporary residence permit",
+     "summary": "This is a DECYZJA (decision) from the Małopolski Voivode refusing a temporary residence permit for continuation of studies. The reason given is failure to prove a stable and regular source of income and failure to submit requested documents in time. It includes instructions on how to appeal.",
+     "actions": [
+      "Appeal within 14 days of delivery if you disagree",
+      "Send the appeal to the Head of the Office for Foreigners through the Voivode who issued the decision",
+      "Keep the decision and proof of delivery; note the appeal deadline"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Appeal deadline",
+       "text": "Pouczenie. Od niniejszej decyzji służy odwołanie do Szefa Urzędu do Spraw Cudzoziemców za pośrednictwem Wojewody w terminie 14 dni od dnia doręczenia decyzji (art. 127 § 1 oraz art. 129 § 1–2 KPA).",
+       "meaning": "You have 14 days from when the decision is delivered to file an appeal.",
+       "box": [
+        107,
+        1131,
+        1126,
+        1237
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSO-III.6151.33500.2026",
+       "meaning": "This is the office file number to quote in all contacts and appeals.",
+       "box": [
+        635,
+        347,
+        1122,
+        384
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Issue date",
+       "text": "Kraków, dnia 13.11.2026 r.",
+       "meaning": "This is the date and place the decision was issued.",
+       "box": [
+        794,
+        116,
+        1159,
+        149
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "office",
+       "label": "Issuing office",
+       "text": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+       "meaning": "This is the authority that issued the decision.",
+       "box": [
+        107,
+        186,
+        870,
+        216
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "other",
+       "label": "Decision",
+       "text": "odmawiam udzielenia zezwolenia na pobyt czasowy w celu kontynuacji studiów",
+       "meaning": "The authority refuses to grant a temporary residence permit to continue studies.",
+       "box": [
+        130,
+        926,
+        1122,
+        959
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSO-III.6151.33500.2026",
+      "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2026-11-13",
+      "asks": [],
+      "asksLocal": [],
+      "deadlineRule": {
+       "amount": 14,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "w terminie 14 dni od dnia doręczenia decyzji"
+      },
+      "legalBasis": "art. 127 § 1 oraz art. 129 § 1–2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L24",
+    "type": "decision",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": null,
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     107,
+     1096,
+     1137,
+     1194
+    ],
+    "sam": [
+     100,
+     1100,
+     1144,
+     1180
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1017,
+     1130,
+     1110
+    ],
+    "iouSpark": 0.07866901718818863,
+    "iouSam": 0.060649304316803425,
+    "readMs": 5973,
+    "groundMs": 5971,
+    "samMs": 2579,
+    "costUsd": 0.020141100000000002,
+    "samUsd": 0.0025,
+    "tokensIn": 7074,
+    "tokensOut": 3744,
+    "retries": 0,
+    "read": {
+     "kind": "decision",
+     "title": "Decision refusing temporary residence permit",
+     "summary": "This is a negative decision (DECYZJA) from the Lesser Poland Voivode refusing a temporary residence permit for family reunification. The justification states the foreigner did not prove a stable and regular income and did not supplement documents after being summoned. It informs about the right to appeal within 14 days.",
+     "actions": [
+      "Appeal within 14 days of delivery if you disagree",
+      "Submit the appeal through the Voivode to the Head of the Office for Foreigners",
+      "Keep the decision and proof of delivery for your records"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Appeal deadline",
+       "text": "Pouczenie. Od niniejszej decyzji służy odwołanie do Szefa Urzędu do Spraw Cudzoziemców za pośrednictwem Wojewody w terminie 14 dni od dnia doręczenia decyzji (art. 127 § 1 oraz art. 129 § 1–2 KPA).",
+       "meaning": "You have 14 days from the day you receive the decision to file an appeal.",
+       "box": [
+        107,
+        1096,
+        1137,
+        1194
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSO-III.6151.94299.2026",
+       "meaning": "This is the official reference number for your case.",
+       "box": [
+        637,
+        367,
+        1105,
+        400
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Kraków, dnia 27.01.2027 r.",
+       "meaning": "This is the date and place the decision was issued.",
+       "box": [
+        811,
+        112,
+        1185,
+        153
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "office",
+       "label": "Issuing office",
+       "text": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+       "meaning": "This is the authority that issued the decision.",
+       "box": [
+        107,
+        189,
+        873,
+        223
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "other",
+       "label": "Decision outcome",
+       "text": "odmawiam udzielenia zezwolenia na pobyt czasowy w celu połączenia z rodziną",
+       "meaning": "The office refused to grant you a temporary residence permit for family reunification.",
+       "box": [
+        128,
+        907,
+        1121,
+        945
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSO-III.6151.94299.2026",
+      "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2027-01-27",
+      "asks": [],
+      "asksLocal": [],
+      "deadlineRule": {
+       "amount": 14,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "w terminie 14 dni od dnia doręczenia decyzji"
+      },
+      "legalBasis": "art. 127 § 1 oraz art. 129 § 1–2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L26",
+    "type": "appointment",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": null,
+     "startRule": null,
+     "docs": null,
+     "deadlineCorrect": null,
+     "appointment": true
+    },
+    "spark": null,
+    "sam": null,
+    "samSource": null,
+    "truthBox": null,
+    "iouSpark": null,
+    "iouSam": null,
+    "readMs": 6067,
+    "groundMs": 6066,
+    "samMs": null,
+    "costUsd": 0.02032385,
+    "samUsd": 0,
+    "tokensIn": 7074,
+    "tokensOut": 3787,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to appear for fingerprints",
+     "summary": "This is a summons (Wezwanie) from the Małopolska Voivode Office in Kraków regarding your application for a temporary residence permit for family reunification. It requires you to appear in person to have your fingerprints taken and to bring your passport and the summons with you.",
+     "actions": [
+      "Go to the office in person on 04.02.2027 at 09:20 for fingerprints",
+      "Bring your valid travel document (passport) and this summons",
+      "Quote case number WSO-III.6151.39412.2026 in any contact with the office"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSO-III.6151.39412.2026",
+       "meaning": "This is the reference number the office uses for your case.",
+       "box": [
+        639,
+        379,
+        1078,
+        412
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Kraków, dnia 16.01.2027 r.",
+       "meaning": "This is when and where the letter was issued.",
+       "box": [
+        811,
+        114,
+        1187,
+        149
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "office",
+       "label": "Office",
+       "text": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+       "meaning": "This is the office that sent the letter.",
+       "box": [
+        109,
+        186,
+        846,
+        219
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "other",
+       "label": "Summons details",
+       "text": "W związku z postępowaniem w sprawie udzielenia zezwolenia na pobyt czasowy w celu połączenia z rodziną, na podstawie art. 50 § 1 Kodeksu postępowania administracyjnego wzywam Panią do osobistego stawiennictwa: dnia 04.02.2027 r. o godz. 09:20 Wydział Spraw Obcokrajowców, ul. Mikołajska 5, 31-027 Kraków w celu pobrania odcisków linii papilarnych. Należy zabrać ze sobą ważny dokument podróży (paszport) oraz niniejsze wezwanie.",
+       "meaning": "This is the order to appear in person for fingerprints and what to bring.",
+       "box": [
+        108,
+        810,
+        1132,
+        1109
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSO-III.6151.39412.2026",
+      "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2027-01-16",
+      "asks": [
+       "appear in person for fingerprinting",
+       "bring valid travel document (passport) and this summons"
+      ],
+      "asksLocal": [
+       "do osobistego stawiennictwa w celu pobrania odcisków linii papilarnych",
+       "Należy zabrać ze sobą ważny dokument podróży (paszport) oraz niniejsze wezwanie"
+      ],
+      "deadlineRule": {
+       "amount": null,
+       "unit": null,
+       "from": null,
+       "quote": ""
+      },
+      "legalBasis": "art. 50 § 1 KPA",
+      "appointment": {
+       "date": "2027-02-04",
+       "time": "09:20",
+       "place": "Wydział Spraw Obcokrajowców, ul. Mikołajska 5, 31-027 Kraków",
+       "purpose": "fingerprinting for temporary residence permit"
+      }
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L28",
+    "type": "appointment",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": null,
+     "startRule": null,
+     "docs": null,
+     "deadlineCorrect": null,
+     "appointment": true
+    },
+    "spark": null,
+    "sam": null,
+    "samSource": null,
+    "truthBox": null,
+    "iouSpark": null,
+    "iouSam": null,
+    "readMs": 6674,
+    "groundMs": 6673,
+    "samMs": null,
+    "costUsd": 0.01983935,
+    "samUsd": 0,
+    "tokensIn": 7074,
+    "tokensOut": 3673,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to appear in person to collect residence card",
+     "summary": "This is a summons (Wezwanie) from the Mazowiecki Voivodeship Office, Department for Foreigners, to appear in person to collect your residence card. It sets a fixed appointment on 19.10.2026 at 11:30 at ul. Marszałkowska 3/5 in Warsaw and lists what to bring. Missing the appointment without justification may lead to a fine.",
+     "actions": [
+      "Go to the office on 2026-10-19 at 11:30 to collect your residence card",
+      "Bring your passport, your previous residence card if you had one, and this summons",
+      "Do not miss the appointment - unjustified absence may result in a fine"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Warszawa, dnia 04.10.2026 r.",
+       "meaning": "This is when and where the office issued the letter.",
+       "box": [
+        804,
+        89,
+        1154,
+        119
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "office",
+       "label": "Office name",
+       "text": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+       "meaning": "This is the office that sent the letter and handles your case.",
+       "box": [
+        109,
+        167,
+        890,
+        202
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSC-II-P.6151.85782.2026",
+       "meaning": "This is your case reference - quote it in all contact with the office.",
+       "box": [
+        627,
+        342,
+        1073,
+        375
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "other",
+       "label": "Appointment details",
+       "text": "dnia 19.10.2026 r. o godz. 11:30 Wydział Spraw Cudzoziemców, ul. Marszałkowska 3/5, 00-624 Warszawa",
+       "meaning": "This is the date, time and place you must appear in person to collect your card.",
+       "box": [
+        153,
+        917,
+        1095,
+        1038
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "documents",
+       "label": "What to bring",
+       "text": "w celu odbioru karty pobytu. Należy zabrać paszport, dotychczasową kartę pobytu (jeśli była wydana) oraz niniejsze wezwanie.",
+       "meaning": "You must bring these items with you to the appointment.",
+       "box": [
+        109,
+        1075,
+        1138,
+        1152
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSC-II-P.6151.85782.2026",
+      "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2026-10-04",
+      "asks": [
+       "bring passport, previous residence card if issued, and this summons, and appear in person to collect residence card"
+      ],
+      "asksLocal": [
+       "Należy zabrać paszport, dotychczasową kartę pobytu (jeśli była wydana) oraz niniejsze wezwanie w celu odbioru karty pobytu"
+      ],
+      "deadlineRule": {
+       "amount": null,
+       "unit": null,
+       "from": null,
+       "quote": ""
+      },
+      "legalBasis": "art. 50 § 1 KPA",
+      "appointment": {
+       "date": "2026-10-19",
+       "time": "11:30",
+       "place": "Wydział Spraw Cudzoziemców, ul. Marszałkowska 3/5, 00-624 Warszawa",
+       "purpose": "to collect the residence card"
+      }
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L20",
+    "type": "decision",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": true,
+     "startRule": true,
+     "docs": null,
+     "deadlineCorrect": true,
+     "appointment": null
+    },
+    "spark": [
+     104,
+     1170,
+     1135,
+     1273
+    ],
+    "sam": [
+     93,
+     1119,
+     1146,
+     1302
+    ],
+    "samSource": "sam",
+    "truthBox": [
+     110,
+     1060,
+     1130,
+     1153
+    ],
+    "iouSpark": 0,
+    "iouSam": 0.13714068783884784,
+    "readMs": 27681,
+    "groundMs": 8241,
+    "samMs": 1605,
+    "costUsd": 0.0493683,
+    "samUsd": 0.0025,
+    "tokensIn": 11933,
+    "tokensOut": 10215,
+    "retries": 0,
+    "read": {
+     "kind": "decision",
+     "title": "Decision granting temporary residence for scientific research",
+     "summary": "This is a positive decision (DECYZJA) from the Lesser Poland Voivode granting a temporary residence permit for scientific research until 14.12.2028. It informs you that you can appeal within 14 days of delivery and that you will collect your residence card in person after notification.",
+     "actions": [
+      "Check if you want to appeal - you have 14 days from delivery",
+      "Wait for notification that your residence card is ready and collect it in person",
+      "Keep the decision and case number for future reference"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "deadline",
+       "label": "Appeal deadline",
+       "text": "Od niniejszej decyzji służy odwołanie do Szefa Urzędu do Spraw Cudzoziemców za pośrednictwem Wojewody w terminie 14 dni od dnia doręczenia decyzji (art. 127 § 1 oraz art. 129 § 1–2 KPA).",
+       "meaning": "You can appeal this decision within 14 days after you receive it.",
+       "box": [
+        104,
+        1170,
+        1135,
+        1273
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSO-III.6151.98944.2026",
+       "meaning": "This is the official reference number for your case at the office.",
+       "box": [
+        642,
+        382,
+        1073,
+        417
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "date",
+       "label": "Date on letter",
+       "text": "Kraków, dnia 15.12.2026 r.",
+       "meaning": "This is when and where the decision was issued.",
+       "box": [
+        799,
+        119,
+        1133,
+        151
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "office",
+       "label": "Issuing office",
+       "text": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+       "meaning": "This is the government office that issued the decision.",
+       "box": [
+        104,
+        191,
+        913,
+        223
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "other",
+       "label": "Decision outcome",
+       "text": "udzielam zezwolenia na pobyt czasowy w celu prowadzenia badań naukowych do dnia 14.12.2028 r.",
+       "meaning": "The decision grants you temporary residence for scientific research.",
+       "box": [
+        133,
+        923,
+        1106,
+        998
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSO-III.6151.98944.2026",
+      "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2026-12-15",
+      "asks": [],
+      "asksLocal": [],
+      "deadlineRule": {
+       "amount": 14,
+       "unit": "days",
+       "from": "delivery",
+       "quote": "Od niniejszej decyzji służy odwołanie do Szefa Urzędu do Spraw Cudzoziemców za pośrednictwem Wojewody w terminie 14 dni od dnia doręczenia decyzji (art. 127 § 1 oraz art. 129 § 1–2 KPA)."
+      },
+      "legalBasis": "art. 127 § 1 oraz art. 129 § 1–2 KPA",
+      "appointment": null
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   },
+   {
+    "config": "spark-1.2-minimal",
+    "id": "L27",
+    "type": "appointment",
+    "variant": "clean",
+    "ok": true,
+    "scores": {
+     "caseNumber": true,
+     "letterDate": true,
+     "type": true,
+     "period": null,
+     "startRule": null,
+     "docs": null,
+     "deadlineCorrect": null,
+     "appointment": true
+    },
+    "spark": null,
+    "sam": null,
+    "samSource": null,
+    "truthBox": null,
+    "iouSpark": null,
+    "iouSam": null,
+    "readMs": 12421,
+    "groundMs": 8378,
+    "samMs": null,
+    "costUsd": 0.050235100000000005,
+    "samUsd": 0,
+    "tokensIn": 11808,
+    "tokensOut": 9760,
+    "retries": 0,
+    "read": {
+     "kind": "letter",
+     "title": "Summons to appear for fingerprints",
+     "summary": "This is a summons (Wezwanie) from the Mazovian Voivodeship Office for a temporary residence case. It requires you to appear in person on 24.10.2026 at 14:15 at ul. Marszałkowska 3/5 in Warsaw to give fingerprints. You must bring your passport and this letter; missing the appointment without justification may result in a fine.",
+     "actions": [
+      "Go to the office on 24.10.2026 at 14:15 for fingerprinting",
+      "Bring your valid passport and this summons with you",
+      "Quote case number WSC-II-P.6151.52677.2026 in any contact with the office"
+     ],
+     "items": [
+      {
+       "id": "i1",
+       "role": "case_number",
+       "label": "Case number",
+       "text": "Znak sprawy: WSC-II-P.6151.52677.2026",
+       "meaning": "This is your case file number — use it in all contacts with the office.",
+       "box": [
+        601,
+        377,
+        1081,
+        410
+       ]
+      },
+      {
+       "id": "i2",
+       "role": "date",
+       "label": "Letter date",
+       "text": "Warszawa, dnia 14.10.2026 r.",
+       "meaning": "This is when and where the letter was issued.",
+       "box": [
+        763,
+        118,
+        1162,
+        149
+       ]
+      },
+      {
+       "id": "i3",
+       "role": "office",
+       "label": "Office",
+       "text": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+       "meaning": "This is the office that sent the letter and handles your case.",
+       "box": [
+        105,
+        188,
+        833,
+        219
+       ]
+      },
+      {
+       "id": "i4",
+       "role": "other",
+       "label": "Appointment",
+       "text": "dnia 24.10.2026 r. o godz. 14:15 Wydział Spraw Cudzoziemców, ul. Marszałkowska 3/5, 00-624 Warszawa w celu pobrania odcisków linii papilarnych.",
+       "meaning": "This tells you when and where to appear in person and why.",
+       "box": [
+        149,
+        1009,
+        1069,
+        1137
+       ]
+      },
+      {
+       "id": "i5",
+       "role": "documents",
+       "label": "What to bring",
+       "text": "Należy zabrać ze sobą ważny dokument podróży (paszport) oraz niniejsze wezwanie.",
+       "meaning": "You must bring these items to the appointment.",
+       "box": [
+        105,
+        1186,
+        1133,
+        1270
+       ]
+      }
+     ],
+     "facts": {
+      "caseNumber": "WSC-II-P.6151.52677.2026",
+      "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE"
+     },
+     "letter": {
+      "dateOnLetter": "2026-10-14",
+      "asks": [
+       "bring valid travel document (passport) and this summons for fingerprinting"
+      ],
+      "asksLocal": [
+       "Należy zabrać ze sobą ważny dokument podróży (paszport) oraz niniejsze wezwanie."
+      ],
+      "deadlineRule": {
+       "amount": null,
+       "unit": null,
+       "from": null,
+       "quote": ""
+      },
+      "legalBasis": "art. 50 § 1 KPA",
+      "appointment": {
+       "date": "2026-10-24",
+       "time": "14:15",
+       "place": "Wydział Spraw Cudzoziemców, ul. Marszałkowska 3/5, 00-624 Warszawa",
+       "purpose": "fingerprinting for temporary residence permit"
+      }
+     },
+     "uncertain": [],
+     "readable": true
+    }
+   }
+  ]
+ }
+}
