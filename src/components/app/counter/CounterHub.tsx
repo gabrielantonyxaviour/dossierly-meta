@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Button, ButtonLink, Card, Pill, Row, Section, TopBar, useToast } from "@/components/ui";
-import { SampleCaseHint } from "@/components/voice/SampleCaseHint";
 import { useCaseData } from "../shell/case-data";
 import "@/components/voice/voice.css";
 import "./counter.css";
@@ -48,7 +47,6 @@ export function CounterHub() {
         </div>
         <h2>At the counter</h2>
         <p>Lay the phone flat between you and the official. The top half speaks Polish to them, the bottom half is yours. When they ask for a document, Dossierly shows it. What you must do next goes straight into your case.</p>
-        <SampleCaseHint />
         <ButtonLink href="/app/counter/live" variant="agent" size="lg" icon="mic" block>Start at the counter</ButtonLink>
       </Card>
 

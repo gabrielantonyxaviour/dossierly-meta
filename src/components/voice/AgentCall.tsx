@@ -6,7 +6,6 @@ import type { VoiceTurn } from "@/lib/voice/protocol";
 import { AgentOrb, Button, Pill } from "@/components/ui";
 import { Icon } from "../Icon";
 import { Captured, LatencyLine } from "./bits";
-import { SampleCaseHint } from "./SampleCaseHint";
 import "./voice.css";
 
 export type AgentCallMode = "welcome" | "agent" | "counter" | "rehearse";
@@ -89,7 +88,6 @@ export function AgentCall({ mode, script, onEnd, autoStart, immersive }: AgentCa
           <p className="vc-sub">
             {mode === "welcome" ? "Dossierly walks you through what it found in your case." : "Ask anything about your case, out loud. Dossierly knows your letters, deadlines and documents."}
           </p>
-          <SampleCaseHint />
           {call.error && <p className="vc-error" role="alert">{call.error}</p>}
           <Button variant="agent" size="lg" icon="mic" onClick={() => void call.start()}>
             {call.error ? "Try again" : mode === "welcome" ? "Start the call" : "Call Dossierly"}
