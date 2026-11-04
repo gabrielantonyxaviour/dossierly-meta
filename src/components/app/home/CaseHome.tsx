@@ -9,7 +9,6 @@ import { OpenTasks, QuickActions, RecentActivity, UpcomingAppointment } from "./
 import { CaseStrip } from "./CaseStrip";
 import { ReadyCard } from "../ready/ReadyCard";
 import { ReviewEntry } from "../review/ReviewEntry";
-import { SAMPLE_LABEL_ID } from "@/lib/dev/sample-label";
 import "./home.css";
 
 function HomeSkeleton() {
@@ -35,7 +34,7 @@ export function CaseHome() {
     <div className="sh-page sh-page--wide hm">
       <TopBar
         title={`${greeting(now)}, ${firstName(snapshot.profile.fullName)}`}
-        eyebrow={snapshot.events.some((e) => e.id === SAMPLE_LABEL_ID) ? <>{today} · <Pill tone="official">Sample case</Pill></> : today}
+        eyebrow={today}
         actions={<>
           <IconLink href="/app/notifications" icon="bell" label={unread ? `Notifications, ${unread} unread` : "Notifications"} dot={unread > 0} />
           <Link href="/app/settings" className="hm-me" aria-label="Settings and profile"><Avatar name={snapshot.profile.fullName} size={34} /></Link>

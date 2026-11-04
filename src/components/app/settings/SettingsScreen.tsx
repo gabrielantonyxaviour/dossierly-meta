@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Avatar, Button, Card, ErrorState, Pill, Row, Section, Skeleton, TopBar, useToast } from "@/components/ui";
+import { Avatar, Button, Card, ErrorState, Row, Section, Skeleton, TopBar, useToast } from "@/components/ui";
 import { PERMIT_LABEL, STAGE_LABEL } from "../format";
 import { useCaseData } from "../shell/case-data";
 import { CHAT_KEY } from "../chat/useAgentChat";
@@ -81,7 +81,6 @@ export function SettingsScreen() {
       </Section>
 
       {account?.previewFlow && <PreviewTools flow={account.previewFlow} />}
-      {account?.sampleCase && <Pill tone="official">You are viewing the fictional sample case</Pill>}
       <Button variant="danger" block onClick={() => void signOut()} loading={signingOut} icon="out">Sign out</Button>
       <p className="ui-meta st-foot">Dossierly guides you. It isn’t a law firm and doesn’t give legal advice.</p>
       <ProfileSheet key={editing ? "open" : "closed"} open={editing} onClose={() => setEditing(false)} profile={p} />

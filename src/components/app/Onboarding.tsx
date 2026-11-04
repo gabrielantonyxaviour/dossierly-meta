@@ -42,7 +42,6 @@ export function Onboarding() {
       <section className="sample-photo" aria-labelledby="sample-h">
         <div className="sample-photo-img" aria-hidden="true" />
         <div className="sample-photo-body">
-          <span className="sample-photo-tag">Sample case · fictional person, real procedure</span>
           <h2 id="sample-h">Arjun Raman</h2>
           <p>Temporary residence and work · Mazowiecki office, Warsaw · fingerprints taken on 18 Sep, a letter is on its way.</p>
           <button className="sample-photo-btn" onClick={() => void startSample()}>

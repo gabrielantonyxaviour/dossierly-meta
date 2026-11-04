@@ -11,7 +11,6 @@ import type { CaseSnapshot } from "@/lib/case/types";
 import { isLegacyRoute, LegacyBoundary } from "./shell/Legacy";
 import { AGENT, IMMERSIVE, isActive, SIDE_MAIN, SIDE_MORE, TABS_LEFT, TABS_RIGHT, type NavItem } from "./shell/nav";
 import { deriveNotices, readIds } from "./notifications/derive";
-import { SAMPLE_LABEL_ID } from "@/lib/dev/sample-label";
 import "@/components/ui/shell.css";
 
 function useUnread(): number {
@@ -65,7 +64,7 @@ function Sidebar({ path }: { path: string }) {
       </Link>
       <Link href="/app/settings" className="sh-me">
         <Avatar name={name} size={34} />
-        <span><b>{name ?? "Your profile"}</b><small>{snapshot?.events.some((e) => e.id === SAMPLE_LABEL_ID) ? "Fictional sample case" : `${snapshot?.profile.city ?? "Poland"} · Temporary residence`}</small></span>
+        <span><b>{name ?? "Your profile"}</b><small>{`${snapshot?.profile.city ?? "Poland"} · Temporary residence`}</small></span>
       </Link>
     </aside>
   );
