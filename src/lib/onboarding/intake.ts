@@ -30,9 +30,21 @@ const EXTRACT = `You read the speech transcript of a newcomer in Poland introduc
 - city in Poland if they named one.
 Return only JSON: {"firstName":null,"fullName":null,"language":"en","reason":"unknown","city":null}`;
 
-const REPLY = `You are Dossierly, a calm caseworker for newcomers in Poland. The person just introduced themselves by voice (speech transcript, may have fillers). Say back, in the language they spoke, at most two very short spoken sentences (under 20 words): greet them by first name, then ask to look at their email and say why in a few words (that is where the office writes to them). Do not answer questions yet, repeat their details, mention dates or promise outcomes. No emojis.
+const REPLY_RULES = `You are Dossierly, a calm caseworker for newcomers in Poland. The person just introduced themselves by voice (speech transcript, may have fillers). Say back, in the language they spoke, at most two very short spoken sentences (under 20 words): greet them by first name, then ask to look at their email and say why in a few words (that is where the office writes to them). Do not answer questions yet, repeat their details, mention dates or promise outcomes. No emojis.`;
+const REPLY = `${REPLY_RULES}
 Example: "um hello I'm Mei, I work here, I got some letter from the office I don't get" → {"reply":"Hi Mei. Can I look at your email? That's where the office writes to you.","language":"en"}
 Return only JSON: {"reply":"","language":"<ISO code of the language they spoke>"}`;
+
+/** Same reply as a streamable line format, for the realtime voice session (first sentence goes to TTS as it arrives). */
+export const INTAKE_REPLY_SYSTEM = `${REPLY_RULES}
+Example: "um hello I'm Mei, I work here, I got some letter from the office I don't get" →
+SAY: Hi Mei. Can I look at your email? That's where the office writes to you.
+LANG: en
+Reply in exactly this line format:
+SAY: <reply>
+LANG: <ISO code of the language they spoke>`;
+/** The user message for INTAKE_REPLY_SYSTEM and the extraction. */
+export const intakeInput = (transcript: string) => `Transcript: "${transcript.replace(/"/g, "'")}"`;
 
 type CaseNs = { idFromName(n: string): unknown; get(id: unknown): { fetch(input: string, init?: RequestInit): Promise<Response> } };
 /** The profile through the CASE_DO binding on whatever env is given (Next route or VoiceDO), else the dev case client. */
@@ -61,25 +73,21 @@ export async function runIntake(env: Env, userId: string, transcript: string): P
   return { ...t, speechId: await queueSpeech(env, userId, t.reply, t.language) };
 }
 
-/** One spoken introduction → saved profile + the reply to say. Also used by the realtime voice session (mode "intake"). */
+const base = (input: string) => ({ input, effort: "minimal" as const, masker: maskerFor({}), replay: (): never => { throw new Error("no replay for intake"); } });
+/** Spark spends reasoning tokens even at "minimal": a low cap returns empty content. */
+const MAX_TOKENS = 1200;
+
 /**
- * One spoken introduction → the reply to say + the saved profile. The reply has its own small Spark call so it can be
- * spoken as soon as it exists (`onReply`), while the profile extraction and save finish alongside (`defer`).
+ * The profile half of the intake: Spark extracts name, permit, language and city, and the case profile is saved
+ * (in the background when `defer` is given; the returned profile is then current + patch). Used on its own by the
+ * realtime voice session, which streams the reply itself with INTAKE_REPLY_SYSTEM.
  */
-export async function intakeTurn(
-  env: Env, userId: string, transcript: string,
-  opts: { defer?: (work: Promise<unknown>) => void; onReply?: (reply: string, language: string) => void } = {},
-): Promise<Omit<IntakeResult, "speechId">> {
+export async function intakeProfile(env: Env, userId: string, transcript: string, opts: { defer?: (work: Promise<unknown>) => void } = {}) {
   const c = profileStore(env, userId);
-  const input = `Transcript: "${transcript.replace(/"/g, "'")}"`;
-  const base = { input, effort: "minimal" as const, masker: maskerFor({}), replay: (): never => { throw new Error("no replay for intake"); } };
-  const replyP = retryTransient(() => runModel({ env, userId }, { ...base, task: "intake", system: REPLY, schema: replySchema, maxTokens: 200 }), 600).then((o) => {
-    const lang = (LANGUAGES as readonly string[]).includes(o.data.language) ? o.data.language : "en";
-    opts.onReply?.(o.data.reply, lang);
-    return { reply: o.data.reply, language: lang };
-  });
-  const extractP = retryTransient(() => runModel({ env, userId }, { ...base, task: "intake", system: EXTRACT, schema: outSchema, maxTokens: 300 }), 600);
-  const [said, out, current] = await Promise.all([replyP, extractP, c.get()]);
+  const [out, current] = await Promise.all([
+    retryTransient(() => runModel({ env, userId }, { ...base(intakeInput(transcript)), task: "intake", system: EXTRACT, schema: outSchema, maxTokens: MAX_TOKENS }), 600),
+    c.get(),
+  ]);
   const x = out.data;
   const lang = (LANGUAGES as readonly string[]).includes(x.language) ? (x.language as Language) : null;
   const patch: Partial<Profile> = { country: "PL" };
@@ -88,12 +96,29 @@ export async function intakeTurn(
   if (lang) patch.preferredLanguage = lang;
   if (PERMIT[x.reason]) patch.permitType = PERMIT[x.reason];
   if (x.city) patch.city = x.city;
-  const result = { reply: said.reply, language: lang ?? said.language, firstName: x.firstName };
+  const meta = { firstName: x.firstName, language: lang };
   if (opts.defer) {
     opts.defer(c.patch(patch).catch(() => undefined));
-    return { ...result, profile: { ...current, ...patch, phone: current.phone } };
+    return { ...meta, profile: { ...current, ...patch, phone: current.phone } as Profile };
   }
-  return { ...result, profile: await c.patch(patch) };
+  return { ...meta, profile: await c.patch(patch) };
+}
+
+/**
+ * One spoken introduction → the reply to say + the saved profile, as two parallel Spark calls. `onReply` gets the
+ * reply the moment it exists, before the profile half finishes.
+ */
+export async function intakeTurn(
+  env: Env, userId: string, transcript: string,
+  opts: { defer?: (work: Promise<unknown>) => void; onReply?: (reply: string, language: string) => void } = {},
+): Promise<Omit<IntakeResult, "speechId">> {
+  const replyP = retryTransient(() => runModel({ env, userId }, { ...base(intakeInput(transcript)), task: "intake", system: REPLY, schema: replySchema, maxTokens: MAX_TOKENS }), 600).then((o) => {
+    const lang = (LANGUAGES as readonly string[]).includes(o.data.language) ? o.data.language : "en";
+    opts.onReply?.(o.data.reply, lang);
+    return { reply: o.data.reply, language: lang };
+  });
+  const [said, p] = await Promise.all([replyP, intakeProfile(env, userId, transcript, { defer: opts.defer })]);
+  return { reply: said.reply, language: p.language ?? said.language, firstName: p.firstName, profile: p.profile };
 }
 
 const speechKey = (userId: string, id: string) => `obvoice:${userId}:${id}`;
