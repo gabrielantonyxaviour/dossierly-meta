@@ -96,3 +96,5 @@
 .ob-checking { font: 500 12px/1 var(--mono); color: var(--ink-3); animation: ob-pulse-text 1.2s ease-in-out infinite; }
 @keyframes ob-pulse-text { 50% { opacity: .4; } }
 @media (max-width: 420px) { .ob-conn > .ob-checking { grid-column: 1 / -1; } }
+.ob-hint-card { background: var(--agent-soft); box-shadow: none; }
+.ob-hint-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }

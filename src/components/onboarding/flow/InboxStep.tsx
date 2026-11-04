@@ -3,13 +3,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { MailReading } from "@/lib/onboarding/findings";
 import type { InboxMessage } from "@/lib/onboarding/inbox";
 import { failure, flowApi, type ConnectionStatus } from "@/lib/client/onboarding-flow";
+import type { Profile } from "@/lib/case/types";
 import { ConnectCards } from "./ConnectCards";
 import { Review } from "./Review";
 
 type Row = { msg: InboxMessage; state: "queued" | "reading" | "done" | "error"; reading?: MailReading; error?: string };
 type Phase = "connect" | "listing" | "reading" | "review" | "empty";
 
-export function InboxStep({ onDone, onSkip, setCalendarAdded, returned }: { returned: string | null; onDone(saved: number): void; onSkip(): void; setCalendarAdded(v: boolean): void }) {
+export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, applyStage }: { returned: string | null; stage: Profile["stage"]; applyStage(s: Profile["stage"]): Promise<boolean>; onDone(saved: number): void; onSkip(): void; setCalendarAdded(v: boolean): void }) {
   const [status, setStatus] = useState<ConnectionStatus | null>(null);
   const [statusError, setStatusError] = useState("");
   const [phase, setPhase] = useState<Phase>("connect");
@@ -85,7 +86,7 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned }: { retu
   }
   if (phase === "review") {
     const readings = rows.flatMap((r) => (r.reading?.relevant ? [r.reading] : []));
-    return <Review readings={readings} rows={rows.map((r) => r.msg)} calendarConnected={calendar} onSaved={(added, saved) => { setCalendarAdded(added); onDone(saved); }} />;
+    return <Review readings={readings} rows={rows.map((r) => r.msg)} calendarConnected={calendar} stage={stage} applyStage={applyStage} onSaved={(added, saved) => { setCalendarAdded(added); onDone(saved); }} />;
   }
   const relevant = rows.filter((r) => r.reading?.relevant).length;
   return (
