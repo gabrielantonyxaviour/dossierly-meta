@@ -101,7 +101,8 @@ export class AgentMode implements ModeHandler {
     await this.remind(id, res.fields);
     if (/^y/i.test(res.fields.END ?? "")) {
       this.ending = true;
-      setTimeout(() => void this.s.finish("agent_ended"), 6000);
+      // Hang up once the goodbye has played on the device (phone: no playback report, so the timeout).
+      void this.s.speaker.whenPlayed(this.s.t.kind === "twilio" ? 6000 : 15_000).then(() => this.s.finish("agent_ended"));
     }
   }
 
