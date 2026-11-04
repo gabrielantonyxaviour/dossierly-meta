@@ -73,13 +73,10 @@
 @keyframes ob-wave { from { transform: scale(.9); opacity: 1; } to { transform: scale(1.35); opacity: 0; } }
 .ob-answer-btn { background: var(--ok); border-color: var(--ok); color: #fff; }
 .ob-call { padding: 20px; border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-lg); display: grid; gap: 18px; }
-.ob-call-head div span { opacity: 1; color: var(--ink-3); font-family: var(--mono); font-size: 13px; }
-.ob-call-captions { margin: 0; font-size: 19px; line-height: 1.5; letter-spacing: -0.01em; }
-.ob-call-captions span[data-state="said"] { color: var(--ink-2); }
-.ob-call-captions span[data-state="now"] { color: var(--ink); background: linear-gradient(transparent 62%, var(--user-soft) 0); }
-.ob-call-captions span[data-state="next"] { color: var(--ink-3); opacity: .45; }
-.ob-call-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.ob-hang { background: var(--deadline); border-color: var(--deadline); color: #fff; }
+
+
+
+
 
 .ob-file { display: none; }
 @media (min-width: 1024px) {

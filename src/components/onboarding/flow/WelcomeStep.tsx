@@ -1,10 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { LANGUAGE_META } from "@/lib/config";
-import { LanguageSchema } from "@/lib/schemas";
 import { failure, flowApi } from "@/lib/client/onboarding-flow";
-import { WelcomeCall } from "./WelcomeCall";
+import { AgentCall } from "@/components/voice/AgentCall";
 
 /** The incoming welcome call. The script is written by Muse Spark from the saved case before the person answers. */
 export function WelcomeStep({ firstName, calendarAdded }: { firstName: string; calendarAdded: boolean }) {
@@ -26,10 +24,8 @@ export function WelcomeStep({ firstName, calendarAdded }: { firstName: string; c
       <Link className="btn btn-primary ob-next" href="/app">Open my case</Link>
     </div>
   );
-  if (answered && script) {
-    const lang = LanguageSchema.catch("en").parse(script.language);
-    return <WelcomeCall script={script.text} speechLang={LANGUAGE_META[lang].speech} onEnd={() => setEnded(true)} />;
-  }
+  // "Answer" is the user gesture that lets the call start audio straight away.
+  if (answered && script) return <div className="ob-answer"><AgentCall mode="welcome" script={script.text} autoStart onEnd={() => setEnded(true)} /></div>;
   return (
     <div className="ob-answer">
       <div className="ob-ring" data-ready={!!script}>
