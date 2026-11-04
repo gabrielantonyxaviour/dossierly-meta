@@ -3,7 +3,7 @@
 .ob-conn { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px 14px; padding: 14px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); transition: box-shadow .2s; }
 .ob-conn[data-next="true"] { box-shadow: 0 0 0 2px var(--ink); }
 .ob-conn[data-connected="true"] { background: color-mix(in srgb, var(--ok-soft) 55%, var(--surface)); }
-.ob-conn-mark { width: 44px; height: 44px; border-radius: var(--radius-sm); display: grid; place-items: center; font: 600 15px/1 var(--mono); color: var(--ink); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line-strong); }
+.ob-conn-mark { width: 44px; height: 44px; border-radius: var(--radius-sm); display: grid; place-items: center; font: 500 15px/1 var(--mono); color: var(--ink); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line-strong); }
 .ob-conn-body { min-width: 0; display: grid; gap: 3px; }
 .ob-conn-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ob-conn-body p { margin: 0; font-size: 14px; color: var(--ink-2); line-height: 1.4; overflow-wrap: anywhere; }
@@ -25,13 +25,13 @@
 .ob-mail-row[data-state="error"] .ob-mail-icon { background: var(--deadline); }
 @keyframes ob-pulse { 50% { transform: scale(1.5); opacity: .5; } }
 .ob-mail-text { min-width: 0; display: grid; gap: 2px; }
-.ob-mail-text strong { font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ob-mail-text strong { font-size: 14.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ob-mail-text span { font-size: 13.5px; color: var(--ink-2); line-height: 1.4; }
 .ob-mail-row[data-relevant="yes"] .ob-mail-text span { color: var(--ink); }
 .ob-mail-state { font: 500 11.5px/1 var(--mono); color: var(--ink-3); white-space: nowrap; }
 .ob-mail-row[data-relevant="yes"] .ob-mail-state { color: var(--official); }
 
-.ob-find-group h2 { margin: 0 0 8px; font: 500 12px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.ob-find-group h2 { margin: 0 0 10px; font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
 .ob-find-group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .ob-find { border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); padding: 14px; border-left: 3px solid var(--official); transition: opacity .2s; }
 .ob-find-group[data-kind="deadline"] .ob-find { border-left-color: var(--deadline); }
@@ -40,12 +40,12 @@
 .ob-find > .ob-find-body { flex: 1; min-width: 0; }
 .ob-cal-toggle { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 14px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); font-size: 14.5px; }
 .ob-find-body { display: grid; gap: 4px; font-size: 14.5px; line-height: 1.45; }
-.ob-find-body strong { font-size: 16px; font-weight: 600; }
+.ob-find-body strong { font-size: 16px; font-weight: 500; }
 .ob-find-body > span { color: var(--ink-2); }
 .ob-find-fact { grid-template-columns: minmax(0, 1fr); }
 .ob-find-fact > span:first-child { font-size: 12.5px; color: var(--ink-3); }
 .ob-find-fact strong { font-family: var(--mono); font-size: 15px; overflow-wrap: anywhere; }
-.ob-find-when { font: 600 13px/1.3 var(--mono); color: var(--official) !important; }
+.ob-find-when { font: 500 13px/1.3 var(--mono); color: var(--official) !important; }
 .ob-find-when[data-urgent="true"] { color: var(--deadline) !important; }
 .ob-find-warn { color: var(--deadline) !important; font-size: 13.5px; }
 .ob-find-bring { font-size: 13.5px; }
@@ -64,7 +64,7 @@
 .ob-ring, .ob-call-head { display: flex; align-items: center; gap: 16px; }
 .ob-ring { padding: 20px; border-radius: var(--radius-lg); background: var(--surface); color: var(--ink); box-shadow: var(--shadow-lg); }
 .ob-ring div, .ob-call-head div { display: grid; gap: 4px; }
-.ob-ring strong, .ob-call-head strong { font-size: 19px; }
+.ob-ring strong, .ob-call-head strong { font-size: 18px; font-weight: 500; }
 .ob-ring div span { font-size: 14px; color: var(--ink-3); }
 .ob-answer-btn { background: var(--ok); border-color: var(--ok); color: var(--bg); }
 .ob-call { padding: 20px; border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-lg); display: grid; gap: 18px; }

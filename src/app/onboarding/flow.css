@@ -10,13 +10,13 @@
 .ob-talk { min-width: 0; max-width: 560px; width: 100%; margin-inline: auto; animation: ob-in .38s cubic-bezier(.2,.7,.2,1) both; }
 @keyframes ob-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-.ob-agent { display: inline-flex; align-items: center; gap: 8px; font: 500 12px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); }
-.ob-say { margin: 16px 0 0; font-family: var(--font); font-size: clamp(26px, 6.6vw, 34px); line-height: 1.12; letter-spacing: -0.025em; font-weight: 650; text-wrap: balance; outline: none; }
+.ob-agent { display: inline-flex; align-items: center; gap: 8px; font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.ob-say { margin: 16px 0 0; font-family: var(--font); font-size: clamp(28px, 7.4vw, 36px); line-height: 1.22; letter-spacing: -0.03em; font-weight: 400; text-wrap: balance; outline: none; }
 .ob-sub { margin: 10px 0 0; font-size: 16px; line-height: 1.5; color: var(--ink-2); max-width: 46ch; }
 
 .ob-answer { margin-top: 26px; display: grid; gap: 20px; }
 .ob-field { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
-.ob-field > span, .ob-field > legend, .ob-field-label { font-size: 14px; font-weight: 550; color: var(--ink-2); padding: 0; }
+.ob-field > span, .ob-field > legend, .ob-field-label { font-size: 14px; font-weight: 500; color: var(--ink-2); padding: 0; }
 .ob-field-label em { font-style: normal; color: var(--ink-3); font-weight: 400; }
 .ob-input-lg { font-size: 18px; min-height: 54px; }
 .ob-field-err { color: var(--deadline); font-size: 14px; margin: 0; }
@@ -41,7 +41,7 @@
 .ob-choice[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
 .ob-choice[disabled] { cursor: progress; }
 .ob-choice-text { flex: 1; display: grid; gap: 3px; min-width: 0; }
-.ob-choice-text strong { font-size: 17px; font-weight: 600; }
+.ob-choice-text strong { font-size: 16px; font-weight: 500; }
 .ob-choice-text span { font-size: 14px; color: var(--ink-3); }
 .ob-choice-dot { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line-strong); flex: none; display: grid; place-items: center; }
 .ob-choice[aria-pressed="true"] .ob-choice-dot { border-color: var(--ink); background: radial-gradient(circle, var(--ink) 0 5px, transparent 6px); }
