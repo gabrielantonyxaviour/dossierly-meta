@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { caseClient } from "@/lib/case/client";
 import { currentAccount } from "@/lib/server/account";
 import { getEnv } from "@/lib/server/env";
+import { freshFirstRun } from "@/lib/dev/fresh";
 import { getOnboarding, restartOnboarding } from "@/lib/server/onboarding";
 import { OnboardingFlow } from "@/components/onboarding/flow/OnboardingFlow";
 import "./flow.css";
@@ -12,10 +13,15 @@ export const metadata: Metadata = { title: "Set up your case", robots: { index: 
 export const dynamic = "force-dynamic";
 
 /** New accounts onboard, unfinished setups resume at their step, completed ones go to their case. */
-export default async function Page({ searchParams }: { searchParams: Promise<{ connection?: string; again?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ connection?: string; again?: string; fresh?: string }> }) {
   const account = await currentAccount();
   if (!account) redirect("/signin?next=%2Fonboarding");
   const env = getEnv();
+  // Previews: ?fresh=1 is a true first run (empty case, Google disconnected). Production ignores it.
+  if ((await searchParams).fresh === "1" && env.APP_ENV !== "production") {
+    await freshFirstRun(env, account.accountId, { disconnect: true });
+    redirect("/onboarding");
+  }
   const [initial, snapshot, identity] = await Promise.all([
     getOnboarding(env, account.accountId),
     caseClient(account.accountId).snapshot(),

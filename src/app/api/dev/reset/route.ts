@@ -1,8 +1,6 @@
 import { z } from "zod";
 import { resetPreviewAccount } from "@/lib/dev/preview";
-import { disconnect } from "@/lib/server/connections/service";
-import { rowFor } from "@/lib/server/connections/store";
-import type { ConnectionsEnv } from "@/lib/server/connections/types";
+import { freshFirstRun } from "@/lib/dev/fresh";
 import { getEnv } from "@/lib/server/env";
 import { errorResponse, jsonError } from "@/lib/server/http";
 import { boundedJson, sameOrigin } from "@/lib/server/request";
@@ -24,14 +22,8 @@ export async function POST(req: Request) {
     sameOrigin(req, env);
     const state = await requireUserState(req);
     const { reseed, disconnect: unlink } = await boundedJson(req, Body, 1024);
-    await resetPreviewAccount(env, state.accountId, { reseed: !!reseed });
-    if (unlink) {
-      for (const category of ["mail", "calendar"] as const) if (await rowFor(env as ConnectionsEnv, state.accountId, category)) await disconnect(env as ConnectionsEnv, state.accountId, category);
-      await env.DB.batch([
-        env.DB.prepare("DELETE FROM watch_messages WHERE account_id = ?").bind(state.accountId),
-        env.DB.prepare("DELETE FROM watch_accounts WHERE account_id = ?").bind(state.accountId),
-      ]);
-    }
+    if (unlink && !reseed) await freshFirstRun(env, state.accountId, { disconnect: true });
+    else await resetPreviewAccount(env, state.accountId, { reseed: !!reseed });
     return Response.json({ ok: true, next: reseed ? "/app" : "/onboarding" }, { headers: { "cache-control": "no-store" } });
   } catch (e) {
     return errorResponse(e);
