@@ -1,6 +1,7 @@
 import { daysBetween, warsawDate, warsawToday } from "@/lib/case/next-step";
 import type { CaseSnapshot } from "@/lib/case/types";
 import type { IconName } from "@/components/Icon";
+import { latestReady } from "../ready/derive";
 
 const short = (d: string) => new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${d}T12:00:00Z`));
 
@@ -27,8 +28,15 @@ export function deriveNotices(c: CaseSnapshot, now = new Date()): Notice[] {
     out.push({ id: `ap:${a.id}`, at: `${today}T23:58:00Z`, when: `${short(warsawDate(a.at))}`, icon: "calendar", tone: "official", title: left === 0 ? `Today: ${a.title}` : `In ${left} day${left === 1 ? "" : "s"}: ${a.title}`, body: a.location.name, href: `/app/case?tab=dates` });
   }
   const weekAgo = new Date(now.getTime() - 10 * 86_400_000).toISOString();
+  const ready = latestReady(c, now);
+  const officeLetters = new Set(c.documents.filter((d) => d.kind === "letter" && d.source === "email").map((d) => d.id));
   for (const e of c.events.filter((e) => e.at >= weekAgo).slice(0, 12)) {
-    out.push({ id: `ev:${e.id}`, at: e.at, icon: EVENT_ICON[e.type] ?? "info", tone: e.type === "call" ? "agent" : e.type === "email_received" || e.type === "letter_read" ? "official" : "neutral", title: eventTitle(e.type), body: e.summary, href: `/app/case?tab=timeline#${e.id}` });
+    // The 24/7 agent's findings: a new office letter, and the call it placed about it, open what it prepared.
+    const isReady = !!ready && (e.id === ready.arrival?.id || e.id === ready.call?.id);
+    const letter = e.type === "email_received" && e.refs.some((r) => officeLetters.has(r));
+    const title = e.type === "call" && isReady ? "Dossierly called you" : letter ? "New letter from the office" : eventTitle(e.type);
+    const body = isReady && e.type === "email_received" && ready ? `${e.summary}${ready.drafts.length ? ` Dossierly drafted ${ready.drafts.length === 1 ? "a reply" : `${ready.drafts.length} replies`} for you.` : ""}` : e.summary;
+    out.push({ id: `ev:${e.id}`, at: e.at, icon: EVENT_ICON[e.type] ?? "info", tone: e.type === "call" ? "agent" : letter || e.type === "letter_read" ? "official" : "neutral", title, body, href: isReady ? "/app/ready" : `/app/case?tab=timeline#${e.id}` });
   }
   return out.sort((a, b) => b.at.localeCompare(a.at));
 }

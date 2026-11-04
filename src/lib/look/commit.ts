@@ -14,7 +14,7 @@ const FACT_SET = new Set<string>(FACT_KEYS);
 const clip = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
 /** Creates the item; an existing one (409) is patched instead, so re-commits converge. */
-async function upsert<K extends "documents" | "deadlines" | "tasks" | "events">(c: CaseClient, kind: K, id: string, input: Record<string, unknown>, patch: Record<string, unknown> | null) {
+async function upsert<K extends "documents" | "deadlines" | "tasks" | "events" | "appointments">(c: CaseClient, kind: K, id: string, input: Record<string, unknown>, patch: Record<string, unknown> | null) {
   try {
     await c.create(kind, { id, ...input });
   } catch (e) {
@@ -37,6 +37,16 @@ function applyCorrections(rec: LookRecord, corrections: CommitRequest["correctio
     }
   }
   return { facts, dateOnLetter };
+}
+
+/** Wall-clock time in Warsaw → ISO UTC (handles CET/CEST via the zone's own offset on that day). */
+export function warsawToUtc(date: string, time: string): string {
+  const guess = new Date(`${date}T${time}:00Z`);
+  const shown = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Warsaw", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(guess);
+  const [h, m] = shown.split(":").map(Number);
+  const [th, tm] = time.split(":").map(Number);
+  const diff = (h * 60 + m - (th * 60 + tm) + 1440) % 1440;
+  return new Date(guess.getTime() - (diff > 720 ? diff - 1440 : diff) * 60_000).toISOString();
 }
 
 function startFor(rec: LookRecord, delivery: CommitRequest["delivery"], dateOnLetter: string | null): DeadlineStart | null {
@@ -112,6 +122,16 @@ export async function commitLook(env: Env, userId: string, req: CommitRequest): 
     const local = letter?.asksLocal[i];
     await upsert(c, "tasks", id, { title: clip(ask, 200), detail: local ? `As written in the letter: ${local}` : "", dueDeadlineId: result.deadline?.id ?? null, origin: "letter", status: "open" }, result.deadline ? { dueDeadlineId: result.deadline.id } : null);
     result.taskIds.push(id);
+  }
+
+  const appt = letter?.appointment;
+  if (appt) {
+    const id = `apt_${rec.lookId}`;
+    const at = warsawToUtc(appt.date, appt.time ?? "09:00");
+    const [name, ...rest] = (appt.place ?? "Place as given in the letter").split(",");
+    const input = { title: clip(appt.purpose ?? read.title, 200), at, location: { name: clip(name, 160) || "Office", address: clip(rest.join(",").trim(), 300) }, purpose: clip(caseNumber ? `${read.title} (${caseNumber})${appt.time ? "" : ". Time not stated in the letter."}` : read.title, 500) };
+    await upsert(c, "appointments", id, input, input);
+    result.appointmentId = id;
   }
 
   const bits = [read.title, caseNumber ? `case ${caseNumber}` : null, letter?.asks.length ? `${letter.asks.length} item${letter.asks.length === 1 ? "" : "s"} requested` : null, result.deadline ? `due ${result.deadline.dueDate}` : null];

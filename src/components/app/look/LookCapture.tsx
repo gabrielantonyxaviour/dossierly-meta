@@ -1,17 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Button, InlineError, StickyActionBar } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { LookSamples, type SamplePick } from "./LookSamples";
 
 interface Props {
+  phone: boolean;
   onFile(file: Blob, question: string): void;
   onSample(pick: SamplePick, question: string): void;
   error: string | null;
 }
 
-/** Entry: camera on phones, file picker everywhere, drag-drop and paste on desktop. */
-export function LookCapture({ onFile, onSample, error }: Props) {
+/** Entry: camera on phones (primary in the thumb-zone dock), file picker everywhere, drag-drop and paste on desktop. */
+export function LookCapture({ phone, onFile, onSample, error }: Props) {
   const camera = useRef<HTMLInputElement>(null);
   const picker = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
@@ -37,9 +39,15 @@ export function LookCapture({ onFile, onSample, error }: Props) {
     const f = files?.[0];
     if (f) onFile(f, question);
   };
+  const buttons = (
+    <>
+      <Button variant="primary" size="lg" block icon="camera" onClick={() => camera.current?.click()}>Take a photo</Button>
+      <Button variant={phone ? "ghost" : "soft"} size="lg" block icon="file" onClick={() => picker.current?.click()}>Choose a photo or screenshot</Button>
+    </>
+  );
 
   return (
-    <div className="stack" style={{ ["--gap" as string]: "14px" }}>
+    <div className="stack lk-capture-wrap" style={{ ["--gap" as string]: "14px" }}>
       <div
         className={`lk-capture${over ? " is-over" : ""}`}
         onDragOver={(e) => { e.preventDefault(); setOver(true); }}
@@ -48,36 +56,32 @@ export function LookCapture({ onFile, onSample, error }: Props) {
       >
         <div className="lk-capture-art" aria-hidden="true">
           <span className="lk-corner tl" /><span className="lk-corner tr" /><span className="lk-corner bl" /><span className="lk-corner br" />
-          <Icon name="camera" size={34} />
+          <Icon name="camera" size={30} />
         </div>
         <div className="lk-capture-actions">
-          <button type="button" className="btn btn-primary lk-cta" onClick={() => camera.current?.click()}>
-            <Icon name="camera" size={20} /> Take a photo
-          </button>
-          <button type="button" className="btn lk-cta" onClick={() => picker.current?.click()}>
-            <Icon name="file" size={20} /> Choose a photo or screenshot
-          </button>
-          <p className="tiny muted lk-desk-only" style={{ margin: 0 }}>Or drop an image here, or paste a screenshot.</p>
+          <p className="lk-capture-copy">Letters, MOS screens, UPO receipts, inPOL status and ticket kiosks.</p>
+          {!phone && buttons}
+          {!phone && <p className="small muted lk-desk-only" style={{ margin: 0 }}>Or drop an image here, or paste a screenshot.</p>}
         </div>
         <input ref={camera} type="file" accept="image/*" capture="environment" hidden onChange={(e) => { take(e.target.files); e.target.value = ""; }} />
         <input ref={picker} type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" hidden onChange={(e) => { take(e.target.files); e.target.value = ""; }} />
       </div>
-      {error && <div className="error-box small" role="alert">{error}</div>}
+      {error && <InlineError message={error} />}
       {asking ? (
-        <label className="field">
-          <span className="small">Ask about it <span className="muted">(optional)</span></span>
-          <input className="input" value={question} maxLength={300} onChange={(e) => setQuestion(e.target.value)} placeholder="Which button do I press for fingerprints?" autoFocus />
+        <label className="ui-field">
+          <span>Ask about it (optional)</span>
+          <input className="ui-input" value={question} maxLength={300} onChange={(e) => setQuestion(e.target.value)} placeholder="Which button is for fingerprints?" autoFocus />
         </label>
       ) : (
-        <button type="button" className="btn btn-ghost btn-small lk-ask" onClick={() => setAsking(true)}>
-          <Icon name="help" size={16} /> Ask a question about it
-        </button>
+        <div><Button variant="ghost" icon="help" onClick={() => setAsking(true)}>Ask a question about it</Button></div>
       )}
-      <div className="lk-kinds" aria-label="Things Look reads">
-        {["Letters from the office", "MOS form screens", "UPO receipts", "inPOL status", "Ticket kiosks"].map((k) => <span key={k} className="chip">{k}</span>)}
-      </div>
-      <button type="button" className="lk-sample-link" onClick={() => setSamples(true)}>Use a test letter</button>
-      {samples && <LookSamples onPick={(p) => { setSamples(false); onSample(p, question); }} onClose={() => setSamples(false)} />}
+      <div><button type="button" className="lk-sample-link" onClick={() => setSamples(true)}>Use a test letter</button></div>
+      <LookSamples open={samples} onPick={(p) => { setSamples(false); onSample(p, question); }} onClose={() => setSamples(false)} />
+      {phone && (
+        <StickyActionBar secondary={<Button variant="ghost" icon="file" onClick={() => picker.current?.click()}>Choose a photo or screenshot</Button>}>
+          <Button variant="primary" icon="camera" onClick={() => camera.current?.click()}>Take a photo</Button>
+        </StickyActionBar>
+      )}
     </div>
   );
 }

@@ -19,7 +19,7 @@ export function CitedDeadline({ deadline, title }: { deadline: Deadline; title?:
     <section className="lk-deadline" aria-label="Your deadline">
       <div className="lk-deadline-top">
         <span className="tab-label">{title ?? "Your deadline"}</span>
-        <span className={`chip ${left < 0 ? "chip-deadline" : left <= 3 ? "chip-deadline" : "chip-warn"}`}>{when}</span>
+        <span className={`ui-pill ${left < 0 ? "ui-pill--deadline" : left <= 3 ? "ui-pill--deadline" : "ui-pill--warn"}`}>{when}</span>
       </div>
       <p className="lk-due">{longDate(deadline.dueDate)}</p>
       <p className="small muted lk-rule">Counted by {deadline.rule}. Computed in code from the letter&apos;s wording, not guessed by a model.</p>

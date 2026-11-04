@@ -41,6 +41,7 @@ export const RawRead = z.object({
         .object({ amount: z.number().nullish(), unit: nstr.optional(), from: nstr.optional(), quote: z.string().optional() })
         .optional(),
       legalBasis: nstr.optional(),
+      appointment: z.object({ date: nstr.optional(), time: nstr.optional(), place: nstr.optional(), purpose: nstr.optional() }).nullish(),
     })
     .nullish(),
   uncertain: z.array(z.string()).optional(),
@@ -143,6 +144,14 @@ export function toLookRead(raw: RawRead, lines: GroundedLine[], hint?: LookKind)
             quote: clip(dr?.quote, 500),
           },
           legalBasis: l.legalBasis?.trim().slice(0, 120) || null,
+          appointment: isoDate(l.appointment?.date)
+            ? {
+                date: isoDate(l.appointment?.date) as string,
+                time: /^([01]\d|2[0-3]):[0-5]\d$/.test(l.appointment?.time?.trim() ?? "") ? (l.appointment?.time?.trim() as string) : null,
+                place: clip(l.appointment?.place ?? undefined, 300) || null,
+                purpose: clip(l.appointment?.purpose ?? undefined, 300) || null,
+              }
+            : null,
         }
       : null;
   // Item ids are renumbered when items are dropped: remap the ones that survived, discard the ones that did not.

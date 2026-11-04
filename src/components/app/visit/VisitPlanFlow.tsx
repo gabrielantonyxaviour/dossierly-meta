@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Appointment } from "@/lib/case/types";
 import type { VisitEvent, VisitPlan } from "@/lib/visit/types";
 import { Icon } from "@/components/Icon";
-import { TopBar } from "@/components/ui";
+import { Button, InlineError, MobileFlowHeader, MobilePage, OptionList, ScreenTitle, Skeleton, StickyActionBar } from "@/components/ui";
 import { errorText, readNdjson } from "../look/ndjson";
 import { VisitPlanView } from "./VisitPlanView";
 import "../look/look.css";
@@ -58,50 +58,42 @@ export function VisitPlanFlow() {
 
   const busy = stage === "searching" || stage === "comparing";
   const canBuild = !!pick || purpose.trim().length > 2;
+  const options = [
+    ...(appts ?? []).map((a) => ({ value: a.id, label: a.title, sub: `${WHEN.format(new Date(a.at))} · ${a.location.name}`, icon: "calendar" as const })),
+    { value: "", label: "Something else", icon: "help" as const },
+  ];
   return (
-    <div className="sh-page lk-page vp-page">
-      <TopBar title="Visit plan" back={{ href: "/app/look", label: "Look" }} sub="Before an appointment I search the official pages live, build what to bring, and check it against what's already in your case. Every line links to its source." />
+    <>
+      <MobileFlowHeader back="/app/look" backLabel="Back to Look" title="Visit plan" />
+      <MobilePage actions={plan ? "double" : true} className="lk-page vp-page">
+        <ScreenTitle title={plan ? "What to bring" : "Plan your visit"} sub={plan ? "From official pages, checked against your case." : "I search official pages live and check them against your case."} />
+        {!plan && (
+          <div className="stack" style={{ ["--gap" as string]: "16px" }}>
+            {appts === null && <Skeleton h={112} />}
+            {appts && appts.length > 0 && <OptionList label="Which appointment?" options={options} value={pick} onChange={setPick} />}
+            {(pick === "" || appts?.length === 0) && (
+              <label className="ui-field">
+                <span>What is the visit for?</span>
+                <input className="ui-input" value={purpose} maxLength={200} onChange={(e) => setPurpose(e.target.value)} placeholder="Collecting my residence card in Warsaw" />
+              </label>
+            )}
+            {busy && (
+              <ol className="lk-progress" aria-live="polite">
+                <li className={`lk-prog is-${stage === "searching" ? "run" : "ok"}`}><span className="lk-prog-dot">{stage !== "searching" && <Icon name="check" size={13} />}</span><span className="grow">Searching official pages</span><span className="lk-model">Muse Spark · web{stage === "searching" ? ` · ${elapsed} s` : ""}</span></li>
+                <li className={`lk-prog is-${stage === "comparing" ? "run" : "wait"}`}><span className="lk-prog-dot" /><span className="grow">Comparing with your case</span><span className="lk-model">{stage === "comparing" ? `${elapsed} s` : ""}</span></li>
+              </ol>
+            )}
+            {busy && elapsed > 20 && <p className="muted" style={{ margin: 0 }}>Reading several official pages usually takes about a minute.</p>}
+            {error && <InlineError message={error.message} onRetry={error.retryable ? () => void build() : undefined} />}
+          </div>
+        )}
+        {plan && <VisitPlanView plan={plan} onAgain={() => { setPlan(null); setStage("idle"); }} />}
+      </MobilePage>
       {!plan && (
-        <section className="card stack" style={{ ["--gap" as string]: "14px" }}>
-          {appts === null && <div className="skeleton" style={{ height: 56 }} />}
-          {appts && appts.length > 0 && (
-            <fieldset className="lk-via">
-              <legend className="label">Which appointment?</legend>
-              <div className="vp-appts">
-                {appts.map((a) => (
-                  <label key={a.id} className={`vp-appt${pick === a.id ? " is-on" : ""}`}>
-                    <input type="radio" name="appt" checked={pick === a.id} onChange={() => setPick(a.id)} />
-                    <Icon name="calendar" size={20} />
-                    <span className="grow"><b>{a.title}</b><small>{WHEN.format(new Date(a.at))} · {a.location.name}</small></span>
-                  </label>
-                ))}
-                <label className={`vp-appt${pick === "" ? " is-on" : ""}`}>
-                  <input type="radio" name="appt" checked={pick === ""} onChange={() => setPick("")} />
-                  <Icon name="help" size={20} /><span className="grow"><b>Something else</b></span>
-                </label>
-              </div>
-            </fieldset>
-          )}
-          {(pick === "" || appts?.length === 0) && (
-            <label className="field">
-              <span>What is the visit for?</span>
-              <input className="input" value={purpose} maxLength={200} onChange={(e) => setPurpose(e.target.value)} placeholder="Collecting my residence card in Warsaw" />
-            </label>
-          )}
-          <button type="button" className="btn btn-primary btn-block" disabled={!canBuild || busy} onClick={() => void build()}>
-            {busy ? <><span className="spinner" aria-hidden="true" /> Building your plan…</> : <><Icon name="globe" size={18} /> Build my checklist</>}
-          </button>
-          {busy && (
-            <ol className="lk-progress" aria-live="polite">
-              <li className={`lk-prog is-${stage === "searching" ? "run" : "ok"}`}><span className="lk-prog-dot">{stage !== "searching" && <Icon name="check" size={13} />}</span><span className="grow">Searching official pages (gov.pl, the Mazowiecki office, MOS)</span><span className="lk-model">Muse Spark · web search{stage === "searching" ? ` · ${elapsed} s` : ""}</span></li>
-              <li className={`lk-prog is-${stage === "comparing" ? "run" : "wait"}`}><span className="lk-prog-dot" /><span className="grow">Comparing with the documents in your case</span><span className="lk-model">{stage === "comparing" ? `${elapsed} s` : ""}</span></li>
-            </ol>
-          )}
-          {busy && elapsed > 20 && <p className="tiny muted" style={{ margin: 0 }}>Reading several official pages usually takes about a minute.</p>}
-          {error && <div className="error-box small" role="alert">{error.message} {error.retryable && <button type="button" className="btn btn-small" onClick={() => void build()}>Try again</button>}</div>}
-        </section>
+        <StickyActionBar>
+          <Button variant="primary" icon="globe" loading={busy} disabled={!canBuild || busy} onClick={() => void build()}>{busy ? "Building your plan…" : "Build my checklist"}</Button>
+        </StickyActionBar>
       )}
-      {plan && <VisitPlanView plan={plan} onAgain={() => { setPlan(null); setStage("idle"); }} />}
-    </div>
+    </>
   );
 }
