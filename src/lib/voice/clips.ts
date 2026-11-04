@@ -8,6 +8,9 @@ export interface TestLine {
   text: string;
 }
 
+/** Bump when the lines change: clip responses are cached by URL in the browser for a day. */
+export const TEST_LINES_VERSION = 2;
+
 export const TEST_LINES: readonly TestLine[] = [
   { who: "official", text: "Umowa najmu?" },
   { who: "official", text: "Moment... Tu jest inny adres niż we wniosku. Dlaczego?" },

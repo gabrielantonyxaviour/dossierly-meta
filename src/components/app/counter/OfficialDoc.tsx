@@ -4,8 +4,8 @@ import type { DocCard } from "@/lib/voice/protocol";
 import { Icon } from "@/components/Icon";
 
 const LABEL_PL: Record<string, string> = {
-  caseNumber: "Znak sprawy", oldAddress: "Adres we wniosku", applicationAddress: "Adres we wniosku", newAddress: "Nowy adres", movedOn: "Od dnia",
-  address: "Adres", startDate: "Od dnia", until: "Do", rent: "Czynsz", holder: "Posiadacz", number: "Numer", nationality: "Obywatelstwo",
+  newAddress: "Nowy adres", movedOn: "Od dnia", address: "Adres", startDate: "Od dnia", oldAddress: "Adres we wniosku", applicationAddress: "Adres we wniosku",
+  caseNumber: "Znak sprawy", until: "Do", rent: "Czynsz", holder: "Posiadacz", number: "Numer", nationality: "Obywatelstwo",
   expires: "Ważny do", valid_until: "Ważny do", insurer: "Ubezpieczyciel", cover: "Okres", university: "Uczelnia", programme: "Kierunek",
   filedAt: "Złożono", dated: "Data pisma", delivered: "Doręczono", received: "Doręczono", sender: "Nadawca", issued: "Wydano",
 };
@@ -15,8 +15,13 @@ const value = (v: string) => (/^\d{4}-\d{2}-\d{2}$/.test(v) ? `${Number(v.slice(
 
 /** The document the official asked for (or the notice Dossierly drafted), on the official's half, in Polish. */
 export function OfficialDoc({ doc, onClose }: { doc: DocCard; onClose: () => void }) {
-  const fields = Object.entries(doc.fields).filter(([k, v]) => LABEL_PL[k] && v).slice(0, 4);
   const drafted = doc.kind === "address_change";
+  // Label order is priority order: the facts the official checks first, few enough to read across the desk.
+  const order = Object.keys(LABEL_PL);
+  const fields = Object.entries(doc.fields)
+    .filter(([k, v]) => LABEL_PL[k] && v && !(drafted && k === "caseNumber"))
+    .sort(([a], [b]) => order.indexOf(a) - order.indexOf(b))
+    .slice(0, drafted ? 2 : 3);
   return (
     <article className={`ct-odoc ${drafted ? "is-draft" : ""}`} aria-label={`Showing ${doc.title} to the official`}>
       <header>

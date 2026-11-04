@@ -26,7 +26,7 @@ export function OfficialHalf({ call }: { call: AgentCall }) {
         <span>Dossierly tłumaczy rozmowę na żywo · asystent AI</span>
       </header>
       <div className="ct-turns" ref={ref}>
-        {!turns.length && <p className="ct-empty">Dzień dobry. Ten telefon tłumaczy rozmowę z polskiego i na polski. Proszę mówić normalnie.</p>}
+        {!turns.length && !doc && <p className="ct-empty">Dzień dobry. Ten telefon tłumaczy rozmowę z polskiego i na polski. Proszę mówić normalnie.</p>}
         {turns.map((t) =>
           t.who === "user" ? (
             <p key={t.id} className="ct-big">{t.translation || <span className="ct-wait">…</span>}</p>
