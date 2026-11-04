@@ -67,6 +67,15 @@ export class Player {
     this.watch();
   }
 
+  /** Resolves once everything queued has played (or after timeoutMs), so a goodbye is not cut off. */
+  drained(timeoutMs: number): Promise<void> {
+    const until = Date.now() + timeoutMs;
+    return new Promise((done) => {
+      const check = () => (!this.active || Date.now() > until ? done() : setTimeout(check, 100));
+      check();
+    });
+  }
+
   /** The utterance's last chunk has been queued: report when it has actually played out. */
   end(id: string): void {
     this.ends.set(id, this.next);
