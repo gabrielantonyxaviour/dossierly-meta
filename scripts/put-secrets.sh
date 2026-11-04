@@ -22,7 +22,7 @@ CONN_FILE="/Users/gabrielantonyxaviour/.codex/qa-live/20261101/runtime/connectio
 CONN_NAMES=(COMPOSIO_API_KEY COMPOSIO_PROJECT_ID COMPOSIO_GMAIL_AUTH_CONFIG_ID COMPOSIO_OUTLOOK_AUTH_CONFIG_ID COMPOSIO_GOOGLECALENDAR_AUTH_CONFIG_ID COMPOSIO_MICROSOFTCALENDAR_AUTH_CONFIG_ID)
 
 # Cloudflare credentials -> wrangler (scoped to this process tree).
-"$INJ" get CLOUDFLARE_API_TOKEN_BROAD CLOUDFLARE_ACCOUNT_ID --dir "$TMP/cf" >/dev/null
+mkdir -p "$TMP/cf"; "$INJ" get CLOUDFLARE_API_TOKEN_BROAD CLOUDFLARE_ACCOUNT_ID --dir "$TMP/cf" >/dev/null
 set -a; . "$TMP/cf/.env.local"; set +a
 export CLOUDFLARE_API_TOKEN="$CLOUDFLARE_API_TOKEN_BROAD"
 
@@ -36,7 +36,7 @@ EXISTING="$(npx wrangler secret list --config wrangler.jsonc ${ENVFLAG[@]+"${ENV
 for pair in "${MAP[@]}"; do
   [[ "$pair" == \#* ]] && continue
   name="${pair%%:*}"; vault="${pair##*:}"
-  d="$TMP/$name"
+  d="$TMP/$name"; mkdir -p "$d"
   if "$INJ" get "$vault" --dir "$d" >/dev/null 2>&1 && grep -q "^$vault=" "$d/.env.local" 2>/dev/null; then
     grep "^$vault=" "$d/.env.local" | head -1 | cut -d= -f2- | tr -d '\n"' | put "$name"
   else
