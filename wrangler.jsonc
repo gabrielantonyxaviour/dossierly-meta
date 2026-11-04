@@ -58,6 +58,10 @@
       {
         "name": "CASE_DO",
         "class_name": "CaseDO"
+      },
+      {
+        "name": "VOICE_DO",
+        "class_name": "VoiceDO"
       }
     ]
   },
@@ -72,6 +76,12 @@
       "tag": "v2",
       "new_sqlite_classes": [
         "CaseDO"
+      ]
+    },
+    {
+      "tag": "v3",
+      "new_sqlite_classes": [
+        "VoiceDO"
       ]
     }
   ],
@@ -148,6 +158,10 @@
           {
             "name": "CASE_DO",
             "class_name": "CaseDO"
+          },
+          {
+            "name": "VOICE_DO",
+            "class_name": "VoiceDO"
           }
         ]
       },
@@ -162,6 +176,12 @@
           "tag": "v2",
           "new_sqlite_classes": [
             "CaseDO"
+          ]
+        },
+        {
+          "tag": "v3",
+          "new_sqlite_classes": [
+            "VoiceDO"
           ]
         }
       ],
@@ -242,6 +262,10 @@
           {
             "name": "CASE_DO",
             "class_name": "CaseDO"
+          },
+          {
+            "name": "VOICE_DO",
+            "class_name": "VoiceDO"
           }
         ]
       },
@@ -256,6 +280,12 @@
           "tag": "v2",
           "new_sqlite_classes": [
             "CaseDO"
+          ]
+        },
+        {
+          "tag": "v3",
+          "new_sqlite_classes": [
+            "VoiceDO"
           ]
         }
       ],
@@ -336,6 +366,10 @@
           {
             "name": "CASE_DO",
             "class_name": "CaseDO"
+          },
+          {
+            "name": "VOICE_DO",
+            "class_name": "VoiceDO"
           }
         ]
       },
@@ -350,6 +384,12 @@
           "tag": "v2",
           "new_sqlite_classes": [
             "CaseDO"
+          ]
+        },
+        {
+          "tag": "v3",
+          "new_sqlite_classes": [
+            "VoiceDO"
           ]
         }
       ],
@@ -430,6 +470,10 @@
           {
             "name": "CASE_DO",
             "class_name": "CaseDO"
+          },
+          {
+            "name": "VOICE_DO",
+            "class_name": "VoiceDO"
           }
         ]
       },
@@ -444,6 +488,12 @@
           "tag": "v2",
           "new_sqlite_classes": [
             "CaseDO"
+          ]
+        },
+        {
+          "tag": "v3",
+          "new_sqlite_classes": [
+            "VoiceDO"
           ]
         }
       ],

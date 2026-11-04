@@ -11,5 +11,5 @@
     "isolatedModules": true,
     "paths": { "@/*": ["../src/*"] }
   },
-  "include": ["./*.ts", "../src/lib/*.ts", "../src/lib/server/**/*.ts", "../src/lib/hub/**/*.ts", "../src/lib/model/**/*.ts", "../src/lib/mask/**/*.ts", "../src/lib/features/**/*.ts", "../open-next.config.ts"]
+  "include": ["./*.ts", "../src/lib/*.ts", "../src/lib/server/**/*.ts", "../src/lib/hub/**/*.ts", "../src/lib/model/**/*.ts", "../src/lib/mask/**/*.ts", "../src/lib/features/**/*.ts", "../src/lib/voice/*.ts", "../src/lib/voice/server/**/*.ts", "../src/lib/case/**/*.ts", "../open-next.config.ts"]
 }
