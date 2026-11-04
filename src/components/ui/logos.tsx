@@ -45,3 +45,13 @@ export function MetaMark({ size = 22 }: { size?: number }) {
     </svg>
   );
 }
+
+/** ElevenLabs mark: the two upright bars of its logo, in the current text colour. */
+export function ElevenLabsMark({ size = 22 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-label="ElevenLabs" role="img">
+      <rect x="6.5" y="3" width="3.6" height="18" rx="0.6" fill="currentColor" />
+      <rect x="13.9" y="3" width="3.6" height="18" rx="0.6" fill="currentColor" />
+    </svg>
+  );
+}
