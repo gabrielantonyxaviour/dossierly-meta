@@ -48,7 +48,7 @@ export function LookSamples({ onPick, onClose }: { onPick(p: SamplePick): void; 
       <div className="lk-sheet">
         <div className="row between">
           <h3 id="lk-samples-title" style={{ margin: 0 }}>Test material</h3>
-          <button type="button" className="btn btn-ghost btn-small" onClick={onClose}>Close</button>
+          <button type="button" className="ui-btn ui-btn--ghost ui-btn--sm" onClick={onClose}>Close</button>
         </div>
         <p className="small muted">Fictional documents for a fictional student, Arjun Raman. Each is stamped PRZYKŁAD (sample). They run through the same live models as your own photos.</p>
         {!picks && <div className="lk-sample-grid">{[0, 1, 2, 3].map((i) => <div key={i} className="skeleton" style={{ aspectRatio: "3 / 4" }} />)}</div>}

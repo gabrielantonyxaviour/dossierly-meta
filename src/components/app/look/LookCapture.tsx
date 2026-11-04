@@ -51,10 +51,10 @@ export function LookCapture({ onFile, onSample, error }: Props) {
           <Icon name="camera" size={34} />
         </div>
         <div className="lk-capture-actions">
-          <button type="button" className="btn btn-primary lk-cta" onClick={() => camera.current?.click()}>
+          <button type="button" className="ui-btn ui-btn--primary lk-cta" onClick={() => camera.current?.click()}>
             <Icon name="camera" size={20} /> Take a photo
           </button>
-          <button type="button" className="btn lk-cta" onClick={() => picker.current?.click()}>
+          <button type="button" className="ui-btn lk-cta" onClick={() => picker.current?.click()}>
             <Icon name="file" size={20} /> Choose a photo or screenshot
           </button>
           <p className="tiny muted lk-desk-only" style={{ margin: 0 }}>Or drop an image here, or paste a screenshot.</p>
@@ -62,19 +62,19 @@ export function LookCapture({ onFile, onSample, error }: Props) {
         <input ref={camera} type="file" accept="image/*" capture="environment" hidden onChange={(e) => { take(e.target.files); e.target.value = ""; }} />
         <input ref={picker} type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" hidden onChange={(e) => { take(e.target.files); e.target.value = ""; }} />
       </div>
-      {error && <div className="error-box small" role="alert">{error}</div>}
+      {error && <div className="ui-inline-error small" role="alert">{error}</div>}
       {asking ? (
-        <label className="field">
+        <label className="ui-field">
           <span className="small">Ask about it <span className="muted">(optional)</span></span>
-          <input className="input" value={question} maxLength={300} onChange={(e) => setQuestion(e.target.value)} placeholder="Which button do I press for fingerprints?" autoFocus />
+          <input className="ui-input" value={question} maxLength={300} onChange={(e) => setQuestion(e.target.value)} placeholder="Which button do I press for fingerprints?" autoFocus />
         </label>
       ) : (
-        <button type="button" className="btn btn-ghost btn-small lk-ask" onClick={() => setAsking(true)}>
+        <button type="button" className="ui-btn ui-btn--ghost ui-btn--sm lk-ask" onClick={() => setAsking(true)}>
           <Icon name="help" size={16} /> Ask a question about it
         </button>
       )}
       <div className="lk-kinds" aria-label="Things Look reads">
-        {["Letters from the office", "MOS form screens", "UPO receipts", "inPOL status", "Ticket kiosks"].map((k) => <span key={k} className="chip">{k}</span>)}
+        {["Letters from the office", "MOS form screens", "UPO receipts", "inPOL status", "Ticket kiosks"].map((k) => <span key={k} className="ui-pill">{k}</span>)}
       </div>
       <button type="button" className="lk-sample-link" onClick={() => setSamples(true)}>Use a test letter</button>
       {samples && <LookSamples onPick={(p) => { setSamples(false); onSample(p, question); }} onClose={() => setSamples(false)} />}

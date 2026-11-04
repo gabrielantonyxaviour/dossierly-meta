@@ -62,6 +62,8 @@ export interface LookRead {
     deadlineRule: { amount: number | null; unit: "days" | "weeks" | "months" | null; from: "delivery" | "letter_date" | null; quote: string };
     /** Legal basis printed on the letter, e.g. "art. 64 § 2 KPA". */
     legalBasis: string | null;
+    /** An in-person appointment the letter sets (fingerprints, card pick-up), as printed. */
+    appointment?: { date: string; time: string | null; place: string | null; purpose: string | null } | null;
   };
   /** Fields the model was unsure it read correctly (item ids or fact keys). */
   uncertain: string[];
@@ -114,4 +116,5 @@ export interface CommitResult {
   documentId: string | null;
   eventId: string | null;
   taskIds: string[];
+  appointmentId?: string | null;
 }

@@ -62,7 +62,7 @@ export function VisitPlanFlow() {
     <div className="sh-page lk-page vp-page">
       <TopBar title="Visit plan" back={{ href: "/app/look", label: "Look" }} sub="Before an appointment I search the official pages live, build what to bring, and check it against what's already in your case. Every line links to its source." />
       {!plan && (
-        <section className="card stack" style={{ ["--gap" as string]: "14px" }}>
+        <section className="ui-card stack" style={{ ["--gap" as string]: "14px" }}>
           {appts === null && <div className="skeleton" style={{ height: 56 }} />}
           {appts && appts.length > 0 && (
             <fieldset className="lk-via">
@@ -83,12 +83,12 @@ export function VisitPlanFlow() {
             </fieldset>
           )}
           {(pick === "" || appts?.length === 0) && (
-            <label className="field">
+            <label className="ui-field">
               <span>What is the visit for?</span>
-              <input className="input" value={purpose} maxLength={200} onChange={(e) => setPurpose(e.target.value)} placeholder="Collecting my residence card in Warsaw" />
+              <input className="ui-input" value={purpose} maxLength={200} onChange={(e) => setPurpose(e.target.value)} placeholder="Collecting my residence card in Warsaw" />
             </label>
           )}
-          <button type="button" className="btn btn-primary btn-block" disabled={!canBuild || busy} onClick={() => void build()}>
+          <button type="button" className="ui-btn ui-btn--primary ui-btn--block" disabled={!canBuild || busy} onClick={() => void build()}>
             {busy ? <><span className="spinner" aria-hidden="true" /> Building your plan…</> : <><Icon name="globe" size={18} /> Build my checklist</>}
           </button>
           {busy && (
@@ -98,7 +98,7 @@ export function VisitPlanFlow() {
             </ol>
           )}
           {busy && elapsed > 20 && <p className="tiny muted" style={{ margin: 0 }}>Reading several official pages usually takes about a minute.</p>}
-          {error && <div className="error-box small" role="alert">{error.message} {error.retryable && <button type="button" className="btn btn-small" onClick={() => void build()}>Try again</button>}</div>}
+          {error && <div className="ui-inline-error small" role="alert">{error.message} {error.retryable && <button type="button" className="ui-btn ui-btn--sm" onClick={() => void build()}>Try again</button>}</div>}
         </section>
       )}
       {plan && <VisitPlanView plan={plan} onAgain={() => { setPlan(null); setStage("idle"); }} />}

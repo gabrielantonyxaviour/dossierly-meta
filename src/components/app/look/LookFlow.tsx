@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { LookKind } from "@/lib/look/types";
 import { Icon } from "@/components/Icon";
-import { Row, Section, TopBar } from "@/components/ui";
+import { Card, Row, Section, TopBar } from "@/components/ui";
 import { prepareFromUrl, prepareImage } from "./image";
 import { LookCanvas } from "./LookCanvas";
 import { LookCapture } from "./LookCapture";
@@ -77,9 +77,11 @@ export function LookFlow() {
         <TopBar title="Look" sub="Show me any letter, MOS screen, receipt or ticket kiosk. I'll point at exactly what matters and put it in your case." />
         <LookCapture onFile={onFile} onSample={onSample} error={prepError} />
         <Section title="Paperwork tools">
+          <Card flush>
           <Row href="/app/mos-sheet" icon="prepare" title="MOS sheet" sub="Every form field in order, filled from your case" chevron />
           <Row href="/app/photo-check" icon="camera" title="Photo check" sub="Crop your photo to exactly 684 × 883 px" chevron />
           <Row href="/app/visit-plan" icon="calendar" title="Visit plan" sub="What to bring, from official pages, checked against your case" chevron />
+          </Card>
         </Section>
       </div>
     );
@@ -91,11 +93,11 @@ export function LookFlow() {
     <div className="sh-page sh-page--wide lk-page lk-result">
       <div className="lk-visual">
         <LookCanvas src={image.dataUrl} width={image.width} height={image.height} phase={phase} items={items} outlines={state.outlines} active={active} onSelect={setActive} />
-        {state.sample && <span className="stamp lk-sample-stamp">Fictional sample</span>}
+        {state.sample && <span className="ui-pill ui-pill--official lk-sample-stamp">Fictional sample</span>}
       </div>
       <div className="lk-panel stack" style={{ ["--gap" as string]: "18px" }}>
         <div className="row between">
-          <button type="button" className="btn btn-ghost btn-small" onClick={() => { reset(); setActive(null); }}>
+          <button type="button" className="ui-btn ui-btn--ghost ui-btn--sm" onClick={() => { reset(); setActive(null); }}>
             <Icon name="camera" size={16} /> Look at something else
           </button>
         </div>
@@ -106,15 +108,15 @@ export function LookFlow() {
           </div>
         )}
         {state.error && (
-          <div className="error-box stack" role="alert" style={{ ["--gap" as string]: "10px" }}>
+          <div className="ui-inline-error stack" role="alert" style={{ ["--gap" as string]: "10px" }}>
             <p style={{ margin: 0 }}>{state.error.message}</p>
-            {state.error.retryable && <div><button type="button" className="btn btn-small" onClick={retry}>Try again</button></div>}
+            {state.error.retryable && <div><button type="button" className="ui-btn ui-btn--sm" onClick={retry}>Try again</button></div>}
           </div>
         )}
         {read && (
           <>
             <section className="stack" style={{ ["--gap" as string]: "8px" }}>
-              <span className={`chip ${read.kind === "other" ? "" : "chip-official"}`}>{KIND[read.kind]}</span>
+              <span className={`ui-pill ${read.kind === "other" ? "" : "ui-pill--official"}`}>{KIND[read.kind]}</span>
               <h2 className="lk-title">{read.title}</h2>
               <p style={{ margin: 0 }}>{read.summary}</p>
             </section>

@@ -46,16 +46,16 @@ export function MosSheet() {
       <TopBar title="MOS sheet" back={{ href: "/app/look", label: "Look" }} sub="Every field of the temporary residence application, in the order MOS asks for it. What your case already knows is filled in: tap to copy, then paste it into MOS yourself." />
       <header>
         <div className="row">
-          <a className="btn btn-primary" href="https://mos.cudzoziemcy.gov.pl/" target="_blank" rel="noreferrer"><Icon name="external" size={16} /> Open MOS</a>
-          <Link className="btn" href="/app/photo-check"><Icon name="camera" size={16} /> Check my photo</Link>
+          <a className="ui-btn ui-btn--primary" href="https://mos.cudzoziemcy.gov.pl/" target="_blank" rel="noreferrer"><Icon name="external" size={16} /> Open MOS</a>
+          <Link className="ui-btn" href="/app/photo-check"><Icon name="camera" size={16} /> Check my photo</Link>
         </div>
       </header>
-      <section className="card mos-progress" aria-live="polite">
+      <section className="ui-card mos-progress" aria-live="polite">
         {!snap && !failed && <div className="skeleton" style={{ height: 40 }} />}
         {failed && <p className="small" style={{ margin: 0 }}>Your case could not be loaded, so nothing is prefilled. The field list below is still complete.</p>}
         {snap && (
           <>
-            <div className="row between"><b>{ready} of {total} fields ready from your case</b><span className="chip">Studies permit</span></div>
+            <div className="row between"><b>{ready} of {total} fields ready from your case</b><span className="ui-pill">Studies permit</span></div>
             <div className="vp-meter"><span style={{ width: `${(ready / total) * 100}%` }} /></div>
             <p className="tiny muted" style={{ margin: "8px 0 0" }}>{MOS_FORM_SOURCE.fillingRule}</p>
           </>
