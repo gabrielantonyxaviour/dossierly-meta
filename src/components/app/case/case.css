@@ -3,7 +3,7 @@
 .cs-tabs { position: sticky; top: 56px; z-index: 20; padding: 6px 0; margin: -6px 0; background: var(--canvas); }
 .cs-done .ui-row-title { text-decoration: line-through; color: var(--ink-3); }
 
-.cs-head { display: grid; gap: var(--s-5); }
+.cs-head { display: grid; gap: var(--s-4); }
 .cs-stages { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
 .cs-stages li { display: grid; gap: 8px; justify-items: start; position: relative; }
 .cs-stages li::before { content: ""; position: absolute; top: 8px; left: 18px; right: -2px; height: 2px; background: var(--line-strong); border-radius: 1px; }
@@ -19,8 +19,12 @@
 .cs-fact dt { grid-area: dt; font-size: var(--t-xs); color: var(--ink-3); font-weight: 600; }
 .cs-fact dd { grid-area: dd; margin: 0; font-weight: 550; overflow-wrap: anywhere; }
 .cs-fact .ui-pill { grid-area: pill; justify-self: end; }
-.cs-copy { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; padding: 0; color: inherit; font: inherit; font-weight: 600; cursor: pointer; text-align: left; overflow-wrap: anywhere; }
-.cs-copy svg { color: var(--ink-3); flex: none; }
+.cs-head-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: var(--s-4); border-top: 1px solid var(--line); }
+.cs-copy { display: grid; gap: 2px; border: 0; background: none; padding: 0; color: inherit; font: inherit; font-weight: 600; cursor: pointer; text-align: left; overflow-wrap: anywhere; min-width: 0; }
+.cs-copy-label { font-size: var(--t-xs); color: var(--ink-3); font-weight: 600; }
+.cs-copy svg { color: var(--ink-3); display: inline; vertical-align: -2px; }
+.cs-head-row .ui-btn { flex: none; }
+.cs-fact:first-child { border-top: 0; }
 
 .tl { display: grid; gap: var(--s-6); }
 .tl-group { display: grid; gap: var(--s-3); }

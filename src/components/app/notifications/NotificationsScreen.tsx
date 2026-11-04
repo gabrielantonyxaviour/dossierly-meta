@@ -40,7 +40,7 @@ export function NotificationsScreen() {
                   <span className="nt-main">
                     <span className="nt-title">{n.title}</span>
                     <span className="nt-body">{n.body}</span>
-                    <span className="nt-time">{ago(n.at)}</span>
+                    <span className="nt-time">{n.when ?? ago(n.at)}</span>
                   </span>
                   {isNew && <span className="nt-dot" aria-label="New" />}
                 </Link>
