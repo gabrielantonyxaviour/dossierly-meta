@@ -39,7 +39,8 @@ export function ConnectCards({ status, gmail, calendar, returned }: { status: Co
           <p>{connected ? mine?.label : c.what}</p>
           <small>{cap && !cap.available ? cap.reason : c.scope}</small>
         </div>
-        {!connected && (
+        {!status && <span className="ob-checking" aria-live="polite">Checking…</span>}
+        {status && !connected && (
           <button type="button" className={`ui-btn ui-btn--sm${next || (!gmail && c.provider === "gmail") ? " ui-btn--primary" : " ui-btn--secondary"}`} disabled={!status || !!busy || (cap ? !cap.available : true)} onClick={() => void connect(c)}>
             {busy === c.provider ? "Opening…" : mine?.status === "reconnect" ? "Reconnect" : "Connect"}
           </button>
