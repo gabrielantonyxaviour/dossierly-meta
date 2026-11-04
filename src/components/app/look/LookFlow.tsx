@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { LookKind } from "@/lib/look/types";
-import { Card, MobilePage, Row, ScreenTitle, Section } from "@/components/ui";
+import { Card, FullScreenFlow, MobilePage, Row, ScreenTitle, Section, Skeleton } from "@/components/ui";
 import { prepareFromDocument, prepareFromUrl, prepareImage } from "./image";
 import { LookCapture } from "./LookCapture";
 import { LookResult } from "./LookResult";
@@ -28,11 +28,13 @@ function setQuery(look: string | null) {
   if (url.href !== window.location.href) window.history.replaceState(window.history.state, "", url);
 }
 
-export function LookFlow() {
+export function LookFlow({ fromDocument = false }: { fromDocument?: boolean }) {
   const { state, run, replay, retry, reset } = useLook();
   const router = useRouter();
   const phone = useIsPhone();
   const [prepError, setPrepError] = useState<string | null>(null);
+  /* True while a case document's file is fetched and drawn, so the Look home never flashes in between. */
+  const [opening, setOpening] = useState(fromDocument);
 
   const start = useCallback(async (get: () => Promise<Awaited<ReturnType<typeof prepareImage>>>, opts: { question: string; sample?: boolean; hint?: LookKind }) => {
     setPrepError(null);
@@ -57,7 +59,7 @@ export function LookFlow() {
     const doc = q.get("doc");
     if (doc && DOC_ID.test(doc)) {
       fromDoc.current = doc;
-      void Promise.resolve().then(() => start(() => prepareFromDocument(doc, LOOK_SIDE), { question: "", hint: "letter" }));
+      void Promise.resolve().then(() => start(() => prepareFromDocument(doc, LOOK_SIDE), { question: "", hint: "letter" })).finally(() => setOpening(false));
     } else if (look && LOOK_ID.test(look)) void replay(look).then((m) => m && setPrepError(m));
     else if (sample && SAMPLE_ID.test(sample)) void Promise.resolve().then(() => start(() => prepareFromUrl(sampleSrc(sample), LOOK_SIDE), { question: "", sample: true }));
   }, [replay, start]);
@@ -76,6 +78,12 @@ export function LookFlow() {
   const onFile = useCallback((f: Blob, question: string) => void start(() => prepareImage(f, LOOK_SIDE), { question }), [start]);
   const onSample = useCallback((p: SamplePick, question: string) => void start(() => prepareFromUrl(p.src, LOOK_SIDE), { question, sample: true }), [start]);
 
+  if (opening && state.phase === "idle") {
+    const paper = <div className="lk-visual" aria-busy="true"><Skeleton h={phone ? 460 : 640} r={20} /></div>;
+    return phone
+      ? <FullScreenFlow title="Look" onClose={close} dark><div className="lk-phone stack" style={{ ["--gap" as string]: "16px" }}>{paper}<span className="ui-meta" role="status">Opening the letter from your case…</span></div></FullScreenFlow>
+      : <div className="sh-page sh-page--wide lk-page lk-result">{paper}<span className="ui-meta" role="status">Opening the letter from your case…</span></div>;
+  }
   if (state.phase !== "idle" && state.image) {
     return <LookResult key={state.image.dataUrl.length + state.image.width} state={state} phone={phone} onRetry={retry} onClose={close} />;
   }
