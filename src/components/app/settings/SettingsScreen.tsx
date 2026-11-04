@@ -4,6 +4,7 @@ import { Avatar, Button, Card, ErrorState, Pill, Row, Section, Skeleton, TopBar,
 import { PERMIT_LABEL, STAGE_LABEL } from "../format";
 import { useCaseData } from "../shell/case-data";
 import { CHAT_KEY } from "../chat/useAgentChat";
+import { AssistantSection } from "./AssistantSection";
 import { ConnectionsSection } from "./ConnectionsSection";
 import { PhoneSection } from "./PhoneSection";
 import { ProfileSheet } from "./ProfileSheet";
@@ -62,6 +63,7 @@ export function SettingsScreen() {
 
       <PhoneSection key={p.phone.number ?? "none"} profile={p} eligible={account?.callsEligible ?? false} loaded={account !== null} />
       <ConnectionsSection />
+      <AssistantSection />
 
       <Section title="App">
         <Card flush>

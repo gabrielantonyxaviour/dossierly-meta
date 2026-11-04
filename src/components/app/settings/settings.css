@@ -10,3 +10,8 @@
 .st-logo { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--ink); box-shadow: var(--e-1); flex: none; }
 .st-note { margin: 0 4px; }
 .st-foot { text-align: center; margin: 0; }
+.st-pad { padding: var(--s-4); }
+.st-copy { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 10px; align-items: center; padding: 12px 14px; border-radius: var(--r-md); background: var(--surface-2); }
+.st-copy-label { grid-column: 1 / -1; font-size: var(--t-sm); font-weight: 500; color: var(--ink-3); }
+.st-copy code { font-family: var(--mono); font-size: 0.875rem; line-height: 1.5; color: var(--ink); overflow-wrap: anywhere; word-break: break-all; user-select: all; }
+.st-copy .ui-btn { align-self: start; }

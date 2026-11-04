@@ -6,7 +6,7 @@ import { FilmScreen } from "./FilmScreen";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Layout check", robots: { index: false } };
 
-const SCREENS = ["home", "case", "ready", "notifications"] as const;
+const SCREENS = ["home", "case", "ready", "notifications", "settings"] as const;
 
 /** Preview/local only: the real App UX screens over the film's fixture case, for headless phone checks. */
 export default async function Page({ params, searchParams }: { params: Promise<{ screen: string }>; searchParams: Promise<{ t?: string }> }) {
