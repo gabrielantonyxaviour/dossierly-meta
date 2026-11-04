@@ -129,3 +129,4 @@ a.ui-row:hover, button.ui-row:hover { background: var(--card-2); }
 .ui-check[aria-checked="true"] { background: var(--ok); box-shadow: none; color: #fff; transform: scale(1.05); }
 
 @media (prefers-reduced-motion: reduce) { .ui-skel { animation: none; } }
+.ui-seg button[aria-checked="true"] { background: var(--card); color: var(--ink); box-shadow: var(--e-1); }

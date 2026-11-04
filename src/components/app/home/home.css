@@ -19,7 +19,7 @@
 .hm-next-text { display: grid; gap: 6px; }
 .hm-next-title { font-size: var(--t-xl); font-weight: 650; letter-spacing: -0.015em; line-height: 1.25; margin: 0; }
 .hm-next-date { margin: 0; font-weight: 600; font-size: var(--t-md); }
-.hm-next-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.hm-next-actions { display: flex; gap: 10px; }
 .hm-next-actions .ui-btn--primary { flex: 1 1 auto; }
 @media (min-width: 560px) {
   .hm-next { padding: var(--s-6); }
