@@ -35,6 +35,8 @@ export interface AgentCall {
   userName: string | null;
   lang: string;
   clipBusy: boolean;
+  /** Waiting for the user to allow the microphone. */
+  micWaiting: boolean;
   start(): Promise<void>;
   stop(): void;
   sendText(text: string, as?: "user" | "official"): void;
@@ -64,6 +66,7 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
   const [userName, setUserName] = useState<string | null>(null);
   const [lang, setLang] = useState(opts.lang ?? "en");
   const [clipBusy, setClipBusy] = useState(false);
+  const [micWaiting, setMicWaiting] = useState(false);
 
   const ws = useRef<WebSocket | null>(null);
   const ctx = useRef<AudioContext | null>(null);
@@ -166,6 +169,17 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
       ctx.current = ac;
       await ac.resume();
       player.current = new Player(ac, (id) => send(JSON.stringify({ t: "played", id })), () => setSpeaking(null));
+      // Ask for the microphone first: a pending permission prompt must not stall a live session.
+      setMicWaiting(true);
+      const m = new Mic(ac);
+      mic.current = m;
+      await m.start((pcm, lvl) => {
+        setLevel(lvl);
+        if (clipping.current) return;
+        const silent = mutedRef.current || (gate && player.current?.active);
+        send(silent ? new ArrayBuffer(pcm.byteLength) : pcm);
+      });
+      setMicWaiting(false);
       const res = await fetch("/api/voice/session", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -196,18 +210,11 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
         sock.addEventListener("open", () => ok(), { once: true });
         sock.addEventListener("close", () => fail(new Error("The voice service refused the connection")), { once: true });
       });
-      const m = new Mic(ac);
-      mic.current = m;
-      await m.start((pcm, lvl) => {
-        setLevel(lvl);
-        if (clipping.current) return;
-        const silent = mutedRef.current || (gate && player.current?.active);
-        send(silent ? new ArrayBuffer(pcm.byteLength) : pcm);
-      });
     } catch (e) {
       const name = (e as { name?: string })?.name ?? "";
       setError(ERRORS[name] ?? (e instanceof Error ? e.message : "Could not start the call"));
       setStatus("error");
+      setMicWaiting(false);
       ws.current?.close();
       teardown();
     }
@@ -265,5 +272,5 @@ export function useAgentCall(opts: AgentCallOptions): AgentCall {
     teardown();
   }, [teardown]);
 
-  return { status, error, turns, partial, speaking, level, muted, metrics, coach, docs, captured, feedback, userName, lang, clipBusy, start, stop, sendText, setMuted, playClip, dismissDoc };
+  return { status, error, turns, partial, speaking, level, muted, metrics, coach, docs, captured, feedback, userName, lang, clipBusy, micWaiting, start, stop, sendText, setMuted, playClip, dismissDoc };
 }

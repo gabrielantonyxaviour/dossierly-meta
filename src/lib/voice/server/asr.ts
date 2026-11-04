@@ -7,7 +7,8 @@ import { resolveRole, type EnvLike } from "../../model/roles";
 export interface AsrHandlers {
   onSpeechStart(): void;
   onPartial(text: string): void;
-  onSpeechEnd(): void;
+  /** audioMs: position in the streamed audio where speech ended, when the service reports it. */
+  onSpeechEnd(audioMs: number | null): void;
   onFinal(text: string, turnId: string): void;
   onSpeaker?(label: string): void;
   onError(message: string): void;
@@ -27,8 +28,16 @@ export class MetaAsr {
   private closed = false;
   private ready = false;
   private queue: ArrayBuffer[] = [];
+  /** Diagnostics for preview debugging (never includes audio or keys). */
+  readonly stats = { sent: 0, dropped: 0, received: 0, last: "" };
+  /** Milliseconds of audio handed to the service so far (16 kHz mono 16-bit = 32 bytes per ms). */
+  sentMs = 0;
 
   constructor(private env: EnvLike, private opts: AsrOptions, private h: AsrHandlers) {}
+
+  get state(): string {
+    return `${this.closed ? "closed" : this.ready ? "ready" : this.ws ? "handshaking" : "none"} q${this.queue.length}`;
+  }
 
   get isOpen(): boolean {
     return !!this.ws && !this.closed;
@@ -37,6 +46,10 @@ export class MetaAsr {
   async connect(): Promise<void> {
     const cfg = resolveRole("asr", this.env);
     if (!cfg.apiKey) throw new Error("Speech recognition is not configured");
+    this.closed = false;
+    this.ready = false;
+    this.queue = [];
+    this.sentMs = 0;
     const base = cfg.baseUrl.replace(/^wss:/, "https:");
     const res = await fetch(`${base}/asr/realtime?sessionId=${crypto.randomUUID()}`, { headers: { Upgrade: "websocket" } });
     const ws = (res as Response & { webSocket?: WS | null }).webSocket;
@@ -44,9 +57,12 @@ export class MetaAsr {
     ws.accept?.();
     this.ws = ws;
     ws.addEventListener("message", (ev: MessageEvent) => this.onMessage(ev.data));
-    ws.addEventListener("close", () => this.finish());
-    ws.addEventListener("error", () => {
-      this.h.onError("Speech connection error");
+    ws.addEventListener("close", (ev: CloseEvent) => {
+      this.stats.last = `close ${ev.code} ${ev.reason}`.slice(0, 200);
+      this.finish();
+    });
+    ws.addEventListener("error", (ev: Event) => {
+      this.stats.last = `error ${(ev as ErrorEvent).message ?? ""}`.slice(0, 200);
       this.finish();
     });
     ws.send(JSON.stringify({
@@ -54,13 +70,18 @@ export class MetaAsr {
       audioEncoding: "PCM_16KHZ",
       model: cfg.model,
       mode: this.opts.mode ?? "ENDPOINTING",
-      keywords: this.opts.keywords.slice(0, 40),
+      keywords: this.opts.keywords.filter((k) => k.length <= 30).slice(0, 40),
       languageBias: this.opts.languageBias,
     }));
   }
 
   private onMessage(data: unknown): void {
-    if (typeof data !== "string") return;
+    this.stats.received++;
+    if (typeof data !== "string") {
+      this.stats.last = `binary ${(data as ArrayBuffer)?.byteLength ?? "?"}`;
+      return;
+    }
+    if (!data.includes("audioProgress")) this.stats.last = data.slice(0, 200);
     let e: Record<string, unknown>;
     try {
       e = JSON.parse(data);
@@ -78,7 +99,7 @@ export class MetaAsr {
     else if (type === "transcript") {
       if (text) this.h.onPartial(text);
     }
-    else if (type === "speechEnd") this.h.onSpeechEnd();
+    else if (type === "speechEnd") this.h.onSpeechEnd(typeof e.audioProcessedMs === "number" ? e.audioProcessedMs : null);
     else if (type === "speechComplete") {
       if (text) this.h.onFinal(text, String(e.turnId ?? crypto.randomUUID()));
     }
@@ -88,12 +109,15 @@ export class MetaAsr {
 
   send(pcm: ArrayBuffer): void {
     if (!this.ws || this.closed) return;
+    this.sentMs += pcm.byteLength / 32;
     if (!this.ready) {
       if (this.queue.length < 40) this.queue.push(pcm);
+      else this.stats.dropped++;
       return;
     }
     try {
       this.ws.send(pcm);
+      this.stats.sent++;
     } catch {
       this.finish();
     }

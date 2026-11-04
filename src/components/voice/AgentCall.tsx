@@ -69,13 +69,14 @@ export function AgentCall({ mode, script, onEnd, autoStart }: AgentCallProps) {
 
   const last = call.turns[call.turns.length - 1];
   const state = useMemo(() => {
+    if (call.micWaiting) return "Allow the microphone to start";
     if (call.status === "connecting") return "Connecting…";
     if (call.status !== "live") return null;
     if (call.speaking) return "Dossierly is speaking";
     if (call.partial) return "Listening…";
     if (last && last.who === "user") return "Thinking…";
     return call.muted ? "Muted" : "Listening";
-  }, [call.status, call.speaking, call.partial, call.muted, last]);
+  }, [call.status, call.speaking, call.partial, call.muted, call.micWaiting, last]);
 
   const name = call.userName?.split(/\s+/)[0] ?? "You";
   const orbScale = 1 + Math.min(0.35, call.level * 4);

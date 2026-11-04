@@ -53,7 +53,9 @@ export function caseKeywords(c: CaseSnapshot | null): string[] {
     if (c.profile.fullName) out.add(c.profile.fullName);
     for (const d of c.documents.slice(0, 10)) out.add(d.title.slice(0, 60));
   }
-  return [...out].slice(0, 40);
+  // Muse Voice Transcribe rejects keywords longer than 30 characters: keep short ones, split long names into parts.
+  const fit = [...out].flatMap((k) => (k.length <= 30 ? [k] : k.split(/[,()]|\s+-\s+/).map((p) => p.trim()).filter((p) => p.length >= 3 && p.length <= 30)));
+  return [...new Set(fit)].slice(0, 40);
 }
 
 export const firstName = (c: CaseSnapshot | null) => c?.profile.fullName?.split(/\s+/)[0] ?? null;

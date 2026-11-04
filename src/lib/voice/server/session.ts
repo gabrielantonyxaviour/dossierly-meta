@@ -81,18 +81,22 @@ export class VoiceSession {
         this.emit({ t: "asr", phase: "start" });
       },
       onPartial: (text) => this.onPartial(text),
-      onSpeechEnd: () => {
-        this.speechEndAt = Date.now();
+      onSpeechEnd: (audioMs) => {
+        // True speech end = now minus the audio we have already streamed past it.
+        const lag = audioMs !== null && this.asr ? Math.max(0, this.asr.sentMs - audioMs) : 0;
+        this.speechEndAt = Date.now() - lag;
         this.emit({ t: "asr", phase: "end" });
       },
       onFinal: (text) => this.onFinal(text),
       onError: (m) => this.emit({ t: "error", error: m, code: "asr" }),
       onClose: () => {
-        if (!this.closed) this.emit({ t: "error", error: "Speech recognition disconnected; reconnecting", code: "asr_closed" });
+        if (!this.closed) this.emit({ t: "error", error: `Speech recognition reconnecting (${this.asr?.stats.last ?? ""})`, code: "asr_closed" });
         if (!this.closed) void this.reconnectAsr();
       },
     });
     let asrOk = true;
+    this.lastAudioAt = Date.now();
+    this.startKeepalive();
     try {
       await this.asr.connect();
     } catch (e) {
@@ -107,6 +111,7 @@ export class VoiceSession {
   private reconnects = 0;
   private async reconnectAsr(): Promise<void> {
     if (this.reconnects++ > 3 || !this.asr) return;
+    await new Promise((r) => setTimeout(r, 500 * this.reconnects));
     try {
       await this.asr.connect();
     } catch {
@@ -196,14 +201,28 @@ export class VoiceSession {
     else if (ev.t === "interrupt") this.interrupt();
     else if (ev.t === "played") this.speaker.speaking = this.speaker.busy;
     else if (ev.t === "finish") void this.finish("user_ended");
+    else if (ev.t === "debug" && this.env.APP_ENV !== "production") this.emit({ t: "debug", info: { asr: this.asr?.state, ...this.asr?.stats, audioIn: this.audioIn, source: this.source } });
     else if (ev.t === "text") {
       const id = shortId();
       this.submit({ id, text: ev.text, via: "text", as: ev.as, metric: this.newMetric(id) });
     }
   }
 
+  private audioIn = 0;
+  private lastAudioAt = 0;
+  private keepalive: ReturnType<typeof setInterval> | null = null;
   onAudio(pcm: ArrayBuffer): void {
+    this.audioIn++;
+    this.lastAudioAt = Date.now();
     this.asr?.send(pcm);
+  }
+
+  /** The speech service drops idle streams: when the caller's frames stall (mic prompt, muted tab), feed silence. */
+  private startKeepalive(): void {
+    this.keepalive = setInterval(() => {
+      if (this.closed || !this.asr?.isOpen) return;
+      if (Date.now() - this.lastAudioAt > 400) this.asr.send(new ArrayBuffer(400 * 32));
+    }, 400);
   }
 
   async finish(reason: string): Promise<void> {
@@ -220,6 +239,7 @@ export class VoiceSession {
   close(reason = "closed"): void {
     if (this.closed) return;
     this.closed = true;
+    if (this.keepalive) clearInterval(this.keepalive);
     this.turnAbort?.abort();
     this.asr?.close();
     this.emit({ t: "ended", reason });
