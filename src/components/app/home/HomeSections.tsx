@@ -71,11 +71,11 @@ export function OpenTasks({ c }: { c: CaseSnapshot }) {
           const left = d ? daysBetween(warsawToday(), d.dueDate) : null;
           return (
             <Row key={t.id} icon={<CheckCircle checked={false} label={`Mark “${t.title}” done`} onChange={() => void done(t.id, t.title)} />} title={t.title}
-              sub={d ? `For: ${d.title}` : t.detail || undefined}
-              end={<>
-                {left !== null && <Pill tone={left <= 7 ? "deadline" : "neutral"}>{left < 0 ? "Overdue" : `${left}d`}</Pill>}
-                {isPhotoTask(t) && <ButtonLink href={photoCheckHref(t.id)} size="sm" variant="primary" icon="camera">Check photo</ButtonLink>}
-              </>} />
+              sub={<>
+                {d ? `For: ${d.title}` : t.detail || null}
+                {isPhotoTask(t) && <span className="ui-row-action"><ButtonLink href={photoCheckHref(t.id)} size="sm" variant="primary" icon="camera">Check photo</ButtonLink></span>}
+              </>}
+              end={left !== null ? <Pill tone={left <= 7 ? "deadline" : "neutral"}>{left < 0 ? "Overdue" : `${left}d`}</Pill> : undefined} />
           );
         })}
       </Card>

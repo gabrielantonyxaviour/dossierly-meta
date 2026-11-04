@@ -80,11 +80,12 @@ export function TasksTab({ c }: { c: CaseSnapshot }) {
     return (
       <Row key={t.id} className={t.status === "done" ? "cs-done" : undefined}
         icon={<CheckCircle checked={t.status === "done"} label={t.status === "done" ? `Reopen “${t.title}”` : `Mark “${t.title}” done`} onChange={(v) => void toggle(t.id, v ? "done" : "open")} />}
-        title={t.title} sub={[t.detail, d ? `For: ${d.title}` : null, ORIGIN[t.origin]].filter(Boolean).join(" · ")}
-        end={<>
-          {t.status === "open" && left !== null && <Pill tone={left <= 7 ? "deadline" : "neutral"}>{left < 0 ? "Overdue" : `${left}d`}</Pill>}
-          {t.status === "open" && isPhotoTask(t) && <ButtonLink href={photoCheckHref(t.id)} size="sm" variant="primary" icon="camera">Check photo</ButtonLink>}
-        </>} />
+        title={t.title}
+        sub={<>
+          {[t.detail, d ? `For: ${d.title}` : null, ORIGIN[t.origin]].filter(Boolean).join(" · ")}
+          {t.status === "open" && isPhotoTask(t) && <span className="ui-row-action"><ButtonLink href={photoCheckHref(t.id)} size="sm" variant="primary" icon="camera">Check photo</ButtonLink></span>}
+        </>}
+        end={t.status === "open" && left !== null ? <Pill tone={left <= 7 ? "deadline" : "neutral"}>{left < 0 ? "Overdue" : `${left}d`}</Pill> : undefined} />
     );
   };
   return (
