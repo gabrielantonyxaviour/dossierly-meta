@@ -2,6 +2,7 @@
 import { useState } from "react";
 import type { Profile } from "@/lib/case/types";
 import { AgentOrb, Button, StickyActionBar } from "@/components/ui";
+import { LatencyLine } from "@/components/voice/bits";
 import { useVoiceIntake } from "./useVoiceIntake";
 
 const STATUS = { idle: "", starting: "Opening the microphone…", listening: "Listening", thinking: "Thinking…", speaking: "Dossierly", done: "Dossierly" } as const;
@@ -38,6 +39,7 @@ export function HelloScreen({ onProfile, onEmail, onType }: { onProfile(p: Profi
           <blockquote>{v.reply}</blockquote>
         </figure>
       )}
+      {v.reply && <LatencyLine metrics={v.metrics} />}
       {typing && v.state === "idle" && (
         <form className="ob-field" onSubmit={(e) => { e.preventDefault(); if (text.trim().length > 1) void v.typed(text.trim()); }}>
           <span>In your own words</span>

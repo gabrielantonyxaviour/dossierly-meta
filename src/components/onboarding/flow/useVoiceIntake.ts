@@ -76,13 +76,14 @@ export function useVoiceIntake(onResult: (r: Result) => void) {
     }
   }, []);
 
-  if (typed) return { state: typed.state, heard: typed.heard, reply: typed.reply, error: typed.error, start, stop: call.stop, typed: sendTyped };
+  if (typed) return { state: typed.state, heard: typed.heard, reply: typed.reply, error: typed.error, metrics: [], start, stop: call.stop, typed: sendTyped };
   const ended = call.status === "ended" && !call.intake;
   return {
     state: voiceState,
     heard: call.partial || userTurn?.text || "",
     reply: agentTurn?.text ?? "",
     error: call.error ?? (ended ? "I didn’t catch that. Tap the microphone and try again, or type instead." : ""),
+    metrics: call.metrics,
     start, stop: call.stop, typed: sendTyped,
   };
 }
