@@ -53,7 +53,7 @@ export function NextStepCard({ next, snapshot }: { next: NextStep | null; snapsh
         </div>
       </div>
       <div className="hm-next-actions">
-        <ButtonLink href={href(next)} variant="primary" iconEnd="forward">{next.kind === "deadline" ? "See how it’s counted" : "Open"}</ButtonLink>
+        <ButtonLink href={href(next)} variant="primary" iconEnd="forward">{next.kind === "deadline" ? "How it’s counted" : "Open"}</ButtonLink>
         <ButtonLink href={`/app/chat?q=${ask}${attach}`} variant="secondary" icon="sparkle">Ask</ButtonLink>
       </div>
     </section>

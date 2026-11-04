@@ -16,7 +16,7 @@
 .two-up { display: grid; gap: 14px; }
 @media (min-width: 860px) { .two-up { grid-template-columns: 1fr 1fr; align-items: start; } }
 .transcript { background: var(--surface-2); box-shadow: none; }
-.transcript-text { font-family: Georgia, "Times New Roman", serif; font-size: 0.98rem; line-height: 1.6; margin: 8px 0 0; white-space: pre-wrap; }
+.transcript-text { font-family: var(--font); font-size: 0.98rem; line-height: 1.6; margin: 8px 0 0; white-space: pre-wrap; }
 .asks { display: grid; gap: 12px; padding-left: 1.3em; }
 .asks li { padding-left: 4px; }
 .asks li span { display: block; }

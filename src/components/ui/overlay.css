@@ -38,11 +38,11 @@
 .ui-toast span { flex: 1; }
 .ui-toast--ok svg { color: var(--ok); }
 .ui-toast--error svg { color: #ff8a8a; }
-.ui-toast button { border: 0; background: transparent; color: inherit; font-weight: 650; cursor: pointer; padding: 6px 8px; border-radius: 8px; }
+.ui-toast button { border: 0; background: transparent; color: inherit; font-weight: 600; cursor: pointer; padding: 6px 8px; border-radius: 8px; }
 @media (min-width: 1024px) { .ui-toasts { bottom: 28px; } }
 
 /* Agent orb: the signature element. Breathes while idle, ripples while active. */
-.ui-orb { position: relative; display: inline-grid; place-items: center; border-radius: 50%; background: var(--agent-grad); color: #fff; flex: none; isolation: isolate; box-shadow: 0 8px 24px color-mix(in srgb, var(--agent-a) 40%, transparent), inset 0 1px 1px rgb(255 255 255 / 45%); }
+.ui-orb { position: relative; display: inline-grid; place-items: center; border-radius: 50%; background: var(--agent-grad); color: #fff; flex: none; isolation: isolate; box-shadow: 0 0 0 1px rgb(255 255 255 / 10%), inset 0 1px 1px rgb(255 255 255 / 35%); }
 .ui-orb::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(60% 60% at 30% 25%, rgb(255 255 255 / 55%), transparent 60%); mix-blend-mode: soft-light; }
 .ui-orb--breathe { animation: ui-breathe 4.8s ease-in-out infinite; }
 .ui-orb--live::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--agent-a) 50%, transparent); animation: ui-ripple 1.6s var(--ease-out) infinite; z-index: -1; }

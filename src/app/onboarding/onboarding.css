@@ -19,7 +19,7 @@
 .ob-original figcaption { font-size: .7rem; padding: 12px; overflow-wrap: anywhere; }
 .ob-transcript { padding: 18px 0; font-size: .85rem; }
 .ob-transcript summary { cursor: pointer; }
-.ob-transcript p { white-space: pre-wrap; font: 16px/1.8 Georgia, serif; background: #fff; color: #252525; padding: 24px; border: 1px solid var(--line); }
+.ob-transcript p { white-space: pre-wrap; font: 16px/1.8 var(--font); background: #fff; color: #252525; padding: 24px; border: 1px solid var(--line); }
 .ob-review h2, .ob-result h2 { margin: 0; font-size: 1.35rem; }
 .ob-review .field { display: grid; }
 .ob-fact-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
@@ -28,7 +28,7 @@
 .ob-result p { margin: 0; font-size: .9rem; line-height: 1.8; }
 .ob-result ol, .ob-result ul { padding-left: 22px; margin: 0; }
 .ob-result li { margin-block: 10px; line-height: 1.7; font-size: .9rem; }
-.ob-result blockquote { margin: 12px 0; padding: 14px 18px; background: var(--surface-2); border-left: 2px solid var(--ink-3); font: 1rem/1.7 Georgia, serif; }
+.ob-result blockquote { margin: 12px 0; padding: 14px 18px; background: var(--surface-2); border-left: 2px solid var(--ink-3); font: 1rem/1.7 var(--font); }
 .ob-result .ob-deadline { font-size: 1.8rem; font-weight: 500; }
 .ob-checklist { list-style: none; padding: 0 !important; }
 .ob-checklist > li { padding: 18px 0; border-bottom: 1px solid var(--line); }

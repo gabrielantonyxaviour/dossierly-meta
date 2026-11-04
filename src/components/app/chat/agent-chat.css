@@ -3,7 +3,7 @@
 .ac-bar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; padding: calc(6px + env(safe-area-inset-top)) 8px 6px; border-bottom: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); flex: none; }
 .ac-bar-title { display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0; }
 .ac-bar-title span { display: grid; line-height: 1.2; min-width: 0; }
-.ac-bar-title b { font-size: var(--t-md); font-weight: 650; }
+.ac-bar-title b { font-size: var(--t-md); font-weight: 600; }
 .ac-bar-title small { font-size: var(--t-xs); color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ac-bar-actions { display: flex; gap: 2px; }
 .ac-scroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; }
@@ -50,7 +50,7 @@
 .ac-box textarea::placeholder { color: var(--ink-3); }
 .ac-box-row { display: flex; align-items: center; gap: 6px; }
 .ac-box-atts { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 2px; }
-.ac-chip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 4px 4px 4px 10px; border-radius: var(--pill); background: var(--sunken); font-size: var(--t-sm); font-weight: 550; }
+.ac-chip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 4px 4px 4px 10px; border-radius: var(--pill); background: var(--sunken); font-size: var(--t-sm); font-weight: 500; }
 .ac-chip > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
 .ac-chip button { width: 22px; height: 22px; border-radius: 50%; border: 0; display: grid; place-items: center; background: transparent; color: var(--ink-3); cursor: pointer; }
 .ac-chip button:hover { background: var(--card); color: var(--ink); }

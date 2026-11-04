@@ -7,10 +7,10 @@ import { CHAT_KEY } from "../chat/useAgentChat";
 import { ConnectionsSection } from "./ConnectionsSection";
 import { PhoneSection } from "./PhoneSection";
 import { ProfileSheet } from "./ProfileSheet";
-import { ThemeRow } from "./ThemeRow";
+import { PreviewTools, type PreviewFlow } from "./PreviewTools";
 import "./settings.css";
 
-export type AccountSettings = { email: string | null; callsEligible: boolean; sampleCase: boolean };
+export type AccountSettings = { email: string | null; callsEligible: boolean; sampleCase: boolean; previewFlow: PreviewFlow | null };
 
 const LANG: Record<string, string> = { en: "English", pl: "Polski", hi: "हिन्दी", ta: "தமிழ்", uk: "Українська", ru: "Русский", es: "Español", ar: "العربية", tr: "Türkçe", vi: "Tiếng Việt" };
 export const LANGS = Object.entries(LANG);
@@ -65,7 +65,6 @@ export function SettingsScreen() {
 
       <Section title="App">
         <Card flush>
-          <ThemeRow />
           <Row icon="bell" title="Notifications" href="/app/notifications" chevron />
         </Card>
       </Section>
@@ -79,6 +78,7 @@ export function SettingsScreen() {
         </Card>
       </Section>
 
+      {account?.previewFlow && <PreviewTools flow={account.previewFlow} />}
       {account?.sampleCase && <Pill tone="official">You are viewing the fictional sample case</Pill>}
       <Button variant="danger" block onClick={() => void signOut()} loading={signingOut} icon="out">Sign out</Button>
       <p className="ui-meta st-foot">Dossierly guides you. It isn’t a law firm and doesn’t give legal advice.</p>

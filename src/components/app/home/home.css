@@ -15,9 +15,9 @@
 .hm-count { display: flex; align-items: baseline; gap: 10px; }
 .hm-count-n { font-size: var(--t-4xl); line-height: 0.9; }
 .hm-next--urgent .hm-count-n { color: var(--deadline); }
-.hm-count-u { font-size: var(--t-md); color: var(--ink-2); font-weight: 550; }
+.hm-count-u { font-size: var(--t-md); color: var(--ink-2); font-weight: 500; }
 .hm-next-text { display: grid; gap: 6px; }
-.hm-next-title { font-size: var(--t-xl); font-weight: 650; letter-spacing: -0.015em; line-height: 1.25; margin: 0; }
+.hm-next-title { font-size: var(--t-xl); font-weight: 600; letter-spacing: -0.015em; line-height: 1.25; margin: 0; }
 .hm-next-date { margin: 0; font-weight: 600; font-size: var(--t-md); }
 .hm-next-actions { display: flex; gap: 10px; }
 .hm-next-actions .ui-btn--primary { flex: 1 1 auto; }
@@ -36,14 +36,14 @@
 .hm-action:hover { box-shadow: var(--e-2); }
 .hm-action:active { transform: scale(0.97); }
 .hm-action-icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--sunken); margin-bottom: 8px; }
-.hm-action b { font-size: var(--t-md); font-weight: 650; }
+.hm-action b { font-size: var(--t-md); font-weight: 600; }
 .hm-action small { font-size: var(--t-sm); color: var(--ink-3); line-height: 1.35; }
 @media (min-width: 720px) and (max-width: 1023px) { .hm-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
 .hm-appt { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s-4); }
 .hm-date-tile { display: grid; justify-items: center; align-content: center; width: 62px; padding: 8px 0; border-radius: 16px; background: var(--official-soft); color: var(--official); line-height: 1.1; height: max-content; }
-.hm-date-tile b { font-family: var(--font-display); font-size: 1.9rem; font-weight: 400; color: var(--ink); }
-.hm-date-tile small { font-size: var(--t-xs); font-weight: 650; text-transform: uppercase; letter-spacing: 0.05em; }
+.hm-date-tile b { font-size: 1.75rem; font-weight: 300; letter-spacing: -0.02em; color: var(--ink); }
+.hm-date-tile small { font-size: var(--t-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 .hm-appt-main { display: grid; gap: 6px; justify-items: start; min-width: 0; }
 .hm-appt-main .ui-meta { display: flex; gap: 4px; align-items: flex-start; margin: 0; }
 .hm-appt-main .ui-meta svg { margin-top: 2px; flex: none; }
