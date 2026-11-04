@@ -7,6 +7,7 @@ import { estimateInputTokens } from "./cost";
 import { resolveRole, type EnvLike, type RoleConfig, type Service } from "./roles";
 import type { ChatClient, ChatMessage, ChatRequest, ChatResult, Usage } from "./types";
 import { ModelError } from "./types";
+import { relayable, relayMode, relayOf, viaRelay } from "./relay";
 import { SAM_USD_PER_IMAGE, type Role } from "../config";
 
 export type FetchLike = (url: string, init?: RequestInit) => Promise<Response>;
@@ -29,14 +30,20 @@ function mapStatus(status: number): ModelError {
 async function post(cfg: RoleConfig, path: string, body: BodyInit, o: MetaOpts, headers: Record<string, string> = {}): Promise<Response> {
   if (!cfg.apiKey) throw new ModelError("The model service is not configured", "no_key", 503);
   const ctl = new AbortController();
-  const timer = setTimeout(() => ctl.abort(), o.timeoutMs ?? 90_000);
+  const timeoutMs = o.timeoutMs ?? 90_000;
+  const timer = setTimeout(() => ctl.abort(), timeoutMs);
+  const url = `${cfg.baseUrl}${path}`;
+  const init = { method: "POST", headers: { Authorization: `Bearer ${cfg.apiKey}`, ...headers }, body, signal: ctl.signal };
   try {
-    const res = await doFetch(o)(`${cfg.baseUrl}${path}`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${cfg.apiKey}`, ...headers },
-      body,
-      signal: ctl.signal,
-    });
+    const relay = relayOf(o.env);
+    const canRelay = !!relay && typeof body === "string" && relayable(url);
+    // MODEL_RELAY_MODE=always: every Meta call goes out from western Europe (ops switch if an edge keeps failing).
+    let res = canRelay && relayMode(o.env) === "always" ? await viaRelay(relay!, url, init, timeoutMs) : await doFetch(o)(url, init);
+    // 404 from this edge location: the same call once more from western Europe (string bodies only: re-sendable).
+    if (res.status === 404 && canRelay && relayMode(o.env) !== "always") {
+      await res.body?.cancel().catch(() => undefined);
+      res = await viaRelay(relay!, url, init, timeoutMs);
+    }
     if (!res.ok) {
       await res.body?.cancel().catch(() => undefined);
       throw mapStatus(res.status);

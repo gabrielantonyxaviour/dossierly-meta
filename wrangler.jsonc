@@ -68,6 +68,10 @@
       {
         "name": "VOICE_DO",
         "class_name": "VoiceDO"
+      },
+      {
+        "name": "MODEL_RELAY",
+        "class_name": "ModelRelayDO"
       }
     ]
   },
@@ -88,6 +92,12 @@
       "tag": "v3",
       "new_sqlite_classes": [
         "VoiceDO"
+      ]
+    },
+    {
+      "tag": "v4",
+      "new_sqlite_classes": [
+        "ModelRelayDO"
       ]
     }
   ],
@@ -174,6 +184,10 @@
           {
             "name": "VOICE_DO",
             "class_name": "VoiceDO"
+          },
+          {
+            "name": "MODEL_RELAY",
+            "class_name": "ModelRelayDO"
           }
         ]
       },
@@ -194,6 +208,12 @@
           "tag": "v3",
           "new_sqlite_classes": [
             "VoiceDO"
+          ]
+        },
+        {
+          "tag": "v4",
+          "new_sqlite_classes": [
+            "ModelRelayDO"
           ]
         }
       ],
@@ -285,6 +305,10 @@
           {
             "name": "VOICE_DO",
             "class_name": "VoiceDO"
+          },
+          {
+            "name": "MODEL_RELAY",
+            "class_name": "ModelRelayDO"
           }
         ]
       },
@@ -305,6 +329,12 @@
           "tag": "v3",
           "new_sqlite_classes": [
             "VoiceDO"
+          ]
+        },
+        {
+          "tag": "v4",
+          "new_sqlite_classes": [
+            "ModelRelayDO"
           ]
         }
       ],
@@ -396,6 +426,10 @@
           {
             "name": "VOICE_DO",
             "class_name": "VoiceDO"
+          },
+          {
+            "name": "MODEL_RELAY",
+            "class_name": "ModelRelayDO"
           }
         ]
       },
@@ -416,6 +450,12 @@
           "tag": "v3",
           "new_sqlite_classes": [
             "VoiceDO"
+          ]
+        },
+        {
+          "tag": "v4",
+          "new_sqlite_classes": [
+            "ModelRelayDO"
           ]
         }
       ],
@@ -507,6 +547,10 @@
           {
             "name": "VOICE_DO",
             "class_name": "VoiceDO"
+          },
+          {
+            "name": "MODEL_RELAY",
+            "class_name": "ModelRelayDO"
           }
         ]
       },
@@ -527,6 +571,12 @@
           "tag": "v3",
           "new_sqlite_classes": [
             "VoiceDO"
+          ]
+        },
+        {
+          "tag": "v4",
+          "new_sqlite_classes": [
+            "ModelRelayDO"
           ]
         }
       ],
