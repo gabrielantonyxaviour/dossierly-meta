@@ -6,7 +6,7 @@ import type { Finding, MailReading } from "@/lib/onboarding/findings";
 import type { InboxMessage } from "@/lib/onboarding/inbox";
 import { failure, flowApi } from "@/lib/client/onboarding-flow";
 import type { Profile } from "@/lib/case/types";
-import { ActionBar } from "./mobile";
+import { Button, StickyActionBar } from "@/components/ui";
 import { StageHint, suggestedStage } from "./StageHint";
 
 const dayLabel = (iso: string, opts: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short", year: "numeric" }) =>
@@ -63,7 +63,7 @@ const SECTIONS: { kind: Finding["kind"]; title: string }[] = [
   { kind: "document", title: "Documents mentioned" }, { kind: "task", title: "To do" },
 ];
 
-export function Review({ readings, rows, calendarConnected, onSaved, stage, applyStage }: { readings: MailReading[]; rows: InboxMessage[]; calendarConnected: boolean; onSaved(calendarAdded: boolean, saved: number): void; stage: Profile["stage"]; applyStage(s: Profile["stage"]): Promise<boolean> }) {
+export function Review({ readings, rows, calendarConnected, onSaved, onShowResult, stage, applyStage }: { onShowResult(): void; readings: MailReading[]; rows: InboxMessage[]; calendarConnected: boolean; onSaved(calendarAdded: boolean, saved: number): void; stage: Profile["stage"]; applyStage(s: Profile["stage"]): Promise<boolean> }) {
   const findings = useMemo(() => merge(readings), [readings]);
   const [off, setOff] = useState<Set<string>>(new Set());
   const [toCalendar, setToCalendar] = useState(calendarConnected);
@@ -84,7 +84,7 @@ export function Review({ readings, rows, calendarConnected, onSaved, stage, appl
     if (!r.ok) { setError(failure(r) ?? "Could not save."); return; }
     const next = suggestedStage(chosen, stage);
     if (!r.data.calendar.length && !next) { onSaved(false, chosen.length); return; }
-    setHint(next); setResult(r.data.calendar);
+    setHint(next); setResult(r.data.calendar); onShowResult();
   }
 
   if (result) {
@@ -96,7 +96,7 @@ export function Review({ readings, rows, calendarConnected, onSaved, stage, appl
         {result.length > 0 && <ul className="ob-cal">{result.map((x) => (
           <li key={x.findingId} data-status={x.status}><span>{x.title}</span>{x.status === "failed" ? <em>{x.error}</em> : x.url ? <a href={x.url} target="_blank" rel="noreferrer">Open in Calendar</a> : <em>Added</em>}</li>
         ))}</ul>}
-        <ActionBar><button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={() => onSaved(added.length > 0, chosen.length)}>Continue</button></ActionBar>
+        <StickyActionBar><Button variant="primary" size="lg" onClick={() => onSaved(added.length > 0, chosen.length)}>Continue</Button></StickyActionBar>
       </div>
     );
   }
@@ -112,7 +112,7 @@ export function Review({ readings, rows, calendarConnected, onSaved, stage, appl
           <section key={s.kind} className="ob-find-group" data-kind={s.kind}>
             <h2>{s.title}</h2>
             <ul>{items.map((f) => (
-              <li key={f.id} className="ob-find" data-off={off.has(f.id)}>
+              <li key={f.id} className="ob-find" data-off={off.has(f.id)} onClick={(e) => { if (!(e.target as HTMLElement).closest("details, a, button")) toggle(f.id, off.has(f.id)); }}>
                 <CheckCircle checked={!off.has(f.id)} onChange={(on) => toggle(f.id, on)} label={`Keep ${"title" in f ? f.title : f.label}`} /><Item f={f} />
               </li>
             ))}</ul>
@@ -120,11 +120,11 @@ export function Review({ readings, rows, calendarConnected, onSaved, stage, appl
         );
       })}
       {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void save()}>Try again</button></div>}
-      <ActionBar>
-        <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" disabled={busy || !chosen.length} onClick={() => void save()}>
+      <StickyActionBar>
+        <Button variant="primary" size="lg" disabled={busy || !chosen.length} loading={busy} onClick={() => void save()}>
           {busy ? "Saving to your case…" : `Save ${chosen.length} ${chosen.length === 1 ? "item" : "items"} to my case`}
-        </button>
-      </ActionBar>
+        </Button>
+      </StickyActionBar>
     </div>
   );
 }

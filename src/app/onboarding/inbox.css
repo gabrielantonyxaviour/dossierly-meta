@@ -11,7 +11,7 @@
 .ob-conn-body p { margin: 0; font-size: 14px; color: var(--ink-2); line-height: 1.35; overflow-wrap: anywhere; }
 .ob-conn-body small { font-size: 13px; color: var(--ink-3); }
 .ob-conn > .ui-btn { min-height: 44px; }
-.ob-badge-ok { font: 500 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .05em; padding: 4px 6px; border-radius: 4px; color: var(--ok); background: var(--ok-soft); }
+.ob-badge-ok { font: 500 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .05em; padding: 4px 6px; border-radius: 4px; color: var(--ok); background: var(--ok-soft); }
 
 .ob-more summary { cursor: pointer; font-size: 15px; color: var(--ink-2); min-height: 44px; display: flex; align-items: center; }
 .ob-more[open] summary { margin-bottom: 10px; }
@@ -36,7 +36,7 @@
 
 .ob-find-group h2 { margin: 0 0 10px; font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
 .ob-find-group ul { list-style: none; margin: 0; padding: 0; display: grid; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); overflow: hidden; }
-.ob-find { padding: 14px; border-top: 1px solid var(--line); transition: opacity .2s; }
+.ob-find { padding: 14px; border-top: 1px solid var(--line); transition: opacity .2s; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .ob-find:first-child { border-top: 0; }
 
 .ob-find[data-off="true"] { opacity: .5; }
@@ -56,13 +56,13 @@
 .ob-find-warn { color: var(--deadline) !important; font-size: 14px; }
 .ob-find-bring { font-size: 14px; }
 .ob-src { font-size: 13px; color: var(--ink-3) !important; overflow-wrap: anywhere; }
-.ob-how summary { cursor: pointer; font-size: 14px; color: var(--ink-2); min-height: 32px; display: flex; align-items: center; }
+.ob-how summary { cursor: pointer; font-size: 14px; color: var(--ink-2); min-height: 44px; display: flex; align-items: center; }
 .ob-how blockquote { margin: 8px 0; padding: 8px 10px; border-left: 2px solid var(--official-line); background: var(--official-soft); font-size: 14px; font-style: italic; }
 .ob-how ol { margin: 6px 0 0; padding-left: 18px; font-size: 14px; color: var(--ink-2); display: grid; gap: 3px; }
 .ob-cal { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .ob-cal li { display: flex; justify-content: space-between; gap: 12px; align-items: center; min-height: 52px; padding: 10px 14px; border-radius: var(--radius-sm); background: var(--surface); box-shadow: var(--shadow); font-size: 15px; }
 .ob-cal li span { min-width: 0; overflow-wrap: anywhere; }
-.ob-cal a { color: var(--ink); white-space: nowrap; }
+.ob-cal a { color: var(--ink); white-space: nowrap; min-height: 44px; display: inline-flex; align-items: center; }
 .ob-cal em { font-style: normal; color: var(--ink-3); white-space: nowrap; }
 .ob-cal li[data-status="failed"] em { color: var(--deadline); white-space: normal; }
 
@@ -71,17 +71,21 @@
 .ob-ring div, .ob-call-head div { display: grid; gap: 4px; }
 .ob-ring strong, .ob-call-head strong { font-size: 18px; font-weight: 500; }
 .ob-ring div span { font-size: 14px; color: var(--ink-3); }
-.ob-answer-btn { background: var(--ok); border-color: var(--ok); color: var(--bg); }
-.ob-answer-btn:hover { background: var(--ok); filter: brightness(1.08); }
+.ob-answer-btn.ui-btn { background: var(--ok); color: var(--bg); }
+.ob-answer-btn.ui-btn:hover { background: var(--ok); filter: brightness(1.08); }
 /* Welcome call: immersive, the caller in the middle, answer in the thumb zone. */
-.ob[data-screen="welcome"] .ob-grid { padding-top: calc(32px + env(safe-area-inset-top)); }
-.ob[data-screen="welcome"] .ob-talk { min-height: calc(100dvh - 220px); display: flex; flex-direction: column; }
-.ob[data-screen="welcome"] .ob-say, .ob[data-screen="welcome"] .ob-sub { text-align: center; }
-.ob[data-screen="welcome"] .ob-answer { flex: 1; align-content: center; }
+.ob[data-screen="welcome"] .ob-talk { padding-top: calc(40px + env(safe-area-inset-top)); min-height: 100dvh; grid-template-rows: auto 1fr; }
+.ob[data-screen="welcome"] .ui-mtitle { text-align: center; }
+.ob[data-screen="welcome"] .ob-answer { align-content: center; padding-bottom: 40px; }
 .ob[data-screen="welcome"] .ob-ring { flex-direction: column; text-align: center; background: none; box-shadow: none; gap: 14px; }
-.ob-talk:has(.ob-call-full) > .ob-say, .ob-talk:has(.ob-call-full) > .ob-sub { display: none; }
-.ob[data-screen="welcome"]:has(.ob-call-full) .ob-grid { padding: 0; }
-.ob-call-full { min-height: 100dvh; display: flex; }
+.ob-talk:has(.ob-call-full) > .ui-mtitle { display: none; }
+.ob[data-screen="welcome"] .ob-talk:has(.ob-call-full) { padding: 0; }
+.ob[data-screen="welcome"] .ob-talk:has(.ob-call-full) { min-height: 0; display: block; }
+/* The call fills exactly one screen: captions scroll, controls stay in the thumb zone above the home bar. */
+.ob-call-full { height: 100dvh; display: flex; padding-top: env(safe-area-inset-top); }
+.ob-call-full .vc--immersive { min-height: 0; height: 100%; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+.ob-call-full .vc--immersive .vc-stage { padding: 12px 0 4px; }
+.ob-call-full .vc--immersive .vc-captions { flex: 1 1 0; min-height: 0; }
 .ob-call { padding: 20px; border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-lg); display: grid; gap: 18px; }
 
 
@@ -90,8 +94,6 @@
 
 .ob-file { display: none; }
 @media (min-width: 1024px) {
-  .ob-grid { grid-template-columns: minmax(0, 1fr) 340px; gap: 56px; padding-top: 56px; }
-  .ob-talk { margin-inline: 0 auto; }
   .ob-file { display: block; position: sticky; top: 92px; padding: 20px; border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-lg); }
   .ob-file-head { display: flex; justify-content: space-between; font: 500 11.5px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); padding-bottom: 14px; border-bottom: 1px solid var(--line); }
   .ob-file dl { margin: 0; display: grid; }

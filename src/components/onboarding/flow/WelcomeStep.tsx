@@ -1,10 +1,8 @@
 "use client";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { failure, flowApi } from "@/lib/client/onboarding-flow";
 import { AgentCall } from "@/components/voice/AgentCall";
-import { AgentOrb } from "@/components/ui";
-import { ActionBar } from "./mobile";
+import { AgentOrb, Button, ButtonLink, StickyActionBar } from "@/components/ui";
 
 /** The incoming welcome call. The script is written by Muse Spark from the saved case before the person answers. */
 export function WelcomeStep({ firstName, calendarAdded }: { firstName: string; calendarAdded: boolean }) {
@@ -23,7 +21,7 @@ export function WelcomeStep({ firstName, calendarAdded }: { firstName: string; c
   if (ended) return (
     <div className="ob-answer">
       <div className="ob-note ob-note-ok"><strong>You’re all set{firstName ? `, ${firstName}` : ""}.</strong><p>Your case, next step and dates are waiting. Talk to me any time from the call button.</p></div>
-      <ActionBar><Link className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" href="/app">Open my case</Link></ActionBar>
+      <StickyActionBar><ButtonLink variant="primary" size="lg" href="/app">Open my case</ButtonLink></StickyActionBar>
     </div>
   );
   // "Answer" is the user gesture that lets the call start audio straight away.
@@ -35,10 +33,9 @@ export function WelcomeStep({ firstName, calendarAdded }: { firstName: string; c
         <div><strong>Dossierly</strong><span>{script ? "Incoming welcome call" : error ? "Call not ready" : "Preparing your welcome call…"}</span></div>
       </div>
       {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void load()}>Try again</button></div>}
-      <ActionBar>
-        <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block ob-answer-btn" disabled={!script} onClick={() => setAnswered(true)}>{script ? "Answer" : "Preparing…"}</button>
-        <Link className="ob-link" href="/app">Not now, open my case</Link>
-      </ActionBar>
+      <StickyActionBar secondary={<ButtonLink variant="ghost" href="/app">Not now, open my case</ButtonLink>}>
+        <Button variant="primary" size="lg" className="ob-answer-btn" icon="phone" disabled={!script} loading={!script && !error} onClick={() => setAnswered(true)}>{script ? "Answer" : "Preparing…"}</Button>
+      </StickyActionBar>
     </div>
   );
 }

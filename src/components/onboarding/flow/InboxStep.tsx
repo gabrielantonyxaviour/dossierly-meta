@@ -5,12 +5,12 @@ import type { InboxMessage } from "@/lib/onboarding/inbox";
 import { failure, flowApi, type ConnectionStatus } from "@/lib/client/onboarding-flow";
 import type { Profile } from "@/lib/case/types";
 import { ConnectCards } from "./ConnectCards";
-import { ActionBar } from "./mobile";
+import { Button, StickyActionBar } from "@/components/ui";
 import { Review } from "./Review";
 
 type Row = { msg: InboxMessage; state: "queued" | "reading" | "done" | "error"; reading?: MailReading; error?: string };
-export type InboxPhase = "connect" | "listing" | "reading" | "review" | "empty";
-type Phase = InboxPhase;
+export type InboxPhase = "connect" | "listing" | "reading" | "review" | "empty" | "saved";
+type Phase = Exclude<InboxPhase, "saved">;
 
 export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, applyStage, onPhase }: { onPhase(p: InboxPhase): void; returned: string | null; stage: Profile["stage"]; applyStage(s: Profile["stage"]): Promise<boolean>; onDone(saved: number): void; onSkip(): void; setCalendarAdded(v: boolean): void }) {
   const [status, setStatus] = useState<ConnectionStatus | null>(null);
@@ -65,19 +65,17 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
   const done = rows.filter((r) => r.state === "done" || r.state === "error").length;
   const finished = phase === "reading" && rows.length > 0 && done === rows.length;
 
-  const skip = <button type="button" className="ob-link" onClick={onSkip}>Skip for now</button>;
   if (phase === "connect" || phase === "listing") {
     return (
       <div className="ob-answer">
         {statusError && <div className="ob-alert" role="alert"><p>{statusError}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void load()}>Try again</button></div>}
         <ConnectCards status={status} gmail={gmail} calendar={calendar} returned={returned} />
         {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void scan()}>Try again</button></div>}
-        <ActionBar>
-          <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" disabled={!gmail || phase === "listing"} onClick={() => { started.current = true; void scan(); }}>
+        <StickyActionBar secondary={<Button variant="ghost" onClick={onSkip}>Skip for now</Button>}>
+          <Button variant="primary" size="lg" disabled={!gmail || phase === "listing"} loading={phase === "listing"} onClick={() => { started.current = true; void scan(); }}>
             {phase === "listing" ? "Looking for official emails…" : gmail ? "Read my official emails" : "Connect Gmail to continue"}
-          </button>
-          {skip}
-        </ActionBar>
+          </Button>
+        </StickyActionBar>
       </div>
     );
   }
@@ -85,16 +83,15 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
     return (
       <div className="ob-answer">
         <div className="ob-note"><strong>No official emails in {account || "your inbox"} from the last 120 days.</strong><p>You can add a photo of a letter any time in Look.</p></div>
-        <ActionBar>
-          <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={onSkip}>Continue</button>
-          <button type="button" className="ob-link" onClick={() => void scan()}>Check again</button>
-        </ActionBar>
+        <StickyActionBar secondary={<Button variant="ghost" onClick={() => void scan()}>Check again</Button>}>
+          <Button variant="primary" size="lg" onClick={onSkip}>Continue</Button>
+        </StickyActionBar>
       </div>
     );
   }
   if (phase === "review") {
     const readings = rows.flatMap((r) => (r.reading?.relevant ? [r.reading] : []));
-    return <Review readings={readings} rows={rows.map((r) => r.msg)} calendarConnected={calendar} stage={stage} applyStage={applyStage} onSaved={(added, saved) => { setCalendarAdded(added); onDone(saved); }} />;
+    return <Review readings={readings} rows={rows.map((r) => r.msg)} calendarConnected={calendar} stage={stage} applyStage={applyStage} onShowResult={() => onPhase("saved")} onSaved={(added, saved) => { setCalendarAdded(added); onDone(saved); }} />;
   }
   const relevant = rows.filter((r) => r.reading?.relevant).length;
   return (
@@ -114,11 +111,11 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
         ))}
       </ol>
       {finished && !relevant && <div className="ob-note"><strong>None of these are about your residence case.</strong><p>I’ll keep an eye out for new official mail.</p></div>}
-      <ActionBar>
+      <StickyActionBar>
         {finished && !relevant
-          ? <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={onSkip}>Continue</button>
-          : <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" disabled={!finished} onClick={() => setPhase("review")}>{finished ? "Review what I found" : `Reading ${Math.min(done + 1, rows.length)} of ${rows.length}…`}</button>}
-      </ActionBar>
+          ? <Button variant="primary" size="lg" onClick={onSkip}>Continue</Button>
+          : <Button variant="primary" size="lg" disabled={!finished} loading={!finished} onClick={() => setPhase("review")}>{finished ? "Review what I found" : `Reading ${Math.min(done + 1, rows.length)} of ${rows.length}…`}</Button>}
+      </StickyActionBar>
     </div>
   );
 }
