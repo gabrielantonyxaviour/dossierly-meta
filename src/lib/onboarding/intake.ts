@@ -34,6 +34,23 @@ Then write reply: what you say back out loud, in the language they spoke, at mos
 Example. Transcript: "um hello I'm Mei, I work here, and I got some letter from the office I don't get" → reply: "Hi Mei. Can I look at your email? That's where the office writes to you."
 Return only JSON: {"firstName":null,"fullName":null,"language":"en","reason":"unknown","city":null,"officialMail":false,"reply":""}`;
 
+type CaseNs = { idFromName(n: string): unknown; get(id: unknown): { fetch(input: string, init?: RequestInit): Promise<Response> } };
+/** The profile through the CASE_DO binding on whatever env is given (Next route or VoiceDO), else the dev case client. */
+function profileStore(env: Env, userId: string): { get(): Promise<Profile>; patch(p: Partial<Profile>): Promise<Profile> } {
+  const ns = (env as unknown as { CASE_DO?: CaseNs }).CASE_DO;
+  if (!ns) {
+    const c = caseClient(userId);
+    return { get: async () => (await c.snapshot()).profile, patch: (p) => c.patchProfile(p) };
+  }
+  const stub = ns.get(ns.idFromName(userId));
+  const call = async <T>(path: string, method: string, body?: unknown): Promise<T> => {
+    const r = await stub.fetch(`https://case.do/${path}`, { method, ...(body === undefined ? {} : { body: JSON.stringify(body), headers: { "content-type": "application/json" } }) });
+    if (!r.ok) throw new Error("case_unavailable");
+    return (await r.json()) as T;
+  };
+  return { get: async () => (await call<{ profile: Profile }>("snapshot", "GET")).profile, patch: (p) => call<Profile>("profile", "PATCH", p) };
+}
+
 const PERMIT: Record<string, Profile["permitType"]> = { study: "temporary_residence_study", work: "temporary_residence_work", family: "other", other: "other" };
 
 export type IntakeResult = { reply: string; language: string; speechId: string | null; profile: Profile; firstName: string | null };
@@ -54,8 +71,8 @@ export async function intakeTurn(env: Env, userId: string, transcript: string): 
     },
   ));
   const x = out.data;
-  const c = caseClient(userId);
-  const current = (await c.snapshot()).profile;
+  const c = profileStore(env, userId);
+  const current = await c.get();
   const lang = (LANGUAGES as readonly string[]).includes(x.language) ? (x.language as Language) : null;
   const patch: Partial<Profile> = { country: "PL" };
   const name = x.fullName ?? x.firstName;
@@ -63,7 +80,7 @@ export async function intakeTurn(env: Env, userId: string, transcript: string): 
   if (lang) patch.preferredLanguage = lang;
   if (PERMIT[x.reason]) patch.permitType = PERMIT[x.reason];
   if (x.city) patch.city = x.city;
-  const profile = await c.patchProfile(patch);
+  const profile = await c.patch(patch);
   return { reply: x.reply, language: lang ?? "en", profile, firstName: x.firstName };
 }
 
