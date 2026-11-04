@@ -28,13 +28,13 @@ function setQuery(look: string | null) {
   if (url.href !== window.location.href) window.history.replaceState(window.history.state, "", url);
 }
 
-export function LookFlow({ fromDocument = false }: { fromDocument?: boolean }) {
+export function LookFlow({ boot = null }: { boot?: "doc" | "look" | null }) {
   const { state, run, replay, retry, reset } = useLook();
   const router = useRouter();
   const phone = useIsPhone();
   const [prepError, setPrepError] = useState<string | null>(null);
   /* True while a case document's file is fetched and drawn, so the Look home never flashes in between. */
-  const [opening, setOpening] = useState(fromDocument);
+  const [opening, setOpening] = useState(boot !== null);
 
   const start = useCallback(async (get: () => Promise<Awaited<ReturnType<typeof prepareImage>>>, opts: { question: string; sample?: boolean; hint?: LookKind }) => {
     setPrepError(null);
@@ -60,7 +60,7 @@ export function LookFlow({ fromDocument = false }: { fromDocument?: boolean }) {
     if (doc && DOC_ID.test(doc)) {
       fromDoc.current = doc;
       void Promise.resolve().then(() => start(() => prepareFromDocument(doc, LOOK_SIDE), { question: "", hint: "letter" })).finally(() => setOpening(false));
-    } else if (look && LOOK_ID.test(look)) void replay(look).then((m) => m && setPrepError(m));
+    } else if (look && LOOK_ID.test(look)) void replay(look).then((m) => m && setPrepError(m)).finally(() => setOpening(false));
     else if (sample && SAMPLE_ID.test(sample)) void Promise.resolve().then(() => start(() => prepareFromUrl(sampleSrc(sample), LOOK_SIDE), { question: "", sample: true }));
   }, [replay, start]);
 
@@ -81,8 +81,8 @@ export function LookFlow({ fromDocument = false }: { fromDocument?: boolean }) {
   if (opening && state.phase === "idle") {
     const paper = <div className="lk-visual" aria-busy="true"><Skeleton h={phone ? 460 : 640} r={20} /></div>;
     return phone
-      ? <FullScreenFlow title="Look" onClose={close} dark><div className="lk-phone stack" style={{ ["--gap" as string]: "16px" }}>{paper}<span className="ui-meta" role="status">Opening the letter from your case…</span></div></FullScreenFlow>
-      : <div className="sh-page sh-page--wide lk-page lk-result">{paper}<span className="ui-meta" role="status">Opening the letter from your case…</span></div>;
+      ? <FullScreenFlow title="Look" onClose={close} dark><div className="lk-phone stack" style={{ ["--gap" as string]: "16px" }}>{paper}<span className="ui-meta" role="status">{boot === "doc" ? "Opening the letter from your case…" : "Opening…"}</span></div></FullScreenFlow>
+      : <div className="sh-page sh-page--wide lk-page lk-result">{paper}<span className="ui-meta" role="status">{boot === "doc" ? "Opening the letter from your case…" : "Opening…"}</span></div>;
   }
   if (state.phase !== "idle" && state.image) {
     return <LookResult key={state.image.dataUrl.length + state.image.width} state={state} phone={phone} onRetry={retry} onClose={close} />;
