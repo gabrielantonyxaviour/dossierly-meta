@@ -3,6 +3,7 @@
  * ever runs server-side (inside VoiceDO). Audio in: 16-bit LE mono PCM at 16 kHz, paced ~real time by the caller.
  */
 import { resolveRole, type EnvLike } from "../../model/roles";
+import { assertVoiceAllowed, bookAsrAudio, primeVoiceBudget } from "./meter";
 
 export interface AsrHandlers {
   onSpeechStart(): void;
@@ -46,6 +47,8 @@ export class MetaAsr {
   async connect(): Promise<void> {
     const cfg = resolveRole("asr", this.env);
     if (!cfg.apiKey) throw new Error("Speech recognition is not configured");
+    assertVoiceAllowed(this.env);
+    void primeVoiceBudget(this.env);
     this.closed = false;
     this.ready = false;
     this.queue = [];
@@ -137,6 +140,7 @@ export class MetaAsr {
   private finish(): void {
     if (this.closed) return;
     this.closed = true;
+    void bookAsrAudio(this.env, this.sentMs);
     this.h.onClose();
   }
 }

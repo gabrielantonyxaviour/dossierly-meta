@@ -1,9 +1,11 @@
 /* Spark calls for voice turns: streamed line protocol (spoken lanes) and one-shot JSON (side lanes). */
 import type { Role, ReasoningEffort } from "../../config";
+import { estimateInputTokens } from "../../model/cost";
 import { metaChat, metaChatStream, type FetchLike } from "../../model/meta";
 import { resolveRole, type EnvLike } from "../../model/roles";
-import { ModelError, type ChatMessage } from "../../model/types";
+import { ModelError, type ChatMessage, type Usage } from "../../model/types";
 import { LineStream, type LineHandlers } from "./lines";
+import { assertVoiceAllowed, bookVoiceUsage } from "./meter";
 
 export interface StreamArgs {
   role: Role;
@@ -33,6 +35,7 @@ const transient = (e: unknown) => e instanceof ModelError && ["model_unavailable
 /** Streams one reply through the line parser. Resolves with all fields once the stream ends. */
 export async function streamLines(env: EnvLike, a: StreamArgs, h: Partial<LineHandlers>): Promise<{ fields: Record<string, string>; model: string; firstTokenMs: number | null }> {
   const cfg = resolveRole(a.role, env);
+  assertVoiceAllowed(env);
   const fields: Record<string, string> = {};
   const lines = new LineStream(
     { onField: (k, v) => ((fields[k] = fields[k] ? `${fields[k]}\n${v}` : v), h.onField?.(k, v)), onSentence: h.onSentence },
@@ -40,32 +43,42 @@ export async function streamLines(env: EnvLike, a: StreamArgs, h: Partial<LineHa
   );
   const t0 = Date.now();
   let first: number | null = null;
+  let usage: Usage | null = null;
+  let chars = 0;
+  const messages: ChatMessage[] = [{ role: "system", content: a.system }, ...a.messages];
   const open = () =>
     metaChatStream(
       {
         model: cfg.model,
         role: a.role,
-        messages: [{ role: "system", content: a.system }, ...a.messages],
+        messages,
         maxTokens: a.maxTokens ?? 1500,
         reasoningEffort: a.effort ?? "minimal",
       },
       { env, fetch: withSignal(a.signal), timeoutMs: 30_000 },
     );
   // Meta answers an intermittent 404/429/5xx before streaming: retry while nothing has been said yet.
-  for (let attempt = 1; ; attempt++) {
-    try {
-      for await (const c of open()) {
-        if (a.signal?.aborted) break;
-        if (c.type === "delta") {
-          first ??= Date.now() - t0;
-          lines.push(c.text);
+  try {
+    for (let attempt = 1; ; attempt++) {
+      try {
+        for await (const c of open()) {
+          if (a.signal?.aborted) break;
+          if (c.type === "delta") {
+            first ??= Date.now() - t0;
+            chars += c.text.length;
+            lines.push(c.text);
+          } else usage = c.usage;
         }
+        break;
+      } catch (e) {
+        if (first !== null || a.signal?.aborted || attempt >= RETRIES || !transient(e)) throw e;
+        await backoff(attempt);
       }
-      break;
-    } catch (e) {
-      if (first !== null || a.signal?.aborted || attempt >= RETRIES || !transient(e)) throw e;
-      await backoff(attempt);
     }
+  } finally {
+    // Booked after the call, never awaited: the provider's usage, or an estimate for a stream we cut short.
+    const billed = usage ?? { tokensIn: estimateInputTokens(messages), tokensOut: Math.ceil(chars / 3), cachedTokens: 0 };
+    if (usage || first !== null || a.signal?.aborted) void bookVoiceUsage(env, cfg.model, billed);
   }
   if (!a.signal?.aborted) lines.end();
   return { fields, model: cfg.model, firstTokenMs: first };
@@ -76,6 +89,7 @@ export async function jsonCall<T>(env: EnvLike, a: { role: Role; effort?: Reason
   const cfg = resolveRole(a.role, env);
   for (let attempt = 1; attempt <= RETRIES; attempt++) {
     try {
+      assertVoiceAllowed(env);
       const out = await metaChat(
         {
           model: cfg.model,
@@ -87,9 +101,11 @@ export async function jsonCall<T>(env: EnvLike, a: { role: Role; effort?: Reason
         },
         { env, timeoutMs: 30_000 },
       );
+      void bookVoiceUsage(env, cfg.model, out.usage);
       const s = out.content.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
       return JSON.parse(s.slice(s.indexOf("{"), s.lastIndexOf("}") + 1)) as T;
     } catch (e) {
+      if (e instanceof ModelError && e.usage) void bookVoiceUsage(env, cfg.model, e.usage);
       if (attempt >= RETRIES || !transient(e)) return null;
       await backoff(attempt);
     }
