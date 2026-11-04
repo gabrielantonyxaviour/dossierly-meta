@@ -54,6 +54,10 @@
       {
         "name": "USER_DO",
         "class_name": "UserDO"
+      },
+      {
+        "name": "CASE_DO",
+        "class_name": "CaseDO"
       }
     ]
   },
@@ -62,6 +66,12 @@
       "tag": "v1",
       "new_sqlite_classes": [
         "UserDO"
+      ]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": [
+        "CaseDO"
       ]
     }
   ],
@@ -133,6 +143,10 @@
           {
             "name": "USER_DO",
             "class_name": "UserDO"
+          },
+          {
+            "name": "CASE_DO",
+            "class_name": "CaseDO"
           }
         ]
       },
@@ -141,6 +155,12 @@
           "tag": "v1",
           "new_sqlite_classes": [
             "UserDO"
+          ]
+        },
+        {
+          "tag": "v2",
+          "new_sqlite_classes": [
+            "CaseDO"
           ]
         }
       ],
@@ -216,6 +236,10 @@
           {
             "name": "USER_DO",
             "class_name": "UserDO"
+          },
+          {
+            "name": "CASE_DO",
+            "class_name": "CaseDO"
           }
         ]
       },
@@ -224,6 +248,12 @@
           "tag": "v1",
           "new_sqlite_classes": [
             "UserDO"
+          ]
+        },
+        {
+          "tag": "v2",
+          "new_sqlite_classes": [
+            "CaseDO"
           ]
         }
       ],
@@ -299,6 +329,10 @@
           {
             "name": "USER_DO",
             "class_name": "UserDO"
+          },
+          {
+            "name": "CASE_DO",
+            "class_name": "CaseDO"
           }
         ]
       },
@@ -307,6 +341,12 @@
           "tag": "v1",
           "new_sqlite_classes": [
             "UserDO"
+          ]
+        },
+        {
+          "tag": "v2",
+          "new_sqlite_classes": [
+            "CaseDO"
           ]
         }
       ],
@@ -382,6 +422,10 @@
           {
             "name": "USER_DO",
             "class_name": "UserDO"
+          },
+          {
+            "name": "CASE_DO",
+            "class_name": "CaseDO"
           }
         ]
       },
@@ -390,6 +434,12 @@
           "tag": "v1",
           "new_sqlite_classes": [
             "UserDO"
+          ]
+        },
+        {
+          "tag": "v2",
+          "new_sqlite_classes": [
+            "CaseDO"
           ]
         }
       ],

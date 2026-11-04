@@ -122,12 +122,12 @@ describe("code failure and abuse boundaries", () => {
 
 describe("email API and provider", () => {
   it("issues a cookie only after code verification and returns an email account payload", async () => {
-    const liveEnv = getEnv(); liveEnv.RESEND_API_KEY = "unit-only"; liveEnv.EMAIL_FROM = "login@dossierly.example";
+    const liveEnv = getEnv(); liveEnv.EMAIL_FROM = "login@dossierly.example";
     let otp = "";
-    vi.stubGlobal("fetch", vi.fn(async (_url, options) => {
-      otp = JSON.parse(options.body).text.match(/is (\d{6})\./)[1];
-      return Response.json({ id: "email_test" });
-    }));
+    (liveEnv as unknown as { EMAIL: unknown }).EMAIL = { send: vi.fn(async (message: { text: string }) => {
+      otp = message.text.match(/is (\d{6})\./)![1];
+      return { messageId: "email_test" };
+    }) };
     const sent = await requestRoute(req("", { email: "arjun.route@example.org" }));
     expect(sent.status).toBe(200);
     const body = await sent.json();
@@ -148,16 +148,18 @@ describe("email API and provider", () => {
     expect(send).not.toHaveBeenCalled();
   });
 
-  it("uses Resend idempotency and sanitizes provider errors", async () => {
-    const send = vi.fn(async () => Response.json({ id: "email_test" })); vi.stubGlobal("fetch", send);
-    env.RESEND_API_KEY = "unit-only"; env.EMAIL_FROM = "login@dossierly.example";
-    await sendEmailCode(env, "arjun@example.org", "123456", "challenge-test");
-    expect(send.mock.calls[0]).toMatchObject(["https://api.resend.com/emails", { headers: { "idempotency-key": "dossierly-signin/challenge-test" } }]);
-    const payload = JSON.parse((send.mock.calls[0] as unknown as [string, RequestInit])[1].body as string);
+  it("sends through the Cloudflare email binding and sanitizes provider errors", async () => {
+    const send = vi.fn(async (_message: Record<string, unknown>) => ({ messageId: "email_test" }));
+    const bound = { ...env, EMAIL_FROM: "login@dossierly.example", EMAIL: { send } } as typeof env;
+    await sendEmailCode(bound, "arjun@example.org", "123456", "challenge-test");
+    const payload = send.mock.calls[0][0] as { to: string; from: { email: string }; html: string; text: string; headers: Record<string, string> };
+    expect(payload).toMatchObject({ to: "arjun@example.org", from: { email: "login@dossierly.example", name: "Dossierly" } });
+    expect(payload.headers["X-Entity-Ref-ID"]).toBe("dossierly-signin/challenge-test");
     expect(payload.html).toContain("123456");
     expect(payload.html).toContain("Your sign-in code");
     expect(payload.text).toContain("123456");
-    vi.stubGlobal("fetch", async () => Response.json({ private: "do not expose" }, { status: 401 }));
-    await expect(sendEmailCode(env, "arjun@example.org", "123456", "other")).rejects.toMatchObject({ status: 503, code: "email_unavailable" });
+    const failing = { ...bound, EMAIL: { send: async () => { throw new Error("private provider detail"); } } } as typeof env;
+    await expect(sendEmailCode(failing, "arjun@example.org", "123456", "other")).rejects.toMatchObject({ status: 503, code: "email_unavailable" });
+    await expect(sendEmailCode({ ...env, EMAIL: undefined } as typeof env, "arjun@example.org", "123456", "x")).rejects.toMatchObject({ status: 503 });
   });
 });

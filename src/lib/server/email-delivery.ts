@@ -5,8 +5,33 @@ import { emailCodeTemplate } from "./email-code-template";
 
 export type SendCode = (email: string, code: string, challengeId: string) => Promise<void>;
 
+type EmailAddress = { email: string; name?: string };
+type EmailBinding = {
+  send(message: {
+    to: string | EmailAddress;
+    from: string | EmailAddress;
+    subject: string;
+    html?: string;
+    text?: string;
+    headers?: Record<string, string>;
+  }): Promise<{ messageId: string }>;
+};
+
+const DEFAULT_FROM = "no-reply@dossierly.cosmiclan.com";
+
+/** Cloudflare Email Service `send_email` binding (named EMAIL in wrangler.jsonc). */
+function emailBinding(env: Env): EmailBinding | undefined {
+  const binding = (env as unknown as { EMAIL?: EmailBinding }).EMAIL;
+  return binding && typeof binding.send === "function" ? binding : undefined;
+}
+
+function sender(env: Env): string {
+  const from = env.EMAIL_FROM ?? DEFAULT_FROM;
+  return z.email().safeParse(from).success ? from : DEFAULT_FROM;
+}
+
 export function requireEmailDelivery(env: Env) {
-  if (!env.RESEND_API_KEY || !z.email().safeParse(env.EMAIL_FROM).success) {
+  if (!emailBinding(env)) {
     throw new ApiError(503, "Email sign-in is temporarily unavailable. Please try again later.", "email_unavailable");
   }
 }
@@ -14,25 +39,16 @@ export function requireEmailDelivery(env: Env) {
 /** Transactional sign-in codes only. Never logs recipient, code, or provider error bodies. */
 export async function sendEmailCode(env: Env, email: string, code: string, challengeId: string): Promise<void> {
   requireEmailDelivery(env);
+  const binding = emailBinding(env) as EmailBinding;
   try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${env.RESEND_API_KEY}`,
-        "content-type": "application/json",
-        "idempotency-key": `dossierly-signin/${challengeId}`,
-      },
-      body: JSON.stringify({
-        from: `Dossierly <${env.EMAIL_FROM}>`,
-        to: [email],
-        subject: "Your Dossierly sign-in code",
-        ...emailCodeTemplate(code),
-      }),
-      signal: AbortSignal.timeout(15_000),
+    const result = await binding.send({
+      to: email,
+      from: { email: sender(env), name: "Dossierly" },
+      subject: "Your Dossierly sign-in code",
+      headers: { "X-Entity-Ref-ID": `dossierly-signin/${challengeId}` },
+      ...emailCodeTemplate(code),
     });
-    if (!response.ok) throw new Error("delivery_failed");
-    const result = z.object({ id: z.string().min(1) }).safeParse(await response.json());
-    if (!result.success) throw new Error("delivery_failed");
+    if (!result?.messageId) throw new Error("delivery_failed");
   } catch {
     throw new ApiError(503, "We could not send your code. Please try again later.", "email_unavailable");
   }

@@ -16,18 +16,10 @@ INJ="$HOME/.claude/vault/inject.sh"
 MAP=(
   "MODEL_API_KEY:DOSSIERLY_META_API_KEY"
   "ELEVENLABS_API_KEY:DOSSIERLY_ELEVENLABS_API_KEY"
-  "TAVILY_API_KEY:TAVILY_API_KEY"
-  "NVIDIA_API_KEY:NVIDIA_API_KEY"
-  "RESEND_API_KEY:RESEND_API_KEY"
-  "COMPOSIO_API_KEY:COMPOSIO_API_KEY"
-  # Not in the vault yet; skipped with a warning until added:
-  "COMPOSIO_PROJECT_ID:COMPOSIO_PROJECT_ID"
-  "COMPOSIO_GMAIL_AUTH_CONFIG_ID:COMPOSIO_GMAIL_AUTH_CONFIG_ID"
-  "COMPOSIO_OUTLOOK_AUTH_CONFIG_ID:COMPOSIO_OUTLOOK_AUTH_CONFIG_ID"
-  "COMPOSIO_GOOGLECALENDAR_AUTH_CONFIG_ID:COMPOSIO_GOOGLECALENDAR_AUTH_CONFIG_ID"
-  "COMPOSIO_MICROSOFTCALENDAR_AUTH_CONFIG_ID:COMPOSIO_MICROSOFTCALENDAR_AUTH_CONFIG_ID"
-  "JUDGE_CODE:DOSSIERLY_JUDGE_CODE"
 )
+# Composio connection IDs from the earlier Dossierly build (private file, values never echoed).
+CONN_FILE="/Users/gabrielantonyxaviour/.codex/qa-live/20261101/runtime/connections-private-20261102/dossierly-connection-bindings.env"
+CONN_NAMES=(COMPOSIO_API_KEY COMPOSIO_PROJECT_ID COMPOSIO_GMAIL_AUTH_CONFIG_ID COMPOSIO_OUTLOOK_AUTH_CONFIG_ID COMPOSIO_GOOGLECALENDAR_AUTH_CONFIG_ID COMPOSIO_MICROSOFTCALENDAR_AUTH_CONFIG_ID)
 
 # Cloudflare credentials -> wrangler (scoped to this process tree).
 "$INJ" get CLOUDFLARE_API_TOKEN_BROAD CLOUDFLARE_ACCOUNT_ID --dir "$TMP/cf" >/dev/null
@@ -52,8 +44,15 @@ for pair in "${MAP[@]}"; do
   fi
 done
 
+if [[ -r "$CONN_FILE" ]]; then
+  for name in "${CONN_NAMES[@]}"; do
+    if grep -q "^$name=" "$CONN_FILE"; then grep "^$name=" "$CONN_FILE" | head -1 | cut -d= -f2- | tr -d '\n"' | put "$name"
+    else echo "MISSING $name in connection file - skipped"; fi
+  done
+else echo "MISSING connection file - Composio secrets skipped"; fi
+
 # Per-environment random secrets: created once, never rotated automatically.
-for name in SESSION_SECRET BRIDGE_SECRET; do
+for name in SESSION_SECRET; do
   if grep -q "\"$name\"" <<<"$EXISTING"; then echo "keep  $name (already set)"
   else openssl rand -base64 48 | tr -d '\n' | put "$name"; fi
 done
