@@ -1,7 +1,7 @@
 import { BuiltOn } from "@/components/landing/BuiltOn";
 import { Compare } from "@/components/landing/Compare";
 import { Countries } from "@/components/landing/Countries";
-import { Faq, FinalCta, PricingTeaser } from "@/components/landing/Closing";
+import { Faq, FinalCta } from "@/components/landing/Closing";
 import { Hero } from "@/components/landing/Hero";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Moments } from "@/components/landing/Moments";
@@ -24,7 +24,6 @@ export default function Landing() {
       <BuiltOn />
       <Compare />
       <Countries />
-      <PricingTeaser />
       <FinalCta />
       <Faq />
       <LandingMotion />

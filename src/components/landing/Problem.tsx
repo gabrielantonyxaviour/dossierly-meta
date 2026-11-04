@@ -1,5 +1,5 @@
 const JOBS = [
-  { t: "Getting ready for the office", s: "Which documents, which rules, what changed this month" },
+  { t: "Getting ready for the office", s: "Which documents, which rules, what to bring" },
   { t: "Understanding the counter", s: "A conversation in Polish that decides your case" },
   { t: "Answering letters on time", s: "A wezwanie gives you 14 days from delivery" },
 ];
@@ -17,11 +17,6 @@ export function Problem() {
             Polish, and letters with deadlines counted from the day they arrive. Miss one and the application is left
             unexamined. Dossierly carries all three.
           </p>
-          <figure className="lp-stat" data-reveal>
-            <p className="lp-stat-n">394 days</p>
-            <p className="lp-stat-l">Average case at the Mazowiecki office, 2026</p>
-            <figcaption>Reply to Sejm interpellation 18089. Translation apps forget each sentence; agencies remember the case but cost thousands of złoty.</figcaption>
-          </figure>
         </div>
         <ol className="lp-jobs">
           {JOBS.map((j, i) => (

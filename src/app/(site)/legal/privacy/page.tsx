@@ -5,10 +5,7 @@ export const metadata: Metadata = { title: "Privacy" };
 
 const PROCESSORS = [
   ["Cloudflare", "Hosting, the app's server code, the ledger and run logs (D1, EU jurisdiction)", "EU storage; global network"],
-  ["Nebius (Token Factory, AI Cloud)", "Runs the NVIDIA Nemotron models on masked text; Serverless Jobs for audits", "No fixed region on public endpoints; no training; storage off per call"],
-  ["Tavily", "Fetches public official web pages for preparation. Never receives your case", "—"],
-  ["NVIDIA (API catalog)", "Embeddings of public official page text only. Never receives your case", "—"],
-  ["Dodo Payments", "Merchant of record: payment, invoices, VAT", "Their own privacy policy applies"],
+  ["Meta (Muse models)", "Runs the Muse models (Muse Spark, SAM 3.1, Muse Voice Transcribe) on masked text", "Storage off per call; Meta's own terms apply"],
   ["Resend", "Delivers sign-in codes to your email address", "Receives the address and the code; its own privacy policy applies"],
 ];
 
@@ -37,7 +34,7 @@ export default function PrivacyPolicy() {
       </table>
 
       <h2>Before any model call</h2>
-      <p>Your name, case number, PESEL, phone numbers, IBANs, passport numbers and the addresses in your profile are replaced with placeholders. Your personal agent then works on the masked case as plain text inside its own sandbox, whose network access is limited and logged.</p>
+      <p>Your name, case number, PESEL, phone numbers, IBANs, passport numbers and the addresses in your profile are replaced with placeholders. Your personal agent then works on the masked case as plain text.</p>
 
       <h2>Processors</h2>
       <table>
@@ -52,7 +49,6 @@ export default function PrivacyPolicy() {
       <ul>
         <li>Providing the service you asked for (contract): case processing, interpreting, letters.</li>
         <li>Explicit consent: health information you choose to add.</li>
-        <li>Legal obligation: payment records, kept by Dodo Payments as required by tax law.</li>
       </ul>
       <p>Ledger, run logs and the account record are kept while you use Dossierly and deleted on request. Data on your device stays until you delete it.</p>
 

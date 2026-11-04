@@ -16,7 +16,7 @@ export function RunsPanel() {
         <span className="chip mono">{usd(total)} total</span>
       </div>
       <p className="small muted" style={{ margin: 0 }}>
-        Open NVIDIA Nemotron models on Nebius Token Factory, called with storage off. {runs.length} calls · {tokens.toLocaleString("en-GB")} tokens · {cached.toLocaleString("en-GB")} served from cache.
+        Meta Muse models, called with storage off. {runs.length} calls · {tokens.toLocaleString("en-GB")} tokens · {cached.toLocaleString("en-GB")} served from cache.
       </p>
       {runs.length === 0 ? <p className="small muted" style={{ margin: 0 }}>No model calls yet.</p> : (
         <div className="table-scroll">

@@ -154,7 +154,7 @@ test("request loading prevents duplicates; outage and offline errors can be retr
 });
 
 for (const [query, destination] of [
-  ["start=sample&plan=plus", /\/app\?start=sample&plan=plus$/],
+  ["start=sample", /\/app\?start=sample$/],
   ["next=https%3A%2F%2Fexample.com", /\/app$/],
 ]) {
   test(`signup retains routing: ${query}`, async ({ page }) => {

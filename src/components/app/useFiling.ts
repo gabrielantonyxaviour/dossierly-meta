@@ -24,7 +24,7 @@ export function useFiling() {
         if (t.status === "running") setLabel(t.ranOn === "sandbox" ? "Your private agent is filing it…" : "Filing it (cloud fallback)…");
       }, ctl.signal);
       if (!done.ok || done.data.status !== "done") return setLabel("Saved on this device. Your agent did not confirm the filing yet.");
-      setLabel(done.data.ranOn === "sandbox" ? `Filed by your private agent${done.data.sandbox ? ` (sandbox ${sandboxLabel(done.data.sandbox)})` : ""}.` : "Filed by the cloud fallback; your agent picks it up when it is online.");
+      setLabel(done.data.ranOn === "sandbox" ? `Filed by your private agent${done.data.sandbox ? ` (${sandboxLabel(done.data.sandbox)})` : ""}.` : "Filed by the cloud fallback; your agent picks it up when it is online.");
     })();
   };
   return { label, file };

@@ -15,6 +15,6 @@ export default defineConfig({
     url: `http://127.0.0.1:${port}/signin`,
     reuseExistingServer: false,
     timeout: 120_000,
-    env: { MODELS_DISABLED: "1", NEBIUS_API_KEY: "", TAVILY_API_KEY: "", NVIDIA_API_KEY: "" },
+    env: { MODELS_DISABLED: "1" },
   },
 });

@@ -22,9 +22,9 @@ export function AgentTrace({ task, startedAt }: { task: AgentTask | null; starte
   const agent = sample ? "the shared sample agent" : "your private agent";
   const elapsed = startedAt ? now - startedAt : 0;
   const where = task?.ranOn === "sandbox"
-    ? `${agent}${task.sandbox ? ` (sandbox ${sandboxLabel(task.sandbox)})` : ""}`
+    ? `${agent}${task.sandbox ? ` (${sandboxLabel(task.sandbox)})` : ""}`
     : task?.ranOn === "cloud"
-      ? "the cloud fallback · Nemotron 3.5 Super VL"
+      ? "the cloud fallback · Muse Spark"
       : `waiting for ${agent}`;
 
   return (
@@ -52,7 +52,7 @@ export function AgentTrace({ task, startedAt }: { task: AgentTask | null; starte
         )}
       </ol>
       {startedAt && !task?.ranOn && elapsed > 6000 && (
-        <p className="tiny muted" style={{ margin: 0 }}>A sandbox that is asleep takes about 7 seconds to wake. If {agent} does not pick this up within 20 seconds, the same step runs in the cloud and is labelled that way.</p>
+        <p className="tiny muted" style={{ margin: 0 }}>If {agent} does not pick this up within 20 seconds, the same step runs in the cloud and is labelled that way.</p>
       )}
       {task?.run && <Attribution run={task.run} prefix={task.ranOn === "sandbox" ? (sample ? "sample agent" : "private agent") : "cloud fallback"} />}
     </section>

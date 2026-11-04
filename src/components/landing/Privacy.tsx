@@ -17,15 +17,15 @@ export function Privacy() {
         </header>
         <div className="lp-trio">
           <article className="lp-trio-card" data-reveal>
-            <h3>Its own sandbox</h3>
-            <p>Every person gets their own agent in an NVIDIA NemoClaw sandbox on OpenShell, with a restricted network policy we publish.</p>
+            <h3>Its own private agent</h3>
+            <p>Every person gets their own agent that only reads official Polish sources and your own case.</p>
             <div className="lp-trio-well">
               <div className="lp-ui">
-                <div className="lp-ui-head"><Icon name="shield" size={15} /> Network policy · restricted</div>
+                <div className="lp-ui-head"><Icon name="shield" size={15} /> Sources · restricted</div>
                 <div className="lp-ui-body">
                   <ul className="lp-ui-list">
                     <li className="is-ok"><span className="lp-ui-tick" aria-hidden="true"><Icon name="check" size={12} /></span>Official Polish sites</li>
-                    <li className="is-ok"><span className="lp-ui-tick" aria-hidden="true"><Icon name="check" size={12} /></span>Tavily and the app</li>
+                    <li className="is-ok"><span className="lp-ui-tick" aria-hidden="true"><Icon name="check" size={12} /></span>The app</li>
                     <li className="is-miss"><span className="lp-ui-tick" aria-hidden="true">×</span>Everything else is denied</li>
                   </ul>
                 </div>
@@ -49,7 +49,7 @@ export function Privacy() {
           </article>
           <article className="lp-trio-card" data-reveal>
             <h3>A ledger you can read</h3>
-            <p>Every model call and every connection your agent made, from OpenShell&apos;s own audit log, hash-chained.</p>
+            <p>Every model call and every connection your agent made, recorded in a ledger you can read.</p>
             <div className="lp-trio-well">
               <div className="lp-ui">
                 <div className="lp-ui-head"><Icon name="file" size={15} /> Privacy ledger · today</div>
@@ -65,7 +65,7 @@ export function Privacy() {
           </article>
         </div>
         <p className="lp-fine">
-          Your case lives on your device, encrypted with AES-GCM. Nebius does not train on customer data. What we
+          Your case lives on your device, encrypted with AES-GCM. What we
           cannot promise yet is on <Link href="/limits" className="lp-ulink">the limits page</Link>.
         </p>
       </div>

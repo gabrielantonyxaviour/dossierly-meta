@@ -1,11 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useCase } from "@/lib/client/store";
 import { Icon, type IconName } from "../../Icon";
-
-type Audit = { tool: string; model: string; ranOn: string; ranAt: string; total: number; harmfulBlockRate: number; benignAllowRate: number; p50Ms: number; jobId?: string | null };
 
 const STEPS: { icon: IconName; title: string; body: string; href: string }[] = [
   { icon: "prepare", title: "Prepare", body: "Before an appointment, your agent reads today's official pages and builds a checklist where every line cites its paragraph.", href: "/app/prepare" },
@@ -15,22 +11,13 @@ const STEPS: { icon: IconName; title: string; body: string; href: string }[] = [
 ];
 
 const FAQ: { q: string; a: string }[] = [
-  { q: "Where is my case stored?", a: "On this device, encrypted. Your private agent keeps a masked copy in its own sandbox so it can remember. Names and case numbers are masked before any model call." },
-  { q: "Can I open my case on another device?", a: "Sign in with a code sent to your email. Your account and plan are available on another device, but your encrypted case stays in the browser where you made it. Email sign-in cannot restore a missing local case. The sample case is available everywhere." },
-  { q: "What if my agent is offline?", a: "The same step runs in the cloud instead, after 20 seconds, and the screen says so." },
-  { q: "How do I delete everything?", a: "Privacy ledger, then Delete everything. It removes the case from this device and clears your agent's memory." },
+  { q: "Where is my case stored?", a: "On this device, encrypted. Your agent works from a masked copy so it can remember. Names and case numbers are masked before any model call." },
+  { q: "Can I open my case on another device?", a: "Sign in with a code sent to your email. Your account is available on another device, but your encrypted case stays in the browser where you made it. Email sign-in cannot restore a missing local case. The sample case is available everywhere." },
+  { q: "How do I delete everything?", a: "Privacy ledger, then Delete everything. It removes the case from this device." },
   { q: "Who can I write to?", a: "darthstormer.ai@gmail.com. Dossierly is operated by Gokul Nath." },
 ];
 
-const pct = (v: number) => `${Math.round(v * 1000) / 10}%`;
-
 export function HelpPage() {
-  const { status } = useCase();
-  const [audit, setAudit] = useState<Audit | null>(null);
-  useEffect(() => {
-    void fetch("/api/limits").then((r) => r.json()).then((d: { audit?: Audit }) => setAudit(d.audit ?? null)).catch(() => setAudit(null));
-  }, []);
-  const online = status?.bridge.online;
 
   return (
     <div className="page page-wide help">
@@ -51,10 +38,9 @@ export function HelpPage() {
       <div className="help-grid">
         <section className="card help-card" aria-labelledby="agent-h">
           <span className="tab-label">Your agent</span>
-          <h2 id="agent-h" className="h-card">{online === undefined ? "Checking…" : online ? "Private agent online" : "Running in the cloud for now"}</h2>
+          <h2 id="agent-h" className="h-card">Your private agent</h2>
           <p className="muted small">
-            Every person gets an NVIDIA NemoClaw sandbox on OpenShell with a restricted network policy, running Nemotron 3.5 Super VL on Nebius Token Factory.
-            {online && status && status.bridge.sandboxes > 0 && <> {status.bridge.sandboxes} sandboxes are running now.</>}
+            Every person gets a private agent that works on a masked copy of the case, running on Meta Muse models.
           </p>
           <Link className="btn btn-small" href="/app/privacy">See every call it made</Link>
         </section>
@@ -62,19 +48,7 @@ export function HelpPage() {
         <section className="card help-card" aria-labelledby="guard-h">
           <span className="tab-label">Interpret-only guard</span>
           <h2 id="guard-h" className="h-card">It interprets and explains. It never advises.</h2>
-          {audit ? (
-            <>
-              <div className="help-stats">
-                <div><b>{pct(audit.harmfulBlockRate)}</b><span>advice and harmful requests blocked</span></div>
-                <div><b>{pct(audit.benignAllowRate)}</b><span>ordinary requests allowed</span></div>
-              </div>
-              <p className="muted small">
-                Audited with {audit.tool} on a {audit.ranOn}, {audit.total} test prompts, {new Date(audit.ranAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}{audit.jobId ? <>, job <span className="mono">{audit.jobId}</span></> : null}.
-              </p>
-            </>
-          ) : (
-            <p className="muted small">Every turn passes a Nemotron 3.5 Lightning guard that refuses legal or medical advice. The NeMo Guardrails audit result appears here once published.</p>
-          )}
+          <p className="muted small">Every turn passes a Muse Spark guard that refuses legal or medical advice.</p>
           <p className="muted small" style={{ margin: 0 }}>For advice about your case, find a lawyer in the Polish bar register, rejestradwokatow.pl.</p>
         </section>
       </div>

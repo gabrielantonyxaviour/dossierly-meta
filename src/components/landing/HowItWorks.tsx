@@ -15,7 +15,6 @@ const STEPS: Step[] = [
     features: [
       { icon: "link", name: "Cited checklists", desc: "Each line links to its paragraph on the official page." },
       { icon: "speak", name: "Polish phrases", desc: "The ones you will need at that counter, ready to say." },
-      { icon: "flip", name: "What changed", desc: "Since you last prepared, in one line." },
     ],
     caption: "Prepare: Arjun's next visit, three of four items already in his case.",
     visual: <PrepareMock />,

@@ -64,7 +64,7 @@ export function PrivacyScreen() {
           <h2 className="h-card">What we can see</h2>
           <ul className="small" style={{ marginTop: 8, display: "grid", gap: 6 }}>
             <li>The text of a request while it is processed, with your name, case number and addresses replaced by placeholders before any model call.</li>
-            <li>Your private agent sees the masked case as plain text while it works, and keeps a masked copy in its sandbox memory.</li>
+            <li>Your private agent sees the masked case as plain text while it works, and keeps a masked copy as its memory.</li>
             <li>The ledger: which model ran, when, how many bytes, how many IDs were masked.</li>
             <li>Letter images, only as ciphertext if you save them.</li>
           </ul>
@@ -74,7 +74,7 @@ export function PrivacyScreen() {
           <ul className="small" style={{ marginTop: 8, display: "grid", gap: 6 }}>
             <li>Your saved case: it is encrypted on this device and never uploaded as a whole.</li>
             <li>Audio: Dossierly never receives or stores it.</li>
-            <li>Model training: Nebius does not train on your data, and every call is sent with storage switched off. Zero Data Retention is switched on at production launch.</li>
+            <li>Model training: every call is sent with storage switched off. Check Meta&apos;s current terms for how model inputs are handled.</li>
           </ul>
         </section>
       </div>

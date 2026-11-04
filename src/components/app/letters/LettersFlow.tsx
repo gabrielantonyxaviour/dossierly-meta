@@ -1,8 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { api, needsPlan, type ApiFailure } from "@/lib/client/api";
+import { api, type ApiFailure } from "@/lib/client/api";
 import { todayIso } from "@/lib/client/format";
 import { useCase, useDossier } from "@/lib/client/store";
 import type { LetterLink, LetterRead } from "@/lib/client/types";
@@ -14,7 +13,6 @@ import { LetterLinked } from "./LetterLinked";
 export function LettersFlow() {
   const d = useDossier();
   const { refreshMe } = useCase();
-  const router = useRouter();
   const [pages, setPages] = useState<string[]>([]);
   const [read, setRead] = useState<LetterRead | null>(null);
   const [link, setLink] = useState<LetterLink | null>(null);
@@ -32,7 +30,6 @@ export function LettersFlow() {
     setBusy(null);
     void refreshMe();
     if (!r.ok) {
-      if (needsPlan(r)) return router.push("/app/plan?reason=letters");
       return setErr({ f: r, retry: () => void doRead(imgs) });
     }
     setRead(r.data);
@@ -46,7 +43,6 @@ export function LettersFlow() {
     const r = await api.linkLetter(d.case, read.letter, delivery);
     setBusy(null);
     if (!r.ok) {
-      if (needsPlan(r)) return router.push("/app/plan?reason=letters");
       return setErr({ f: r, retry: () => void doLink() });
     }
     setLink(r.data);
@@ -84,7 +80,7 @@ export function LettersFlow() {
 
       {busy === "read" && (
         <div className="card working">
-          <Loading label="Nemotron 3.5 Super VL is transcribing the Polish text, then explaining it…" />
+          <Loading label="Muse Spark is transcribing the Polish text, then explaining it…" />
           <p className="tiny muted" style={{ margin: "8px 0 0" }}>Usually 4 to 8 seconds per page.</p>
         </div>
       )}
@@ -103,7 +99,7 @@ export function LettersFlow() {
 
       {busy === "link" && (
         <div className="card working">
-          <Loading label="Nemotron 3 Ultra is reading your whole case to see where this letter fits…" />
+          <Loading label="Muse Spark is reading your whole case to see where this letter fits…" />
           <p className="tiny muted" style={{ margin: "8px 0 0" }}>Whole-case reasoning takes 8 to 20 seconds. The deadline itself is counted in code, not by the model.</p>
         </div>
       )}

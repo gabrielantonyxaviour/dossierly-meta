@@ -72,14 +72,13 @@ export function PolandCoverage() {
 
       <section aria-labelledby="src-h">
         <h2 id="src-h">Official sources</h2>
-        <p className="muted">{sources.length} sources read at the source. The {sources.filter((s) => s.watch).length} marked “watched” are re-checked every night; changes appear in your preparation.</p>
+        <p className="muted">{sources.length} official sources read at the source.</p>
         <ul className="src-list">
           {sources.map((s) => (
             <li key={s.id}>
               <a href={s.url} target="_blank" rel="noreferrer" lang="pl">{s.title}</a>
               <span className="row" style={{ gap: 6 }}>
                 <span className="tiny muted mono">{s.kind}</span>
-                {s.watch && <span className="chip chip-official">watched nightly</span>}
                 {!s.verified && <span className="chip chip-warn">not verified</span>}
               </span>
             </li>
@@ -89,7 +88,7 @@ export function PolandCoverage() {
 
       <section aria-labelledby="lang-h">
         <h2 id="lang-h">Languages</h2>
-        <p>Polish with English, Ukrainian (українська), Hindi (हिन्दी) and Tamil (தமிழ்). English uses Nemotron 3.5 Lightning; the others use Nemotron 3.5 Super VL, which tested better in those languages.</p>
+        <p>Polish with English, Ukrainian (українська), Hindi (हिन्दी) and Tamil (தமிழ்).</p>
       </section>
 
       {unverified.length > 0 && (

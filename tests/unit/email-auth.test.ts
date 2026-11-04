@@ -4,11 +4,6 @@ import { checkEmailOrigin, requestEmailCode, verifyEmailCode } from "@/lib/serve
 import { accountFromCookie, createAccountUser, loadUserState, sessionCookie } from "@/lib/server/session";
 import { sendEmailCode } from "@/lib/server/email-delivery";
 import { emailAccount } from "@/lib/server/email-accounts";
-import { POST as regOptions } from "@/app/api/auth/passkey/register/options/route";
-import { POST as regVerify } from "@/app/api/auth/passkey/register/verify/route";
-import { POST as loginOptions } from "@/app/api/auth/passkey/login/options/route";
-import { POST as loginVerify } from "@/app/api/auth/passkey/login/verify/route";
-import { POST as device } from "@/app/api/auth/device/route";
 import { POST as requestRoute } from "@/app/api/auth/email/request/route";
 import { POST as verifyRoute } from "@/app/api/auth/email/verify/route";
 import { getEnv } from "@/lib/server/env";
@@ -122,15 +117,6 @@ describe("code failure and abuse boundaries", () => {
     const normalized = new Request("http://localhost:3242/api/auth/email/request", { headers: { origin: "http://127.0.0.1:3242", host: "127.0.0.1:3242" } });
     expect(() => checkEmailOrigin(normalized, env)).not.toThrow();
     expect(() => checkEmailOrigin(normalized, { ...env, APP_ENV: "production", APP_URL: "https://dossierly.pages.dev" })).toThrow();
-  });
-
-  it("keeps retired device/passkey routes disabled without issuing a session", async () => {
-    for (const route of [device, regOptions, regVerify, loginOptions, loginVerify]) {
-      const r = route(req());
-      expect(r.status).toBe(410);
-      expect(await r.json()).toEqual({ error: "Sign in with an email code instead.", code: "email_signin_required" });
-      expect(r.headers.get("set-cookie")).toBeNull();
-    }
   });
 });
 

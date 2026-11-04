@@ -1,7 +1,7 @@
 import { runLabel, usd } from "@/lib/client/format";
 import type { Run } from "@/lib/client/types";
 
-/** Subtle per-result model attribution: "Nemotron 3.5 Lightning · 0.9 s". Replays carry a "recorded" badge. */
+/** Subtle per-result model attribution: "Muse Spark · 0.9 s". Replays carry a "recorded" badge. */
 export function Attribution({ run, runs, prefix }: { run?: Run; runs?: Run[]; prefix?: string }) {
   const list = runs?.length ? runs : run ? [run] : [];
   if (!list.length) return null;

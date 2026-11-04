@@ -55,8 +55,8 @@ export function SpeakerHalf({ side, speechLang, userLang, turns, onSay, onRetry,
       {(listen.state === "listening" || listen.state === "transcribing") && listen.interim && <p className="interim" lang={side === "official" ? "pl" : userLang}>{listen.interim}</p>}
       {listen.detail && (
         <p className="asr-note tiny">
-          Heard by NVIDIA Parakeet{listen.detail.ms ? ` · ${(listen.detail.ms / 1000).toFixed(1)} s` : ""}
-          {listen.detail.translation ? <> · NVIDIA Canary: <span lang={side === "official" ? "en" : "pl"}>{listen.detail.translation}</span></> : null}
+          Heard by Muse Voice Transcribe{listen.detail.ms ? ` · ${(listen.detail.ms / 1000).toFixed(1)} s` : ""}
+          {listen.detail.translation ? <> · Translation: <span lang={side === "official" ? "en" : "pl"}>{listen.detail.translation}</span></> : null}
         </p>
       )}
       {listen.error && <p className="small half-error" role="status">{listen.error}</p>}

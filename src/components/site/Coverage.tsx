@@ -46,7 +46,7 @@ export function CoverageSection() {
       <div className="section-head">
         <span className="kicker">Countries</span>
         <h2 id="cov-h">One country, done properly.</h2>
-        <p>Every deadline rule is quoted from the statute. Every office page is read from the source and re-checked nightly. We add a country only when it reaches the same depth.</p>
+        <p>Every deadline rule is quoted from the statute. Every office page is read from the source. We add a country only when it reaches the same depth.</p>
       </div>
       <CountryCards />
     </section>

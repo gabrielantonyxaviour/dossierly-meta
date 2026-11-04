@@ -4,7 +4,6 @@ import { getOnboarding } from "@/lib/server/onboarding";
 import type { Metadata } from "next";
 import { AppShell } from "@/components/app/AppShell";
 import { GoSignIn } from "@/components/auth/GoSignIn";
-import { ScrubReturnParams } from "@/components/app/ScrubReturnParams";
 import { currentAccount } from "@/lib/server/account";
 
 export const metadata: Metadata = { title: "My case", robots: { index: false } };
@@ -18,7 +17,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (onboarding.status !== "completed") redirect("/onboarding");
   return (
     <AppShell>
-      <ScrubReturnParams />
       {children}
     </AppShell>
   );

@@ -77,7 +77,7 @@ export function MeetFlow() {
         )}
       </section>
       <div className="notice small">
-        Dossierly interprets. It does not answer for you and gives no legal or medical advice. <b>No audio is stored.</b> In Polish, English and Ukrainian each spoken turn is transcribed by NVIDIA Parakeet on the private-agent host and deleted straight after; other languages use your browser&apos;s speech service. Typing always works instead.
+        Dossierly interprets. It does not answer for you and gives no legal or medical advice. <b>No audio is stored.</b> In Polish, English and Ukrainian each spoken turn is transcribed by Muse Voice Transcribe and deleted straight after; other languages use your browser&apos;s speech service. Typing always works instead.
       </div>
       <button className="btn btn-primary btn-block talk-start" onClick={() => setPhase("talk")}>Start interpreting</button>
     </div>

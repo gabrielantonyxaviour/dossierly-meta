@@ -61,7 +61,7 @@ export function HeroMock() {
         <span className="lp-app-x" aria-hidden="true">×</span>
         <span className="lp-app-avatar" aria-hidden="true"><Icon name="case" size={30} /></span>
         <b className="lp-app-name">Your agent</b>
-        <span className="lp-app-status"><span className="lp-dot-ok" aria-hidden="true" />Private sandbox</span>
+        <span className="lp-app-status"><span className="lp-dot-ok" aria-hidden="true" />Private case</span>
         <div className="lp-app-chips">
           <span>Super VL</span>
           <span>IDs masked</span>
