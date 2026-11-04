@@ -10,9 +10,10 @@ type Result = { reply: string; profile: Profile; firstName: string | null };
 
 const RATE = 16000;
 const SPEECH_LEVEL = 0.025;
-const END_SILENCE_MS = 1700;
+const END_SILENCE_MS = 1400;
+const PAUSE_MS = 350;
 const MAX_MS = 16_000;
-const PARTIAL_EVERY_MS = 400; // a new partial at most every 1.1 s, up to three in flight (each takes a few seconds)
+const PARTIAL_EVERY_MS = 150; // a new partial at most every 1.1 s, up to three in flight (each takes a few seconds)
 const ASR_LANGS = ["pl", "en", "uk", "hi", "ta"] as const;
 
 function wav(chunks: Int16Array[]): string {
@@ -140,7 +141,10 @@ export function useVoiceIntake(onResult: (r: Result) => void) {
       setState("listening");
       ticker.current = setInterval(async () => {
         const t = timing.current;
-        if (!t.spoke || t.finishing || inFlight.current >= 3 || Date.now() - lastSent.current < 1100) return;
+        if (!t.spoke || t.finishing || inFlight.current >= 3) return;
+        // On a schedule while they talk, and once straight away when they pause: that one usually becomes the final text.
+        const pausing = Date.now() - t.lastVoice > PAUSE_MS && (partial.current.flight?.frames ?? partial.current.done?.frames ?? 0) < t.voiceFrames;
+        if (!pausing && Date.now() - lastSent.current < 1100) return;
         inFlight.current += 1; lastSent.current = Date.now();
         const frames = chunks.current.length;
         const result = api.asrTranscribe(wav(chunks.current), asrLang()).then((r) => (r.ok ? r.data.text.trim() : ""));
