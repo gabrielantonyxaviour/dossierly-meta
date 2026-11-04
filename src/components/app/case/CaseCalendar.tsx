@@ -55,7 +55,7 @@ export function CaseCalendar({ items, today, row }: { items: DateItem[]; today: 
         <div className="cal-legend" aria-hidden="true">
           <span><i className="cal-mark is-ap" />Appointment</span>
           <span><i className="cal-mark is-dl" />Deadline</span>
-          {win && <span><i className="cal-swatch" />Days left to reply</span>}
+          {win && <span><i className="cal-swatch" />Days left</span>}
         </div>
       </Card>
       <section className="cal-dayitems" aria-live="polite">
