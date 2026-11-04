@@ -70,6 +70,11 @@
 .ct-odoc dt { color: var(--ink-3); font-size: var(--t-sm); padding-top: 2px; }
 .ct-odoc dd { margin: 0; font-weight: 600; font-size: 1.0625rem; line-height: 1.3; overflow-wrap: anywhere; }
 .ct-half-official.has-doc .ct-big { font-size: 1.25rem; }
+/* A document is up: the official's half takes the larger share so the whole card reads across the desk. */
+.ct:has(.ct-half-official.has-doc) { grid-template-rows: minmax(0, 1.45fr) auto minmax(0, 1fr) auto; }
+.ct-half-official.has-doc { gap: 8px; }
+.ct-half-official.has-doc .ct-odoc { max-height: 82%; }
+@media (max-height: 800px) { .ct-odoc { padding: 12px 14px 14px; } .ct-odoc h2 { font-size: 1.625rem; } }
 @media (prefers-reduced-motion: reduce) { .ct-odoc { animation: none; } }
 
 /* Counter tab hub */

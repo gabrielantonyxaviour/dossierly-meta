@@ -22,7 +22,9 @@ export class IntakeMode implements ModeHandler {
   async utterance(u: Utterance, signal: AbortSignal): Promise<void> {
     if (this.done) return;
     this.s.emit({ t: "turn", turn: { id: `${u.id}-u`, who: "user", text: u.text, lang: this.s.lang, via: u.via } });
-    const r = await intakeTurn(this.s.env as unknown as Env, this.s.ticket.u, u.text);
+    // defer: the profile save finishes in the background (the DO stays alive while the reply plays).
+    const turn = intakeTurn as unknown as (e: Env, userId: string, t: string, o?: { defer?: (p: Promise<unknown>) => void }) => ReturnType<typeof intakeTurn>;
+    const r = await turn(this.s.env as unknown as Env, this.s.ticket.u, u.text, { defer: (p) => void p.catch(() => undefined) });
     if (signal.aborted) return; // redone with the final transcript
     this.done = true;
     this.s.sentenceReady(u.id);
