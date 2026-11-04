@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { LookItem } from "@/lib/look/types";
-import { CopyButton } from "@/components/CopyButton";
+import { CopyValue } from "./CopyValue";
 import { toneOf } from "./LookCanvas";
 
 interface Props {
@@ -31,7 +31,7 @@ export function LookItems({ items, uncertain, active, traced, onSelect }: Props)
             <button type="button" className="lk-item-head" onClick={() => onSelect(active === it.id ? null : it.id)} aria-pressed={active === it.id}>
               <span className="lk-num" aria-hidden="true">{n + 1}</span>
               <span className="lk-item-label">{it.label}</span>
-              {unsure && <span className="chip chip-warn">Check this</span>}
+              {unsure && <span className="ui-pill ui-pill--warn">Check this</span>}
               {traced.has(it.id) && <span className="lk-traced" title="Outlined by SAM 3.1">Outlined</span>}
             </button>
             <blockquote className="lk-verbatim" lang="pl">{it.text}</blockquote>
@@ -44,7 +44,7 @@ export function LookItems({ items, uncertain, active, traced, onSelect }: Props)
                       <span className="tiny muted">Type this</span>
                       <b className="mono">{it.value}</b>
                     </div>
-                    <CopyButton text={it.value} />
+                    <CopyValue text={it.value} />
                   </>
                 ) : (
                   <span className="small muted">Not in your case yet. Take it from your passport or documents.</span>

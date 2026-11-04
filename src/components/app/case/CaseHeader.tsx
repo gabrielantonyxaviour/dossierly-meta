@@ -6,6 +6,8 @@ import { Icon } from "@/components/Icon";
 import { STAGE_LABEL } from "../format";
 import { FACT_LABEL, SOURCE_LABEL } from "../home/CaseStrip";
 
+const filedLabel = (d: string) => new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${d}T12:00:00Z`));
+
 /** Compact: stage track, case number (tap to copy) and a row that opens every fact with its source. */
 export function CaseHeader({ c }: { c: CaseSnapshot }) {
   const { toast } = useToast();
@@ -16,8 +18,21 @@ export function CaseHeader({ c }: { c: CaseSnapshot }) {
   const copy = async (v: string) => {
     try { await navigator.clipboard.writeText(v); toast("Case number copied", { tone: "ok" }); } catch { toast("Couldn’t copy", { tone: "error" }); }
   };
+  const filed = c.facts.filedAt?.value;
   return (
     <section className="cs-head ui-card" aria-label="Case summary">
+      <div className="cs-id">
+        <div className="cs-id-top">
+          <span className="cs-copy-label">Case number</span>
+          {facts.length > 0 && <button type="button" className="ui-btn ui-btn--sm" onClick={() => setOpen(true)}>Details<Icon name="forward" size={14} /></button>}
+        </div>
+        {num ? (
+          <button type="button" className="cs-copy" onClick={() => void copy(num)} aria-label={`Copy case number ${num}`}>
+            <span className="cs-num">{num}</span><Icon name="copy" size={16} />
+          </button>
+        ) : <span className="ui-meta">No case number yet. It arrives by email after you file in MOS.</span>}
+        {filed && /^\d{4}-\d{2}-\d{2}$/.test(filed) && <p className="cs-filed">Filed {filedLabel(filed)}{c.facts.filedAt?.source.type === "email" ? " · from your email" : ""}</p>}
+      </div>
       <ol className="cs-stages" aria-label="Case stage">
         {STAGES.map((s, i) => (
           <li key={s} className={i < at ? "is-done" : i === at ? "is-now" : undefined} aria-current={i === at ? "step" : undefined}>
@@ -31,15 +46,6 @@ export function CaseHeader({ c }: { c: CaseSnapshot }) {
           <span>Step {at + 1} of {STAGES.length}{STAGES[at + 1] ? ` · Next: ${STAGE_LABEL[STAGES[at + 1]]}` : ""}</span>
         </p>
       )}
-      <div className="cs-head-row">
-        {num ? (
-          <button type="button" className="cs-copy" onClick={() => void copy(num)} aria-label={`Copy case number ${num}`}>
-            <span className="cs-copy-label">Case number</span>
-            <span className="ui-num">{num} <Icon name="copy" size={14} /></span>
-          </button>
-        ) : <span className="ui-meta">No case number yet. It arrives by email after you file in MOS.</span>}
-        {facts.length > 0 && <button type="button" className="ui-btn ui-btn--sm" onClick={() => setOpen(true)}>Details<Icon name="forward" size={14} /></button>}
-      </div>
       <Sheet open={open} onClose={() => setOpen(false)} title="Case details">
         <dl className="cs-facts">
           {facts.map(([k, f]) => (

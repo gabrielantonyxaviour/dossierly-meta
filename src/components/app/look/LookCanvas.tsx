@@ -45,17 +45,19 @@ export function LookCanvas({ src, width, height, phase, items, outlines, active,
     const placed: Array<{ id: string; x: number; y: number }> = [];
     const order = items.map((it, n) => ({ it, n, b: outlines[it.id]?.box ?? it.box })).sort((a, b) => a.b[1] - b.b[1]);
     for (const { it, b } of order) {
-      let x = b[0];
-      const y = b[1];
-      for (let guard = 0; guard < 6 && placed.some((p) => Math.abs(p.x - x) < s && Math.abs(p.y - y) < s); guard++) x -= s;
-      placed.push({ id: it.id, x: Math.max(s / 2, x), y: Math.max(s / 2, y) });
+      const y = Math.max(s / 2, b[1]);
+      const clash = (x: number) => placed.some((p) => Math.abs(p.x - x) < s && Math.abs(p.y - y) < s);
+      // Left edge first, stepping left while there is room; then the right end of the line, stepping right.
+      const tries = [0, 1, 2].map((k) => b[0] - k * s).filter((x) => x >= s / 2).concat([0, 1, 2].map((k) => b[2] + k * s).filter((x) => x <= width - s / 2));
+      const x = tries.find((t) => !clash(t)) ?? Math.max(s / 2, b[0]);
+      placed.push({ id: it.id, x, y });
     }
     return new Map(placed.map((p) => [p.id, p]));
   }, [items, outlines, shown, width]);
   const shapeOf = (it: LookItem) => outlines[it.id]?.path || rectPath(outlines[it.id]?.box ?? it.box, pad);
 
   return (
-    <div ref={stage} className={`lk-stage${busy ? " is-busy" : ""}${phase === "reading" ? " is-reading" : ""}`} style={{ aspectRatio: `${width} / ${height}`, width: `min(100%, calc((100dvh - 48px) * ${(width / height).toFixed(4)}))`, marginInline: "auto" }}>
+    <div ref={stage} className={`lk-stage${busy ? " is-busy" : ""}${phase === "reading" ? " is-reading" : ""}`} style={{ aspectRatio: `${width} / ${height}`, width: `min(100%, calc(var(--lk-maxh, calc(100dvh - 48px)) * ${(width / height).toFixed(4)}))`, marginInline: "auto" }}>
       {/* eslint-disable-next-line @next/next/no-img-element -- a local data URL, not an optimisable asset */}
       <img src={src} alt="The image you showed Dossierly" width={width} height={height} draggable={false} />
       {phase === "reading" && <div className="lk-scan" aria-hidden="true" />}

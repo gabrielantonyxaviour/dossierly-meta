@@ -18,6 +18,7 @@ export interface PhotoCheck {
 export interface PhotoResult {
   head: Box | null;
   headPath: string | null;
+  facePath?: string | null;
   crop: CropPlan | null;
   checks: PhotoCheck[];
   spec: { width: number; height: number; maxBytes: number; ratio: string; maxAgeMonths: number; sourceUrl: string };
