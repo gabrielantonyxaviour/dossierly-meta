@@ -18,7 +18,7 @@ Dossierly guides; it never acts on a government system for the user, and it neve
 
 ## Personal data
 
-- **Masking before the model.** `runModel` masks the case context and the input before they leave (`src/lib/model/call.ts`): the user's name and its parts, profile addresses, and patterns for e-mail, IBAN, case signature, PESEL, phone, passport number and date of birth (`src/lib/mask`). Placeholders like `[PESEL_1]` are restored only in the reply. Images cannot be masked, so they go only to the vision model. Each call logs how many items were masked in the D1 `ledger`.
+- **Masking before the model.** `runModel` masks the case context and the input before they leave (`src/lib/model/call.ts`): the user's name and its parts, profile addresses, and patterns for e-mail, IBAN, case signature, PESEL, phone, passport number and date of birth (`src/lib/mask`). Placeholders like `[PESEL_1]` are restored only in the reply. Images cannot be masked, so they go only to the vision model. Each call logs how many items were masked in the D1 `ledger`. The Wonder review masks the same way (`src/lib/strategist/prompt.ts`). Live voice sessions are the exception: the case context goes to Spark unmasked, because the caseworker speaks to the user by name and reads their dates and documents aloud.
 - **Storage.** The case file lives in the user's own Durable Object (SQLite). Look images and documents are in R2 with EU jurisdiction (`wrangler.jsonc`). D1 holds accounts, run and ledger metadata, MCP token hashes and watcher state.
 - **MCP output** never returns phone numbers or file keys (`tests/unit/mcp.test.ts`).
 
@@ -36,5 +36,5 @@ Reserve-then-settle metering against a daily model cap, per-user limits on looks
 ## Limits
 
 - Guidance, not legal advice; the deadline output is a calculation to confirm with the office.
-- Live voice turns rely on prompt rules, not a guard call.
+- Live voice turns rely on prompt rules, not a guard call, and send the case context unmasked.
 - Gmail access depends on Google's app review; until it completes, only approved test accounts can connect.
