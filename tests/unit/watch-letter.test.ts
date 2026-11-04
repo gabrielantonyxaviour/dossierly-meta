@@ -8,7 +8,7 @@ import { freshLocalEnv } from "../../src/lib/server/local";
 
 const msg = { id: "m1", from: "WSC", subject: "Wezwanie", receivedAt: "2026-11-04T09:30:00.000Z", text: "", images: [], attachments: [] };
 const base = extractionSchema.parse({ relevant: true, category: "summons", sender: "WSC", summary: "s", facts: {}, appointment: null, deadline: null, documents: [], tasks: [] });
-const dl = (date: string) => buildFindings(msg, { ...base, deadline: { title: "Send it", days: null, from: null, letterDate: null, statedDate: date, quote: "", consequence: "" } }, "en").findings;
+const dl = (date: string) => buildFindings(msg, { ...base, deadline: { title: "Send it", days: null, from: null, letterDate: null, statedDate: date, quote: "", consequence: "", legalBasis: null } }, "en").findings;
 const apt = (date: string) => buildFindings(msg, { ...base, appointment: { title: "Fingerprints", date, time: "10:30", place: "WSC", address: "Marszałkowska 3/5", purpose: "", bring: [] } }, "en").findings;
 const now = new Date("2026-11-04T10:00:00Z");
 
