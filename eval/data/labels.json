@@ -1,0 +1,1899 @@
+[
+  {
+    "id": "L01",
+    "type": "wezwanie_braki",
+    "variant": "general",
+    "caseNumber": "WSO-III.6151.47784.2026",
+    "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+    "letterDate": "2027-01-27",
+    "addressee": "Pan Oleksandr Bondarenko",
+    "legalBasis": "art. 64 § 2 KPA",
+    "documents": [
+      "work_contract",
+      "insurance",
+      "fees"
+    ],
+    "period": {
+      "amount": 14,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Wymagane dokumenty należy złożyć w ciągu 14 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+    "deliveryDate": "2027-02-02",
+    "dueDate": "2027-02-16",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L01_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1080,
+          1130,
+          1156
+        ]
+      },
+      {
+        "file": "L01_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          188,
+          1205,
+          1247,
+          1379
+        ],
+        "rotationDeg": -4.6
+      },
+      {
+        "file": "L01_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          279,
+          1117,
+          1186,
+          1245
+        ],
+        "rotationDeg": 3.7
+      }
+    ]
+  },
+  {
+    "id": "L02",
+    "type": "wezwanie_braki",
+    "variant": "general",
+    "caseNumber": "WSO-III.6151.86383.2026",
+    "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+    "letterDate": "2026-12-08",
+    "addressee": "Pani Nguyen Thi Lan",
+    "legalBasis": "art. 64 § 2 KPA",
+    "documents": [
+      "work_contract",
+      "lease",
+      "funds",
+      "photo"
+    ],
+    "period": {
+      "amount": 7,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Wymagane dokumenty należy złożyć w ciągu 7 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+    "deliveryDate": "2026-12-12",
+    "dueDate": "2026-12-21",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L02_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1130,
+          1130,
+          1205
+        ]
+      },
+      {
+        "file": "L02_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          263,
+          1244,
+          1372,
+          1461
+        ],
+        "rotationDeg": -7.3
+      },
+      {
+        "file": "L02_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          241,
+          1218,
+          1237,
+          1373
+        ],
+        "rotationDeg": 4.6
+      }
+    ]
+  },
+  {
+    "id": "L03",
+    "type": "wezwanie_braki",
+    "variant": "general",
+    "caseNumber": "WSC-II-P.6151.81354.2026",
+    "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+    "letterDate": "2026-10-11",
+    "addressee": "Pan Rahul Menon",
+    "legalBasis": "art. 64 § 2 KPA",
+    "documents": [
+      "passport",
+      "insurance",
+      "fees"
+    ],
+    "period": {
+      "amount": 14,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Wymagane dokumenty należy złożyć w ciągu 14 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+    "deliveryDate": "2026-10-16",
+    "dueDate": "2026-10-30",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L03_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1124,
+          1130,
+          1199
+        ]
+      },
+      {
+        "file": "L03_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          246,
+          1195,
+          1387,
+          1396
+        ],
+        "rotationDeg": -4.0
+      },
+      {
+        "file": "L03_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          306,
+          1190,
+          1208,
+          1286
+        ],
+        "rotationDeg": 5.7
+      }
+    ]
+  },
+  {
+    "id": "L04",
+    "type": "wezwanie_braki",
+    "variant": "general",
+    "caseNumber": "WSC-II-P.6151.40794.2026",
+    "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+    "letterDate": "2027-01-06",
+    "addressee": "Pani Aigerim Sadykova",
+    "legalBasis": "art. 64 § 2 KPA",
+    "documents": [
+      "fees",
+      "lease",
+      "insurance"
+    ],
+    "period": {
+      "amount": 14,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Wymagane dokumenty należy złożyć w terminie 14 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+    "deliveryDate": "2027-01-13",
+    "dueDate": "2027-01-27",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L04_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1080,
+          1130,
+          1156
+        ]
+      },
+      {
+        "file": "L04_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          190,
+          1142,
+          1249,
+          1329
+        ],
+        "rotationDeg": 6.3
+      },
+      {
+        "file": "L04_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          308,
+          1176,
+          1186,
+          1318
+        ],
+        "rotationDeg": -3.8
+      }
+    ]
+  },
+  {
+    "id": "L05",
+    "type": "wezwanie_braki",
+    "variant": "general",
+    "caseNumber": "WSO-III.6151.18211.2026",
+    "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+    "letterDate": "2027-01-29",
+    "addressee": "Pan Mehmet Aydın",
+    "legalBasis": "art. 64 § 2 KPA",
+    "documents": [
+      "lease",
+      "insurance",
+      "funds"
+    ],
+    "period": {
+      "amount": 7,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Wymagane dokumenty należy złożyć w terminie 7 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+    "deliveryDate": "2027-02-04",
+    "dueDate": "2027-02-11",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L05_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1124,
+          1130,
+          1199
+        ]
+      },
+      {
+        "file": "L05_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          291,
+          1235,
+          1295,
+          1387
+        ],
+        "rotationDeg": -3.9
+      },
+      {
+        "file": "L05_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          231,
+          1190,
+          1174,
+          1392
+        ],
+        "rotationDeg": 4.6
+      }
+    ]
+  },
+  {
+    "id": "L06",
+    "type": "wezwanie_braki",
+    "variant": "general",
+    "caseNumber": "WSO-III.6151.78785.2026",
+    "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+    "letterDate": "2026-11-20",
+    "addressee": "Pani Yuliia Kovalenko",
+    "legalBasis": "art. 64 § 2 KPA",
+    "documents": [
+      "insurance",
+      "photo",
+      "lease",
+      "funds"
+    ],
+    "period": {
+      "amount": 21,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Wymagane dokumenty należy złożyć w terminie 21 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+    "deliveryDate": "2026-11-24",
+    "dueDate": "2026-12-15",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L06_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1217,
+          1130,
+          1292
+        ]
+      },
+      {
+        "file": "L06_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          211,
+          1322,
+          1261,
+          1484
+        ],
+        "rotationDeg": 3.6
+      },
+      {
+        "file": "L06_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          256,
+          1373,
+          1256,
+          1523
+        ],
+        "rotationDeg": -3.0
+      }
+    ]
+  },
+  {
+    "id": "L07",
+    "type": "wezwanie_braki",
+    "variant": "general",
+    "caseNumber": "WSO-III.6151.21506.2026",
+    "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+    "letterDate": "2027-01-04",
+    "addressee": "Pan Tran Minh Quan",
+    "legalBasis": "art. 64 § 2 KPA",
+    "documents": [
+      "work_contract",
+      "passport",
+      "funds"
+    ],
+    "period": {
+      "amount": 14,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Wymagane dokumenty należy złożyć w terminie 14 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+    "deliveryDate": "2027-01-11",
+    "dueDate": "2027-01-25",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L07_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1080,
+          1130,
+          1156
+        ]
+      },
+      {
+        "file": "L07_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          246,
+          1181,
+          1282,
+          1343
+        ],
+        "rotationDeg": 4.8
+      },
+      {
+        "file": "L07_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          151,
+          1098,
+          1223,
+          1314
+        ],
+        "rotationDeg": 5.8
+      }
+    ]
+  },
+  {
+    "id": "L08",
+    "type": "wezwanie_braki",
+    "variant": "general",
+    "caseNumber": "WSC-II-P.6151.12701.2026",
+    "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+    "letterDate": "2027-01-12",
+    "addressee": "Pani Priya Venkataraman",
+    "legalBasis": "art. 64 § 2 KPA",
+    "documents": [
+      "work_contract",
+      "insurance",
+      "passport"
+    ],
+    "period": {
+      "amount": 30,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Wymagane dokumenty należy złożyć w ciągu 30 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+    "deliveryDate": "2027-01-17",
+    "dueDate": "2027-02-16",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L08_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1080,
+          1130,
+          1156
+        ]
+      },
+      {
+        "file": "L08_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          227,
+          1102,
+          1251,
+          1292
+        ],
+        "rotationDeg": 6.0
+      },
+      {
+        "file": "L08_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          183,
+          1202,
+          1174,
+          1341
+        ],
+        "rotationDeg": 5.3
+      }
+    ]
+  },
+  {
+    "id": "L09",
+    "type": "wezwanie_braki",
+    "variant": "address",
+    "caseNumber": "WSC-II-P.6151.56036.2026",
+    "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+    "letterDate": "2027-01-23",
+    "addressee": "Pan Dmitri Volkov",
+    "legalBasis": "art. 64 § 2 KPA",
+    "documents": [
+      "meldunek"
+    ],
+    "period": {
+      "amount": 14,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Wymagane dokumenty należy złożyć w terminie 14 dni od daty doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+    "deliveryDate": "2027-01-28",
+    "dueDate": "2027-02-11",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L09_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          981,
+          1130,
+          1057
+        ]
+      },
+      {
+        "file": "L09_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          258,
+          1052,
+          1261,
+          1221
+        ],
+        "rotationDeg": -5.2
+      },
+      {
+        "file": "L09_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          228,
+          1008,
+          1249,
+          1172
+        ],
+        "rotationDeg": -5.9
+      }
+    ]
+  },
+  {
+    "id": "L10",
+    "type": "wezwanie_braki",
+    "variant": "address",
+    "caseNumber": "WSC-II-P.6151.99645.2026",
+    "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+    "letterDate": "2026-12-19",
+    "addressee": "Pani Ayşe Demir",
+    "legalBasis": "art. 64 § 2 KPA",
+    "documents": [
+      "lease",
+      "meldunek"
+    ],
+    "period": {
+      "amount": 7,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Wymagane dokumenty należy złożyć w ciągu 7 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+    "deliveryDate": "2026-12-23",
+    "dueDate": "2026-12-30",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L10_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1074,
+          1130,
+          1150
+        ]
+      },
+      {
+        "file": "L10_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          277,
+          1164,
+          1307,
+          1322
+        ],
+        "rotationDeg": -4.7
+      },
+      {
+        "file": "L10_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          283,
+          1139,
+          1261,
+          1298
+        ],
+        "rotationDeg": 4.8
+      }
+    ]
+  },
+  {
+    "id": "L11",
+    "type": "wezwanie_braki",
+    "variant": "address",
+    "caseNumber": "WSC-II-P.6151.58915.2026",
+    "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+    "letterDate": "2026-10-02",
+    "addressee": "Pan Kwame Mensah",
+    "legalBasis": "art. 64 § 2 KPA",
+    "documents": [
+      "meldunek",
+      "address_decl"
+    ],
+    "period": {
+      "amount": 14,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Wymagane dokumenty należy złożyć w terminie 14 dni od dnia doręczenia niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+    "deliveryDate": "2026-10-11",
+    "dueDate": "2026-10-26",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L11_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1074,
+          1130,
+          1150
+        ]
+      },
+      {
+        "file": "L11_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          174,
+          1150,
+          1208,
+          1285
+        ],
+        "rotationDeg": 4.3
+      },
+      {
+        "file": "L11_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          203,
+          1132,
+          1272,
+          1278
+        ],
+        "rotationDeg": 3.4
+      }
+    ]
+  },
+  {
+    "id": "L12",
+    "type": "wezwanie_braki",
+    "variant": "address",
+    "caseNumber": "WSC-II-P.6151.22550.2026",
+    "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+    "letterDate": "2026-12-25",
+    "addressee": "Pani Svitlana Hrytsenko",
+    "legalBasis": "art. 64 § 2 KPA",
+    "documents": [
+      "meldunek"
+    ],
+    "period": {
+      "amount": 21,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Wymagane dokumenty należy złożyć w ciągu 21 dni od dnia otrzymania niniejszego wezwania, pod rygorem pozostawienia wniosku bez rozpoznania.",
+    "deliveryDate": "2027-01-02",
+    "dueDate": "2027-01-25",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L12_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          981,
+          1130,
+          1057
+        ]
+      },
+      {
+        "file": "L12_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          265,
+          1028,
+          1311,
+          1181
+        ],
+        "rotationDeg": -4.6
+      },
+      {
+        "file": "L12_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          318,
+          1038,
+          1226,
+          1126
+        ],
+        "rotationDeg": -4.3
+      }
+    ]
+  },
+  {
+    "id": "L13",
+    "type": "wezwanie_dokumenty",
+    "variant": "period",
+    "caseNumber": "WSO-III.6151.84550.2026",
+    "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+    "letterDate": "2027-01-17",
+    "addressee": "Pan Farid Karimov",
+    "legalBasis": "art. 50 § 1 KPA",
+    "documents": [
+      "enrolment"
+    ],
+    "period": {
+      "amount": 7,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Dokumenty należy przedłożyć w terminie 7 dni od dnia doręczenia niniejszego wezwania.",
+    "deliveryDate": "2027-01-25",
+    "dueDate": "2027-02-01",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L13_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          981,
+          1130,
+          1057
+        ]
+      },
+      {
+        "file": "L13_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          240,
+          983,
+          1271,
+          1155
+        ],
+        "rotationDeg": 4.9
+      },
+      {
+        "file": "L13_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          194,
+          1118,
+          1205,
+          1277
+        ],
+        "rotationDeg": 3.4
+      }
+    ]
+  },
+  {
+    "id": "L14",
+    "type": "wezwanie_dokumenty",
+    "variant": "period",
+    "caseNumber": "WSC-II-P.6151.15363.2026",
+    "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+    "letterDate": "2027-01-07",
+    "addressee": "Pani Mai Anh Tuan",
+    "legalBasis": "art. 50 § 1 KPA",
+    "documents": [
+      "enrolment"
+    ],
+    "period": {
+      "amount": 14,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Dokumenty należy przedłożyć w terminie 14 dni od dnia doręczenia niniejszego wezwania.",
+    "deliveryDate": "2027-01-16",
+    "dueDate": "2027-02-01",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L14_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          981,
+          1130,
+          1057
+        ]
+      },
+      {
+        "file": "L14_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          243,
+          1055,
+          1310,
+          1196
+        ],
+        "rotationDeg": -4.0
+      },
+      {
+        "file": "L14_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          306,
+          1008,
+          1143,
+          1178
+        ],
+        "rotationDeg": 5.5
+      }
+    ]
+  },
+  {
+    "id": "L15",
+    "type": "wezwanie_dokumenty",
+    "variant": "period",
+    "caseNumber": "WSC-II-P.6151.54438.2026",
+    "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+    "letterDate": "2027-01-05",
+    "addressee": "Pan Arjun Nair",
+    "legalBasis": "art. 50 § 1 KPA",
+    "documents": [
+      "enrolment",
+      "tuition"
+    ],
+    "period": {
+      "amount": 7,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Dokumenty należy przedłożyć w ciągu 7 dni od dnia otrzymania niniejszego wezwania.",
+    "deliveryDate": "2027-01-09",
+    "dueDate": "2027-01-18",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L15_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1031,
+          1130,
+          1063
+        ]
+      },
+      {
+        "file": "L15_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          220,
+          1078,
+          1280,
+          1200
+        ],
+        "rotationDeg": 6.7
+      },
+      {
+        "file": "L15_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          334,
+          1126,
+          1288,
+          1255
+        ],
+        "rotationDeg": -5.9
+      }
+    ]
+  },
+  {
+    "id": "L16",
+    "type": "wezwanie_dokumenty",
+    "variant": "fixed",
+    "caseNumber": "WSO-III.6151.68749.2026",
+    "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+    "letterDate": "2026-11-06",
+    "addressee": "Pani Dilnoza Rakhimova",
+    "legalBasis": "art. 50 § 1 KPA",
+    "documents": [
+      "enrolment",
+      "insurance"
+    ],
+    "period": null,
+    "deadlineKind": "fixed_date",
+    "deadlineSentence": "Dokumenty należy przedłożyć w terminie do dnia 03.12.2026 r.",
+    "deliveryDate": "2026-11-10",
+    "dueDate": "2026-12-03",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L16_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1074,
+          891,
+          1106
+        ]
+      },
+      {
+        "file": "L16_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          190,
+          1166,
+          972,
+          1233
+        ],
+        "rotationDeg": 3.8
+      },
+      {
+        "file": "L16_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          264,
+          1198,
+          1036,
+          1270
+        ],
+        "rotationDeg": -4.2
+      }
+    ]
+  },
+  {
+    "id": "L17",
+    "type": "wezwanie_dokumenty",
+    "variant": "fixed",
+    "caseNumber": "WSO-III.6151.67749.2026",
+    "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+    "letterDate": "2026-09-21",
+    "addressee": "Pan Hassan El-Amrani",
+    "legalBasis": "art. 50 § 1 KPA",
+    "documents": [
+      "enrolment"
+    ],
+    "period": null,
+    "deadlineKind": "fixed_date",
+    "deadlineSentence": "Dokumenty należy przedłożyć w terminie do dnia 07.10.2026 r.",
+    "deliveryDate": "2026-09-30",
+    "dueDate": "2026-10-07",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L17_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1025,
+          891,
+          1057
+        ]
+      },
+      {
+        "file": "L17_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          321,
+          1149,
+          1074,
+          1251
+        ],
+        "rotationDeg": -7.4
+      },
+      {
+        "file": "L17_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          327,
+          1079,
+          1010,
+          1152
+        ],
+        "rotationDeg": 4.8
+      }
+    ]
+  },
+  {
+    "id": "L18",
+    "type": "wezwanie_dokumenty",
+    "variant": "fixed",
+    "caseNumber": "WSC-II-P.6151.83600.2026",
+    "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+    "letterDate": "2026-09-28",
+    "addressee": "Pani Olena Petrenko",
+    "legalBasis": "art. 50 § 1 KPA",
+    "documents": [
+      "enrolment"
+    ],
+    "period": null,
+    "deadlineKind": "fixed_date",
+    "deadlineSentence": "Dokumenty należy przedłożyć w terminie do dnia 22.10.2026 r.",
+    "deliveryDate": "2026-10-07",
+    "dueDate": "2026-10-22",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L18_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1025,
+          891,
+          1057
+        ]
+      },
+      {
+        "file": "L18_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          308,
+          1160,
+          1060,
+          1266
+        ],
+        "rotationDeg": -4.7
+      },
+      {
+        "file": "L18_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          267,
+          1159,
+          1004,
+          1242
+        ],
+        "rotationDeg": 4.2
+      }
+    ]
+  },
+  {
+    "id": "L19",
+    "type": "decision",
+    "variant": "positive",
+    "caseNumber": "WSO-III.6151.91096.2026",
+    "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+    "letterDate": "2026-11-30",
+    "addressee": "Pan Sergei Antonov",
+    "legalBasis": "art. 127 § 1 KPA",
+    "documents": [],
+    "period": {
+      "amount": 14,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Od niniejszej decyzji służy odwołanie do Szefa Urzędu do Spraw Cudzoziemców za pośrednictwem Wojewody w terminie 14 dni od dnia doręczenia decyzji (art. 127 § 1 oraz art. 129 § 1–2 KPA).",
+    "deliveryDate": "2026-12-03",
+    "dueDate": "2026-12-17",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L19_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1026,
+          1130,
+          1120
+        ]
+      },
+      {
+        "file": "L19_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          221,
+          1110,
+          1323,
+          1342
+        ],
+        "rotationDeg": -6.3
+      },
+      {
+        "file": "L19_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          204,
+          999,
+          1178,
+          1178
+        ],
+        "rotationDeg": 5.0
+      }
+    ]
+  },
+  {
+    "id": "L20",
+    "type": "decision",
+    "variant": "positive",
+    "caseNumber": "WSO-III.6151.98944.2026",
+    "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+    "letterDate": "2026-12-15",
+    "addressee": "Pani Anjali Deshmukh",
+    "legalBasis": "art. 127 § 1 KPA",
+    "documents": [],
+    "period": {
+      "amount": 14,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Od niniejszej decyzji służy odwołanie do Szefa Urzędu do Spraw Cudzoziemców za pośrednictwem Wojewody w terminie 14 dni od dnia doręczenia decyzji (art. 127 § 1 oraz art. 129 § 1–2 KPA).",
+    "deliveryDate": "2026-12-20",
+    "dueDate": "2027-01-04",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L20_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1060,
+          1130,
+          1153
+        ]
+      },
+      {
+        "file": "L20_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          169,
+          1150,
+          1215,
+          1286
+        ],
+        "rotationDeg": 3.8
+      },
+      {
+        "file": "L20_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          190,
+          1077,
+          1256,
+          1277
+        ],
+        "rotationDeg": 4.9
+      }
+    ]
+  },
+  {
+    "id": "L21",
+    "type": "decision",
+    "variant": "positive",
+    "caseNumber": "WSC-II-P.6151.18439.2026",
+    "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+    "letterDate": "2026-09-30",
+    "addressee": "Pan Bakhtiyor Yusupov",
+    "legalBasis": "art. 127 § 1 KPA",
+    "documents": [],
+    "period": {
+      "amount": 14,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Od niniejszej decyzji służy odwołanie do Szefa Urzędu do Spraw Cudzoziemców za pośrednictwem Wojewody w terminie 14 dni od dnia doręczenia decyzji (art. 127 § 1 oraz art. 129 § 1–2 KPA).",
+    "deliveryDate": "2026-10-09",
+    "dueDate": "2026-10-23",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L21_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1060,
+          1130,
+          1153
+        ]
+      },
+      {
+        "file": "L21_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          241,
+          1141,
+          1369,
+          1415
+        ],
+        "rotationDeg": -8.0
+      },
+      {
+        "file": "L21_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          248,
+          1141,
+          1269,
+          1313
+        ],
+        "rotationDeg": 4.5
+      }
+    ]
+  },
+  {
+    "id": "L22",
+    "type": "decision",
+    "variant": "negative",
+    "caseNumber": "WSC-II-P.6151.53472.2026",
+    "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+    "letterDate": "2027-02-06",
+    "addressee": "Pani Thi Hoa Pham",
+    "legalBasis": "art. 127 § 1 KPA",
+    "documents": [],
+    "period": {
+      "amount": 14,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Od niniejszej decyzji służy odwołanie do Szefa Urzędu do Spraw Cudzoziemców za pośrednictwem Wojewody w terminie 14 dni od dnia doręczenia decyzji (art. 127 § 1 oraz art. 129 § 1–2 KPA).",
+    "deliveryDate": "2027-02-09",
+    "dueDate": "2027-02-23",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L22_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          983,
+          1130,
+          1076
+        ]
+      },
+      {
+        "file": "L22_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          158,
+          1129,
+          1296,
+          1326
+        ],
+        "rotationDeg": 5.7
+      },
+      {
+        "file": "L22_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          338,
+          1028,
+          1234,
+          1250
+        ],
+        "rotationDeg": -4.1
+      }
+    ]
+  },
+  {
+    "id": "L23",
+    "type": "decision",
+    "variant": "negative",
+    "caseNumber": "WSO-III.6151.33500.2026",
+    "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+    "letterDate": "2026-11-13",
+    "addressee": "Pan Ivan Melnyk",
+    "legalBasis": "art. 127 § 1 KPA",
+    "documents": [],
+    "period": {
+      "amount": 14,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Od niniejszej decyzji służy odwołanie do Szefa Urzędu do Spraw Cudzoziemców za pośrednictwem Wojewody w terminie 14 dni od dnia doręczenia decyzji (art. 127 § 1 oraz art. 129 § 1–2 KPA).",
+    "deliveryDate": "2026-11-19",
+    "dueDate": "2026-12-03",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L23_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          983,
+          1130,
+          1076
+        ]
+      },
+      {
+        "file": "L23_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          213,
+          1039,
+          1335,
+          1240
+        ],
+        "rotationDeg": -3.5
+      },
+      {
+        "file": "L23_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          252,
+          1120,
+          1147,
+          1234
+        ],
+        "rotationDeg": -3.1
+      }
+    ]
+  },
+  {
+    "id": "L24",
+    "type": "decision",
+    "variant": "negative",
+    "caseNumber": "WSO-III.6151.94299.2026",
+    "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+    "letterDate": "2027-01-27",
+    "addressee": "Pani Kavya Subramanian",
+    "legalBasis": "art. 127 § 1 KPA",
+    "documents": [],
+    "period": {
+      "amount": 14,
+      "unit": "days"
+    },
+    "deadlineKind": "period",
+    "deadlineSentence": "Od niniejszej decyzji służy odwołanie do Szefa Urzędu do Spraw Cudzoziemców za pośrednictwem Wojewody w terminie 14 dni od dnia doręczenia decyzji (art. 127 § 1 oraz art. 129 § 1–2 KPA).",
+    "deliveryDate": "2027-02-01",
+    "dueDate": "2027-02-15",
+    "appointment": null,
+    "images": [
+      {
+        "file": "L24_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          110,
+          1017,
+          1130,
+          1110
+        ]
+      },
+      {
+        "file": "L24_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          241,
+          1074,
+          1260,
+          1259
+        ],
+        "rotationDeg": -4.0
+      },
+      {
+        "file": "L24_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          217,
+          1166,
+          1225,
+          1299
+        ],
+        "rotationDeg": 3.1
+      }
+    ]
+  },
+  {
+    "id": "L25",
+    "type": "appointment",
+    "variant": "fingerprints",
+    "caseNumber": "WSO-III.6151.35470.2026",
+    "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+    "letterDate": "2026-10-13",
+    "addressee": "Pan Emre Yıldız",
+    "legalBasis": "art. 50 § 1 KPA",
+    "documents": [],
+    "period": null,
+    "deadlineKind": "none",
+    "deadlineSentence": "dnia 23.10.2026 r. o godz. 08:30",
+    "deliveryDate": "2026-10-20",
+    "dueDate": null,
+    "appointment": {
+      "date": "2026-10-23",
+      "time": "08:30"
+    },
+    "images": [
+      {
+        "file": "L25_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          400,
+          877,
+          840,
+          913
+        ]
+      },
+      {
+        "file": "L25_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          543,
+          977,
+          1006,
+          1050
+        ],
+        "rotationDeg": -6.3
+      },
+      {
+        "file": "L25_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          531,
+          943,
+          916,
+          999
+        ],
+        "rotationDeg": -3.3
+      }
+    ]
+  },
+  {
+    "id": "L26",
+    "type": "appointment",
+    "variant": "fingerprints",
+    "caseNumber": "WSO-III.6151.39412.2026",
+    "office": "MAŁOPOLSKI URZĄD WOJEWÓDZKI W KRAKOWIE",
+    "letterDate": "2027-01-16",
+    "addressee": "Pani Nargiza Tashkentova",
+    "legalBasis": "art. 50 § 1 KPA",
+    "documents": [],
+    "period": null,
+    "deadlineKind": "none",
+    "deadlineSentence": "dnia 04.02.2027 r. o godz. 09:20",
+    "deliveryDate": "2027-01-22",
+    "dueDate": null,
+    "appointment": {
+      "date": "2027-02-04",
+      "time": "09:20"
+    },
+    "images": [
+      {
+        "file": "L26_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          400,
+          877,
+          840,
+          913
+        ]
+      },
+      {
+        "file": "L26_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          540,
+          953,
+          974,
+          1023
+        ],
+        "rotationDeg": 4.9
+      },
+      {
+        "file": "L26_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          549,
+          1001,
+          935,
+          1079
+        ],
+        "rotationDeg": 4.6
+      }
+    ]
+  },
+  {
+    "id": "L27",
+    "type": "appointment",
+    "variant": "fingerprints",
+    "caseNumber": "WSC-II-P.6151.52677.2026",
+    "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+    "letterDate": "2026-10-14",
+    "addressee": "Pan Vikram Chatterjee",
+    "legalBasis": "art. 50 § 1 KPA",
+    "documents": [],
+    "period": null,
+    "deadlineKind": "none",
+    "deadlineSentence": "dnia 24.10.2026 r. o godz. 14:15",
+    "deliveryDate": "2026-10-23",
+    "dueDate": null,
+    "appointment": {
+      "date": "2026-10-24",
+      "time": "14:15"
+    },
+    "images": [
+      {
+        "file": "L27_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          400,
+          921,
+          840,
+          957
+        ]
+      },
+      {
+        "file": "L27_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          557,
+          1061,
+          981,
+          1129
+        ],
+        "rotationDeg": -4.2
+      },
+      {
+        "file": "L27_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          543,
+          985,
+          983,
+          1021
+        ],
+        "rotationDeg": 4.1
+      }
+    ]
+  },
+  {
+    "id": "L28",
+    "type": "appointment",
+    "variant": "card",
+    "caseNumber": "WSC-II-P.6151.85782.2026",
+    "office": "MAZOWIECKI URZĄD WOJEWÓDZKI W WARSZAWIE",
+    "letterDate": "2026-10-04",
+    "addressee": "Pani Daria Shevchuk",
+    "legalBasis": "art. 50 § 1 KPA",
+    "documents": [],
+    "period": null,
+    "deadlineKind": "none",
+    "deadlineSentence": "dnia 19.10.2026 r. o godz. 11:30",
+    "deliveryDate": "2026-10-09",
+    "dueDate": null,
+    "appointment": {
+      "date": "2026-10-19",
+      "time": "11:30"
+    },
+    "images": [
+      {
+        "file": "L28_clean.png",
+        "variant": "clean",
+        "size": [
+          1240,
+          1754
+        ],
+        "box": [
+          401,
+          877,
+          839,
+          913
+        ]
+      },
+      {
+        "file": "L28_photoA.jpg",
+        "variant": "photoA",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          523,
+          1020,
+          993,
+          1079
+        ],
+        "rotationDeg": -3.6
+      },
+      {
+        "file": "L28_photoB.jpg",
+        "variant": "photoB",
+        "size": [
+          1500,
+          2000
+        ],
+        "box": [
+          536,
+          964,
+          975,
+          1035
+        ],
+        "rotationDeg": 3.7
+      }
+    ]
+  }
+]
