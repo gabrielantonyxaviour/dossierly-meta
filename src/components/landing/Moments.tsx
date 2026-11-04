@@ -25,8 +25,8 @@ const MOMENTS: Moment[] = [
   },
   {
     n: "05", src: "/landing/hero-city.jpg", alt: "A Warsaw street with tram tracks in the morning light",
-    title: "Before the next visit", text: "Prepare reads today's official pages, cites each paragraph and tells you what changed.",
-    tags: "Official pages • Change alerts",
+    title: "Before the next visit", text: "Prepare reads today's official pages, and cites each paragraph.",
+    tags: "Official pages • Citations",
   },
 ];
 

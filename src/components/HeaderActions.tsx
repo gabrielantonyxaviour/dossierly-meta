@@ -8,7 +8,6 @@ export function HeaderActions() {
   const s = useAccountState();
   return (
     <div className="site-actions">
-      <Link href="/pricing" className="nav-pricing-sm">Pricing</Link>
       {s === "signed-in" ? (
         <Link href="/app" className="btn btn-primary btn-small">Open Dossierly</Link>
       ) : (

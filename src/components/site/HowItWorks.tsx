@@ -2,26 +2,26 @@ const STEPS = [
   {
     tag: "Before",
     title: "Prepare with sources",
-    body: "Your agent reads the official pages for your office, checks them against your case and writes a checklist. Every line opens the paragraph it came from. Pages are re-checked nightly, so you see what changed since you last prepared.",
-    models: "Private agent (NemoClaw) · Nemotron embeddings · Tavily",
+    body: "Your agent reads the official pages for your office, checks them against your case and writes a checklist. Every line opens the paragraph it came from.",
+    models: "Muse Spark",
   },
   {
     tag: "During",
     title: "Interpret at the desk",
     body: "Lay the phone flat between you; the official's half faces them. Two buttons, two languages, turns as cards. If a date or a yes/no could be misread, Dossierly speaks up with a ready question in Polish.",
-    models: "Nemotron 3.5 Lightning · Super VL for Ukrainian, Hindi, Tamil",
+    models: "Muse Spark · Muse Voice Transcribe",
   },
   {
     tag: "After",
     title: "A wrap-up in your case",
     body: "What was agreed, what to bring, which dates were named, what is still unclear. Saved encrypted on your phone, filed into your agent's memory, exported to your calendar.",
-    models: "Nemotron 3.5 Super VL",
+    models: "Muse Spark",
   },
   {
     tag: "Letters",
     title: "Read, link, reply",
     body: "Photograph the letter or upload the e-Doręczenia PDF. You get the exact Polish text beside the explanation, the link to what was said before, the deadline with every step of the count, and a Polish cover letter.",
-    models: "Super VL vision · Nemotron 3 Ultra whole-case reasoning · deadline in code",
+    models: "SAM 3.1 vision · Muse Spark whole-case reasoning · deadline in code",
   },
 ];
 

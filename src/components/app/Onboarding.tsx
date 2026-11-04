@@ -36,7 +36,7 @@ export function Onboarding() {
       <div className="stack" style={{ ["--gap" as string]: "8px" }}>
         <span className="tab-label">New case · Poland</span>
         <h1 style={{ margin: 0 }}>Let&apos;s open your case file</h1>
-        <p className="muted lead" style={{ margin: 0 }}>Your case lives on this device, encrypted. Your private agent keeps a masked copy in its own sandbox so it can remember.</p>
+        <p className="muted lead" style={{ margin: 0 }}>Your case lives on this device, encrypted. Your agent works from a masked copy so it can remember.</p>
       </div>
 
       <section className="sample-photo" aria-labelledby="sample-h">

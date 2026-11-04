@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PL_STATS } from "@/components/site/Coverage";
 import { PolandCoverage } from "@/components/site/PolandCoverage";
 
-export const metadata: Metadata = { title: "Poland coverage", description: "Offices, letter types with deadline rules, fees and the official sources Dossierly watches nightly." };
+export const metadata: Metadata = { title: "Poland coverage", description: "Offices, letter types with deadline rules, fees and the official sources Dossierly reads." };
 
 export default function PolandPage() {
   return (
@@ -15,7 +15,7 @@ export default function PolandPage() {
       <dl className="stat-row" style={{ margin: "20px 0 36px", maxWidth: 560 }}>
         <div><dt>Offices</dt><dd className="mono">{PL_STATS.offices}</dd></div>
         <div><dt>Letter types</dt><dd className="mono">{PL_STATS.letterTypes}</dd></div>
-        <div><dt>Watched nightly</dt><dd className="mono">{PL_STATS.watched}</dd></div>
+        <div><dt>Sources</dt><dd className="mono">{PL_STATS.sources}</dd></div>
         <div><dt>Languages</dt><dd className="mono">{PL_STATS.languages}</dd></div>
       </dl>
       <PolandCoverage />

@@ -149,19 +149,6 @@ test("2a letters: PNG as own user = free first letter -> read, link, deadline 10
   await expect(page.locator(".deadline-hero .dl-date")).toContainText("10 Nov 2026");
 });
 
-test("2b letters: PDF as the SAME user -> paywall 402 -> pricing page", async () => {
-  const pdf = makeSamplePdf();
-  await page.goto("/app/letters");
-  const resp = page.waitForResponse((r) => r.url().endsWith("/api/letters/read"), { timeout: 60_000 });
-  await page.locator('input[aria-label="Letter PDF or image"]').setInputFiles(pdf);
-  const r = await resp;
-  note("letter-pdf-paywall", { status: r.status(), body: await r.text() });
-  expect(r.status()).toBe(402);
-  await expect(page).toHaveURL(/\/pricing\?reason=letters/, { timeout: 30_000 });
-  await expect(page.getByText("Your free letter has been used.")).toBeVisible();
-  await shot(page, "09-paywall-pricing");
-});
-
 test("4 privacy ledger: model rows, egress row with domain, chain verified", async () => {
   await page.goto("/app/privacy");
   await expect(page.getByRole("heading", { name: "Privacy ledger" })).toBeVisible();

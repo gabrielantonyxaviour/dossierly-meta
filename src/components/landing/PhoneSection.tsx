@@ -100,7 +100,7 @@ export function PhoneSection() {
             <div className="lp-ph-bar" aria-hidden="true"><span>9:41</span><i /><span>●●●</span></div>
             <div key={tab} className="lp-ph-swap"><Screen tab={tab} /></div>
           </div>
-          <p className="lp-note lp-note-r"><span>Note</span>Speech is transcribed by NVIDIA Parakeet on the private-agent host. No audio is stored</p>
+          <p className="lp-note lp-note-r"><span>Note</span>Speech is transcribed by Muse Voice Transcribe. No audio is stored</p>
           <div className="lp-ph-promo">
             <b>Runs in your phone&apos;s browser</b>
             <span>Lay it flat between you and the official.</span>

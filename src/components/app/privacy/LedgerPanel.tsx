@@ -13,7 +13,7 @@ function describe(e: LedgerEntry): { title: string; detail: string; tone?: "ok" 
     return { title: model.includes("/") ? `${name}${rest.length ? ` · ${rest.join(" ")}` : ""}` : name, detail: [e.bytes !== undefined && `${(e.bytes / 1024).toFixed(1)} KB sent`, e.region && `region ${e.region}`, e.masked !== undefined && `${e.masked} personal ID${e.masked === 1 ? "" : "s"} masked`].filter(Boolean).join(" · ") };
   }
   if (e.kind === "egress") {
-    return { title: e.what.replace(/settla[-_]?/gi, ""), detail: e.action === "denied" ? "blocked by the sandbox policy" : "allowed by the sandbox policy", tone: e.action === "denied" ? "deny" : "ok" };
+    return { title: e.what.replace(/settla[-_]?/gi, ""), detail: e.action === "denied" ? "blocked by the network policy" : "allowed by the network policy", tone: e.action === "denied" ? "deny" : "ok" };
   }
   return { title: e.what.replace(/settla[-_]?/gi, ""), detail: e.region ? `job · ${e.region}` : "job" };
 }

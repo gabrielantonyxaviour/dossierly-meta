@@ -10,7 +10,7 @@ export type ListenState = "idle" | "listening" | "transcribing" | "error";
 export type ListenEngine = "parakeet" | "browser";
 
 /**
- * Tap-to-talk speech input. Polish, English and Ukrainian go to NVIDIA Parakeet on the private-agent host when it is
+ * Tap-to-talk speech input. Polish, English and Ukrainian go to Muse Voice Transcribe when it is
  * online; other languages, or an offline host, use the browser's own recognition.
  */
 export function useListen(lang: string, onText: (text: string) => void, opts: { translate?: "en" | "pl" } = {}) {

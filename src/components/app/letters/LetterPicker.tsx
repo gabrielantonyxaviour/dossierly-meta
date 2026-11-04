@@ -59,7 +59,7 @@ export function LetterPicker({ sample, onPages, onError }: { sample: boolean; fr
         </div>
       )}
       {preparing && <p className="small muted" role="status" style={{ margin: 0 }}>Preparing pages on your device…</p>}
-      <p className="tiny muted" style={{ margin: 0 }}>Your first three letters are free. After that, Dossierly Plus reads every letter in your case.</p>
+      <p className="tiny muted" style={{ margin: 0 }}>Reading letters is free.</p>
     </section>
   );
 }

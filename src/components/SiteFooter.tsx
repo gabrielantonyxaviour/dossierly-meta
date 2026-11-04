@@ -17,7 +17,6 @@ export function SiteFooter() {
           <Link href="/legal/privacy">Privacy</Link>
           <Link href="/limits">Limits</Link>
           <Link href="/countries">Countries</Link>
-          <Link href="/pricing">Pricing</Link>
         </nav>
       </div>
     </footer>

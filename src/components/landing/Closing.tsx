@@ -1,39 +1,5 @@
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
-import { PLANS } from "@/lib/client/plans";
-
-/** Pricing teaser: the two tiers as quiet cards, a link to the full page. */
-export function PricingTeaser() {
-  return (
-    <section className="lp-sec" aria-labelledby="price-h">
-      <div className="lp-wrap">
-        <header className="lp-head-c">
-          <h2 id="price-h" className="lp-h2" data-sweep>Start free. Pay once per case.</h2>
-          <p className="lp-body">No subscription. One payment covers one residence case for 18 months.</p>
-        </header>
-        <div className="lp-prices">
-          {PLANS.map((p) => (
-            <article key={p.product} className={`lp-price${p.featured ? " is-featured" : ""}`} data-reveal>
-              <div className="lp-price-top">
-                <h3>{p.name}</h3>
-                {p.featured && <span className="lp-tag lp-tag-dark">For the whole case</span>}
-              </div>
-              <p className="lp-price-n"><b>{p.price}</b> <span>{p.per}</span></p>
-              <p className="lp-price-note">{p.note}</p>
-              <ul>
-                {p.points.slice(0, 4).map((x) => <li key={x}><Icon name="check" size={15} />{x}</li>)}
-              </ul>
-              <Link href={p.featured ? "/signup?plan=plus" : "/signup"} className={`lp-btn ${p.featured ? "lp-btn-dark" : "lp-btn-soft"} lp-btn-block`}>
-                {p.featured ? "Get Dossierly Plus" : "Get started free"}
-              </Link>
-            </article>
-          ))}
-        </div>
-        <p className="lp-center"><Link href="/pricing" className="lp-ulink">Compare plans and the family add-on</Link></p>
-      </div>
-    </section>
-  );
-}
 
 /** "Don't take our word for it": the sample case, live. */
 export function FinalCta() {
@@ -71,9 +37,9 @@ const FAQ = [
   { q: "Is this legal advice?", a: "No. Dossierly interprets and explains. It never gives legal or medical advice, and an interpret-only guard checks every turn." },
   { q: "Which countries and offices are covered?", a: "Poland first: temporary residence and work at the Mazowiecki office in Warsaw. Germany and France are next. A country goes live only when its offices, letter types and deadline rules are covered from their sources." },
   { q: "Which languages can I use?", a: "The official's side is Polish. You can speak English, Ukrainian, Hindi or Tamil. Interface labels are in English; content follows your language." },
-  { q: "Does Dossierly keep my audio?", a: "No. Each spoken turn in Polish, English or Ukrainian is sent once to our private-agent host, transcribed by NVIDIA Parakeet and deleted; only the text is kept. Hindi and Tamil use your browser's own recognition." },
-  { q: "What happens to my personal data?", a: "Your case lives on your device, encrypted with AES-GCM. Identifiers are masked before any model call, every model call and connection is listed in your privacy ledger, and Nebius does not train on customer data." },
-  { q: "What does it cost?", a: "Free to start: three official letters, appointment preparation, interpreting and deadlines. Dossierly Plus is $39 once per case, for one residence case over 18 months. Nothing renews." },
+  { q: "Does Dossierly keep my audio?", a: "No. Each spoken turn in Polish, English or Ukrainian is sent once for transcription by Meta Muse Voice Transcribe and deleted; only the text is kept. Hindi and Tamil use your browser's own recognition." },
+  { q: "What happens to my personal data?", a: "Your case lives on your device, encrypted with AES-GCM. Identifiers are masked before any model call, and every model call and connection is listed in your privacy ledger." },
+  { q: "What does it cost?", a: "Nothing. Letters, appointment preparation, interpreting and deadlines are free." },
 ];
 
 /** "Your questions, covered": heading and button on the left, an accordion on the right. */

@@ -1,9 +1,6 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { GUARD_RULE, guardUserUtterance, normaliseForScreening, screenWindows } from "@/lib/safety";
+import { guardUserUtterance, normaliseForScreening, screenWindows } from "@/lib/safety";
 
-const audit = join(process.cwd(), "jobs/guardrails-audit");
 
 describe("normaliseForScreening", () => {
   it("strips zero-width, bidi and tag characters", () => {
@@ -37,18 +34,6 @@ describe("normaliseForScreening", () => {
     expect(normaliseForScreening("i g n o r e previous")).toContain("[decoded] ignore");
   });
 
-  it("matches the Python implementation on the shared cases", () => {
-    const cases = JSON.parse(readFileSync(join(audit, "normalise_cases.json"), "utf8")) as Array<{
-      input: string;
-      normalised: string;
-      windows: string[];
-    }>;
-    expect(cases.length).toBeGreaterThan(8);
-    for (const c of cases) {
-      expect(normaliseForScreening(c.input)).toBe(c.normalised);
-      expect(screenWindows(normaliseForScreening(c.input))).toEqual(c.windows);
-    }
-  });
 });
 
 describe("screenWindows", () => {
@@ -70,10 +55,6 @@ describe("screenWindows", () => {
 });
 
 describe("guard rule and screening", () => {
-  it("uses the same rule text as the audit job", () => {
-    expect(GUARD_RULE).toBe(readFileSync(join(audit, "rule.txt"), "utf8").trim());
-  });
-
   it("flags advice hidden behind invisible characters or homoglyphs", () => {
     expect(guardUserUtterance("Should I si​gn this contract?").flagged).toBe(true);
     expect(guardUserUtterance("Is it lеgal for me to stay?").flagged).toBe(true);

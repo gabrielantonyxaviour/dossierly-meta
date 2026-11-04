@@ -18,10 +18,8 @@ export function AuthPanel({ mode }: { mode: Mode }) {
     const back = params.get("next");
     if (back) return router.replace(safeNext(back));
     const start = params.get("start");
-    const plan = params.get("plan");
     const q = new URLSearchParams();
     if (start === "sample") q.set("start", "sample");
-    if (plan === "plus") q.set("plan", "plus");
     const s = q.toString();
     router.replace(s ? `/app?${s}` : "/app");
   };
