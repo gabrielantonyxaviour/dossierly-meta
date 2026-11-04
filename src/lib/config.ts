@@ -15,7 +15,8 @@ export type ModelTask =
   | "hub_summary"
   | "prepare"
   | "mail_scan"
-  | "welcome";
+  | "welcome"
+  | "intake";
 
 export type Role = "interpret" | "guard" | "reason" | "agent" | "vision" | "draft";
 export const ROLES: readonly Role[] = ["interpret", "guard", "reason", "agent", "vision", "draft"];
@@ -48,6 +49,7 @@ export const TASK_ROLE: Record<ModelTask, Role> = {
   link_fallback: "draft",
   mail_scan: "reason",
   welcome: "draft",
+  intake: "interpret",
 };
 
 export const MODEL_SAM = "sam-3.1";

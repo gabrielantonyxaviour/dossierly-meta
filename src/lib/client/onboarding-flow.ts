@@ -11,7 +11,8 @@ export type ConnectionRow = { provider: string; category: "mail" | "calendar"; l
 export type ConnectionStatus = { capabilities: { provider: string; category: string; available: boolean; reason?: string; notice?: string }[]; connections: { mail: ConnectionRow | null; calendar: ConnectionRow | null } };
 
 export const flowApi = {
-  state: () => call<{ onboarding: OnboardingState; profile: Profile; email: string | null }>("/api/onboarding"),
+  state: () => call<{ onboarding: OnboardingState; profile: Profile; email: string | null; demoPhone: string | null }>("/api/onboarding"),
+  demoPhone: () => call<{ profile: Profile; callsAvailable: boolean }>("/api/onboarding", json("POST", { action: "demo_phone" })),
   step: (step: number) => call<{ onboarding: OnboardingState }>("/api/onboarding", json("POST", { action: "step", step })),
   phone: (number: string) => call<{ profile: Profile; callsAvailable: boolean }>("/api/onboarding", json("POST", { action: "phone", number })),
   skipPhone: () => call<{ profile: Profile; callsAvailable: boolean }>("/api/onboarding", json("POST", { action: "skip_phone" })),
@@ -23,6 +24,7 @@ export const flowApi = {
   read: (messageId: string, fresh = false) => call<MailReading>("/api/onboarding/inbox/read", json("POST", { messageId, ...(fresh ? { fresh } : {}) })),
   commit: (body: { findings: Finding[]; summaries: { messageId: string; summary: string; receivedAt: string }[]; addToCalendar: boolean }) =>
     call<{ saved: number; calendar: CalendarResult[] }>("/api/onboarding/inbox/commit", json("POST", body)),
+  intake: (transcript: string) => call<{ reply: string; language: string; speechId: string | null; profile: Profile; firstName: string | null }>("/api/onboarding/intake", json("POST", { transcript })),
   welcome: (calendarAdded: boolean) => call<{ script: string; language: string }>("/api/onboarding/welcome", json("POST", { calendarAdded })),
 };
 

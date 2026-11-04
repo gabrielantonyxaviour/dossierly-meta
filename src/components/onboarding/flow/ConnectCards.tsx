@@ -4,8 +4,8 @@ import { failure, flowApi, type ConnectionStatus } from "@/lib/client/onboarding
 
 type Card = { category: "mail" | "calendar"; provider: string; name: string; what: string; scope: string };
 const GOOGLE: Card[] = [
-  { category: "mail", provider: "gmail", name: "Gmail", what: "I read official emails: MOS, the voivodeship office, e-Doręczenia notices, your university.", scope: "Read-only. I never send, delete or label mail." },
-  { category: "calendar", provider: "googlecalendar", name: "Google Calendar", what: "I add your appointments and deadlines, with reminders, after you confirm them.", scope: "Only events you approve. Each one can be removed." },
+  { category: "mail", provider: "gmail", name: "Gmail", what: "Finds letters from the office, MOS and your university", scope: "Read-only · never sends or deletes" },
+  { category: "calendar", provider: "googlecalendar", name: "Google Calendar", what: "Adds the dates you confirm, with reminders", scope: "Only events you approve" },
 ];
 const OTHER: Card[] = [
   { category: "calendar", provider: "microsoftcalendar", name: "Outlook calendar", what: "Microsoft 365 or Outlook.com calendar.", scope: "Only events you approve." },
@@ -37,7 +37,7 @@ export function ConnectCards({ status, gmail, calendar, returned }: { status: Co
         <div className="ob-conn-body">
           <div className="ob-conn-head"><strong>{c.name}</strong>{connected && <span className="ob-badge-ok">Connected</span>}</div>
           <p>{connected ? mine?.label : c.what}</p>
-          <small>{cap && !cap.available ? cap.reason : c.scope}</small>
+          {!connected && <small>{cap && !cap.available ? cap.reason : c.scope}</small>}
         </div>
         {!status && <span className="ob-checking" aria-live="polite">Checking…</span>}
         {status && !connected && (
@@ -54,9 +54,9 @@ export function ConnectCards({ status, gmail, calendar, returned }: { status: Co
       {error && <div className="ob-alert" role="alert"><p>{error}</p></div>}
       <ul className="ob-conns" aria-busy={!status}>{GOOGLE.map(row)}</ul>
       <details className="ob-more">
-        <summary>Use Outlook or Apple Calendar instead</summary>
+        <summary>Use Outlook or Apple Calendar</summary>
         <ul className="ob-conns">{OTHER.map(row)}</ul>
-        <p className="ob-more-note">Apple Calendar: every deadline in your case has an .ics download. Reading Outlook mail during setup is coming soon.</p>
+        <p className="ob-more-note">Apple Calendar: every deadline has an .ics download. Outlook mail reading is coming soon.</p>
       </details>
     </>
   );
