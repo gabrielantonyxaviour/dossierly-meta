@@ -53,7 +53,8 @@ export async function createEvent(env: ConnectionsEnv, accountId: string, input:
   }
   const row = await owned(env, accountId, "calendar");
   if (!(await calendars(env, row)).some(c => c.id === data.calendarId)) throw new ApiError(404, "Choose a writable calendar from your account.", "calendar_not_found");
-  const eventId = (await sha256Hex(`${accountId}:${data.idempotencyKey}`)).slice(0, 40);
+  // Per connection: after a reconnect the same date is a new event (a deleted Google event's id cannot be reused).
+  const eventId = (await sha256Hex(`${accountId}:${row.broker_id}:${data.idempotencyKey}`)).slice(0, 40);
   const reserve = await env.DB.prepare("INSERT OR IGNORE INTO connection_event_receipts (account_id, request_key, request_hash, broker_id, calendar_id, event_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
     .bind(accountId, data.idempotencyKey, hash, row.broker_id, data.calendarId, eventId, Date.now()).run();
   if (reserve.meta?.changes !== 1) throw new ApiError(409, "This calendar save is already being processed.", "calendar_write_uncertain");

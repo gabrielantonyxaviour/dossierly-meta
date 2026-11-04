@@ -15,7 +15,7 @@ function Mark({ provider }: { provider: string }) {
   return <span className="ob-conn-mark" data-provider={provider} aria-hidden="true">{provider === "gmail" ? "M" : provider === "googlecalendar" ? "31" : "O"}</span>;
 }
 
-export function ConnectCards({ status, gmail, calendar, returned }: { status: ConnectionStatus | null; gmail: boolean; calendar: boolean; returned: string | null }) {
+export function ConnectCards({ status, gmail, calendar, returned, only }: { status: ConnectionStatus | null; gmail: boolean; calendar: boolean; returned: string | null; only?: "mail" }) {
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
 
@@ -52,12 +52,12 @@ export function ConnectCards({ status, gmail, calendar, returned }: { status: Co
     <>
       {returned === "failed" && <div className="ob-alert" role="alert"><p>That connection didn’t finish, so nothing was shared. You can try again, or skip this step.</p></div>}
       {error && <div className="ob-alert" role="alert"><p>{error}</p></div>}
-      <ul className="ob-conns" aria-busy={!status}>{GOOGLE.map(row)}</ul>
-      <details className="ob-more">
+      <ul className="ob-conns" aria-busy={!status}>{GOOGLE.filter((c) => !only || c.category === only).map(row)}</ul>
+      {!only && <details className="ob-more">
         <summary>Use Outlook or Apple Calendar</summary>
         <ul className="ob-conns">{OTHER.map(row)}</ul>
         <p className="ob-more-note">Apple Calendar: every deadline has an .ics download. Outlook mail reading is coming soon.</p>
-      </details>
+      </details>}
     </>
   );
 }

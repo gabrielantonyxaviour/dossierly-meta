@@ -24,7 +24,13 @@ vi.mock("@/lib/case/client", async (orig) => {
     }),
   };
 });
-vi.mock("@/lib/server/connections/store", async (orig) => ({ ...(await orig<object>()), owned: async () => ({ provider: "gmail" }) }));
+vi.mock("@/lib/server/connections/store", async (orig) => ({ ...(await orig<object>()), owned: async () => ({ provider: "gmail" }), rowFor: async () => ({ provider: "googlecalendar" }) }));
+const created = vi.hoisted(() => [] as { title: string; date: string }[]);
+vi.mock("@/lib/server/connections/calendar", async (orig) => ({
+  ...(await orig<object>()),
+  calendars: async () => [{ id: "primary", primary: true }],
+  createEvent: async (_env: unknown, _account: string, input: { title: string; date: string }) => { created.push(input); return { replayed: false, event: { url: "https://calendar.google.com/x" } }; },
+}));
 vi.mock("@/lib/server/connections/mail", async (orig) => ({
   ...(await orig<object>()),
   // Each read hands out fresh attachment ids, as Gmail does.
@@ -67,7 +73,7 @@ const env = { BLOBS: { put: async (k: string) => { store.puts.push(k); }, get: a
 const ids = { userId: "u1", accountId: "u1" };
 
 describe("onboarding commit saves the summons as a letter", () => {
-  beforeEach(() => { store.items.clear(); store.puts.length = 0; });
+  beforeEach(() => { store.items.clear(); store.puts.length = 0; created.length = 0; });
 
   it("stores the letter's PDF, lists what it asks for and points the deadline at it", async () => {
     await commitFindings(env, ids, { findings, summaries: [], addToCalendar: false });
@@ -87,5 +93,15 @@ describe("onboarding commit saves the summons as a letter", () => {
     await commitFindings(env, ids, { findings, summaries: [], addToCalendar: false });
     expect(store.items.size).toBe(before);
     expect([...store.items.keys()].filter((k) => k.startsWith("documents:doc_ltr_"))).toHaveLength(1);
+  });
+
+  it("the separate calendar step only adds the dates to Google Calendar and notes it, without re-saving the case", async () => {
+    const r = await commitFindings(env, ids, { findings, summaries: [], addToCalendar: true, calendarOnly: true });
+    expect(r.saved).toBe(0);
+    expect(r.calendar).toEqual([expect.objectContaining({ status: "added", title: "Deadline: Reply to the summons" })]);
+    expect(created).toHaveLength(1);
+    const kinds = [...store.items.keys()].map((k) => k.split(":")[0]);
+    expect(kinds).toEqual(["events"]);
+    expect(store.puts).toHaveLength(0);
   });
 });

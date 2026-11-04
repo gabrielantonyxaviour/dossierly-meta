@@ -49,9 +49,19 @@ export function HelloScreen({ onProfile, onEmail, onType }: { onProfile(p: Profi
         </form>
       )}
       {v.error && <div className="ob-alert" role="alert"><p>{v.error}</p></div>}
+      {v.state === "done" && (
+        <div className="ob-conn ob-conn-ask">
+          <span className="ob-conn-mark" data-provider="gmail" aria-hidden="true">M</span>
+          <div className="ob-conn-body">
+            <div className="ob-conn-head"><strong>Gmail</strong></div>
+            <p>Finds letters from the office, MOS and your university</p>
+            <small>Read-only · never sends or deletes</small>
+          </div>
+        </div>
+      )}
       {v.state === "done" ? (
         <StickyActionBar secondary={<Button variant="ghost" onClick={onType}>Not now</Button>}>
-          <Button variant="primary" size="lg" icon="mail" onClick={onEmail}>Yes, look at my email</Button>
+          <Button variant="primary" size="lg" icon="mail" onClick={onEmail}>Connect Gmail</Button>
         </StickyActionBar>
       ) : v.state === "listening" ? (
         <StickyActionBar secondary={<Button variant="ghost" onClick={() => v.stop()}>Cancel</Button>}>

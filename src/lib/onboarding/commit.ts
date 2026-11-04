@@ -14,6 +14,8 @@ export const commitSchema = z.object({
   findings: z.array(findingSchema).max(80),
   summaries: z.array(z.object({ messageId: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/), summary: z.string().trim().max(600), receivedAt: z.string().datetime({ offset: true }) })).max(20),
   addToCalendar: z.boolean(),
+  /** The separate calendar step: only add these dated findings to Google Calendar (they are already in the case). */
+  calendarOnly: z.boolean().optional(),
 }).strict();
 
 export type CalendarResult = { findingId: string; title: string; status: "added" | "already" | "failed"; url?: string; error?: string };
@@ -40,6 +42,12 @@ const dayBefore = (date: string) => { const d = new Date(`${date}T00:00:00Z`); d
 
 export async function commitFindings(env: ConnectionsEnv, ids: { userId: string; accountId: string }, input: z.infer<typeof commitSchema>) {
   const c = caseClient(ids.userId);
+  if (input.calendarOnly) {
+    const dated = input.findings.filter((f) => f.kind === "deadline" || f.kind === "appointment");
+    const calendar = dated.length ? await addToCalendar(env, ids, dated) : [];
+    await noteCalendar(c, calendar);
+    return { saved: 0, calendar };
+  }
   const snap = await c.snapshot();
   const profile = snap.profile;
   const held = new Set(snap.documents.filter((d) => d.status === "have").map((d) => d.id));
@@ -91,11 +99,15 @@ export async function commitFindings(env: ConnectionsEnv, ids: { userId: string;
     await upsert(c, "events", { id: `evt_${s.messageId}`.slice(0, 64), type: "email_received", at: s.receivedAt, summary: s.summary, refs });
   }
   const calendar = input.addToCalendar ? await addToCalendar(env, ids, input.findings) : [];
-  const added = calendar.filter((x) => x.status !== "failed");
-  // On the timeline, so the agent (welcome call, chat) knows the dates are in the person's calendar.
-  if (added.length) await upsert(c, "events", { id: `evt_cal_${(await sha256Hex(added.map((x) => x.findingId).join(","))).slice(0, 20)}`, type: "note", at: new Date().toISOString(), summary: `Added to Google Calendar with reminders: ${added.map((x) => x.title).join("; ")}`.slice(0, 600), refs: added.map((x) => x.findingId).slice(0, 20) });
+  await noteCalendar(c, calendar);
   await inferCity(c, profile, facts);
   return { saved: input.findings.length, calendar };
+}
+
+/** On the timeline, so the agent (welcome call, chat) knows the dates are in the person's calendar. */
+async function noteCalendar(c: CaseClient, calendar: CalendarResult[]) {
+  const added = calendar.filter((x) => x.status !== "failed");
+  if (added.length) await upsert(c, "events", { id: `evt_cal_${(await sha256Hex(added.map((x) => x.findingId).join(","))).slice(0, 20)}`, type: "note", at: new Date().toISOString(), summary: `Added to Google Calendar with reminders: ${added.map((x) => x.title).join("; ")}`.slice(0, 600), refs: added.map((x) => x.findingId).slice(0, 20) });
 }
 
 const OFFICE_CITY: [RegExp, string][] = [[/mazowieck/i, "Warsaw"], [/małopolsk|malopolsk/i, "Kraków"], [/dolnośląsk|dolnoslask/i, "Wrocław"], [/pomorsk/i, "Gdańsk"], [/wielkopolsk/i, "Poznań"], [/łódzk|lodzk/i, "Łódź"]];

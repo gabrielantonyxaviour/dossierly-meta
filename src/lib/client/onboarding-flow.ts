@@ -22,7 +22,7 @@ export const flowApi = {
   connect: (category: "mail" | "calendar", provider: string) => call<{ redirectUrl: string }>("/api/connections/connect", json("POST", { category, provider, returnPath: "/onboarding" })),
   inbox: () => call<{ messages: InboxMessage[]; account: string }>("/api/onboarding/inbox"),
   read: (messageId: string, fresh = false) => call<MailReading>("/api/onboarding/inbox/read", json("POST", { messageId, ...(fresh ? { fresh } : {}) })),
-  commit: (body: { findings: Finding[]; summaries: { messageId: string; summary: string; receivedAt: string }[]; addToCalendar: boolean }) =>
+  commit: (body: { findings: Finding[]; summaries: { messageId: string; summary: string; receivedAt: string }[]; addToCalendar: boolean; calendarOnly?: boolean }) =>
     call<{ saved: number; calendar: CalendarResult[] }>("/api/onboarding/inbox/commit", json("POST", body)),
   intake: (transcript: string) => call<{ reply: string; language: string; speechId: string | null; profile: Profile; firstName: string | null }>("/api/onboarding/intake", json("POST", { transcript })),
   welcome: (calendarAdded: boolean) => call<{ script: string; language: string }>("/api/onboarding/welcome", json("POST", { calendarAdded })),
