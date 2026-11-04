@@ -1,5 +1,6 @@
 "use client";
 
+import { SampleCaseHint } from "@/components/voice/SampleCaseHint";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAgentCall } from "@/lib/voice/client/useAgentCall";
@@ -40,6 +41,7 @@ export function CounterFlow() {
             <li>Speak normally. Dossierly says it in Polish and tells you what the official said.</li>
             <li>No Polish speaker around? Use the labelled test official below.</li>
           </ol>
+          <SampleCaseHint />
           {call.error && <p className="vc-error" role="alert">{call.error}</p>}
           <button className="btn btn-primary ct-go" onClick={() => void call.start()}><Icon name="mic" size={18} /> {call.error ? "Try again" : "Start at the counter"}</button>
           <p className="vc-fine">Audio goes through our server to Meta&rsquo;s speech model and is not stored. Dossierly interprets and guides; it is not a lawyer and does not file anything for you.</p>

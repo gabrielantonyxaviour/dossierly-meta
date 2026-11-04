@@ -1,5 +1,6 @@
 "use client";
 
+import { SampleCaseHint } from "./SampleCaseHint";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAgentCall } from "@/lib/voice/client/useAgentCall";
 import type { VoiceTurn } from "@/lib/voice/protocol";
@@ -90,6 +91,7 @@ export function AgentCall({ mode, script, onEnd, autoStart }: AgentCallProps) {
           <p className="muted">
             {mode === "welcome" ? "Dossierly walks you through what it found in your case." : "Ask anything about your case, out loud. Dossierly knows your letters, deadlines and documents."}
           </p>
+          <SampleCaseHint />
           {call.error && <p className="vc-error" role="alert">{call.error}</p>}
           <button className="btn btn-primary vc-start" onClick={() => void call.start()}>
             <Icon name="mic" size={18} /> {call.error ? "Try again" : mode === "welcome" ? "Start the call" : "Call Dossierly"}
