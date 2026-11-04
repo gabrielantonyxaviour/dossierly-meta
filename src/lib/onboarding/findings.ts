@@ -103,6 +103,9 @@ export function buildFindings(msg: MessageBody, x: Extraction, language: string)
     if (d && computed) out.push({ kind: "deadline", id: stableId("ddl", msg.id, "deadline"), title: d.title, ...computed, quote: d.quote, consequence: d.consequence, source });
     const docs = x.documents.filter((doc) => doc.title);
     const ad = x.addresses;
+    // Docs the model named come first; a filing confirmation added only because the address is mentioned (e.g. in a
+    // summons) never takes a file: the email's PDF is that letter, not the confirmation.
+    const named = docs.length;
     if (ad.application && !docs.some((d) => d.kind === "upo")) docs.push({ title: "MOS filing confirmation", kind: "upo", status: "have", attachment: null });
     docs.forEach((doc, i) => {
       const fields: Record<string, string> = {};
@@ -111,7 +114,7 @@ export function buildFindings(msg: MessageBody, x: Extraction, language: string)
       out.push({
         kind: "document", id: SINGLE_KINDS.has(doc.kind) ? docIdFor(doc.kind) : stableId("doc", msg.id, `${i}:${doc.title.toLowerCase()}`),
         title: doc.title, docKind: doc.kind, status: doc.status, ...(Object.keys(fields).length ? { fields } : {}),
-        file: doc.status === "have" ? attachmentFor(msg, doc.attachment) : null, source,
+        file: doc.status === "have" && i < named ? attachmentFor(msg, doc.attachment) : null, source,
       });
     });
     x.tasks.filter((task) => task.title).slice(0, 5).forEach((task, i) => out.push({ kind: "task", id: stableId("tsk", msg.id, `task${i}`), title: task.title, detail: task.detail, source }));

@@ -32,6 +32,11 @@ const mos = read(msg("m4mos", "MOS: potwierdzenie złożenia wniosku"), {
 });
 
 describe("inbox findings across emails", () => {
+  it("a filing confirmation added from a summons that mentions the address never takes the summons PDF", () => {
+    const m = msg("m5summons", "Wezwanie do uzupełnienia braków", [{ id: "att-w", name: "wezwanie-braki.pdf", mime: "application/pdf", size: 78_371 }]);
+    const f = read(m, { ...base, category: "summons", addresses: { application: "DS Babilon, ul. Kickiego 12, 04-369 Warszawa", current: null, currentFrom: null }, documents: [] });
+    expect(f.find((x) => x.kind === "document" && x.docKind === "upo")).toMatchObject({ file: null, fields: { applicationAddress: expect.stringContaining("Kickiego") } });
+  });
   it("keeps one document per kind, prefers the copy from the inbox and marks the rest missing", () => {
     const docs = mergeDocuments([...summons, ...lease, ...nfz, ...mos] as Finding[]);
     const by = Object.fromEntries(docs.map((d) => [d.docKind, d]));
