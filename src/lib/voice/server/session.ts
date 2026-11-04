@@ -113,6 +113,8 @@ export class VoiceSession {
     const name = this.snapshot?.profile.fullName ?? null;
     this.emit({ t: "ready", sessionId: this.ticket.s, mode: this.mode === "phone" ? "agent" : this.mode, userName: name, lang: this.lang, asr: asrOk });
     this.enqueue(() => this.handler.open());
+    // Previews: which Cloudflare location runs this session (provider availability differs by region).
+    if (this.env.APP_ENV !== "production") void fetch("https://cloudflare.com/cdn-cgi/trace").then((r) => r.text()).then((t) => this.emit({ t: "debug", info: { colo: /colo=(\w+)/.exec(t)?.[1] ?? "?", loc: /loc=(\w+)/.exec(t)?.[1] ?? "?" } })).catch(() => undefined);
   }
 
   private reconnects = 0;

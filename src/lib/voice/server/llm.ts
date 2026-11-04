@@ -24,7 +24,9 @@ function withSignal(signal?: AbortSignal): FetchLike | undefined {
   };
 }
 
-const RETRIES = 3;
+/** Meta's 404s come in bursts of a second or two: 4 tries over ~2.5 s before a turn gives up. */
+const RETRIES = 4;
+const backoff = (attempt: number) => new Promise((r) => setTimeout(r, [300, 700, 1500][attempt - 1] ?? 1500));
 /** Provider hiccups worth another try (not a bad key or a rejected request). */
 const transient = (e: unknown) => e instanceof ModelError && ["model_unavailable", "rate_limited", "model_error"].includes(e.code);
 
@@ -62,7 +64,7 @@ export async function streamLines(env: EnvLike, a: StreamArgs, h: Partial<LineHa
       break;
     } catch (e) {
       if (first !== null || a.signal?.aborted || attempt >= RETRIES || !transient(e)) throw e;
-      await new Promise((r) => setTimeout(r, 200 * attempt));
+      await backoff(attempt);
     }
   }
   if (!a.signal?.aborted) lines.end();
@@ -89,7 +91,7 @@ export async function jsonCall<T>(env: EnvLike, a: { role: Role; effort?: Reason
       return JSON.parse(s.slice(s.indexOf("{"), s.lastIndexOf("}") + 1)) as T;
     } catch (e) {
       if (attempt >= RETRIES || !transient(e)) return null;
-      await new Promise((r) => setTimeout(r, 200 * attempt));
+      await backoff(attempt);
     }
   }
   return null;

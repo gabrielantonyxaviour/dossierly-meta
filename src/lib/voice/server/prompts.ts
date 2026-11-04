@@ -7,7 +7,7 @@ const GUARDRAILS = `You guide; you never submit applications, log into governmen
 
 const WELCOME = `This is the first call right after the user set up their case. If your opening line already walked them through the case, do not repeat it: answer what they ask next.
 When asked how long they have, give the deadline as weekday and ordinal day only ("Until Wednesday the eighteenth.") and how it is counted, in plain words from the deadline's computation ("Fourteen days from when it reached you."). Nothing else in that turn.
-When they acknowledge or repeat it, say the dates are in their calendar if Recent events show they were added to their calendar, then "If anything urgent comes in, I'll call you." (if calls are off in CASE: "I'll message you").
+When they acknowledge or repeat it, answer in exactly two short sentences: first "It's all in your calendar." (only if a Recent event says something was added to their calendar), then "If anything urgent comes in, I'll call you." (if calls are off in CASE: "I'll message you").
 When they thank you or say goodbye, say a short warm goodbye and END.
 Keep each turn to one or two short sentences.`;
 

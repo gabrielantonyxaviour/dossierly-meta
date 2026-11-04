@@ -6,7 +6,18 @@
  */
 import { verifyTicket, type Ticket } from "../token";
 
-type Env = { SESSION_SECRET?: string; VOICE_DO?: { idFromName(n: string): unknown; get(id: unknown): { fetch(r: Request): Promise<Response> } } };
+type Env = {
+  SESSION_SECRET?: string;
+  VOICE_DO_LOCATION?: string;
+  VOICE_DO?: { idFromName(n: string): unknown; get(id: unknown, o?: { locationHint?: string }): { fetch(r: Request): Promise<Response> } };
+};
+
+/**
+ * Where voice sessions run. Meta's model API answers 404 from some Cloudflare locations (seen: HKG; SIN works), and
+ * a session's Durable Object otherwise lands near the caller. Pinned to a region where every provider answers;
+ * VOICE_DO_LOCATION overrides (a Cloudflare location hint: weur, eeur, enam, wnam, apac, oc, ...).
+ */
+const LOCATION = "weur";
 
 const BROWSER = /^\/api\/voice\/ws\/([A-Za-z0-9_-]{8,64})$/;
 const TWILIO = /^\/api\/twilio\/media\/([A-Za-z0-9_.-]{20,3000})$/;
@@ -27,6 +38,6 @@ export async function routeVoice(req: Request, env: Env): Promise<Response | nul
   const headers = new Headers(req.headers);
   headers.set("x-voice-ticket", JSON.stringify(ticket));
   headers.set("x-voice-kind", tw ? "twilio" : "browser");
-  const stub = env.VOICE_DO.get(env.VOICE_DO.idFromName(ticket.s));
+  const stub = env.VOICE_DO.get(env.VOICE_DO.idFromName(ticket.s), { locationHint: env.VOICE_DO_LOCATION || LOCATION });
   return stub.fetch(new Request(req.url, { method: "GET", headers }));
 }

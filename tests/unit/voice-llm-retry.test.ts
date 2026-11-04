@@ -22,7 +22,7 @@ describe("streamLines retries provider hiccups", () => {
     calls.failFirst = 2;
     const said: string[] = [];
     const r = await streamLines({ MODEL_API_KEY: "k" }, args, { onSentence: (_k, s) => said.push(s) });
-    expect(calls.n).toBe(3);
+    expect(calls.n).toBe(3); // 2 failures, then success
     expect(said).toEqual(["Until Wednesday the eighteenth."]);
     expect(r.fields.SAY).toBe("Until Wednesday the eighteenth.");
   });
