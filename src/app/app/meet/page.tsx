@@ -1,7 +1,6 @@
-import { MeetFlow } from "@/components/app/meet/MeetFlow";
+import { redirect } from "next/navigation";
 
-export const metadata = { title: "Meet" };
-
+/** The earlier Meet table mode is replaced by Counter. */
 export default function Page() {
-  return <MeetFlow />;
+  redirect("/app/counter");
 }
