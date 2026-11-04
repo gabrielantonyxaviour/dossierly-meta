@@ -130,7 +130,7 @@ sequenceDiagram
   Wt->>Sp: drafts: reply to the office, request to the dean's office
   Wt->>C: letter doc, drafts, timeline event (ids hashed from message id)
   Wt->>Wt: finishMessage, then notify (never before the case is written)
-  alt demo account (Twilio trial) and urgent
+  alt verified demo number (Twilio trial) and urgent
     Wt->>Tw: claimCall (once per message), outbound call
     Tw-->>Tw: caseworker explains the letter, offers a reminder
   else everyone else

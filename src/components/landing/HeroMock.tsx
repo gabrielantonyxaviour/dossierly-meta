@@ -16,7 +16,7 @@ const DONE = [
   { t: "Drafted a Polish reply", s: "Ready for you to check" },
 ];
 
-/** The hero's one large product view: Arjun's (fictional, SAMPLE) case, a letter just read. */
+/** The hero's one large product view: Arjun's case, a letter just read. */
 export function HeroMock() {
   return (
     <figure className="lp-app" aria-label="Dossierly reading a letter from the office">

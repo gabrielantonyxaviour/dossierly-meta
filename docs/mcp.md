@@ -38,7 +38,7 @@ Errors are tool results with `isError: true` and body `{ "error", "code" }` (for
 ## Security model
 
 - Bearer tokens only; Dossierly stores a SHA-256 hash, never the token. Revocation is immediate.
-- Scope `read` cannot write anything. Scope `act` can add tasks/deadlines and save a read letter to the case. Tokens created while the shared sample case is active are always read-only.
+- Scope `read` cannot write anything. Scope `act` can add tasks/deadlines and save a read letter to the case. Tokens created while the shared demo case is active are always read-only.
 - A token is bound to one case (the one active when it was created). It cannot reach other users' data.
 - Rate limits: 60 requests/minute per token; 30 model-backed calls/hour per token; plus the app's global model budget.
 - Personal data: phone numbers and file keys are never returned; the user's name is masked before any model call.

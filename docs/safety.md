@@ -6,7 +6,7 @@ Dossierly guides; it never acts on a government system for the user, and it neve
 
 - **No submission path exists.** There is no integration with MOS, inPOL, ePUAP or any office system. Outbound calls go to: the Meta Model API, ElevenLabs, Twilio, Composio (Gmail, Outlook and Calendar on the user's consent), Cloudflare Email, and public read-only registers: Sejm ELI/ISAP (law texts), the VAT whitelist (`wl-api.mf.gov.pl`), KRS, and official gov.pl pages for the visit plan.
 - **Mail is read, never sent.** Every Gmail and Outlook request in `src/lib/server/connections/mail.ts` is a GET (list, message, attachment). The only connected-account writes are calendar events the user asked for (`calendar.ts`). Drafts to the office are saved to the case for the user to send themselves.
-- **Phone calls** go only to verified numbers of demo accounts (`DEMO_CALL_EMAILS`, Twilio trial); everyone else gets an email alert (`src/lib/watch/process.ts`).
+- **Phone calls** go only to the verified demo number (`DEMO_CALL_NUMBER`, Twilio trial), for the accounts listed in `DEMO_CALL_EMAILS`; everyone else gets an email alert (`src/lib/watch/process.ts`).
 - **The case review proposes, it does not overwrite.** Muse Wonder's `add_task` and `add_deadline` tools store proposals the user must accept, at most 6 per review; confirmed facts are never changed by a model (`src/lib/strategist/tools.ts`).
 
 ## Interpret-only rule and prompt injection
@@ -27,7 +27,7 @@ Dossierly guides; it never acts on a government system for the user, and it neve
 - **One case per user, by construction.** `CaseDO` and `UserDO` are addressed by `idFromName(userId)`; the user id comes from the HMAC-signed session cookie (`src/lib/server/session.ts`), never from the request body.
 - **Voice sessions** need a ticket minted by an authenticated route and signed with HMAC-SHA256 (`src/lib/voice/token.ts`); `routeVoice` checks the expiry, the session id, and that a Twilio stream carries a phone ticket.
 - **MCP tokens** are `dsl_` secrets shown once; D1 keeps only the SHA-256 hash. Each token is bound to one case, scoped `read` or `act`, rate-limited (60 requests/min, 30 model calls/hour) and revocable ([mcp.md](mcp.md)).
-- **Environments**: production has its own Worker, domain and D1; previews are separate Workers on shared preview storage, and none points at the earlier hackathon's resources (`tests/unit/qa-isolation.test.ts`). Old sample sessions can never authorize another person's tasks (`tests/unit/onboarding-ownership.test.ts`).
+- **Environments**: production has its own Worker, domain and D1; previews are separate Workers on shared preview storage, and none points at the earlier hackathon's resources (`tests/unit/qa-isolation.test.ts`). Legacy shared-case sessions can never authorize another person's tasks (`tests/unit/onboarding-ownership.test.ts`).
 
 ## Spend and abuse limits
 

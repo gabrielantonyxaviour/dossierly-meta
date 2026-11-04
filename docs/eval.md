@@ -2,9 +2,9 @@
 
 Reproducible measurement of the production Look pipeline (Spark grounding call, Spark reading call, SAM 3.1 box refinement, deterministic KPA deadline engine) across Meta's Muse models. Everything is run through the product's own code, not a re-implementation.
 
-## Dataset (entirely fictional)
+## Dataset (generated, no personal data)
 
-28 invented Polish official letters, rendered from templates modelled on the repo's sample letters (`scripts/samples/letters-html.mjs`). Every name, case number, address and date is made up, and each page carries a "PRZYKŁAD / SAMPLE" stamp and footer. No real person or authority document is used.
+28 generated Polish official letters, rendered from templates based on the repo's test letters (`scripts/samples/letters-html.mjs`). Names, case numbers, addresses and dates are generated; no real person's data or authority document is used.
 
 | type | letters | notes |
 | --- | --- | --- |

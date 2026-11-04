@@ -1,6 +1,6 @@
 import { Icon } from "@/components/Icon";
 
-/** Product cards for how it works. Real HTML, sample data from Arjun's fictional case. */
+/** Product cards for how it works: real HTML rendering Arjun's case. */
 
 export function PrepareMock() {
   const items = [

@@ -12,12 +12,10 @@
 ## Try it as a judge
 
 Sign in with your email (a 6-digit code). Dossierly works without connecting anything:
-- **Look** → "No document handy? Use a test letter" reads a fictional summons live: Muse Spark finds the facts, SAM 3.1 outlines them on the page, and the deadline is computed from the Polish Code of Administrative Procedure with the articles quoted.
+- **Look** → "No document handy? Use a test letter" runs the full live read on a generated Polish summons: Muse Spark finds the facts, SAM 3.1 outlines them on the page, and the deadline is computed from the Polish Code of Administrative Procedure with the articles quoted.
 - **Counter** → "Play a test official" feeds a recorded Polish official into the real speech pipeline, so you can see live interpreting without a Polish speaker.
 - **Talk** → call your caseworker by voice any time; it knows your whole case.
-- Gmail and Google Calendar connect for real but our Google app is still in Google's testing mode, so only approved test accounts can grant access until Google's review completes. Phone calls from the agent are enabled for the demo account only (Twilio trial); everyone else gets in-app and email alerts.
-
-All sample letters, emails and people are fictional and labelled `PRZYKŁAD / SAMPLE`.
+- Gmail and Google Calendar connect for real but our Google app is still in Google's testing mode, so only approved test accounts can grant access until Google's review completes. Phone calls from the agent go to the verified demo number only (Twilio trial); everyone else gets in-app and email alerts.
 
 ## 60-second tour of the code
 
@@ -53,7 +51,7 @@ Sources for every number are in the submission write-up; figures we could not ve
 | **Look** | Photograph or screenshot anything official (letter, MOS screen, UPO receipt, inPOL status, ticket kiosk). The facts are outlined on your own photo and written to the case with their source. | Spark 1.3 perception grounding → **SAM 3.1** box-prompt refinement · deterministic KPA engine |
 | **Deadlines** | Due dates computed in code from the delivery date: art. 57 §1 (day not counted), §4 (Saturday/holiday rule), §5 (posting counts), art. 44, 64 §2 — each step shown, articles quoted from the official text (Sejm ELI API). | none needed (deterministic by design) |
 | **Counter** | Phone flat on the desk; the official's half shows Polish, yours shows your language. Live two-way interpreting (2.1–3.0 s from the end of speech to the spoken translation, measured on the client across our demo recordings; per-turn timings are not persisted), the requested document appears on the official's side instantly, a coach card explains what the official really needs given *your* case (e.g. address mismatch → art. 41), and requests become tasks. Rehearse mode simulates the official. | Voice Transcribe (endpointing, keywords from the case) · Spark 1.2 minimal (turns) · Spark 1.3 raced against 1.2 (coach) · ElevenLabs |
-| **24/7 agent** | Every 2 minutes it checks the connected inbox; a new official letter is read, drafts are prepared (reply to the office, request to the dean's office), the deadline and reminders are set, and the agent **phones you** about it (demo account). | Spark 1.3 · Twilio Media Streams ↔ Voice Transcribe + Spark + ElevenLabs |
+| **24/7 agent** | Every 2 minutes it checks the connected inbox; a new official letter is read, drafts are prepared (reply to the office, request to the dean's office), the deadline and reminders are set, and the agent **phones you** about it (the verified demo number, Twilio trial). | Spark 1.3 · Twilio Media Streams ↔ Voice Transcribe + Spark + ElevenLabs |
 | **Case review** | Nightly and after every new letter, Meta's most capable model reviews the whole case with the law texts in a multi-step tool loop: risk register, dated plan, inconsistencies, questions, proposed tasks. | **Muse Wonder 1.0** (tools: case items, deadline engine, article lookup) |
 | **Visit plan** | Checklist for the next appointment from today's official pages, with citations, compared against your documents. | Spark 1.3 + Meta **web search** grounding |
 | **Photo check** | MOS photo rules (684×883 px, 35×45, ≤2.5 MB, plain background, no hat…), exact crop, never retouched. | SAM 3.1 + Spark 1.3 |
@@ -63,7 +61,7 @@ Also: employer verification against Poland's VAT whitelist and KRS registers, an
 
 ## Why each model does what it does (measured)
 
-We evaluated the production letter pipeline on 28 fictional Polish official letters plus photo-like variants across Muse Spark 1.1/1.2/1.3 and Muse Wonder ([docs/eval.md](docs/eval.md), ~US$14.7 of live calls):
+We evaluated the production letter pipeline on 28 generated Polish official letters (no personal data) plus photo-like variants across Muse Spark 1.1/1.2/1.3 and Muse Wonder ([docs/eval.md](docs/eval.md), ~US$14.7 of live calls):
 
 | config | deadline correct | Spark box IoU | after SAM 3.1 | IoU ≥ 0.5 after SAM | cost / letter |
 |---|---|---|---|---|---|
@@ -109,7 +107,8 @@ Dossierly started as a version built during the Nebius × NVIDIA Global AI Hacka
 
 ## Limits we're honest about
 - Google's app review is pending, so Gmail/Calendar work only for approved test accounts; the consent screen still names our OAuth broker (Composio).
-- Phone calls go to verified numbers only (Twilio trial); production users get "calls coming soon".
+- Phone calls go only to the verified demo number (Twilio trial); everyone else gets "calls coming soon".
+- Test letters and the demo persona are generated; no real personal data is used.
 - Muse Voice Transcribe doesn't support Ukrainian or Russian yet; those users get text.
 - Live voice sessions need a signed-in user and a voice ticket that expires after 2 minutes, but they are not yet metered against the daily model spend cap or stopped by the `MODELS_DISABLED` kill switch; every other model path is ([docs/models.md](docs/models.md#spend-control)).
 - Guidance, not legal advice. Real cases differ; for a decision that matters, talk to a lawyer or a migrant legal-aid organisation.
