@@ -6,6 +6,7 @@ import type { Finding, MailReading } from "@/lib/onboarding/findings";
 import type { InboxMessage } from "@/lib/onboarding/inbox";
 import { failure, flowApi } from "@/lib/client/onboarding-flow";
 import type { Profile } from "@/lib/case/types";
+import { ActionBar } from "./mobile";
 import { StageHint, suggestedStage } from "./StageHint";
 
 const dayLabel = (iso: string, opts: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short", year: "numeric" }) =>
@@ -95,12 +96,15 @@ export function Review({ readings, rows, calendarConnected, onSaved, stage, appl
         {result.length > 0 && <ul className="ob-cal">{result.map((x) => (
           <li key={x.findingId} data-status={x.status}><span>{x.title}</span>{x.status === "failed" ? <em>{x.error}</em> : x.url ? <a href={x.url} target="_blank" rel="noreferrer">Open in Calendar</a> : <em>Added</em>}</li>
         ))}</ul>}
-        <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={() => onSaved(added.length > 0, chosen.length)}>Continue</button>
+        <ActionBar><button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={() => onSaved(added.length > 0, chosen.length)}>Continue</button></ActionBar>
       </div>
     );
   }
   return (
     <div className="ob-answer">
+      {calendarConnected ? (
+        <label className="ob-cal-toggle"><span><strong>Add {dated} {dated === 1 ? "date" : "dates"} to Google Calendar</strong><small>With reminders before each one</small></span><Switch checked={toCalendar && dated > 0} onChange={setToCalendar} disabled={!dated} label="Add dates to Google Calendar" /></label>
+      ) : <p className="ob-more-note">Connect Google Calendar on the previous screen to add these dates with reminders.</p>}
       {SECTIONS.map((s) => {
         const items = findings.filter((f) => f.kind === s.kind);
         if (!items.length) return null;
@@ -115,16 +119,12 @@ export function Review({ readings, rows, calendarConnected, onSaved, stage, appl
           </section>
         );
       })}
-      <div className="ob-commit">
-        {calendarConnected ? (
-          <div className="ob-cal-toggle"><span>Add {dated} {dated === 1 ? "date" : "dates"} to Google Calendar, with reminders</span><Switch checked={toCalendar && dated > 0} onChange={setToCalendar} disabled={!dated} label="Add dates to Google Calendar" /></div>
-        ) : <p className="ob-more-note">Connect Google Calendar on the previous screen to add these dates with reminders.</p>}
-        {error && <div className="ob-alert" role="alert"><p>{error}</p></div>}
+      {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void save()}>Try again</button></div>}
+      <ActionBar>
         <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" disabled={busy || !chosen.length} onClick={() => void save()}>
-          {busy ? "Saving to your case…" : `Confirm ${chosen.length} ${chosen.length === 1 ? "item" : "items"}`}
+          {busy ? "Saving to your case…" : `Save ${chosen.length} ${chosen.length === 1 ? "item" : "items"} to my case`}
         </button>
-        <p className="ob-more-note">Unticked items are not saved. You can edit anything later.</p>
-      </div>
+      </ActionBar>
     </div>
   );
 }

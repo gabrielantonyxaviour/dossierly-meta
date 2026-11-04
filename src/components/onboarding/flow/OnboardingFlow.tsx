@@ -1,61 +1,85 @@
 "use client";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Profile } from "@/lib/case/types";
 import type { OnboardingState } from "@/lib/server/onboarding";
 import { failure, flowApi } from "@/lib/client/onboarding-flow";
-import { Logo } from "@/components/Logo";
-import { AgentOrb } from "@/components/ui";
 import { CaseFile } from "./CaseFile";
-import { InboxStep } from "./InboxStep";
+import { InboxStep, type InboxPhase } from "./InboxStep";
+import { FlowHeader, useKeyboardInset } from "./mobile";
 import { PhoneStep } from "./PhoneStep";
-import { PlaceStep, ReasonStep, StageStep, YouStep } from "./Questions";
+import { CityScreen, DetailsScreen, LanguageScreen, NameScreen, ReasonScreen, StageScreen } from "./Questions";
 import { WelcomeStep } from "./WelcomeStep";
 import { firstName, type Reason } from "./options";
 
-const TOTAL = 6;
-function copy(step: number, name: string, welcome: boolean): [string, string] {
-  if (welcome) return [`Your case is ready${name ? `, ${name}` : ""}`, "Before you look around, I’d like to tell you what I found. It takes about a minute."];
-  return ([
-    ["Hi, I’m Dossierly.", "I’ll be your caseworker for life in Poland: your letters, dates and office visits in one place. Setup takes about two minutes. First, who are you?"],
-    [`Nice to meet you${name ? `, ${name}` : ""}. What brings you to Poland?`, "This decides which residence rules I follow for you."],
-    ["Where are you with your residence permit?", "I’ll pick up exactly where you are, not from the beginning."],
-    ["Where are you based?", "Your city tells me which voivodeship office handles your case."],
-    ["Let me read your official mail.", "Connect Gmail and I’ll find what MOS, the office and your university sent you. Then I’ll put the dates in your Google Calendar."],
-    ["Can I call you when something urgent arrives?", "Like a summons with a 14-day deadline. I’ll explain it in your language."],
-  ] as [string, string][])[step - 1];
+/** One short question per screen. Several screens can share a server step (1: name + language, 4: city + details). */
+const SCREENS = [
+  { id: "name", step: 1, title: "About you" }, { id: "language", step: 1, title: "About you" },
+  { id: "reason", step: 2, title: "Your permit" }, { id: "stage", step: 3, title: "Your permit" },
+  { id: "city", step: 4, title: "Where you live" }, { id: "details", step: 4, title: "Where you live" },
+  { id: "inbox", step: 5, title: "Official mail" }, { id: "phone", step: 6, title: "Alerts" },
+] as const;
+type ScreenId = (typeof SCREENS)[number]["id"];
+const firstOf = (step: number) => SCREENS.findIndex((s) => s.step === step);
+
+function copy(id: ScreenId | "welcome", name: string, profile: Profile, inbox: InboxPhase): [string, string] {
+  const study = profile.permitType === "temporary_residence_study", work = profile.permitType === "temporary_residence_work";
+  switch (id) {
+    case "welcome": return [`Your case is ready${name ? `, ${name}` : ""}`, "Let me tell you what I found. It takes a minute."];
+    case "name": return ["What should I call you?", "I’m Dossierly, your caseworker for life in Poland."];
+    case "language": return ["Which language should I speak?", "I’ll write and call you in it."];
+    case "reason": return [`What brings you to Poland${name ? `, ${name}` : ""}?`, "It decides which residence rules apply to you."];
+    case "stage": return ["Where is your permit now?", "I’ll start from where you are."];
+    case "city": return ["Which city are you in?", "It tells me which office handles your case."];
+    case "details": return [study ? "Which university?" : work ? "Who do you work for?" : "A few more details", "And when you arrived, if you know."];
+    case "phone": return ["Can I call you when it’s urgent?", "Like a summons with a 14-day deadline."];
+    case "inbox": return inbox === "review" ? ["Here’s what I found", "Untick anything that’s wrong. Only ticked items are saved."]
+      : inbox === "reading" ? ["Reading your official mail", "Muse Spark reads each email and notes where every fact came from."]
+      : inbox === "empty" ? ["Nothing official yet", "I’ll read new letters when they arrive."]
+      : ["Let me read your official mail", "Read-only. I look for the office, MOS and your university."];
+  }
 }
 
-export function OnboardingFlow({ initial, profile: initialProfile, email, returned }: { initial: OnboardingState; profile: Profile; email: string | null; returned: string | null }) {
+export function OnboardingFlow({ initial, profile: initialProfile, returned }: { initial: OnboardingState; profile: Profile; email: string | null; returned: string | null }) {
   const [state, setState] = useState(initial);
   const [profile, setProfile] = useState(initialProfile);
+  const [screen, setScreen] = useState(Math.max(0, firstOf(initial.step)));
   const [reason, setReason] = useState<Reason | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ text: string; retry?: () => void } | null>(null);
   const [welcome, setWelcome] = useState(initial.status === "completed");
+  const [inbox, setInbox] = useState<InboxPhase>("connect");
   const [found, setFound] = useState(0);
   const [calendarAdded, setCalendarAdded] = useState(false);
-  const step = state.step;
+  const current = SCREENS[screen];
   const name = firstName(profile.fullName);
+  useKeyboardInset();
 
   // A review run (?again=1) restarts once; a refresh must not restart again.
   useEffect(() => { if (new URLSearchParams(window.location.search).has("again")) window.history.replaceState(null, "", "/onboarding"); }, []);
-  useEffect(() => { document.getElementById("ob-say")?.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); }, [step, welcome]);
+  useEffect(() => { window.scrollTo({ top: 0 }); }, [screen, welcome, inbox]);
 
-  async function go(next: number) {
-    const r = await flowApi.step(next);
-    if (r.ok) { setState(r.data.onboarding); return true; }
-    if (r.status === 401) { window.location.assign("/signin?next=%2Fonboarding"); return false; }
-    setError({ text: failure(r) ?? "Could not save your progress.", retry: () => void go(next) }); return false;
+  const signIn = () => window.location.assign("/signin?next=%2Fonboarding");
+  /** Moves to another screen, recording the server step when it changes. */
+  async function move(to: number) {
+    const target = SCREENS[to];
+    if (target.step !== SCREENS[screen].step || target.step !== state.step) {
+      const r = await flowApi.step(target.step);
+      if (!r.ok) { if (r.status === 401) signIn(); else setError({ text: failure(r) ?? "Could not save your progress.", retry: () => void move(to) }); return; }
+      setState(r.data.onboarding);
+    }
+    setError(null); setScreen(to);
   }
-  async function save(patch: Partial<Profile>) {
+  async function next(patch?: Partial<Profile>) {
     setBusy(true); setError(null);
-    const r = await flowApi.profile(patch);
-    if (r.ok) { setProfile(r.data); await go(step + 1); }
-    else if (r.status === 401) window.location.assign("/signin?next=%2Fonboarding");
-    else setError({ text: failure(r) ?? "Could not save that answer.", retry: () => void save(patch) });
+    if (patch) {
+      const r = await flowApi.profile(patch);
+      if (!r.ok) { setBusy(false); if (r.status === 401) signIn(); else setError({ text: failure(r) ?? "Could not save that answer.", retry: () => void next(patch) }); return; }
+      setProfile(r.data);
+    }
+    await move(Math.min(screen + 1, SCREENS.length - 1));
     setBusy(false);
   }
+  async function back() { setBusy(true); await move(Math.max(0, screen - 1)); setBusy(false); }
   async function complete() {
     setError(null);
     const r = await flowApi.complete();
@@ -63,33 +87,31 @@ export function OnboardingFlow({ initial, profile: initialProfile, email, return
     else setError({ text: failure(r) ?? "Could not finish setup.", retry: () => void complete() });
   }
 
-  const [say, sub] = copy(step, name, welcome);
-  const base = { profile, busy, save };
+  const id: ScreenId | "welcome" = welcome ? "welcome" : current.id;
+  const [say, sub] = copy(id, name, profile, inbox);
+  const base = { profile, busy, next };
+  const inReview = id === "inbox" && inbox === "review";
   return (
-    <main className="ob" data-step={welcome ? "welcome" : step}>
-      <header className="ob-top">
-        <Link href="/" prefetch={false} aria-label="Dossierly home"><Logo size={24} /></Link>
-        {!welcome && <div className="ob-steps" role="progressbar" aria-label="Setup progress" aria-valuemin={1} aria-valuemax={TOTAL} aria-valuenow={step}>
-          {Array.from({ length: TOTAL }, (_, i) => <span key={i} data-on={i < step} />)}
-        </div>}
-        <span className="ob-who">{email ?? "Signed in"}</span>
-      </header>
+    <main className="ob" data-screen={id}>
+      {!welcome && <FlowHeader title={current.title} progress={(screen + (inReview ? 0.6 : 0)) / SCREENS.length + 1 / SCREENS.length} onBack={screen > 0 ? () => void back() : undefined} disabled={busy} />}
       <div className="ob-grid">
-        <section className="ob-talk" key={welcome ? "w" : step}>
-          <div className="ob-agent"><AgentOrb size={22} state="idle" /><span>Dossierly{welcome ? "" : ` · step ${step} of ${TOTAL}`}</span></div>
-          <h1 id="ob-say" tabIndex={-1} className="ob-say">{say}</h1>
+        <section className="ob-talk" key={id}>
+          <h1 className="ob-say">{say}</h1>
           <p className="ob-sub">{sub}</p>
           {error && <div className="ob-alert" role="alert"><p>{error.text}</p>{error.retry && <button type="button" className="ui-btn ui-btn--sm" onClick={error.retry}>Try again</button>}</div>}
-          {welcome ? <WelcomeStep firstName={name} calendarAdded={calendarAdded} />
-            : step === 1 ? <YouStep {...base} />
-            : step === 2 ? <ReasonStep {...base} reason={reason} setReason={setReason} />
-            : step === 3 ? <StageStep {...base} answered={initial.step > 3} />
-            : step === 4 ? <PlaceStep {...base} reason={reason} />
-            : step === 5 ? <InboxStep returned={returned} stage={profile.stage} applyStage={async (stage) => { const r = await flowApi.profile({ stage }); if (r.ok) setProfile(r.data); return r.ok; }} setCalendarAdded={setCalendarAdded} onSkip={() => void go(6)} onDone={(saved) => { setFound(saved); void go(6); }} />
+          {id === "welcome" ? <WelcomeStep firstName={name} calendarAdded={calendarAdded} />
+            : id === "name" ? <NameScreen {...base} />
+            : id === "language" ? <LanguageScreen {...base} />
+            : id === "reason" ? <ReasonScreen {...base} reason={reason} setReason={setReason} />
+            : id === "stage" ? <StageScreen {...base} answered={initial.step > 3 || state.step > 3} />
+            : id === "city" ? <CityScreen {...base} />
+            : id === "details" ? <DetailsScreen {...base} reason={reason} />
+            : id === "inbox" ? <InboxStep returned={returned} stage={profile.stage} onPhase={setInbox}
+                applyStage={async (stage) => { const r = await flowApi.profile({ stage }); if (r.ok) setProfile(r.data); return r.ok; }}
+                setCalendarAdded={setCalendarAdded} onSkip={() => void next()} onDone={(saved) => { setFound(saved); void next(); }} />
             : <PhoneStep profile={profile} setProfile={setProfile} onDone={complete} />}
-          {!welcome && step > 1 && <button type="button" className="ob-back" disabled={busy} onClick={() => void go(step - 1)}>← Back</button>}
         </section>
-        {!welcome && <CaseFile profile={profile} reason={reason} step={step} found={found} />}
+        {!welcome && <CaseFile profile={profile} reason={reason} step={current.step} found={found} />}
       </div>
     </main>
   );

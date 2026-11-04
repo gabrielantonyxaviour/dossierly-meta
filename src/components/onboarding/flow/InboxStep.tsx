@@ -5,12 +5,14 @@ import type { InboxMessage } from "@/lib/onboarding/inbox";
 import { failure, flowApi, type ConnectionStatus } from "@/lib/client/onboarding-flow";
 import type { Profile } from "@/lib/case/types";
 import { ConnectCards } from "./ConnectCards";
+import { ActionBar } from "./mobile";
 import { Review } from "./Review";
 
 type Row = { msg: InboxMessage; state: "queued" | "reading" | "done" | "error"; reading?: MailReading; error?: string };
-type Phase = "connect" | "listing" | "reading" | "review" | "empty";
+export type InboxPhase = "connect" | "listing" | "reading" | "review" | "empty";
+type Phase = InboxPhase;
 
-export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, applyStage }: { returned: string | null; stage: Profile["stage"]; applyStage(s: Profile["stage"]): Promise<boolean>; onDone(saved: number): void; onSkip(): void; setCalendarAdded(v: boolean): void }) {
+export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, applyStage, onPhase }: { onPhase(p: InboxPhase): void; returned: string | null; stage: Profile["stage"]; applyStage(s: Profile["stage"]): Promise<boolean>; onDone(saved: number): void; onSkip(): void; setCalendarAdded(v: boolean): void }) {
   const [status, setStatus] = useState<ConnectionStatus | null>(null);
   const [statusError, setStatusError] = useState("");
   const [phase, setPhase] = useState<Phase>("connect");
@@ -18,6 +20,7 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
   const [account, setAccount] = useState("");
   const [error, setError] = useState("");
   const started = useRef(false);
+  useEffect(() => { onPhase(phase === "listing" ? "connect" : phase); }, [phase, onPhase]);
 
   const load = useCallback(async () => {
     setStatusError("");
@@ -62,25 +65,30 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
   const done = rows.filter((r) => r.state === "done" || r.state === "error").length;
   const finished = phase === "reading" && rows.length > 0 && done === rows.length;
 
+  const skip = <button type="button" className="ob-link" onClick={onSkip}>Skip for now</button>;
   if (phase === "connect" || phase === "listing") {
     return (
       <div className="ob-answer">
         {statusError && <div className="ob-alert" role="alert"><p>{statusError}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void load()}>Try again</button></div>}
         <ConnectCards status={status} gmail={gmail} calendar={calendar} returned={returned} />
         {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void scan()}>Try again</button></div>}
-        <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" disabled={!gmail || phase === "listing"} onClick={() => { started.current = true; void scan(); }}>
-          {phase === "listing" ? "Looking for official emails…" : gmail ? "Read my official emails" : "Connect Gmail to continue"}
-        </button>
-        <button type="button" className="ob-link" onClick={onSkip}>Skip for now, I’ll start from what I told you</button>
+        <ActionBar>
+          <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" disabled={!gmail || phase === "listing"} onClick={() => { started.current = true; void scan(); }}>
+            {phase === "listing" ? "Looking for official emails…" : gmail ? "Read my official emails" : "Connect Gmail to continue"}
+          </button>
+          {skip}
+        </ActionBar>
       </div>
     );
   }
   if (phase === "empty") {
     return (
       <div className="ob-answer">
-        <div className="ob-note"><strong>No official emails in {account || "your inbox"} from the last 120 days.</strong><p>That’s fine. When a letter or MOS email arrives, I’ll read it then. You can also add a letter photo any time in Look.</p></div>
-        <button type="button" className="ui-btn ui-btn--secondary ui-btn--lg ui-btn--block" onClick={() => void scan()}>Check again</button>
-        <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={onSkip}>Continue</button>
+        <div className="ob-note"><strong>No official emails in {account || "your inbox"} from the last 120 days.</strong><p>You can add a photo of a letter any time in Look.</p></div>
+        <ActionBar>
+          <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={onSkip}>Continue</button>
+          <button type="button" className="ob-link" onClick={() => void scan()}>Check again</button>
+        </ActionBar>
       </div>
     );
   }
@@ -91,7 +99,7 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
   const relevant = rows.filter((r) => r.reading?.relevant).length;
   return (
     <div className="ob-answer">
-      <p className="ob-progress-line" aria-live="polite">{finished ? `Read ${rows.length} emails · ${relevant} matter for your case` : `Reading ${done + 1 > rows.length ? rows.length : done + 1} of ${rows.length} with Muse Spark…`}</p>
+      <p className="ob-progress-line" aria-live="polite">{finished ? `Read ${rows.length} emails · ${relevant} about your case` : `Reading ${Math.min(done + 1, rows.length)} of ${rows.length}…`}</p>
       <ol className="ob-mail">
         {rows.map((r) => (
           <li key={r.msg.id} className="ob-mail-row" data-state={r.state} data-relevant={r.reading?.relevant ? "yes" : r.state === "done" ? "no" : undefined}>
@@ -105,9 +113,12 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
           </li>
         ))}
       </ol>
-      {finished && (relevant > 0
-        ? <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={() => setPhase("review")}>Review what I found</button>
-        : <><div className="ob-note"><strong>None of these emails are about your residence case.</strong><p>I’ll keep an eye out for new official mail.</p></div><button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={onSkip}>Continue</button></>)}
+      {finished && !relevant && <div className="ob-note"><strong>None of these are about your residence case.</strong><p>I’ll keep an eye out for new official mail.</p></div>}
+      <ActionBar>
+        {finished && !relevant
+          ? <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" onClick={onSkip}>Continue</button>
+          : <button type="button" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block" disabled={!finished} onClick={() => setPhase("review")}>{finished ? "Review what I found" : `Reading ${Math.min(done + 1, rows.length)} of ${rows.length}…`}</button>}
+      </ActionBar>
     </div>
   );
 }
