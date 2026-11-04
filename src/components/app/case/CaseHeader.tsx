@@ -26,6 +26,11 @@ export function CaseHeader({ c }: { c: CaseSnapshot }) {
           </li>
         ))}
       </ol>
+      {at >= 0 && (
+        <p className="cs-stage-caption" aria-hidden="true">
+          <span>Step {at + 1} of {STAGES.length}{STAGES[at + 1] ? ` · Next: ${STAGE_LABEL[STAGES[at + 1]]}` : ""}</span>
+        </p>
+      )}
       <div className="cs-head-row">
         {num ? (
           <button type="button" className="cs-copy" onClick={() => void copy(num)} aria-label={`Copy case number ${num}`}>

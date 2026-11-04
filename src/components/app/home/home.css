@@ -47,3 +47,11 @@
 .hm-appt-main { display: grid; gap: 6px; justify-items: start; min-width: 0; }
 .hm-appt-main .ui-meta { display: flex; gap: 4px; align-items: flex-start; margin: 0; }
 .hm-appt-main .ui-meta svg { margin-top: 2px; flex: none; }
+/* Phones: four compact shortcuts in one row (icon + label), so "Coming up" starts near the fold. */
+@media (max-width: 599px) {
+  .hm-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .hm-action { justify-items: center; text-align: center; gap: 0; padding: 12px 4px 10px; min-height: 88px; }
+  .hm-action-icon { margin-bottom: 8px; }
+  .hm-action b { font-size: var(--t-sm); font-weight: 500; }
+  .hm-action small { display: none; }
+}

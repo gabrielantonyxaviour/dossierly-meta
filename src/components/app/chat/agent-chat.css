@@ -11,12 +11,13 @@
 
 .ac-empty { display: grid; justify-items: center; text-align: center; gap: var(--s-3); padding: 6vh 0 var(--s-4); }
 .ac-empty h1 { font-size: clamp(1.9rem, 1.5rem + 1.6vw, 2.5rem); margin: var(--s-3) 0 0; }
+@media (max-width: 767px) { .ac-empty h1 { font-size: 1.625rem; font-weight: 600; letter-spacing: -0.025em; } }
 .ac-empty .ui-body { max-width: 40ch; }
 .ac-suggest { display: grid; gap: 8px; width: 100%; margin-top: var(--s-4); }
 @media (min-width: 720px) { .ac-suggest { grid-template-columns: 1fr 1fr; } }
 .ac-suggest button {
   display: flex; gap: 10px; align-items: flex-start; text-align: left; padding: 14px; border: 0; border-radius: var(--r-md); background: var(--card); box-shadow: var(--e-1);
-  color: var(--ink); font: inherit; font-size: var(--t-md); line-height: 1.4; cursor: pointer; transition: box-shadow var(--d-2), transform var(--d-1);
+  color: var(--ink); font: inherit; font-size: 0.9375rem; line-height: 1.4; cursor: pointer; transition: box-shadow var(--d-2), transform var(--d-1);
 }
 .ac-suggest button:hover { box-shadow: var(--e-2); }
 .ac-suggest button:active { transform: scale(0.98); }
