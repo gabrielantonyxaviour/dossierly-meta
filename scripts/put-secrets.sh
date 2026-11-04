@@ -54,6 +54,8 @@ if [[ -r "$CONN_FILE" ]]; then
     else echo "MISSING $name in connection file - skipped"; fi
   done
 else echo "MISSING connection file - Composio secrets skipped"; fi
+# Gmail uses the custom-client config 'dossierly-gmail-testing' (GCP dossierly-mail-20261102); the managed one is blocked by Google.
+printf '%s' "ac_dCyx_oyl4xQl" | put COMPOSIO_GMAIL_AUTH_CONFIG_ID
 
 # Per-environment random secrets: created once, never rotated automatically.
 for name in SESSION_SECRET; do
