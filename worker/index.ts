@@ -2,6 +2,7 @@
 import openNext from "../.open-next/worker.js";
 import { routeVoice } from "../src/lib/voice/server/route";
 import { runWatchTick } from "../src/lib/watch/tick";
+import { runNightlyReviews } from "../src/lib/strategist";
 
 export { UserDO } from "./user-do";
 export { CaseDO } from "./case-do";
@@ -10,6 +11,14 @@ export { PrepareFallback, LetterPipeline, NightlyWatch } from "./workflows";
 
 type WorkflowBinding = { create(opts?: { id?: string; params?: unknown }): Promise<{ id: string }> };
 const WATCH_CRON = "*/2 * * * *";
+const NIGHTLY_CRON = "0 2 * * *";
+
+/** Outside a request there is no OpenNext context; the case client and getEnv() read it, so provide this Worker's bindings. */
+function provideContext(env: unknown, ctx: unknown): void {
+  const g = globalThis as Record<symbol, unknown>;
+  const key = Symbol.for("__cloudflare-context__");
+  if (!g[key]) g[key] = { env, ctx, cf: undefined };
+}
 type Bindings = { NIGHTLY_WATCH?: WorkflowBinding };
 
 export default {
@@ -22,12 +31,14 @@ export default {
   /** Every 2 minutes: the per-user inbox watcher. Daily at 02:00 UTC: start one NightlyWatch instance per day (id is duplicate-safe). */
   async scheduled(controller: { scheduledTime: number; cron?: string }, env: Bindings, ctx: { waitUntil(p: Promise<unknown>): void }): Promise<void> {
     if (controller.cron === WATCH_CRON) {
-      // Outside a request there is no OpenNext context; the case client and getEnv() read it, so provide this Worker's bindings.
-      const g = globalThis as Record<symbol, unknown>;
-      const key = Symbol.for("__cloudflare-context__");
-      if (!g[key]) g[key] = { env, ctx, cf: undefined };
+      provideContext(env, ctx);
       ctx.waitUntil(runWatchTick(env as never).then(() => undefined, () => undefined));
       return;
+    }
+    if (controller.cron === NIGHTLY_CRON) {
+      // Muse Wonder reviews every case that changed in the last 24 h.
+      provideContext(env, ctx);
+      ctx.waitUntil(runNightlyReviews(env as never).then(() => undefined, () => undefined));
     }
     const day = new Date(controller.scheduledTime).toISOString().slice(0, 10);
     try {

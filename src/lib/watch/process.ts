@@ -8,6 +8,7 @@ import { claimCall, claimMessage, finishMessage, recordCall } from "./state";
 import { asksOf, deadlineOf, deadlinePatch, requestedDoc, draftDoc, eventId, isActionable, letterDoc, stableDocId, urgency, type Draft } from "./letter";
 import { upsert } from "./write";
 import type { Deps, WatchItem } from "./types";
+import { reviewAfterNewLetter } from "@/lib/strategist";
 
 export type AccountCtx = { accountId: string; userId: string; since: number; demo: boolean; email: string | null };
 
@@ -63,6 +64,7 @@ export async function processMessage(env: ConnectionsEnv, deps: Deps, a: Account
     item.letterDocId = letterId;
     await finishMessage(env, a.accountId, messageId, deps.now(), { status: "done", receivedAt: receivedMs, letterDocId: letterId });
     await notify(env, deps, a, item, { title, asks, sender: reading.sender || msg.from, findings, drafts: out.drafts, now });
+    await reviewAfterNewLetter(env as never, a.userId);
     return item;
   } catch (e) {
     item.error = code(e);
