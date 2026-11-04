@@ -1,50 +1,54 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-const config = JSON.parse(readFileSync(new URL("../../wrangler.jsonc", import.meta.url), "utf8"));
-const qa = config.env.qa;
+type D1 = { binding: string; database_name: string; database_id: string };
+type Conf = {
+  name: string;
+  routes?: { pattern: string; custom_domain?: boolean }[];
+  services?: { binding: string; service: string }[];
+  d1_databases?: D1[];
+  kv_namespaces?: { binding: string; id: string }[];
+  r2_buckets?: { binding: string; bucket_name: string }[];
+  durable_objects?: { bindings: { name: string; class_name: string }[] };
+  vars?: Record<string, string>;
+  env?: Record<string, Conf>;
+};
 
-describe("Cloudflare QA environment isolation", () => {
-  it("retains the production entry and exact public auth origin", () => {
-    expect(config.name).toBe("settla-app");
-    expect(config.main).toBe("worker/index.ts");
-    expect(config.vars.APP_ENV).toBe("production");
-    expect(config.vars.APP_URL).toBe("https://dossierly.pages.dev");
-    expect(config.vars.MODELS_DISABLED).toBeUndefined();
-    expect(config.services).toEqual([{ binding: "WORKER_SELF_REFERENCE", service: "settla-app" }]);
+const conf = JSON.parse(readFileSync("wrangler.jsonc", "utf8")) as Conf;
+const previews = ["onboarding", "app", "voice", "look"] as const;
+
+describe("dossierly-meta Cloudflare environments", () => {
+  it("never targets the Nebius-hackathon production Worker or its resources", () => {
+    const all = [conf, ...previews.map((p) => conf.env![p])];
+    const text = JSON.stringify(conf);
+    expect(text).not.toContain("settla-app");
+    expect(text).not.toContain("settla-db");
+    expect(text).not.toContain("settla-blobs");
+    for (const c of all) expect(c.name.startsWith("dossierly-meta")).toBe(true);
   });
 
-  it("uses a separate Worker and self-reference", () => {
-    expect(qa.name).not.toBe(config.name);
-    expect(qa.services).toEqual([{ binding: "WORKER_SELF_REFERENCE", service: qa.name }]);
-    expect(qa.workers_dev).toBe(true);
-    expect(qa.vars.APP_ENV).toBe("preview");
-    expect(qa.vars.MODELS_DISABLED).toBe("1");
-    expect(qa.vars.DODO_ENV).toBe("test");
-    expect(qa.vars.APP_URL).toBe("https://dossierly-qa.gabrielaxy.workers.dev");
-    expect(new URL(qa.vars.APP_URL).hostname.startsWith(`${qa.name}.`)).toBe(true);
+  it("gives production its own Worker, domain and self-reference", () => {
+    expect(conf.name).toBe("dossierly-meta");
+    expect(conf.vars?.APP_URL).toBe("https://dossierly.cosmiclan.com");
+    expect(conf.services?.find((s) => s.binding === "WORKER_SELF_REFERENCE")?.service).toBe("dossierly-meta");
   });
 
-  it("keeps all persistent resources away from production", () => {
-    for (const [key, id] of [["d1_databases", "database_id"], ["kv_namespaces", "id"], ["r2_buckets", "bucket_name"]]) {
-      expect(qa[key]).toHaveLength(config[key].length);
-      const production = new Set(config[key].map((entry: Record<string, string>) => entry[id]));
-      for (const entry of qa[key]) {
-        expect(entry[id]).toBeTruthy();
-        expect(production.has(entry[id])).toBe(false);
-      }
+  it("gives each preview its own Worker, domain and self-reference on shared preview storage", () => {
+    const prodDb = conf.d1_databases![0].database_id;
+    for (const p of previews) {
+      const e = conf.env![p];
+      expect(e.name).toBe(`dossierly-meta-${p}`);
+      expect(e.vars?.APP_URL).toBe(`https://dossierly-${p}.cosmiclan.com`);
+      expect(e.services?.find((s) => s.binding === "WORKER_SELF_REFERENCE")?.service).toBe(e.name);
+      expect(e.d1_databases![0].database_id).not.toBe(prodDb);
+      expect(e.r2_buckets![0].bucket_name).toBe("dossierly-meta-preview-blobs");
     }
-    expect(qa.r2_buckets[0].jurisdiction).toBe("eu");
   });
 
-  it("owns its Durable Objects and workflows without a scheduled job", () => {
-    expect(qa.durable_objects.bindings).toEqual(config.durable_objects.bindings);
-    const production = new Set(config.workflows.map((entry: { name: string }) => entry.name));
-    expect(qa.workflows).toHaveLength(config.workflows.length);
-    for (const workflow of qa.workflows) {
-      expect(workflow.name.startsWith(`${qa.name}-`)).toBe(true);
-      expect(production.has(workflow.name)).toBe(false);
+  it("binds the user and case Durable Objects everywhere", () => {
+    for (const c of [conf, ...previews.map((p) => conf.env![p])]) {
+      const names = c.durable_objects!.bindings.map((b) => b.name).sort();
+      expect(names).toEqual(["CASE_DO", "USER_DO"]);
     }
-    expect(qa.triggers.crons).toEqual([]);
   });
 });

@@ -315,7 +315,7 @@ export async function transcribeFile(
   const cfg = resolveRole("asr", o.env);
   const form = new FormData();
   form.append("request", new Blob([JSON.stringify({ model: cfg.model, mode: "PUSH_TO_TALK", audioEncoding: "WAV", languageBias: args.languageBias ?? [] })], { type: "application/json" }));
-  form.append("audio", new Blob([args.wav as BlobPart], { type: "audio/wav" }), "audio.wav");
+  form.append("audio", new Blob([args.wav as unknown as ArrayBuffer], { type: "audio/wav" }), "audio.wav");
   const res = await post(cfg, "/asr/transcribe", form, o);
   const json = (await res.json().catch(() => null)) as Record<string, unknown> | null;
   if (!json) throw new ModelError("The speech service returned an error", "model_error");
