@@ -1,0 +1,98 @@
+/* Onboarding: connections, inbox reading, findings review, welcome call, case file. */
+.ob-conns { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.ob-conn { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px 14px; padding: 14px; border-radius: var(--r-md); background: var(--card); box-shadow: var(--e-1); transition: box-shadow .2s; }
+.ob-conn[data-next="true"] { box-shadow: 0 0 0 2px var(--ink); }
+.ob-conn[data-connected="true"] { background: color-mix(in srgb, var(--ok-soft) 55%, var(--surface)); }
+.ob-conn-mark { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font: 700 15px/1 var(--font); color: #fff; background: #c5221f; }
+.ob-conn-mark[data-provider="googlecalendar"] { background: #1a73e8; font-size: 14px; }
+.ob-conn-mark[data-provider="microsoftcalendar"] { background: #0f6cbd; }
+.ob-conn-body { min-width: 0; display: grid; gap: 3px; }
+.ob-conn-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ob-conn-body p { margin: 0; font-size: 14px; color: var(--ink-2); line-height: 1.4; overflow-wrap: anywhere; }
+.ob-conn-body small { font-size: 12.5px; color: var(--ink-3); }
+.ob-badge-ok { font: 500 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .05em; padding: 4px 6px; border-radius: 4px; color: var(--ok); background: var(--ok-soft); }
+@media (max-width: 420px) { .ob-conn { grid-template-columns: 40px minmax(0, 1fr); } .ob-conn > .ui-btn { grid-column: 1 / -1; width: 100%; } }
+.ob-more summary { cursor: pointer; font-size: 14px; color: var(--ink-2); padding: 4px 0; }
+.ob-more[open] summary { margin-bottom: 10px; }
+.ob-more .ob-more-note { text-align: left; margin-top: 10px; }
+
+.ob-progress-line { margin: 0; font: 500 13px/1.3 var(--mono); color: var(--ink-3); }
+.ob-mail { list-style: none; margin: 0; padding: 0; border-radius: var(--r-md); background: var(--card); box-shadow: var(--e-1); overflow: hidden; }
+.ob-mail-row { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 13px 14px; border-top: 1px solid var(--line); transition: opacity .3s; }
+.ob-mail-row:first-child { border-top: 0; }
+.ob-mail-row[data-relevant="no"] { opacity: .5; }
+.ob-mail-icon { width: 10px; height: 10px; border-radius: 50%; background: var(--line-strong); }
+.ob-mail-row[data-state="reading"] .ob-mail-icon { background: var(--official); animation: ob-pulse 1s ease-in-out infinite; }
+.ob-mail-row[data-relevant="yes"] .ob-mail-icon { background: var(--official); }
+.ob-mail-row[data-state="error"] .ob-mail-icon { background: var(--deadline); }
+@keyframes ob-pulse { 50% { transform: scale(1.5); opacity: .5; } }
+.ob-mail-text { min-width: 0; display: grid; gap: 2px; }
+.ob-mail-text strong { font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ob-mail-text span { font-size: 13.5px; color: var(--ink-2); line-height: 1.4; }
+.ob-mail-row[data-relevant="yes"] .ob-mail-text span { color: var(--ink); }
+.ob-mail-state { font: 500 11.5px/1 var(--mono); color: var(--ink-3); white-space: nowrap; }
+.ob-mail-row[data-relevant="yes"] .ob-mail-state { color: var(--official); }
+
+.ob-find-group h2 { margin: 0 0 8px; font: 500 12px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.ob-find-group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ob-find { border-radius: var(--r-md); background: var(--card); box-shadow: var(--e-1); padding: 14px; border-left: 3px solid var(--official); transition: opacity .2s; }
+.ob-find-group[data-kind="deadline"] .ob-find { border-left-color: var(--deadline); }
+.ob-find[data-off="true"] { opacity: .5; }
+.ob-find { display: flex; gap: 12px; align-items: flex-start; }
+.ob-find > .ob-find-body { flex: 1; min-width: 0; }
+.ob-cal-toggle { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 14px; border-radius: var(--r-md); background: var(--card); box-shadow: var(--e-1); font-size: 14.5px; }
+.ob-find-body { display: grid; gap: 4px; font-size: 14.5px; line-height: 1.45; }
+.ob-find-body strong { font-size: 16px; font-weight: 600; }
+.ob-find-body > span { color: var(--ink-2); }
+.ob-find-fact { grid-template-columns: minmax(0, 1fr); }
+.ob-find-fact > span:first-child { font-size: 12.5px; color: var(--ink-3); }
+.ob-find-fact strong { font-family: var(--mono); font-size: 15px; overflow-wrap: anywhere; }
+.ob-find-when { font: 600 13px/1.3 var(--mono); color: var(--official) !important; }
+.ob-find-when[data-urgent="true"] { color: var(--deadline) !important; }
+.ob-find-warn { color: var(--deadline) !important; font-size: 13.5px; }
+.ob-find-bring { font-size: 13.5px; }
+.ob-src { font-size: 12px; color: var(--ink-3) !important; overflow-wrap: anywhere; }
+.ob-how summary { cursor: pointer; font-size: 13px; color: var(--ink-2); }
+.ob-how blockquote { margin: 8px 0; padding: 8px 10px; border-left: 2px solid var(--official-line); background: var(--official-soft); font-size: 13.5px; font-style: italic; }
+.ob-how ol { margin: 6px 0 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); display: grid; gap: 3px; }
+.ob-commit { display: grid; gap: 14px; position: sticky; bottom: 0; padding: 14px 0 calc(8px + env(safe-area-inset-bottom)); background: linear-gradient(transparent, var(--canvas) 22%); }
+.ob-cal { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ob-cal li { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--card); box-shadow: var(--e-1); font-size: 14px; }
+.ob-cal li span { min-width: 0; overflow-wrap: anywhere; }
+.ob-cal a { color: var(--ink); white-space: nowrap; }
+.ob-cal em { font-style: normal; color: var(--ink-3); white-space: nowrap; }
+.ob-cal li[data-status="failed"] em { color: var(--deadline); white-space: normal; }
+
+.ob-ring, .ob-call-head { display: flex; align-items: center; gap: 16px; }
+.ob-ring { padding: 20px; border-radius: var(--r-lg); background: var(--card); color: var(--ink); box-shadow: var(--e-2); }
+.ob-ring div, .ob-call-head div { display: grid; gap: 4px; }
+.ob-ring strong, .ob-call-head strong { font-size: 19px; }
+.ob-ring div span { font-size: 14px; color: var(--ink-3); }
+.ob-answer-btn { background: var(--ok); border-color: var(--ok); color: #fff; }
+.ob-call { padding: 20px; border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-lg); display: grid; gap: 18px; }
+
+
+
+
+
+.ob-file { display: none; }
+@media (min-width: 1024px) {
+  .ob-grid { grid-template-columns: minmax(0, 1fr) 340px; gap: 56px; padding-top: 56px; }
+  .ob-talk { margin-inline: 0 auto; }
+  .ob-file { display: block; position: sticky; top: 92px; padding: 20px; border-radius: var(--r-lg); background: var(--card); box-shadow: var(--e-2); }
+  .ob-file-head { display: flex; justify-content: space-between; font: 500 11.5px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .ob-file dl { margin: 0; display: grid; }
+  .ob-file dl div { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; padding: 11px 0 11px 10px; border-bottom: 1px solid var(--line); border-left: 2px solid transparent; transition: border-color .4s, background .4s; }
+  .ob-file dl div[data-filled="true"] { border-left-color: var(--user-fill); }
+  .ob-file dl div[data-filled="true"][data-source="official"] { border-left-color: var(--official); }
+  .ob-file dt { font-size: 12.5px; color: var(--ink-3); }
+  .ob-file dd { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+  .ob-file div[data-filled="false"] dd { color: var(--ink-3); }
+  .ob-file-legend { display: flex; align-items: center; gap: 6px; margin: 14px 0 0; font-size: 12px; color: var(--ink-3); }
+  .ob-file-legend i { width: 8px; height: 8px; border-radius: 2px; background: var(--user-fill); }
+  .ob-file-legend i[data-source="official"] { background: var(--official); margin-left: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .ob-talk, .ob-mail-row[data-state="reading"] .ob-mail-icon, .ob-ring-avatar::after { animation: none !important; } }
+.ob-checking { font: 500 12px/1 var(--mono); color: var(--ink-3); animation: ob-pulse-text 1.2s ease-in-out infinite; }
+@keyframes ob-pulse-text { 50% { opacity: .4; } }
+@media (max-width: 420px) { .ob-conn > .ob-checking { grid-column: 1 / -1; } }

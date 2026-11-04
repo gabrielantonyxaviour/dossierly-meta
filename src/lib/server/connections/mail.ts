@@ -9,7 +9,7 @@ const string = (v: unknown, max = 16000) => typeof v === "string" ? v.slice(0, m
 export function plainText(v: unknown) { return string(v, 100_000).replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, "").replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").slice(0, 16_000); }
 function decode(s: string) { try { return atob(s.replace(/-/g, "+").replace(/_/g, "/")); } catch { throw new ApiError(502, "The attachment could not be decoded.", "invalid_attachment"); } }
 function textBody(v: unknown) { const bytes = Uint8Array.from(decode(string(v, 140_000)), c => c.charCodeAt(0)); return new TextDecoder().decode(bytes).slice(0, 16000); }
-const gmailMessage = z.object({ id: z.string(), snippet: z.string().optional(), payload: z.object({
+export const gmailMessage = z.object({ id: z.string(), snippet: z.string().optional(), payload: z.object({
   headers: z.array(z.object({ name: z.string(), value: z.string() })).optional(),
   mimeType: z.string().optional(), filename: z.string().optional(), body: record.optional(), parts: z.array(z.unknown()).optional(),
 }).optional() });
@@ -18,7 +18,7 @@ function parts(v: unknown, depth = 0): Record<string, unknown>[] {
   const p = v as Record<string, unknown>;
   return [p, ...(Array.isArray(p.parts) ? p.parts.slice(0, 30).flatMap(x => parts(x, depth + 1)) : [])].slice(0, 64);
 }
-function header(msg: z.infer<typeof gmailMessage>, name: string) { return string(msg.payload?.headers?.find(h => h.name.toLowerCase() === name)?.value, 500); }
+export function header(msg: z.infer<typeof gmailMessage>, name: string) { return string(msg.payload?.headers?.find(h => h.name.toLowerCase() === name)?.value, 500); }
 export async function searchMail(env: ConnectionsEnv, accountId: string, input: unknown) {
   const { q, cursor } = searchSchema.parse(input); await budget(env, accountId);
   const row = await owned(env, accountId, "mail");
@@ -54,7 +54,7 @@ export async function importMail(env: ConnectionsEnv, accountId: string, input: 
   const row = await owned(env, accountId, "mail");
   return row.provider === "gmail" ? importGmail(env, row, messageId, attachmentId) : importOutlook(env, row, messageId, attachmentId);
 }
-async function importGmail(env: ConnectionsEnv, row: AccountRow, id: string, attachmentId?: string) {
+export async function importGmail(env: ConnectionsEnv, row: AccountRow, id: string, attachmentId?: string) {
   const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/${encodeURIComponent(id)}`;
   const msg = gmailMessage.parse(await proxy(env, row, `${url}?format=full`, "GET", undefined, 6_000_000));
   const all = parts(msg.payload), attachments = all.filter(p => p.filename && p.body && typeof p.body === "object").map(p => {

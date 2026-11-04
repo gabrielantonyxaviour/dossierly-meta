@@ -27,8 +27,9 @@ export function handler(action: "status" | "connect" | "disconnect" | "callback"
         case "connect": return response(await connect(env, accountId, req, await input(req)));
         case "disconnect": return response(await disconnect(env, accountId, disconnectSchema.parse(await input(req)).category));
         case "callback": {
-          const path = await callback(env, accountId, req);
-          const url = new URL(path, env.APP_URL); url.searchParams.set("connection", "connected");
+          // A denied consent or expired link returns the person to setup with a message, never a JSON page.
+          const path = await callback(env, accountId, req).then((p) => ({ p, ok: true }), () => ({ p: "/onboarding", ok: false }));
+          const url = new URL(path.p, env.APP_URL); url.searchParams.set("connection", path.ok ? "connected" : "failed");
           return new Response(null, { status: 303, headers: { location: url.toString(), "cache-control": "no-store", "referrer-policy": "no-referrer" } });
         }
         case "mail": { const q = new URL(req.url).searchParams; return response(await searchMail(env, accountId, { q: q.get("q") ?? "", ...(q.has("cursor") ? { cursor: q.get("cursor") } : {}) })); }

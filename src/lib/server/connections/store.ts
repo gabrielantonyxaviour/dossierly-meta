@@ -12,7 +12,7 @@ export async function owned(env: ConnectionsEnv, accountId: string, category: Ca
 }
 export async function budget(env: ConnectionsEnv, accountId: string) {
   const day = new Date().toISOString().slice(0, 10);
-  const r = await env.DB.prepare("INSERT INTO connection_usage (account_id, day, calls) VALUES (?, ?, 1) ON CONFLICT(account_id, day) DO UPDATE SET calls = calls + 1 WHERE calls < 80")
+  const r = await env.DB.prepare("INSERT INTO connection_usage (account_id, day, calls) VALUES (?, ?, 1) ON CONFLICT(account_id, day) DO UPDATE SET calls = calls + 1 WHERE calls < 400")
     .bind(accountId, day).run();
   if (r.meta?.changes !== 1) throw new ApiError(429, "Today's connection limit is reached. Try again tomorrow.", "connection_limit");
 }

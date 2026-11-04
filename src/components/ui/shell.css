@@ -9,7 +9,7 @@ body:has(.sh) { background: var(--canvas); }
 /* Tab bar */
 .sh-tabbar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(5, 1fr); align-items: end;
-  height: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); padding: 0 6px env(safe-area-inset-bottom);
+  height: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); padding: 0 max(6px, calc((100% - 540px) / 2)) env(safe-area-inset-bottom);
   background: var(--glass); backdrop-filter: saturate(1.6) blur(18px); -webkit-backdrop-filter: saturate(1.6) blur(18px); box-shadow: 0 -1px 0 var(--line);
 }
 .sh-tab {

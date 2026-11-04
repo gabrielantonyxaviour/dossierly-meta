@@ -16,11 +16,11 @@ const serif = Instrument_Serif({ subsets: ["latin", "latin-ext"], weight: "400",
 const mono = JetBrains_Mono({ subsets: ["latin", "latin-ext"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://dossierly.pages.dev"),
+  metadataBase: new URL("https://dossierly.cosmiclan.com"),
   title: { default: "Dossierly · your AI caseworker for life in Poland", template: "%s · Dossierly" },
   description:
-    "A private AI caseworker that remembers your residence case: prepares you for the office, interprets live, reads official letters, links them to what was said and counts the deadline.",
-  openGraph: { title: "Dossierly", description: "Your private AI caseworker for life abroad. Poland first.", url: "https://dossierly.pages.dev" },
+    "A personal AI caseworker for newcomers with a temporary residence permit in Poland. It knows your case, explains official letters, counts deadlines the way Polish law does and helps you at the office counter. Built on Meta Muse.",
+  openGraph: { title: "Dossierly", description: "Your own caseworker for life in Poland. Built on Meta Muse.", url: "https://dossierly.cosmiclan.com" },
 };
 
 export const viewport: Viewport = {

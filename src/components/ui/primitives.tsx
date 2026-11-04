@@ -92,7 +92,7 @@ export function Switch({ checked, onChange, label, disabled }: { checked: boolea
 /** Round task checkbox. */
 export function CheckCircle({ checked, onChange, label, disabled }: { checked: boolean; onChange: (v: boolean) => void; label: string; disabled?: boolean }) {
   return (
-    <button type="button" role="checkbox" aria-checked={checked} aria-label={label} disabled={disabled} className="ui-check" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onChange(!checked); }}>
+    <button type="button" role="checkbox" aria-checked={checked} aria-label={label} disabled={disabled} className="ui-check-circle" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onChange(!checked); }}>
       <Icon name="check" size={15} />
     </button>
   );
