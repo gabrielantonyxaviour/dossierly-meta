@@ -10,6 +10,7 @@ vi.mock("@/lib/onboarding/intake", () => ({
 }));
 
 import { IntakeMode } from "@/lib/voice/server/modes/intake";
+import { intakeTurn } from "@/lib/onboarding/intake";
 
 function fakeSession() {
   const log: string[] = [];
@@ -44,5 +45,17 @@ describe("intake mode", () => {
     release();
     await p;
     expect(log).toEqual(["turn:user"]);
+  });
+  it("retries once when the model fails, and speaks once", async () => {
+    vi.mocked(intakeTurn).mockImplementationOnce(async () => {
+      throw new Error("Model returned an empty reply");
+    });
+    const { s, log } = fakeSession();
+    const p = new IntakeMode(s as never).utterance(utt, new AbortController().signal);
+    await new Promise((r) => setTimeout(r, 0));
+    release();
+    await p;
+    expect(log.filter((x) => x === "say")).toHaveLength(1);
+    expect(log.at(-1)).toBe("intake");
   });
 });

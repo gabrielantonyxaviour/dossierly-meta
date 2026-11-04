@@ -36,7 +36,9 @@ export class IntakeMode implements ModeHandler {
     };
     type Opts = { defer?: (p: Promise<unknown>) => void; onReply?: (reply: string, language: string) => void };
     const turn = intakeTurn as unknown as (e: Env, userId: string, t: string, o?: Opts) => ReturnType<typeof intakeTurn>;
-    const r = await turn(this.s.env as unknown as Env, this.s.ticket.u, u.text, { defer: (p) => void p.catch(() => undefined), onReply: speakReply });
+    const call = () => turn(this.s.env as unknown as Env, this.s.ticket.u, u.text, { defer: (p) => void p.catch(() => undefined), onReply: speakReply });
+    // One retry: a transient model error (empty reply, briefly unavailable) must not lose the take.
+    const r = await call().catch((e) => (signal.aborted ? Promise.reject(e) : call()));
     if (signal.aborted) return;
     speakReply(r.reply, r.language); // no-op when onReply already spoke
     this.s.emit({ t: "intake", profile: r.profile, firstName: r.firstName, language: r.language });
