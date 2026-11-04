@@ -9,7 +9,7 @@
 .cs-stages li::before { content: ""; position: absolute; top: 8px; left: 18px; right: -2px; height: 2px; background: var(--line-strong); border-radius: 1px; }
 .cs-stages li:last-child::before { display: none; }
 .cs-stages li.is-done::before { background: var(--ok); }
-.cs-stage-dot { position: relative; z-index: 1; width: 18px; height: 18px; border-radius: 50%; background: var(--card); box-shadow: inset 0 0 0 2px var(--line-strong); display: grid; place-items: center; color: #fff; }
+.cs-stage-dot { position: relative; z-index: 1; width: 18px; height: 18px; border-radius: 50%; background: var(--card); box-shadow: inset 0 0 0 2px var(--line-strong); display: grid; place-items: center; color: var(--bg); }
 .is-done .cs-stage-dot { background: var(--ok); box-shadow: none; }
 .is-now .cs-stage-dot { background: var(--ink); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ink) 14%, transparent); }
 .cs-stage-label { font-size: 0.6875rem; line-height: 1.25; color: var(--ink-3); font-weight: 500; padding-right: 4px; }
@@ -35,7 +35,7 @@
 .tl-item:last-child::before { display: none; }
 .tl-item:target .tl-body { box-shadow: 0 0 0 2px var(--ink); }
 .tl-icon { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--card); box-shadow: var(--e-1); color: var(--ink-2); }
-.tl--agent .tl-icon { background: var(--agent-grad); color: #fff; box-shadow: none; }
+.tl--agent .tl-icon { background: var(--agent-grad); color: var(--brand-ink); box-shadow: none; }
 .tl--official .tl-icon { background: var(--official-soft); color: var(--official); box-shadow: none; }
 .tl--deadline .tl-icon { background: var(--deadline-soft); color: var(--deadline); box-shadow: none; }
 .tl--user .tl-icon { background: var(--user-soft); color: var(--user); box-shadow: none; }
@@ -45,7 +45,8 @@
 .tl-meta span { color: var(--ink-3); }
 .tl-body p { margin: 0; color: var(--ink-2); font-size: var(--t-md); overflow-wrap: anywhere; }
 .tl-refs { display: flex; flex-wrap: wrap; gap: 6px; }
-.tl-refs a { text-decoration: none; }
+.tl-refs a { text-decoration: none; min-width: 0; max-width: 100%; }
+.tl-refs .ui-pill { white-space: normal; line-height: 1.3; padding-block: 4px; overflow-wrap: anywhere; }
 
 /* Detail pages */
 .dt-hero { display: grid; gap: var(--s-3); }
