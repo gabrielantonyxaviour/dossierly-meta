@@ -78,7 +78,7 @@ a.ui-row, button.ui-row { cursor: pointer; transition: background var(--d-1); }
 a.ui-row:hover, button.ui-row:hover { background: var(--card-2); }
 .ui-row-icon { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--sunken); color: var(--ink-2); flex: none; }
 .ui-row-main { display: grid; gap: 2px; min-width: 0; }
-.ui-row-title { font-weight: 500; font-size: var(--t-md); line-height: 1.35; overflow-wrap: anywhere; }
+.ui-row-title { font-weight: 500; font-size: 0.9375rem; line-height: 1.35; overflow-wrap: anywhere; }
 .ui-row-sub { font-size: var(--t-sm); color: var(--ink-3); line-height: 1.4; overflow-wrap: anywhere; }
 .ui-row-end { display: flex; align-items: center; gap: 6px; color: var(--ink-3); font-size: var(--t-sm); }
 

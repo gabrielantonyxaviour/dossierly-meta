@@ -1,6 +1,5 @@
 "use client";
-import { ButtonLink, Card, EmptyState, Pill, Row, Section, Skeleton, TopBar } from "@/components/ui";
-import { Icon } from "@/components/Icon";
+import { ButtonLink, Card, EmptyState, Pill, Row, Section, Skeleton, StickyActionBar, TopBar } from "@/components/ui";
 import { dayLabel } from "../format";
 import { useCaseData } from "../shell/case-data";
 import "./case.css";
@@ -21,14 +20,14 @@ export function DocumentDetail({ id }: { id: string }) {
   const events = snapshot.events.filter((e) => e.refs.includes(d.id));
   const [st, tone] = STATUS[d.status];
   const q = encodeURIComponent(d.status === "have" ? `What does “${d.title}” mean for my case?` : `How do I get “${d.title}” and what exactly does the office need?`);
+  const ask = <ButtonLink href={`/app/chat?q=${q}&attach=document:${d.id}`} variant={d.status === "have" ? "primary" : "ghost"} icon="sparkle">Ask about this document</ButtonLink>;
   return (
-    <div className="sh-page">
+    <div className={`sh-page ${d.status !== "have" || d.kind === "letter" ? "sh-page--actions2" : "sh-page--actions"}`}>
       <TopBar title={d.title} back={back} eyebrow={SOURCE[d.source]} actions={<Pill tone={tone} dot>{st}</Pill>} />
       {d.status !== "have" ? (
         <Card className="dt-hero">
           <p className="ui-title">{d.status === "requested" ? "The office asked for this" : "This is still missing"}</p>
           <p className="ui-body">{d.status === "requested" ? "Get it before the deadline below, then add a photo with Look so it’s in your case." : "Add it with Look when you have it. Dossierly checks it against what the office needs."}</p>
-          <div className="dt-actions"><ButtonLink href="/app/look" variant="primary" icon="scan">Add with Look</ButtonLink></div>
         </Card>
       ) : (
         <div className="dt-preview" aria-label="Document file">
@@ -56,10 +55,11 @@ export function DocumentDetail({ id }: { id: string }) {
         </Section>
       )}
 
-      <div className="dt-actions">
-        <ButtonLink href={`/app/chat?q=${q}&attach=document:${d.id}`} variant="secondary" icon="sparkle">Ask about this document</ButtonLink>
-        {d.kind === "letter" && <ButtonLink href="/app/look" variant="ghost" iconEnd="forward"><Icon name="scan" size={18} />Look at it again</ButtonLink>}
-      </div>
+      {d.status !== "have" ? (
+        <StickyActionBar secondary={ask}><ButtonLink href="/app/look" variant="primary" icon="scan">Add with Look</ButtonLink></StickyActionBar>
+      ) : (
+        <StickyActionBar secondary={d.kind === "letter" ? <ButtonLink href="/app/look" variant="ghost" icon="scan">Look at it again</ButtonLink> : undefined}>{ask}</StickyActionBar>
+      )}
     </div>
   );
 }
