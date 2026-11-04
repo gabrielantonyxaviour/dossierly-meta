@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { AgentCall } from "@/lib/voice/client/useAgentCall";
 import { LANG_NAME, type CoachNote, type VoiceTurn } from "@/lib/voice/protocol";
 import { Captured } from "@/components/voice/bits";
-import { OfficialDoc } from "./OfficialDoc";
+import { OfficialDoc, preloadCaseFiles } from "./OfficialDoc";
 
 function useAutoScroll(dep: unknown) {
   const ref = useRef<HTMLDivElement>(null);
@@ -18,7 +18,13 @@ function useAutoScroll(dep: unknown) {
 export function OfficialHalf({ call }: { call: AgentCall }) {
   const ref = useAutoScroll(call.turns);
   const doc = call.docs[call.docs.length - 1] ?? null;
-  const turns = call.turns.slice(doc ? -2 : -5);
+  const turns = call.turns.slice(-5);
+  useEffect(() => void preloadCaseFiles(), []);
+  // While a document is up, the user's newest words in Polish (said with or after it) stay readable under it.
+  const [opened, setOpened] = useState<{ id: string; n: number } | null>(null);
+  if (doc && opened?.id !== doc.docId) setOpened({ id: doc.docId, n: call.turns.length });
+  const from = doc ? call.turns.findIndex((t) => t.id === doc.turnId) : -1;
+  const caption = doc ? call.turns.slice(from >= 0 ? from : opened?.id === doc.docId ? opened.n : call.turns.length).filter((t) => t.who === "user" && t.translation).pop()?.translation : undefined;
   return (
     <section className={`ct-half ct-half-official ${doc ? "has-doc" : ""}`} lang="pl" aria-label="Dla urzędnika (Polish)">
       <header className="ct-label">
@@ -36,7 +42,7 @@ export function OfficialHalf({ call }: { call: AgentCall }) {
         )}
         {call.partial && <p className="ct-heard is-partial"><span>Słucham</span>{call.partial}</p>}
       </div>
-      {doc && <OfficialDoc key={doc.docId} doc={doc} onClose={() => call.dismissDoc(doc.docId)} />}
+      {doc && <OfficialDoc key={doc.docId} doc={doc} caption={caption} onClose={() => call.dismissDoc(doc.docId)} />}
     </section>
   );
 }

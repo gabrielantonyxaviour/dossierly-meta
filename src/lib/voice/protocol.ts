@@ -70,6 +70,10 @@ export interface DocCard {
   /** Polish caption for the official. */
   captionPl: string;
   fields: Record<string, string>;
+  /** The stored file itself (a page image or PDF from the case), served by /api/case/documents/:id/file. */
+  file?: { url: string; type: "image" | "pdf" } | null;
+  /** The full Polish text of a letter Dossierly drafted (no stored file). */
+  textPl?: string;
 }
 
 export interface CapturedItem {

@@ -2,7 +2,7 @@ import { caseClient } from "@/lib/case/client";
 import { warsawToday } from "@/lib/case/next-step";
 import { COLLECTIONS, FACT_KEYS, defaultProfile } from "@/lib/case/types";
 import type { Env } from "@/lib/server/env";
-import { buildArjunSeed } from "./arjun-seed";
+import { buildArjunSeed, storeSeedFiles } from "./arjun-seed";
 import { SAMPLE_LABEL_ID } from "./sample-label";
 
 /* Flow-isolated preview testing (Gabriel, 4 Nov). Never active in production: every helper checks APP_ENV. */
@@ -21,12 +21,14 @@ export function previewFlow(env: Env): PreviewFlow | null {
 export const FLOW_HOME: Record<PreviewFlow, string> = { onboarding: "/onboarding", app: "/app", voice: "/app/counter", look: "/app/look" };
 
 
-async function seed(userId: string) {
+async function seed(env: Env, userId: string) {
   const cc = caseClient(userId);
   const s = buildArjunSeed(warsawToday());
+  const files = await storeSeedFiles(env as unknown as Parameters<typeof storeSeedFiles>[0], userId).catch(() => ({}) as Record<string, string>);
   await cc.patchProfile(s.profile);
   await cc.patchFacts(s.facts);
-  for (const kind of ["documents", "deadlines", "appointments", "tasks", "events"] as const) {
+  for (const doc of s.documents) await cc.create("documents", { ...doc, fileKey: files[doc.id] ?? null });
+  for (const kind of ["deadlines", "appointments", "tasks", "events"] as const) {
     for (const item of s[kind]) await cc.create(kind, item);
   }
   await cc.create("events", {
@@ -55,7 +57,7 @@ export async function ensurePreviewCase(env: Env, accountId: string, onboarded: 
   const cc = caseClient(accountId);
   const snap = await cc.snapshot();
   const empty = isEmpty(snap);
-  if (empty) await seed(accountId);
+  if (empty) await seed(env, accountId);
   if (!onboarded) await completeOnboarding(env, accountId);
   return empty || !onboarded;
 }
@@ -70,7 +72,7 @@ export async function resetPreviewAccount(env: Env, accountId: string, opts: { r
   const { country: _country, ...profile } = defaultProfile();
   await cc.patchProfile(profile);
   if (opts.reseed) {
-    await seed(accountId);
+    await seed(env, accountId);
     await completeOnboarding(env, accountId);
   } else {
     await env.DB.prepare("DELETE FROM onboarding_progress WHERE account_id = ?").bind(accountId).run();

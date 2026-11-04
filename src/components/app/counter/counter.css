@@ -53,29 +53,46 @@
 .ct-dock > :last-child { flex: none; padding: 0 18px; }
 .ct-dock > :only-child, .ct-dock > .ct-flip:first-child + * { flex: 1; }
 
-/* The document on the official's half: big Polish caption, a few fields, legible at 45% film scale. */
-.ct-odoc {
-  flex: none; max-height: 68%; overflow-y: auto; min-width: 0; display: grid; gap: 6px; padding: 14px 16px 16px;
-  background: var(--surface); border-radius: var(--radius); border: 2px solid var(--official-line); box-shadow: var(--shadow-lg); animation: ct-pop 0.25s ease-out;
+/* The document the official asked for, full-screen on the official's half (a native document viewer, not a card). */
+.ct-half-official { position: relative; }
+.ct-view {
+  position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; min-width: 0; background: #fff; color: #17171a;
+  animation: ct-view-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.ct-odoc.is-draft { border-style: dashed; }
-@keyframes ct-pop { from { opacity: 0; transform: translateY(8px) scale(0.97); } }
-.ct-odoc header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -6px -8px -4px 0; }
-.ct-odoc small { font-size: var(--t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--official); font-weight: 600; }
-.ct-odoc-x { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: var(--ink-3); cursor: pointer; }
-.ct-odoc h2 { margin: 0; font-size: clamp(1.625rem, 1.3rem + 1.6vw, 2.25rem); line-height: 1.12; letter-spacing: -0.02em; overflow-wrap: anywhere; }
-.ct-odoc-basis { margin: 0; font-size: var(--t-md); font-weight: 600; color: color-mix(in srgb, var(--official) 70%, var(--ink)); }
-.ct-odoc dl { margin: 4px 0 0; display: grid; gap: 6px; }
-.ct-odoc dl div { display: grid; grid-template-columns: minmax(84px, 34%) minmax(0, 1fr); gap: 10px; padding-top: 6px; border-top: 1px solid var(--line); }
-.ct-odoc dt { color: var(--ink-3); font-size: var(--t-sm); padding-top: 2px; }
-.ct-odoc dd { margin: 0; font-weight: 600; font-size: 1.0625rem; line-height: 1.3; overflow-wrap: anywhere; }
-.ct-half-official.has-doc .ct-big { font-size: 1.25rem; }
-/* A document is up: the official's half takes the larger share so the whole card reads across the desk. */
+@keyframes ct-view-in { from { transform: translateY(14%); opacity: 0; } }
+.ct-view-bar {
+  flex: none; display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 6px 8px 6px var(--side);
+  background: var(--surface); color: var(--ink); border-bottom: 1px solid var(--line);
+}
+.ct-view-title { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.ct-view-title b { font-size: 1.1875rem; line-height: 1.2; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ct-view-title span { font-size: var(--t-sm); color: var(--official); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ct-view-x {
+  flex: none; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; cursor: pointer;
+  background: color-mix(in srgb, var(--ink) 9%, transparent); color: var(--ink);
+}
+.ct-view-x:focus-visible { outline: 2px solid var(--official); outline-offset: 2px; }
+.ct-view-body { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; background: #fff; }
+/* A4 pages carry ~10% white margins: trim most of them so the text reads across the desk. */
+.ct-view-page { display: block; width: 112%; max-width: none; height: auto; margin: -8% 0 0 -6%; }
+.ct-view-pdf { display: block; width: 100%; height: 100%; border: 0; background: #fff; }
+.ct-view-paper { padding: 18px var(--side) 28px; font-family: "Times New Roman", Times, Georgia, serif; font-size: 1.0625rem; line-height: 1.45; }
+.ct-view-paper h2 { margin: 0 0 10px; font-size: 1.75rem; line-height: 1.15; }
+.ct-view-paper dl { margin: 0; display: grid; gap: 8px; }
+.ct-view-paper dl div { display: grid; grid-template-columns: minmax(84px, 34%) minmax(0, 1fr); gap: 10px; padding-top: 8px; border-top: 1px solid #e3e3e6; }
+.ct-view-paper dt { color: #5d5d66; font-size: 0.9375rem; }
+.ct-view-paper dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
+.ct-letter p { margin: 0 0 12px; overflow-wrap: anywhere; }
+.ct-letter .is-date { text-align: right; }
+.ct-letter .is-title { margin: 6px 0 14px; text-align: center; font-weight: 700; font-size: 1.1875rem; letter-spacing: 0.02em; }
+.ct-letter .is-sign { text-align: right; font-style: italic; }
+.ct-view-cap {
+  flex: none; margin: 0; padding: 10px var(--side) 12px; background: color-mix(in srgb, var(--official) 88%, #000); color: #fff;
+  font-size: 1.0625rem; font-weight: 600; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+/* A document is up: the official's half takes the larger share so the page reads across the desk. */
 .ct:has(.ct-half-official.has-doc) { grid-template-rows: minmax(0, 1.45fr) auto minmax(0, 1fr) auto; }
-.ct-half-official.has-doc { gap: 8px; }
-.ct-half-official.has-doc .ct-odoc { max-height: 82%; }
-@media (max-height: 800px) { .ct-odoc { padding: 12px 14px 14px; } .ct-odoc h2 { font-size: 1.625rem; } }
-@media (prefers-reduced-motion: reduce) { .ct-odoc { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .ct-view { animation: none; } }
 
 /* Counter tab hub */
 .ch { display: grid; gap: 18px; }
