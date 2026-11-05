@@ -23,6 +23,13 @@ type Watch = {
 };
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const FILE_TYPE: Record<string, "image" | "pdf"> = { png: "image", jpg: "image", jpeg: "image", webp: "image", pdf: "pdf" };
+
+/** The document's own stored file, when it has one the viewer can render. */
+export function storedFile(doc: CaseDocument): DocCard["file"] {
+  const type = doc.fileKey ? FILE_TYPE[doc.fileKey.split(".").pop()?.toLowerCase() ?? ""] : undefined;
+  return type ? { url: `/api/case/documents/${encodeURIComponent(doc.id)}/file`, type } : null;
+}
 const ADDRESS_TASK = /address|adres|notice|zawiadom|writing|piśmie/i;
 
 export class CounterMode implements ModeHandler {
@@ -126,7 +133,7 @@ export class CounterMode implements ModeHandler {
   }
 
   private showDoc(turnId: string, doc: CaseDocument): void {
-    const card: DocCard = { turnId, docId: doc.id, title: doc.title, kind: doc.kind, captionPl: PL_DOC[doc.kind] ?? "Dokument", fields: doc.extractedFields };
+    const card: DocCard = { turnId, docId: doc.id, title: doc.title, kind: doc.kind, captionPl: PL_DOC[doc.kind] ?? "Dokument", fields: doc.extractedFields, file: storedFile(doc) };
     this.notes.push(doc.title);
     this.s.emit({ t: "doc", doc: card });
   }
@@ -170,7 +177,7 @@ export class CounterMode implements ModeHandler {
       this.notes.push(d.title);
       this.s.emit({
         t: "doc",
-        doc: { turnId, docId: d.docId, title: d.title, kind: "address_change", captionPl: "Zawiadomienie o zmianie adresu", fields: { caseNumber: facts.caseNumber, oldAddress: facts.oldAddress, newAddress: facts.newAddress, movedOn: facts.movedOn } },
+        doc: { turnId, docId: d.docId, title: d.title, kind: "address_change", captionPl: "Zawiadomienie o zmianie adresu", textPl: d.textPl, fields: { caseNumber: facts.caseNumber, oldAddress: facts.oldAddress, newAddress: facts.newAddress, movedOn: facts.movedOn } },
       });
     } catch {
       this.s.emit({ t: "error", error: "Could not draft the address change notice", code: "draft_failed" });

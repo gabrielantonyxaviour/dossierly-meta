@@ -124,3 +124,25 @@ export function buildArjunSeed(today: string) {
 }
 
 export type ArjunSeed = ReturnType<typeof buildArjunSeed>;
+
+type AssetsEnv = { BLOBS: { put(key: string, value: ArrayBuffer): Promise<unknown> }; ASSETS?: { fetch(input: string): Promise<Response> } };
+
+/** Stored files for seeded documents: the lease's signed page, as it arrived by email (public/sample/letters). */
+const SEED_FILES: Record<string, string> = { "doc-rental": "/sample/letters/umowa-najmu.png" };
+
+/**
+ * Copies each seeded document's page into the person's own case storage and returns docId → fileKey, so the
+ * document is served by /api/case/documents/:id/file like any upload. Skips a file it cannot read (no ASSETS locally).
+ */
+export async function storeSeedFiles(env: AssetsEnv, userId: string): Promise<Record<string, string>> {
+  const out: Record<string, string> = {};
+  if (!env.ASSETS) return out;
+  for (const [docId, path] of Object.entries(SEED_FILES)) {
+    const res = await env.ASSETS.fetch(`https://assets.local${path}`).catch(() => null);
+    if (!res?.ok) continue;
+    const key = `case/${userId}/${docId}.${path.split(".").pop()}`;
+    await env.BLOBS.put(key, await res.arrayBuffer());
+    out[docId] = key;
+  }
+  return out;
+}
