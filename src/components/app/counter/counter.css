@@ -123,3 +123,4 @@
 .ct-yourturn { display: grid; gap: 4px; }
 .ct-told { margin: 0; font-size: 0.9375rem; line-height: 1.4; color: var(--ink-2); }
 .ct-told::before { content: "→ "; color: var(--official); }
+.ct-brief .ct-do.is-only { padding-top: 0; border-top: 0; } .ct-brief .ct-do.is-only p { font-size: 1.1875rem; line-height: 1.32; }

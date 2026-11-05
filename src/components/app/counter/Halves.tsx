@@ -76,7 +76,7 @@ function Brief({ t }: { t: VoiceTurn }) {
     <div className={`ct-brief ${ask ? "is-ask" : ""}`}>
       {b.asked && <div><small>{t.mode === "relay" ? "The official" : "She asked"}</small><p className="ct-asked-q">{b.asked}</p></div>}
       {b.told && <div><small>I told her</small><p>{b.told}</p></div>}
-      {b.do && <div className="ct-do"><small>{ask ? "I need you" : "You"}</small><p>{b.do}</p></div>}
+      {b.do && <div className={b.asked || b.told ? "ct-do" : "ct-do is-only"}><small>{ask ? "I need you" : "Dossierly, for you"}</small><p>{b.do}</p></div>}
     </div>
   );
 }

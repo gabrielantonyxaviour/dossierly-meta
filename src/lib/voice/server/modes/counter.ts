@@ -29,7 +29,7 @@ const ADDRESS_TASK = /address|adres|notice|zawiadom|writing|piśmie/i;
 const FILE_TYPE: Record<string, "image" | "pdf"> = { png: "image", jpg: "image", jpeg: "image", webp: "image", pdf: "pdf" };
 /** The same document is not pushed to the official twice within this window (partial + final + watcher). */
 const REOFFER_MS = 8000;
-const BRIEF_KEY: Record<string, keyof Brief> = { ASKED: "asked", TOLD: "told", DO: "do" };
+const BRIEF_KEY: Record<string, keyof Brief> = { EN: "do", ASKED: "asked", TOLD: "told", DO: "do" };
 const join = (a: string | undefined, b: string) => (a ? `${a} ${b}` : b);
 export const briefText = (b: Brief) => [b.asked, b.told, b.do].filter(Boolean).join(" ");
 
@@ -147,11 +147,11 @@ export class CounterMode implements ModeHandler {
     };
     const res = await streamLines(
       this.s.env,
-      { role: "interpret", effort: "minimal", system: officialAgentSystem(this.s.lang, this.person, this.prepared()), messages: [{ role: "user", content: input }], speak: ["PL", "ASKED", "TOLD", "DO"], signal, maxTokens: 1600 },
+      { role: "interpret", effort: "minimal", system: officialAgentSystem(this.s.lang, this.person, this.prepared()), messages: [{ role: "user", content: input }], speak: ["PL", "EN"], signal, maxTokens: 1600 },
       {
         onField: (k, v) => {
           if (k === "DOC" && !signal.aborted) this.showAsked(u.id, v);
-          if (k === "DO") speakBrief();
+          if (k === "EN") speakBrief();
         },
         onSentence: (k, sentence) => {
           if (signal.aborted) return;
@@ -171,7 +171,7 @@ export class CounterMode implements ModeHandler {
     speakBrief();
     this.s.speaker.end(u.id);
     const f = res.fields;
-    const fin: Brief = { asked: brief.asked || f.ASKED?.trim() || undefined, told: brief.told || f.TOLD?.trim() || undefined, do: brief.do || f.DO?.trim() || undefined };
+    const fin: Brief = { do: brief.do || f.EN?.trim() || undefined };
     const m = (f.MODE ?? "").toLowerCase();
     const mode = m.includes("answer") ? "answer" : m.includes("ask") ? "ask" : "relay";
     const done: VoiceTurn = { ...turn, reply: reply || f.PL?.trim() || undefined, brief: fin, mode, translation: briefText(fin), partial: false };
