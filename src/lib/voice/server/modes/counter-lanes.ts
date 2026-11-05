@@ -3,6 +3,7 @@
  * case-aware coach card (Spark 1.3 raced against 1.2), and the facts an address-change notice needs.
  */
 import type { CaseDocument, CaseSnapshot } from "../../../case/types";
+import type { DocCard } from "../../protocol";
 import { streamLines } from "../llm";
 import { coachSystem } from "../prompts";
 import type { VoiceEnv } from "../session";
@@ -12,6 +13,14 @@ export const PL_DOC: Record<string, string> = {
   passport: "Paszport", rental_agreement: "Umowa najmu", health_insurance: "Ubezpieczenie zdrowotne",
   university_certificate: "Zaświadczenie z uczelni", photo: "Zdjęcie", upo: "UPO (potwierdzenie złożenia wniosku)", letter: "Pismo", other: "Dokument",
 };
+
+const FILE_TYPE: Record<string, "image" | "pdf"> = { png: "image", jpg: "image", jpeg: "image", webp: "image", pdf: "pdf" };
+
+/** The document's own stored file, when it has one the viewer can render. */
+export function storedFile(doc: CaseDocument): DocCard["file"] {
+  const type = doc.fileKey ? FILE_TYPE[doc.fileKey.split(".").pop()?.toLowerCase() ?? ""] : undefined;
+  return type ? { url: `/api/case/documents/${encodeURIComponent(doc.id)}/file`, type } : null;
+}
 
 /** How an official names each document kind (stems, so any case ending matches). */
 const ASKED: Array<[CaseDocument["kind"], RegExp]> = [

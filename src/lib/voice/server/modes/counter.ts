@@ -1,10 +1,7 @@
 /*
- * Counter: phone flat on the desk between the user and the official. Dossierly is the user's agent, not a translator.
- * Official (Polish) → one case-aware lane: it answers her directly in Polish when CASE settles it (and shows her the
- * document), asks the user first when it does not, or only relays; and it briefs the user (asked / told / do). Side
- * lanes: a named document comes up from the partial transcript (no model), and a watcher (Spark 1.2) captures tasks.
- * User → their point conveyed to the official in proper Polish with case context; the address-change notice
- * (KPA art. 41) is drafted as soon as the address comes up and turned to the official when the user raises it.
+ * Counter: phone flat on the desk; Dossierly is the user's agent, not a translator. Official turn → one Polish sentence
+ * answering her from CASE (and the document she needs, full-screen), or "I'll ask him"; then one sentence briefing the
+ * user. User turn → their point in proper Polish with case context. The KPA art. 41 notice is drafted when the address comes up.
  */
 import type { CaseDocument } from "../../../case/types";
 import { draftAddressChange, type AddressChangeEnv } from "../../../legal/address-change";
@@ -14,30 +11,19 @@ import { officialAgentSystem, userToOfficialSystem, watcherSystem } from "../pro
 import type { Utterance, VoiceSession } from "../session";
 import { dueInDays, looksPolish } from "../util";
 import { similar } from "./agent";
-import { ADDRESS_INTENT, PL_DOC, addressChange, askedDocs, type AddressFacts } from "./counter-lanes";
+import { ADDRESS_INTENT, PL_DOC, addressChange, askedDocs, storedFile, type AddressFacts } from "./counter-lanes";
 import type { ModeHandler } from "./index";
 
-type Watch = {
-  docs?: string[];
-  tasks?: Array<{ title?: string; detail?: string; due_in_days?: number | null; due_date?: string | null }>;
-  check?: string | null;
-};
+type Watch = { docs?: string[]; tasks?: Array<{ title?: string; detail?: string; due_in_days?: number | null; due_date?: string | null }>; check?: string | null };
 type Brief = NonNullable<VoiceTurn["brief"]>;
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const ADDRESS_TASK = /address|adres|notice|zawiadom|writing|piśmie/i;
-const FILE_TYPE: Record<string, "image" | "pdf"> = { png: "image", jpg: "image", jpeg: "image", webp: "image", pdf: "pdf" };
 /** The same document is not pushed to the official twice within this window (partial + final + watcher). */
 const REOFFER_MS = 8000;
 const BRIEF_KEY: Record<string, keyof Brief> = { EN: "do", ASKED: "asked", TOLD: "told", DO: "do" };
 const join = (a: string | undefined, b: string) => (a ? `${a} ${b}` : b);
 export const briefText = (b: Brief) => [b.asked, b.told, b.do].filter(Boolean).join(" ");
-
-/** The document's own stored file, when it has one the viewer can render. */
-export function storedFile(doc: CaseDocument): DocCard["file"] {
-  const type = doc.fileKey ? FILE_TYPE[doc.fileKey.split(".").pop()?.toLowerCase() ?? ""] : undefined;
-  return type ? { url: `/api/case/documents/${encodeURIComponent(doc.id)}/file`, type } : null;
-}
 
 export class CounterMode implements ModeHandler {
   readonly bargeIn = false;
@@ -139,6 +125,7 @@ export class CounterMode implements ModeHandler {
     let first = true;
     // The user's brief is one speech request (TTS concurrency), spoken after the Polish answer.
     let briefSpoken = false;
+    let relay = false;
     const speakBrief = () => {
       const text = briefText(brief);
       if (briefSpoken || !text || signal.aborted) return;
@@ -150,7 +137,9 @@ export class CounterMode implements ModeHandler {
       { role: "interpret", effort: "minimal", system: officialAgentSystem(this.s.lang, this.person, this.prepared()), messages: [{ role: "user", content: input }], speak: ["PL", "EN"], signal, maxTokens: 1600 },
       {
         onField: (k, v) => {
-          if (k === "DOC" && !signal.aborted) this.showAsked(u.id, v);
+          if (k === "MODE") relay = /relay/i.test(v);
+          // A relayed instruction needs no document in front of her.
+          if (k === "DOC" && !relay && !signal.aborted) this.showAsked(u.id, v);
           if (k === "EN") speakBrief();
         },
         onSentence: (k, sentence) => {
