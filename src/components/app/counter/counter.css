@@ -72,7 +72,7 @@
   background: color-mix(in srgb, var(--ink) 9%, transparent); color: var(--ink);
 }
 .ct-view-x:focus-visible { outline: 2px solid var(--official); outline-offset: 2px; }
-.ct-view-body { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; background: #fff; }
+.ct-view-body { position: relative; flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; background: #fff; }
 /* A4 pages carry ~10% white margins: trim most of them so the text reads across the desk. */
 .ct-view-page { display: block; width: 112%; max-width: none; height: auto; margin: -8% 0 0 -6%; }
 .ct-view-pdf { display: block; width: 100%; height: 100%; border: 0; background: #fff; }
