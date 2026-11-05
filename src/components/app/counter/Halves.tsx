@@ -24,12 +24,13 @@ export function OfficialHalf({ call }: { call: AgentCall }) {
   const [opened, setOpened] = useState<{ id: string; n: number } | null>(null);
   if (doc && opened?.id !== doc.docId) setOpened({ id: doc.docId, n: call.turns.length });
   const from = doc ? call.turns.findIndex((t) => t.id === doc.turnId) : -1;
-  const caption = doc ? call.turns.slice(from >= 0 ? from : opened?.id === doc.docId ? opened.n : call.turns.length).filter((t) => t.who === "user" && t.translation).pop()?.translation : undefined;
+  const said = (t: VoiceTurn) => (t.who === "user" ? t.translation : t.reply);
+  const caption = doc ? call.turns.slice(from >= 0 ? from : opened?.id === doc.docId ? opened.n : call.turns.length).filter((t) => said(t)).map(said).pop() : undefined;
   return (
     <section className={`ct-half ct-half-official ${doc ? "has-doc" : ""}`} lang="pl" aria-label="Dla urzędnika (Polish)">
       <header className="ct-label">
         <b>Dla urzędnika</b>
-        <span>Dossierly tłumaczy rozmowę na żywo · asystent AI</span>
+        <span>Asystent AI Dossierly · mówi w imieniu: {call.userName || "klienta"}</span>
       </header>
       <div className="ct-turns" ref={ref}>
         {!turns.length && !doc && <p className="ct-empty">Dzień dobry. Ten telefon tłumaczy rozmowę z polskiego i na polski. Proszę mówić normalnie.</p>}
@@ -37,7 +38,10 @@ export function OfficialHalf({ call }: { call: AgentCall }) {
           t.who === "user" ? (
             <p key={t.id} className="ct-big">{t.translation || <span className="ct-wait">…</span>}</p>
           ) : (
-            <p key={t.id} className="ct-heard"><span>Usłyszane</span>{t.text}</p>
+            <div key={t.id} className="ct-heardblock">
+              <p className="ct-heard"><span>Pani</span>{t.text}</p>
+              {t.reply && <p className="ct-big ct-reply">{t.reply}</p>}
+            </div>
           ),
         )}
         {call.partial && <p className="ct-heard is-partial"><span>Słucham</span>{call.partial}</p>}
@@ -57,6 +61,22 @@ function Coach({ n }: { n: CoachNote }) {
           &ldquo;{n.toOfficial}&rdquo;{n.toOfficialGloss && <span>{n.toOfficialGloss}</span>}
         </p>
       )}
+    </div>
+  );
+}
+
+/** One official turn for the user: what she asked, what Dossierly told her on their behalf, what to do now. */
+function Brief({ t }: { t: VoiceTurn }) {
+  const b = t.brief ?? {};
+  const ask = t.mode === "ask";
+  if (!b.asked && !b.told && !b.do) {
+    return <div className="ct-brief is-wait"><small>The official</small><p className="ct-wait">…</p></div>;
+  }
+  return (
+    <div className={`ct-brief ${ask ? "is-ask" : ""}`}>
+      {b.asked && <div><small>{t.mode === "relay" ? "The official" : "She asked"}</small><p className="ct-asked-q">{b.asked}</p></div>}
+      {b.told && <div><small>I told her</small><p>{b.told}</p></div>}
+      {b.do && <div className={b.asked || b.told ? "ct-do" : "ct-do is-only"}><small>{ask ? "I need you" : "Dossierly, for you"}</small><p>{b.do}</p></div>}
     </div>
   );
 }
@@ -87,12 +107,12 @@ export function UserHalf({ call }: { call: AgentCall }) {
           it.kind === "coach" ? (
             <Coach key={`${it.n.turnId}-${it.n.toUser.slice(0, 12)}`} n={it.n} />
           ) : it.t.who === "official" ? (
-            <div key={it.t.id} className="ct-said">
-              <small>Official said{it.t.via === "clip" ? " · test official" : ""}</small>
-              <p className="ct-big">{it.t.translation || <span className="ct-wait">…</span>}</p>
-            </div>
+            <Brief key={it.t.id} t={it.t} />
           ) : (
-            <p key={it.t.id} className="ct-you"><span>You</span>{it.t.text}</p>
+            <div key={it.t.id} className="ct-yourturn">
+              <p className="ct-you"><span>You said</span>{it.t.text}</p>
+              {it.t.brief?.told && <p className="ct-told">{it.t.brief.told}</p>}
+            </div>
           ),
         )}
         {call.partial && <p className="ct-you is-partial"><span>Hearing</span>{call.partial}</p>}

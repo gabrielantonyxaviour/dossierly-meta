@@ -108,3 +108,19 @@
 .ch-when { color: var(--ink-3); font-size: var(--t-sm); white-space: nowrap; }
 .ct-error { padding: 8px 12px; font-size: var(--t-md); }
 .ct-half .vc-cap { padding: 8px 12px; }
+/* Agent at the desk: her half shows what Dossierly answered for him; his half, what she asked / what I told her / what you do. */
+.ct-heardblock { display: grid; gap: 4px; }
+.ct-reply { color: color-mix(in srgb, var(--official) 60%, var(--ink)); }
+.ct-brief { display: grid; gap: 8px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--surface); box-shadow: var(--ring); animation: vc-in 0.3s ease-out; }
+.ct-brief small { display: block; font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 2px; }
+.ct-brief p { margin: 0; font-size: var(--t-base); line-height: 1.4; overflow-wrap: anywhere; }
+.ct-brief .ct-asked-q { font-size: 1.1875rem; font-weight: 600; line-height: 1.3; }
+.ct-brief .ct-do { padding-top: 8px; border-top: 1px solid var(--line); }
+.ct-brief .ct-do small { color: var(--user); }
+.ct-brief .ct-do p { font-weight: 600; }
+.ct-brief.is-ask { box-shadow: inset 3px 0 0 var(--user), var(--ring); }
+.ct-brief.is-wait p { font-size: 1.25rem; }
+.ct-yourturn { display: grid; gap: 4px; }
+.ct-told { margin: 0; font-size: 0.9375rem; line-height: 1.4; color: var(--ink-2); }
+.ct-told::before { content: "→ "; color: var(--official); }
+.ct-brief .ct-do.is-only { padding-top: 0; border-top: 0; } .ct-brief .ct-do.is-only p { font-size: 1.1875rem; line-height: 1.32; }
