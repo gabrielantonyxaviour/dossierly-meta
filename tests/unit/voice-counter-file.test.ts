@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { storedFile } from "@/lib/voice/server/modes/counter";
+import { storedFile } from "@/lib/voice/server/modes/counter-lanes";
 import { storeSeedFiles } from "@/lib/dev/arjun-seed";
 import type { CaseDocument } from "@/lib/case/types";
 

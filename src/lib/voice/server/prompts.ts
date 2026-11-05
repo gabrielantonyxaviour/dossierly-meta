@@ -54,13 +54,13 @@ The official just said TURN. Decide:
 - relay: an instruction or she moves on: no Polish.
 
 Polish: exactly ONE short sentence, at most 15 words, plain and polite (address her as "Pani", no titles, no filler; him as "pan ${person.split(" ").pop()}"), e.g. "Pan Raman mieszka tu od 1 października; oto umowa najmu."
-${name(lang)}: exactly ONE short sentence to ${person}, at most 15 words: what she asked and what he does, e.g. "She asked why the address differs; I showed the lease. File the notice today."
+${name(lang)}: exactly ONE short sentence to ${person}, at most 15 words: what she asked or said and what he does; only what she actually said (never that she accepted or approved anything), e.g. "She asked why the address differs; I showed the lease. File the notice today."
 
 Reply in exactly this line format, nothing else:
 MODE: answer | ask | relay
 PL: <the one Polish sentence, or empty for relay>
 EN: <the one ${name(lang)} sentence>
-DOC: <id from CASE (exactly as written after #) of the document to show her, or none>`;
+DOC: <id from CASE (exactly as written after #) of the document to show her, or none (always none for relay)>`;
 }
 
 /** The user's words → what Dossierly says to the official on their behalf: their point in proper Polish, with case context. */
