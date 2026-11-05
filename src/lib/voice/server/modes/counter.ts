@@ -105,7 +105,9 @@ export class CounterMode implements ModeHandler {
   }
 
   async utterance(u: Utterance, signal: AbortSignal): Promise<void> {
-    const official = u.as ? u.as === "official" : looksPolish(u.text);
+    // A bare "Moment." or "Dobrze." reads as either language: it belongs to whoever spoke last if that was the official.
+    const short = u.text.trim().split(/\s+/).length <= 2 && !/\b(i|i'm|my|yes|thanks|thank|sorry|please)\b/i.test(u.text);
+    const official = u.as ? u.as === "official" : looksPolish(u.text) || (short && this.exchange.at(-1)?.who !== "user");
     if (official) await this.fromOfficial(u, signal);
     else await this.fromUser(u, signal);
   }
@@ -135,12 +137,21 @@ export class CounterMode implements ModeHandler {
     const brief: Brief = {};
     let reply = "";
     let first = true;
+    // The user's brief is one speech request (TTS concurrency), spoken after the Polish answer.
+    let briefSpoken = false;
+    const speakBrief = () => {
+      const text = briefText(brief);
+      if (briefSpoken || !text || signal.aborted) return;
+      briefSpoken = true;
+      this.s.speaker.say(u.id, text, { lang: this.s.lang, side: "user" });
+    };
     const res = await streamLines(
       this.s.env,
       { role: "interpret", effort: "minimal", system: officialAgentSystem(this.s.lang, this.person, this.prepared()), messages: [{ role: "user", content: input }], speak: ["PL", "ASKED", "TOLD", "DO"], signal, maxTokens: 1600 },
       {
         onField: (k, v) => {
           if (k === "DOC" && !signal.aborted) this.showAsked(u.id, v);
+          if (k === "DO") speakBrief();
         },
         onSentence: (k, sentence) => {
           if (signal.aborted) return;
@@ -151,13 +162,13 @@ export class CounterMode implements ModeHandler {
             this.s.speaker.say(u.id, sentence, { lang: "pl", side: "official" });
           } else if (BRIEF_KEY[k]) {
             brief[BRIEF_KEY[k]] = join(brief[BRIEF_KEY[k]], sentence);
-            this.s.speaker.say(u.id, sentence, { lang: this.s.lang, side: "user" });
           }
           this.s.emit({ t: "turn", turn: { ...turn, reply, brief: { ...brief }, translation: briefText(brief) } });
         },
       },
     );
     if (signal.aborted) return; // redone with the final transcript under the same id
+    speakBrief();
     this.s.speaker.end(u.id);
     const f = res.fields;
     const fin: Brief = { asked: brief.asked || f.ASKED?.trim() || undefined, told: brief.told || f.TOLD?.trim() || undefined, do: brief.do || f.DO?.trim() || undefined };
