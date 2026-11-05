@@ -5,7 +5,7 @@
 **A personal AI caseworker for newcomers in Poland, built on Meta Muse.** Dossierly reads every official letter, email and screen that reaches you, keeps one case file with the deadlines worked out from the actual law, interprets for you at the immigration counter in real time, and phones you when something urgent arrives. It guides; it never submits anything to a government system on your behalf, and it never gives legal advice.
 
 - **Live:** https://dossierly.cosmiclan.com (mobile-first; add it to your home screen)
-- **Demo video:** _link added at submission_
+- **Demo video:** [Google Drive folder](https://drive.google.com/drive/folders/15ysZxpaIUmEOaCx8JSz7Jl1NZ8157Juh)
 - **Track:** Indie · theme "Build for Your World"
 - Built for the Meta Global AI Developer Hackathon (Oct 26 – Nov 4, 2026).
 
