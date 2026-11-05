@@ -38,6 +38,12 @@ export interface VoiceTurn {
   via?: "mic" | "clip" | "text" | "phone";
   /** Still streaming. */
   partial?: boolean;
+  /** Counter, official's turn: what Dossierly said to the official on the user's behalf (Polish). */
+  reply?: string;
+  /** Counter: the user's brief. Official turn: what she asked, what Dossierly told her, what to do. User turn: told. */
+  brief?: { asked?: string; told?: string; do?: string };
+  /** Counter, official's turn: answered from the case, asked the user first, or only relayed. */
+  mode?: "answer" | "ask" | "relay";
 }
 
 export interface TurnMetric {

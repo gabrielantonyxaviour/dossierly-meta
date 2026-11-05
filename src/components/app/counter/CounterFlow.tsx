@@ -59,7 +59,7 @@ export function CounterFlow() {
 
   const hearing = call.partial !== null;
   const status =
-    call.micWaiting ? "Allow the microphone to start" : call.status === "connecting" ? "Connecting…" : call.status === "ended" ? "Conversation ended" : call.clipBusy ? "Test line playing" : call.speaking ? (call.speaking === "official" ? "Speaking Polish" : "Speaking to you") : hearing ? "Hearing…" : "Listening";
+    call.micWaiting ? "Allow the microphone to start" : call.status === "connecting" ? "Connecting…" : call.status === "ended" ? "Conversation ended" : call.clipBusy ? "Test line playing" : call.speaking ? (call.speaking === "official" ? "Speaking to the official" : "Speaking to you") : hearing ? "Hearing…" : "Listening";
 
   return (
     <div className={`ct ${flat ? "is-flat" : ""}`} role="application" aria-label="Counter conversation">

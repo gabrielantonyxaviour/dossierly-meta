@@ -1,19 +1,20 @@
 /*
- * Counter: phone flat on the desk between the user and the official.
- * Official (Polish) → fast bare translation lane spoken to the user, plus parallel side lanes: a named document comes up
- * from the partial transcript (no model), a case-aware coach card (Spark 1.3 raced against 1.2), and a watcher
- * (Spark 1.2) for documents and tasks. User → one case-aware lane that translates faithfully or coaches; when they say
- * they moved, the KPA art. 41 address-change notice is drafted and turned to the official.
+ * Counter: phone flat on the desk between the user and the official. Dossierly is the user's agent, not a translator.
+ * Official (Polish) → one case-aware lane: it answers her directly in Polish when CASE settles it (and shows her the
+ * document), asks the user first when it does not, or only relays; and it briefs the user (asked / told / do). Side
+ * lanes: a named document comes up from the partial transcript (no model), and a watcher (Spark 1.2) captures tasks.
+ * User → their point conveyed to the official in proper Polish with case context; the address-change notice
+ * (KPA art. 41) is drafted as soon as the address comes up and turned to the official when the user raises it.
  */
 import type { CaseDocument } from "../../../case/types";
 import { draftAddressChange, type AddressChangeEnv } from "../../../legal/address-change";
 import type { CapturedItem, DocCard, VoiceTurn } from "../../protocol";
 import { jsonCall, streamLines } from "../llm";
-import { officialToUserSystem, userToOfficialSystem, watcherSystem } from "../prompts";
+import { officialAgentSystem, userToOfficialSystem, watcherSystem } from "../prompts";
 import type { Utterance, VoiceSession } from "../session";
 import { dueInDays, looksPolish } from "../util";
 import { similar } from "./agent";
-import { ADDRESS_INTENT, PL_DOC, addressChange, askedDocs, coachCard, type AddressFacts } from "./counter-lanes";
+import { ADDRESS_INTENT, PL_DOC, addressChange, askedDocs, type AddressFacts } from "./counter-lanes";
 import type { ModeHandler } from "./index";
 
 type Watch = {
@@ -21,16 +22,22 @@ type Watch = {
   tasks?: Array<{ title?: string; detail?: string; due_in_days?: number | null; due_date?: string | null }>;
   check?: string | null;
 };
+type Brief = NonNullable<VoiceTurn["brief"]>;
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const ADDRESS_TASK = /address|adres|notice|zawiadom|writing|piśmie/i;
 const FILE_TYPE: Record<string, "image" | "pdf"> = { png: "image", jpg: "image", jpeg: "image", webp: "image", pdf: "pdf" };
+/** The same document is not pushed to the official twice within this window (partial + final + watcher). */
+const REOFFER_MS = 8000;
+const BRIEF_KEY: Record<string, keyof Brief> = { ASKED: "asked", TOLD: "told", DO: "do" };
+const join = (a: string | undefined, b: string) => (a ? `${a} ${b}` : b);
+export const briefText = (b: Brief) => [b.asked, b.told, b.do].filter(Boolean).join(" ");
 
 /** The document's own stored file, when it has one the viewer can render. */
 export function storedFile(doc: CaseDocument): DocCard["file"] {
   const type = doc.fileKey ? FILE_TYPE[doc.fileKey.split(".").pop()?.toLowerCase() ?? ""] : undefined;
   return type ? { url: `/api/case/documents/${encodeURIComponent(doc.id)}/file`, type } : null;
 }
-const ADDRESS_TASK = /address|adres|notice|zawiadom|writing|piśmie/i;
 
 export class CounterMode implements ModeHandler {
   readonly bargeIn = false;
@@ -41,8 +48,11 @@ export class CounterMode implements ModeHandler {
   private notes: string[] = [];
   private captured: CapturedItem[] = [];
   private shown = new Set<string>();
+  private offeredAt = new Map<string, number>();
   private pending = new Set<Promise<void>>();
   private draft: { docId: string; title: string } | null = null;
+  private draftCard: DocCard | null = null;
+  private drafting: Promise<void> | null = null;
 
   constructor(private s: VoiceSession) {}
 
@@ -54,8 +64,20 @@ export class CounterMode implements ModeHandler {
     return this.s.snapshot?.documents ?? [];
   }
 
+  private get person(): string {
+    return this.s.snapshot?.profile.fullName?.trim() || "the client";
+  }
+
+  private prepared(): string | undefined {
+    if (!this.draft && !this.drafting) return undefined;
+    return "a notice of change of address (Zawiadomienie o zmianie adresu, KPA art. 41 § 1), drafted from his case for him to sign and file";
+  }
+
   private exchangeText(): string {
-    const lines = this.exchange.slice(-8).map((t) => `${t.who === "official" ? "OFFICIAL" : "USER"}: ${t.text}${t.translation ? ` [= ${t.translation}]` : ""}`);
+    const lines = this.exchange.slice(-8).flatMap((t) => {
+      const said = t.who === "official" ? t.reply : t.translation;
+      return [`${t.who === "official" ? "OFFICIAL" : "CLIENT"}: ${t.text}`, ...(said ? [`DOSSIERLY TO OFFICIAL: ${said}`] : [])];
+    });
     if (this.notes.length) lines.push(`(Shown to the official: ${this.notes.join("; ")})`);
     return lines.join("\n") || "(start of the conversation)";
   }
@@ -65,7 +87,6 @@ export class CounterMode implements ModeHandler {
     this.offerAsked(text, "live");
   }
 
-  /** Shows (or, if the user lacks it, flags) every document named in `text`. True when any was named. */
   private offerAsked(text: string, turnId: string): boolean {
     const asked = askedDocs(text, this.docs);
     for (const doc of asked) this.offer(turnId, doc);
@@ -73,9 +94,12 @@ export class CounterMode implements ModeHandler {
   }
 
   private offer(turnId: string, doc: CaseDocument): void {
+    const now = Date.now();
+    if (now - (this.offeredAt.get(doc.id) ?? 0) < REOFFER_MS) return;
+    this.offeredAt.set(doc.id, now);
+    if (doc.status === "have") return this.showDoc(turnId, doc);
     if (this.shown.has(doc.id)) return;
     this.shown.add(doc.id);
-    if (doc.status === "have") return this.showDoc(turnId, doc);
     // Never show the official a document the user does not actually hold.
     this.s.emit({ t: "coach", note: { turnId, toUser: `The official asked for ${doc.title}. It is not in your case yet, so say you will send it and ask how (in person, by post or e-Doręczenia).` } });
   }
@@ -91,34 +115,66 @@ export class CounterMode implements ModeHandler {
     this.pending.add(q);
   }
 
+  /** Drafting starts as soon as the address comes up, so the notice is ready when it is needed. */
+  private startDraft(turnId: string, text: string, show: boolean): void {
+    if (this.drafting || this.draft || !ADDRESS_INTENT.test(text)) return;
+    const facts = addressChange(this.s.snapshot);
+    if (!facts) return;
+    this.drafting = this.draftNotice(turnId, facts, show);
+    this.side(this.drafting);
+  }
+
   private async fromOfficial(u: Utterance, signal: AbortSignal): Promise<void> {
     const turn: VoiceTurn = { id: u.id, who: "official", text: u.text, lang: "pl", via: u.via, translationLang: this.s.lang, partial: true };
     this.s.emit({ t: "turn", turn });
     const context = this.exchangeText();
-    const askedForDoc = this.offerAsked(u.text, u.id);
+    this.offerAsked(u.text, u.id);
+    this.startDraft(u.id, u.text, false);
     const input = `${this.s.caseText}\n\nEXCHANGE\n${context}\n\nTURN (official)\n${u.text}`;
-    // Side lanes start at once, in parallel with the spoken translation, and never hold the next turn.
-    if (!askedForDoc) this.side(coachCard(this.s.env, input, this.s.lang).then((c) => c && !signal.aborted && this.s.emit({ t: "coach", note: { turnId: u.id, toUser: c.text } })));
     this.side(this.watch(u, input, signal));
-    const prepared = this.draft ? `a written notice of change of address (${this.draft.title}), already shown to the official` : undefined;
-    let said = "";
+    const brief: Brief = {};
+    let reply = "";
+    let first = true;
     const res = await streamLines(
       this.s.env,
-      { role: "interpret", effort: "minimal", system: officialToUserSystem(this.s.lang, prepared), messages: [{ role: "user", content: u.text }], speak: ["SAY"], signal, maxTokens: 1200 },
+      { role: "interpret", effort: "minimal", system: officialAgentSystem(this.s.lang, this.person, this.prepared()), messages: [{ role: "user", content: input }], speak: ["PL", "ASKED", "TOLD", "DO"], signal, maxTokens: 1600 },
       {
-        onSentence: (_k, sentence) => {
-          if (!said) this.s.sentenceReady(u.id);
-          said = said ? `${said} ${sentence}` : sentence;
-          this.s.speaker.say(u.id, sentence, { lang: this.s.lang, side: "user" });
-          this.s.emit({ t: "turn", turn: { ...turn, translation: said } });
+        onField: (k, v) => {
+          if (k === "DOC" && !signal.aborted) this.showAsked(u.id, v);
+        },
+        onSentence: (k, sentence) => {
+          if (signal.aborted) return;
+          if (first) this.s.sentenceReady(u.id);
+          first = false;
+          if (k === "PL") {
+            reply = join(reply, sentence);
+            this.s.speaker.say(u.id, sentence, { lang: "pl", side: "official" });
+          } else if (BRIEF_KEY[k]) {
+            brief[BRIEF_KEY[k]] = join(brief[BRIEF_KEY[k]], sentence);
+            this.s.speaker.say(u.id, sentence, { lang: this.s.lang, side: "user" });
+          }
+          this.s.emit({ t: "turn", turn: { ...turn, reply, brief: { ...brief }, translation: briefText(brief) } });
         },
       },
     );
     if (signal.aborted) return; // redone with the final transcript under the same id
     this.s.speaker.end(u.id);
-    const done = { ...turn, translation: said || res.fields.SAY || "", partial: false };
+    const f = res.fields;
+    const fin: Brief = { asked: brief.asked || f.ASKED?.trim() || undefined, told: brief.told || f.TOLD?.trim() || undefined, do: brief.do || f.DO?.trim() || undefined };
+    const m = (f.MODE ?? "").toLowerCase();
+    const mode = m.includes("answer") ? "answer" : m.includes("ask") ? "ask" : "relay";
+    const done: VoiceTurn = { ...turn, reply: reply || f.PL?.trim() || undefined, brief: fin, mode, translation: briefText(fin), partial: false };
     this.s.emit({ t: "turn", turn: done });
     this.exchange.push(done);
+  }
+
+  /** The DOC line of the agent's reply: the case document (or the drafted notice) to put in front of the official. */
+  private showAsked(turnId: string, raw: string): void {
+    const id = raw.trim().replace(/^#/, "");
+    if (!id || /^none$/i.test(id)) return;
+    if (this.draftCard && (id === this.draftCard.docId || /addr|zawiadom/i.test(id))) return this.showDraft(turnId);
+    const doc = this.docs.find((d) => d.id === id || id.endsWith(d.id));
+    if (doc) this.offer(turnId, doc);
   }
 
   private async watch(u: Utterance, input: string, signal: AbortSignal): Promise<void> {
@@ -134,8 +190,19 @@ export class CounterMode implements ModeHandler {
 
   private showDoc(turnId: string, doc: CaseDocument): void {
     const card: DocCard = { turnId, docId: doc.id, title: doc.title, kind: doc.kind, captionPl: PL_DOC[doc.kind] ?? "Dokument", fields: doc.extractedFields, file: storedFile(doc) };
-    this.notes.push(doc.title);
+    if (!this.notes.includes(doc.title)) this.notes.push(doc.title);
+    this.shown.add(doc.id);
     this.s.emit({ t: "doc", doc: card });
+  }
+
+  private showDraft(turnId: string): void {
+    if (!this.draftCard || !this.draft) return;
+    const now = Date.now();
+    if (now - (this.offeredAt.get(this.draft.docId) ?? 0) < REOFFER_MS) return;
+    this.offeredAt.set(this.draft.docId, now);
+    this.shown.add(this.draft.docId);
+    if (!this.notes.includes(this.draft.title)) this.notes.push(this.draft.title);
+    this.s.emit({ t: "doc", doc: { ...this.draftCard, turnId } });
   }
 
   private async capture(turnId: string, task: NonNullable<Watch["tasks"]>[number]): Promise<void> {
@@ -166,19 +233,18 @@ export class CounterMode implements ModeHandler {
     }
   }
 
-  /** Drafts the notice of change of address (dm-paper's template, one case write) and turns it to the official. */
-  private async draftNotice(turnId: string, facts: AddressFacts): Promise<void> {
+  /** Drafts the notice of change of address (dm-paper's template, one case write); `show` turns it to the official. */
+  private async draftNotice(turnId: string, facts: AddressFacts, show: boolean): Promise<void> {
     const snapshot = this.s.snapshot;
     if (!snapshot || this.draft) return;
     try {
       const d = await draftAddressChange(this.s.env as unknown as AddressChangeEnv, { userId: this.s.ticket.u, snapshot, ...facts });
       this.draft = { docId: d.docId, title: d.title };
-      this.shown.add(d.docId);
-      this.notes.push(d.title);
-      this.s.emit({
-        t: "doc",
-        doc: { turnId, docId: d.docId, title: d.title, kind: "address_change", captionPl: "Zawiadomienie o zmianie adresu", textPl: d.textPl, fields: { caseNumber: facts.caseNumber, oldAddress: facts.oldAddress, newAddress: facts.newAddress, movedOn: facts.movedOn } },
-      });
+      this.draftCard = {
+        turnId, docId: d.docId, title: d.title, kind: "address_change", captionPl: "Zawiadomienie o zmianie adresu", textPl: d.textPl,
+        fields: { caseNumber: facts.caseNumber, oldAddress: facts.oldAddress, newAddress: facts.newAddress, movedOn: facts.movedOn },
+      };
+      if (show) this.showDraft(turnId);
     } catch {
       this.s.emit({ t: "error", error: "Could not draft the address change notice", code: "draft_failed" });
     }
@@ -188,25 +254,29 @@ export class CounterMode implements ModeHandler {
     const turn: VoiceTurn = { id: u.id, who: "user", text: u.text, lang: this.s.lang, via: u.via, translationLang: "pl", partial: true };
     this.s.emit({ t: "turn", turn });
     const context = this.exchangeText();
-    // Drafting runs alongside the spoken Polish, so the notice reaches the official's half while they listen.
-    const facts = !this.draft && ADDRESS_INTENT.test(u.text) ? addressChange(this.s.snapshot) : null;
-    if (facts) this.side(this.draftNotice(u.id, facts));
+    // The user raises the address: the notice reaches the official's half while they listen.
+    if (ADDRESS_INTENT.test(u.text)) {
+      if (this.draft) this.showDraft(u.id);
+      else if (this.drafting) this.side(this.drafting.then(() => this.showDraft(u.id)));
+      else this.startDraft(u.id, u.text, true);
+    }
     let said = "";
     const res = await streamLines(
       this.s.env,
       {
         role: "interpret",
         effort: "minimal",
-        system: userToOfficialSystem(this.s.lang),
-        messages: [{ role: "user", content: `${this.s.caseText}\n\nEXCHANGE\n${context}\n\nUSER SAID\n${u.text}` }],
+        system: userToOfficialSystem(this.s.lang, this.person, this.prepared()),
+        messages: [{ role: "user", content: `${this.s.caseText}\n\nEXCHANGE\n${context}\n\nCLIENT SAID\n${u.text}` }],
         speak: ["SAY"],
         signal,
         maxTokens: 1600,
       },
       {
         onSentence: (_k, sentence) => {
+          if (signal.aborted) return;
           if (!said) this.s.sentenceReady(u.id);
-          said = said ? `${said} ${sentence}` : sentence;
+          said = join(said, sentence);
           this.s.speaker.say(u.id, sentence, { lang: "pl", side: "official" });
           this.s.emit({ t: "turn", turn: { ...turn, translation: said } });
         },
@@ -214,12 +284,10 @@ export class CounterMode implements ModeHandler {
     );
     if (signal.aborted) return; // redone with the final transcript under the same id
     this.s.speaker.end(u.id);
-    const done = { ...turn, translation: said || res.fields.SAY || "", partial: false };
+    const gloss = res.fields.GLOSS?.trim();
+    const done: VoiceTurn = { ...turn, translation: said || res.fields.SAY || "", brief: gloss ? { told: gloss } : undefined, partial: false };
     this.s.emit({ t: "turn", turn: done });
     this.exchange.push(done);
-    if (/coach/i.test(res.fields.MODE ?? "") && res.fields.WHY) {
-      this.s.emit({ t: "coach", note: { turnId: u.id, toUser: res.fields.WHY, toOfficial: done.translation, toOfficialGloss: res.fields.GLOSS } });
-    }
   }
 
   async finish(): Promise<void> {
