@@ -63,7 +63,7 @@ function profileStore(env: Env, userId: string): { get(): Promise<Profile>; patc
   return { get: async () => (await call<{ profile: Profile }>("snapshot", "GET")).profile, patch: (p) => call<Profile>("profile", "PATCH", p) };
 }
 
-const PERMIT: Record<string, Profile["permitType"]> = { study: "temporary_residence_study", work: "temporary_residence_work", family: "other", other: "other" };
+const PERMIT: Record<string, Profile["permitType"]> = { study: "temporary_residence_study", work: "temporary_residence_work", family: "temporary_residence_family", other: "other" };
 
 export type IntakeResult = { reply: string; language: string; speechId: string | null; profile: Profile; firstName: string | null };
 

@@ -10,6 +10,8 @@ export const SEARCH_SYSTEM = [
 const PERMIT: Record<string, string> = {
   temporary_residence_study: "temporary residence permit for studies",
   temporary_residence_work: "temporary residence and work permit",
+  temporary_residence_blue_card: "temporary residence permit for highly qualified work (EU Blue Card)",
+  temporary_residence_family: "temporary residence permit to join family",
 };
 
 export function purposeOf(appt: Appointment | null, purpose?: string): string {

@@ -11,7 +11,31 @@ const text = (max = 500) => z.string().trim().min(1).max(max);
 const id = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/);
 
 export const STAGES = ["just_arrived", "preparing_application", "filed", "waiting_decision", "decision_received"] as const;
-export const PERMIT_TYPES = ["temporary_residence_study", "temporary_residence_work", "other"] as const;
+/** Appended values only: stored cases keep parsing. "work" is the single permit (pobyt i praca). */
+export const PERMIT_TYPES = ["temporary_residence_study", "temporary_residence_work", "other", "temporary_residence_blue_card", "temporary_residence_family"] as const;
+/** The 8-stage residence case path (0 Start .. 7 Card and after). */
+export const RESIDENCE_STAGES = ["start", "prepare", "file", "waiting", "letter", "visit", "decision", "after"] as const;
+export const SITUATIONS = ["renew", "family", "letter", "first"] as const;
+export const VOIVODESHIPS = [
+  "dolnoslaskie", "kujawsko_pomorskie", "lubelskie", "lubuskie", "lodzkie", "malopolskie", "mazowieckie", "opolskie",
+  "podkarpackie", "podlaskie", "pomorskie", "slaskie", "swietokrzyskie", "warminsko_mazurskie", "wielkopolskie", "zachodniopomorskie",
+] as const;
+
+export const householdMemberSchema = z.object({
+  id,
+  name: text(120),
+  relation: z.enum(["spouse", "child"]),
+  birthYear: z.number().int().min(1920).max(2100).nullable(),
+  under16: z.boolean(),
+  permitType: z.enum(PERMIT_TYPES),
+}).strict();
+export const decisionSchema = z.object({
+  outcome: z.enum(["approved", "refused"]),
+  deliveredOn: isoDate,
+  /** Approved: the last day of the new permit, when known. */
+  validUntil: isoDate.nullable(),
+  cardCollectedOn: isoDate.nullable(),
+}).strict();
 
 export const profileSchema = z.object({
   fullName: text(120).nullable(),
@@ -24,6 +48,16 @@ export const profileSchema = z.object({
   arrivalDate: isoDate.nullable(),
   phone: z.object({ number: z.string().regex(/^\+[1-9]\d{6,14}$/).nullable(), verified: z.boolean(), callsEnabled: z.boolean() }),
   timezone: text(64),
+  // Residence case (all optional: profiles stored before these fields existed still parse).
+  situation: z.enum(SITUATIONS).nullable().optional(),
+  voivodeship: z.enum(VOIVODESHIPS).nullable().optional(),
+  /** Last day of legal stay: the end date on the current card or visa. */
+  legalStayUntil: isoDate.nullable().optional(),
+  household: z.array(householdMemberSchema).max(3).optional(),
+  residenceStage: z.enum(RESIDENCE_STAGES).nullable().optional(),
+  /** Prepare-checklist item ids the person ticked. */
+  checklistDone: z.array(z.string().regex(/^[a-z0-9_]{1,64}$/)).max(80).optional(),
+  decision: decisionSchema.nullable().optional(),
 });
 export const profilePatchSchema = profileSchema.partial({ fullName: true, preferredLanguage: true, country: true, city: true, permitType: true, stage: true, organisation: true, arrivalDate: true, timezone: true }).extend({ phone: profileSchema.shape.phone.partial().optional() }).partial().strict();
 
@@ -99,6 +133,12 @@ export type Collection = (typeof COLLECTIONS)[number];
 export const collectionSchema = z.enum(COLLECTIONS);
 
 export type Profile = z.infer<typeof profileSchema>;
+export type HouseholdMember = z.infer<typeof householdMemberSchema>;
+export type Decision = z.infer<typeof decisionSchema>;
+export type ResidenceStage = (typeof RESIDENCE_STAGES)[number];
+export type Voivodeship = (typeof VOIVODESHIPS)[number];
+export type Situation = (typeof SITUATIONS)[number];
+export type PermitType = (typeof PERMIT_TYPES)[number];
 export type Facts = z.infer<typeof factsSchema>;
 export type CaseDocument = z.infer<typeof documentSchema>;
 export type Deadline = z.infer<typeof deadlineSchema>;

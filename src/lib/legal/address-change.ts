@@ -40,6 +40,8 @@ export const warsawDate = (at = new Date()) => new Intl.DateTimeFormat("en-CA", 
 const PURPOSE: Record<string, string> = {
   temporary_residence_study: "o udzielenie zezwolenia na pobyt czasowy w celu kontynuacji studiów",
   temporary_residence_work: "o udzielenie zezwolenia na pobyt czasowy w celu wykonywania pracy",
+  temporary_residence_blue_card: "o udzielenie zezwolenia na pobyt czasowy w celu wykonywania pracy w zawodzie wymagającym wysokich kwalifikacji",
+  temporary_residence_family: "o udzielenie zezwolenia na pobyt czasowy w celu połączenia z rodziną",
 };
 
 /** FNV-1a, so the same case and new address always map to the same document. */

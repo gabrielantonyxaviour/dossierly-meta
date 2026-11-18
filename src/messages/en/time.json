@@ -24,5 +24,7 @@
   "stage_decision_received": "Decision received",
   "permit_temporary_residence_study": "Temporary residence · studies",
   "permit_temporary_residence_work": "Temporary residence · work",
-  "permit_other": "Residence case"
+  "permit_other": "Residence case",
+  "permit_temporary_residence_blue_card": "Temporary residence · EU Blue Card",
+  "permit_temporary_residence_family": "Temporary residence · family"
 }

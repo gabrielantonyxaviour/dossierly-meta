@@ -24,5 +24,7 @@
   "stage_decision_received": "முடிவு கிடைத்தது",
   "permit_temporary_residence_study": "தற்காலிக வசிப்பு · படிப்பு",
   "permit_temporary_residence_work": "தற்காலிக வசிப்பு · வேலை",
-  "permit_other": "வசிப்பு விவகாரம்"
+  "permit_other": "வசிப்பு விவகாரம்",
+  "permit_temporary_residence_blue_card": "தற்காலிக வசிப்பிடம் · EU நீல அட்டை",
+  "permit_temporary_residence_family": "தற்காலிக வசிப்பிடம் · குடும்பம்"
 }

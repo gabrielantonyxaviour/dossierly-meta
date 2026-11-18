@@ -50,7 +50,7 @@ export function greeting(now = new Date()): string {
 export const firstName = (name: string | null | undefined) => (name ?? "").trim().split(/\s+/)[0] || tNow("time")("there");
 
 const STAGES = ["just_arrived", "preparing_application", "filed", "waiting_decision", "decision_received"];
-const PERMITS = ["temporary_residence_study", "temporary_residence_work", "other"];
+const PERMITS = ["temporary_residence_study", "temporary_residence_work", "other", "temporary_residence_blue_card", "temporary_residence_family"];
 
 /** Case stage in the interface language ("" for an unknown stage). */
 export const stageLabel = (stage: string | null | undefined): string =>

@@ -24,5 +24,7 @@
   "stage_decision_received": "फ़ैसला मिल गया",
   "permit_temporary_residence_study": "अस्थायी निवास · पढ़ाई",
   "permit_temporary_residence_work": "अस्थायी निवास · काम",
-  "permit_other": "निवास का मामला"
+  "permit_other": "निवास का मामला",
+  "permit_temporary_residence_blue_card": "अस्थायी निवास · EU ब्लू कार्ड",
+  "permit_temporary_residence_family": "अस्थायी निवास · परिवार"
 }

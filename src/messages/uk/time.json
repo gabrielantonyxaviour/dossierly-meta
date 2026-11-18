@@ -24,5 +24,7 @@
   "stage_decision_received": "Рішення отримано",
   "permit_temporary_residence_study": "Тимчасове проживання · навчання",
   "permit_temporary_residence_work": "Тимчасове проживання · робота",
-  "permit_other": "Справа про проживання"
+  "permit_other": "Справа про проживання",
+  "permit_temporary_residence_blue_card": "Тимчасове проживання · Блакитна карта ЄС",
+  "permit_temporary_residence_family": "Тимчасове проживання · сім'я"
 }
