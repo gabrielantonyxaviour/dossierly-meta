@@ -9,9 +9,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const PROCESSORS = [
   ["Cloudflare", "Hosting, your case file, sign-in records and sign-in emails (Workers, Durable Objects, D1, Email Service)", "Global network; its own privacy policy applies"],
-  ["Meta (Muse models)", "Muse Spark answers and reads letters, SAM 3.1 outlines what it reads, Muse Voice Transcribe turns speech into text", "Receives the parts of your case a task needs; Meta's terms apply"],
+  ["Anthropic (Claude)", "Reads your letters, photos and emails, answers your questions, drafts notes and reviews your case", "Receives the parts of your case a task needs, with names and ID numbers masked where possible; Anthropic's commercial terms apply"],
+  ["Meta (Muse models)", "Reads only the generated test letters in the demo", "Never receives your own content"],
   ["ElevenLabs", "Turns Dossierly's replies into speech", "Receives the reply text only"],
-  ["Composio", "Connects your Gmail and Google Calendar when you choose to", "Holds the connection; Dossierly reads only messages relevant to your case"],
+  ["Composio", "Connects your Gmail, Outlook and calendar when you choose to", "Holds the connection; Dossierly reads only messages relevant to your case"],
+  ["Dodo Payments", "Takes payments as our merchant of record and issues your receipt", "Receives your name, email, billing country and payment details; Dossierly never sees your card or bank details"],
   ["Twilio", "Places phone calls to you (approved demo accounts only)", "Receives your phone number and the call audio"],
 ];
 
@@ -26,7 +28,7 @@ export default async function PrivacyPolicy() {
         <p className="lead muted">Plainly: what we process, where it is kept and how to remove it.</p>
 
         <h2>Controller</h2>
-        <p>Larinova Private Limited, <a href="mailto:contact@cosmiclan.com">contact@cosmiclan.com</a>. You are using an AI system.</p>
+        <p>Larinova Private Limited, <a href="mailto:gabriel@larinova.com">gabriel@larinova.com</a>. You are using an AI system.</p>
 
         <h2>What is stored where</h2>
         <table>
@@ -35,8 +37,9 @@ export default async function PrivacyPolicy() {
             <tr><td>Your case (profile, facts with their sources, documents, deadlines, tasks, appointments, timeline)</td><td>Your private case file on Cloudflare</td><td>One isolated store per account; only your signed-in session can read it</td></tr>
             <tr><td>Your account id, sign-in email and plan</td><td>Cloudflare D1</td><td>Your email is used to send sign-in codes</td></tr>
             <tr><td>Sign-in challenges</td><td>Cloudflare D1</td><td>Codes are stored as a keyed hash and expire after 10 minutes</td></tr>
-            <tr><td>Photos and screenshots you add with Look</td><td>Sent to Meta&apos;s models to be read</td><td>Saved to your case only when you add them as documents</td></tr>
-            <tr><td>Audio from voice, Counter and calls</td><td>Sent to Muse Voice Transcribe as you speak</td><td>Dossierly stores the transcript and summary, not the audio</td></tr>
+            <tr><td>Photos and screenshots you add with Look</td><td>Sent to Anthropic&apos;s Claude to be read</td><td>Saved to your case only when you add them as documents</td></tr>
+            <tr><td>Audio from voice, Counter and calls</td><td>Voice input in Polish, English and Ukrainian is switched off for now; Hindi and Tamil use your browser&apos;s own recognition</td><td>Dossierly stores the transcript and summary, not the audio</td></tr>
+            <tr><td>Mail you forward to your Dossierly address</td><td>Received by Cloudflare Email and read like any other letter</td><td>Only official mail is added to your case; you can change the address at any time</td></tr>
             <tr><td>Email and calendar</td><td>Read through your connection when you allow it</td><td>Only messages from Polish offices and your university are added to your case; dates go to your calendar after you confirm</td></tr>
             <tr><td>Chat history</td><td>This device</td><td>Kept in your browser; cleared when you sign out</td></tr>
           </tbody>
@@ -59,7 +62,7 @@ export default async function PrivacyPolicy() {
         <p>Your case file and account record are kept while you use Dossierly and deleted on request.</p>
 
         <h2>Your rights</h2>
-        <p>You can ask for access, correction, deletion, restriction, portability, or object to processing, by writing to <a href="mailto:contact@cosmiclan.com">contact@cosmiclan.com</a>. You can complain to the Polish supervisory authority, the President of the Personal Data Protection Office (UODO), <a href="https://uodo.gov.pl" target="_blank" rel="noreferrer">uodo.gov.pl</a>, or to the authority in your EU country.</p>
+        <p>You can ask for access, correction, deletion, restriction, portability, or object to processing, by writing to <a href="mailto:gabriel@larinova.com">gabriel@larinova.com</a>. You can complain to the Polish supervisory authority, the President of the Personal Data Protection Office (UODO), <a href="https://uodo.gov.pl" target="_blank" rel="noreferrer">uodo.gov.pl</a>, or to the authority in your EU country.</p>
 
       </div>
       <p className="small muted">{t("seeAlso")} <Link href="/legal/terms">{t("termsTitle")}</Link> · <Link href="/limits">{t("limitsLink")}</Link></p>

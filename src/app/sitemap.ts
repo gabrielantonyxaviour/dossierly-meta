@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE = "https://dossierly.cosmiclan.com";
+const SITE = "https://dossierly.larinova.com";
 
 /** Public pages only; the app, API and preview tools are not indexed (see robots.ts). */
 export default function sitemap(): MetadataRoute.Sitemap {

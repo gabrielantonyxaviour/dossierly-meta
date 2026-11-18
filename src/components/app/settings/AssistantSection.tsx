@@ -17,7 +17,7 @@ async function api<T>(method: "GET" | "POST" | "DELETE", body?: unknown): Promis
   return res?.ok ? { ok: true, data } : { ok: false, error: data?.error ?? tNow("settings")("genericError") };
 }
 
-const command = (token: string) => `claude mcp add --transport http dossierly ${typeof window === "undefined" ? "https://dossierly.cosmiclan.com" : window.location.origin}/api/mcp --header "Authorization: Bearer ${token}"`;
+const command = (token: string) => `claude mcp add --transport http dossierly ${typeof window === "undefined" ? "https://dossierly.larinova.com" : window.location.origin}/api/mcp --header "Authorization: Bearer ${token}"`;
 
 function CopyBlock({ label, value }: { label: string; value: string }) {
   const { toast } = useToast();

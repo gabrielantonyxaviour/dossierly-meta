@@ -15,10 +15,9 @@
   "wuDates": "Dates named",
   "wuDatesV": "None yet. A letter will follow by e-Doręczenia or post.",
   "wuSaved": "Saved to your case",
-
   "heroTitle": "A caseworker for your life abroad",
   "heroSub": "Your own private AI agent remembers your whole residence case. It prepares you for the office, interprets at the counter, reads the letters that follow and counts every deadline.",
-  "heroFree": "Free during the beta",
+  "heroFree": "Start free · 199 zł per case",
   "heroCovered": "Which offices are covered?",
   "heroProof": "Poland first · the Mazowiecki office in Warsaw · interprets and explains, never legal advice",
   "chipAria": "What your agent does: prepares, interprets, reads letters, counts deadlines",
@@ -26,7 +25,6 @@
   "chipInterprets": "Interprets at the counter",
   "chipReads": "Reads the letters",
   "chipCounts": "Counts the deadlines",
-
   "railCase": "Case",
   "railPrepare": "Prepare",
   "railMeet": "Meet",
@@ -53,7 +51,6 @@
   "mockDone4": "Drafted a Polish reply",
   "mockDone4s": "Ready for you to check",
   "mockDoneAt": "Done · {time}",
-
   "problemEyebrow": "The problem",
   "problemTitle": "Three jobs stand between you and your new life.",
   "problemBody": "A residence-and-work permit in Poland means a case that runs for more than a year, talks at the counter in Polish, and letters with deadlines counted from the day they arrive. Miss one and the application is left unexamined. Dossierly carries all three.",
@@ -67,7 +64,6 @@
   "job4s": "The work, the flat, the people you came for",
   "jobHandled": "Handled by Dossierly",
   "jobYours": "Yours again",
-
   "howTitle": "Built for how a residence case actually runs",
   "howBody": "One private agent for the office visit, the conversation at the counter and every letter that follows.",
   "howSteps": "Steps",
@@ -109,7 +105,6 @@
   "letF3": "Reply",
   "letF3d": "A Polish cover letter, drafted for you to check.",
   "letCaption": "Letters: a wezwanie, linked to the visit, with its deadline counted.",
-
   "pmPassport": "Passport, all pages",
   "pmPhoto": "Photo 35×45 mm",
   "pmFee": "Card fee receipt, 100 zł",
@@ -133,7 +128,6 @@
   "lmStep2": "Day 1 is Wed 28 Oct.",
   "lmStep3": "Day 14 is Tue 10 Nov, a working day.",
   "lmReview": "Review the Polish draft",
-
   "momentsTitle": "Made for the moments that decide a case",
   "momentsBody": "Newcomers are not paperwork experts. Dossierly learns your case, then shows up at the counter, at the kitchen table and before every visit.",
   "mo01Alt": "A man at a government office counter, talking with the official behind it",
@@ -156,7 +150,6 @@
   "mo05Title": "Before the next visit",
   "mo05Text": "Prepare reads today's official pages, and cites each paragraph.",
   "mo05Tags": "Official pages • Citations",
-
   "phTitle": "The interpreter that lies flat on the table",
   "phBody": "Table mode splits the screen between you and the official. Each of you reads and speaks your own language, and the watcher listens for the details that decide a case.",
   "phTabsAria": "Phone screens",
@@ -172,10 +165,9 @@
   "phDates": "Dates",
   "phDatesV": "None yet. A letter will follow.",
   "phNoteFlip": "The official's half is upside down, so it faces them across the desk",
-  "phNoteAudio": "Speech is transcribed by Muse Voice Transcribe. No audio is stored",
+  "phNoteAudio": "Speech is turned into text as you speak. No audio is stored",
   "phPromo": "Runs in your phone's browser",
   "phPromoSub": "Lay it flat between you and the official.",
-
   "pvTitle": "Private by design",
   "pvTitleMuted": "and you can check it",
   "pv1": "Its own private agent",
@@ -199,9 +191,8 @@
   "pvLedgerDenied": "denied by policy · {time}",
   "pvFine": "Your case lives in its own private case file on Cloudflare, readable only by your signed-in account. It is never sold, and you can have it deleted at any time. What we cannot promise yet is on {limits}.",
   "pvFineLink": "the limits page",
-
   "boTitle": "And it's all one system",
-  "boBody": "Meta's Muse models, each in the job it fits, running on Cloudflare inside one private agent per person.",
+  "boBody": "Claude by Anthropic reads your letters and plans with you, inside one private agent per person running on Cloudflare.",
   "boEvery": "Every model",
   "boSpark": "Your agent: answers, reads letters, drafts replies, guards every turn",
   "boSam": "Outlines what it reads in your photos",
@@ -211,7 +202,6 @@
   "boWorkers": "Runs the app and your agent",
   "boDo": "One private case file per person",
   "boD1": "Your account and sign-in",
-
   "whyEyebrow": "Why Dossierly",
   "whyTitle": "Translation apps give you words. Dossierly carries the case.",
   "whyBody": "Translation apps work one sentence at a time and forget everything. Agencies remember the case but cost thousands of złoty. Dossierly remembers the whole case, for a fraction of that.",
@@ -232,7 +222,6 @@
   "cmp5": "Sources",
   "cmp5Us": "Each line cites the official paragraph",
   "cmp5Them": "None",
-
   "ctTitle": "Poland first, then country by country",
   "ctBody": "A country goes live only when its offices, letter types and deadline rules are covered from their sources.",
   "ctSee": "See coverage",
@@ -243,11 +232,10 @@
   "ctNotYet": "Not available yet",
   "ctLive": "Live",
   "ctNext": "Next",
-
   "finalEyebrow": "Try it in a minute",
   "finalMuted": "Don't take our word for it.",
   "finalTitle": "Watch it read a letter.",
-  "finalBody": "Sign up with your email, open Look and tap “Use a test letter”. Muse Spark reads it live, SAM 3.1 outlines the date, the case number and what the office asks for, and Dossierly counts the deadline.",
+  "finalBody": "Sign up with your email, open Look and tap “Use a test letter”. Dossierly reads it live, outlines the date, the case number and what the office asks for, and counts the deadline.",
   "finalStepsAria": "How to try it",
   "finalStep1": "Sign up",
   "finalStep2": "Open Look",
@@ -255,7 +243,6 @@
   "finalInterpreting": "Interpreting",
   "finalOffice": "Mazowiecki office",
   "finalCaseNo": "Please give your case number.",
-
   "faqTitle": "Your questions, covered",
   "faqMuted": "Get started today",
   "faq1q": "What exactly is Dossierly?",
@@ -267,9 +254,9 @@
   "faq4q": "Which languages can I use?",
   "faq4a": "The official's side is Polish. You can speak English, Ukrainian, Hindi or Tamil, and the app itself can be shown in any of these four languages.",
   "faq5q": "Does Dossierly keep my audio?",
-  "faq5a": "No. Each spoken turn in Polish, English or Ukrainian is sent once for transcription by Meta Muse Voice Transcribe and deleted; only the text is kept. Hindi and Tamil use your browser's own recognition.",
+  "faq5a": "No. Hindi and Tamil speech uses your browser's own recognition, and only the text is kept. Voice input in Polish, English and Ukrainian is switched off for now while we move it to a provider that keeps your audio private; you can type instead.",
   "faq6q": "What happens to my personal data?",
   "faq6a": "Your case lives in a private case file on Cloudflare, one per account, readable only when you are signed in. It is never sold, and you can have it deleted at any time. Identifiers are masked before any model call, and every model call is listed in your privacy ledger.",
   "faq7q": "What does it cost?",
-  "faq7a": "Nothing during the beta. Everything is included, with fair daily limits that keep the service up for everyone. See the pricing page for the numbers."
+  "faq7a": "Starting is free: your case path, the deadline calculator and 3 letters explained. One residence case is 199 zł once (18 months, nothing renews), or 399 zł a year for a household of up to four. An agency charges about 1,700 zł for the same case. See the pricing page."
 }

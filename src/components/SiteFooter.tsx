@@ -11,7 +11,7 @@ export async function SiteFooter() {
         <div className="stack" style={{ ["--gap" as string]: "10px" }}>
           <Logo size={24} />
           <p className="small muted" style={{ maxWidth: 380 }}>{t("footerAi")}</p>
-          <p className="tiny muted">{t("footerOperator")} · <a href="mailto:contact@cosmiclan.com">contact@cosmiclan.com</a></p>
+          <p className="tiny muted">{t("footerOperator")} · <a href="mailto:gabriel@larinova.com">gabriel@larinova.com</a></p>
           <LanguagePicker compact className="footer-lang" />
         </div>
         <nav aria-label={t("navFooter")} className="footer-links">
