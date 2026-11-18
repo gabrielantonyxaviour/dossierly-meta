@@ -15,7 +15,7 @@ export type Run = {
   ranOn: RanOn;
 };
 
-export type PlanKind = "free" | "case_pass" | "judge";
+export type PlanKind = "free" | "one_case" | "household_year" | "judge";
 export type Plan = { kind: PlanKind; creditsLeft: number; expiresAt?: string | null; family?: boolean };
 export type Me = {
   userId: string; plan: Plan; freeLetterUsed: boolean;

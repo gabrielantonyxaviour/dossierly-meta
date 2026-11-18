@@ -1,14 +1,17 @@
 import { getEnv, type Env } from "./env";
 import { ApiError } from "./http";
+import { resolvePlan } from "./entitlements";
+import { FREE_LETTERS } from "@/lib/billing/plans";
 import { b64url, hmacSha256, timingSafeEqual } from "./util";
+
+export { FREE_LETTERS };
 
 export const SESSION_COOKIE = "settla_uid";
 /** The shared SAMPLE case: one demo user whose private agent is the pinned `companion-arjun` sandbox. */
 export const SAMPLE_USER_ID = "sample-arjun";
-export const FREE_LETTERS = 3;
 const MAX_AGE = 60 * 60 * 24 * 400;
 
-export type PlanKind = "free" | "case_pass" | "judge";
+export type PlanKind = "free" | "one_case" | "household_year" | "judge";
 export type Plan = { kind: PlanKind; creditsLeft: number; expiresAt?: string | null; family?: boolean };
 export type AccountKind = "email" | "passkey" | "device";
 export type ActiveCase = "own" | "sample";
@@ -28,7 +31,7 @@ export type UserState = {
 };
 
 type Row = {
-  plan_kind: PlanKind; plan_expires_at: number | null; credits: number; family: number;
+  plan_kind: string; plan_expires_at: number | null; credits: number; family: number;
   account_kind: AccountKind | null; plan_chosen: number; active_case: ActiveCase; letters_used: number;
   email_user: string | null;
 };
@@ -68,17 +71,18 @@ export async function loadUserState(env: Env, userId: string): Promise<UserState
     "SELECT plan_kind, plan_expires_at, credits, family, account_kind, plan_chosen, active_case, letters_used, (SELECT user_id FROM email_identities WHERE user_id = users.id) AS email_user FROM users WHERE id = ?",
   ).bind(userId).first<Row>();
   if (!row) return null;
-  const expired = row.plan_kind !== "free" && row.plan_expires_at !== null && row.plan_expires_at < Date.now();
+  const paid = await resolvePlan(env, userId);
+  const judge = row.plan_kind === "judge" && (row.plan_expires_at === null || row.plan_expires_at > Date.now());
   return {
     userId,
     accountId: userId,
     accountKind: row.email_user ? "email" : row.account_kind,
     activeCase: row.active_case === "sample" ? "sample" : "own",
     plan: {
-      kind: expired ? "free" : row.plan_kind,
+      kind: judge ? "judge" : paid.kind,
       creditsLeft: row.credits,
-      expiresAt: !expired && row.plan_expires_at ? new Date(row.plan_expires_at).toISOString() : null,
-      family: row.family === 1,
+      expiresAt: paid.expiresAt ? new Date(paid.expiresAt).toISOString() : null,
+      family: paid.kind === "household_year",
     },
     planChosen: row.plan_chosen === 1,
     lettersUsed: row.letters_used,

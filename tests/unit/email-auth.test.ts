@@ -56,7 +56,7 @@ describe("email-code identity", () => {
     const oldCookie = (await sessionCookie("u_existing", env)).split(";")[0];
     const b = await begin(undefined, oldCookie);
     expect((await verifyEmailCode(env, req(b.cookie), b.input)).userId).toBe("u_existing");
-    expect(await loadUserState(env, "u_existing")).toMatchObject({ accountKind: "email", activeCase: "sample", planChosen: true, plan: { kind: "case_pass", creditsLeft: 7 } });
+    expect(await loadUserState(env, "u_existing")).toMatchObject({ accountKind: "email", activeCase: "sample", planChosen: true, plan: { kind: "one_case", creditsLeft: 7 } });
   });
 
   it("never merges an already verified identity with the browser's other account", async () => {
