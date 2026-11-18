@@ -23,6 +23,7 @@ description: Build the "what to have and bring" checklist and office phrases for
    - the UPO or filing certificate (zaświadczenie) from MOS;
    - proof that the permit fee and the 100 zł card fee were paid, if the case asks for it;
    - an active e-Doręczenia mailbox (notices and missing documents travel there).
+2a. Consequence of missing the fingerprint summons: the proceedings are discontinued (umorzenie, art. 106i ust. 1), NOT "left without consideration" (that is the consequence of an unfixed formal defect, KPA art. 64 §2, a different summons). If the office cannot take prints on the day (art. 106g), it sets a new date at least 7 days from delivery. State this as a fact from the statute; never as advice.
 3. Add one `check` item: "Documents are not accepted at the counter; send them by e-Doręczenia" with its citation. Never tell the person to bring paper documents to hand over.
 4. If the case shows a child under 6, or a medical certificate on file, add a `check` item for the fingerprint exemption (art. 106b ust. 2). Do not decide eligibility.
 5. Card collection visit: the office announces date and place by e-mail, SMS or e-Doręczenia. Checklist: the notice, the passport. Fees are not paid at collection by any source read: mark `check`.
@@ -42,6 +43,7 @@ Return JSON only.
 - Interpret and organise; no legal advice. Never say what the person "should" do about a deadline or refusal.
 - Cite hub passages only. Every item has a real hub URL with a quote, or status `check` and `"citation": null` with the item written as a question to ask the office.
 - Never invent a document, fee, date or office rule. If the summons does not say the location, say so.
+- Never call the office "overdue" as a legal fact: the 60-day decision period (art. 112a) does not run until after 4 March 2027 (art. 100d of the Act of 12 March 2022, Dz.U. 2026 poz. 203).
 - The summons date governs. Statute minimum: at least 7 days from delivery (art. 106e ust. 1). Do not compute the date yourself.
 
 ## Seed passages (verified 2026-10-30)

@@ -5,7 +5,25 @@
  */
 export const SAMPLE_CASE_NO = "WSC-II-P.6151.48213.2026";
 export const SAMPLE_SENDER = { email: "wsc@dossierly.cosmiclan.com", name: "Wydział Spraw Cudzoziemców" } as const;
-export const SAMPLE_ADMIN_ALLOWLIST: Readonly<Record<string, string>> = { "darthstormer.ai@gmail.com": "Arjun Raman" };
+const SAMPLE_PERSONA = "Arjun Raman";
+
+/** Parses SAMPLE_ADMIN_EMAILS (comma or space separated) into address -> demo persona. No address is stored in the repo. */
+export function sampleAdminAllowlist(raw: string | undefined | null): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const e of (raw ?? "").split(/[\s,]+/)) if (e.includes("@")) out[e.toLowerCase()] = SAMPLE_PERSONA;
+  return out;
+}
+
+/** Live view of SAMPLE_ADMIN_EMAILS (a secret set with `wrangler secret put`), read on every access from process.env. */
+export const SAMPLE_ADMIN_ALLOWLIST: Readonly<Record<string, string>> = new Proxy({} as Record<string, string>, {
+  get: (_t, k) => (typeof k === "string" ? sampleAdminAllowlist(process.env.SAMPLE_ADMIN_EMAILS)[k] : undefined),
+  has: (_t, k) => typeof k === "string" && k in sampleAdminAllowlist(process.env.SAMPLE_ADMIN_EMAILS),
+  ownKeys: () => Object.keys(sampleAdminAllowlist(process.env.SAMPLE_ADMIN_EMAILS)),
+  getOwnPropertyDescriptor: (_t, k) => {
+    const v = typeof k === "string" ? sampleAdminAllowlist(process.env.SAMPLE_ADMIN_EMAILS)[k] : undefined;
+    return v === undefined ? undefined : { value: v, enumerable: true, configurable: true, writable: false };
+  },
+});
 
 export type SampleEmail = { subject: string; html: string; text: string };
 export type SampleLetter = {

@@ -1,4 +1,4 @@
-/* Usage: npx tsx scripts/send-sample-emails.ts --base https://dossierly-look.cosmiclan.com --ids all|film|a7|id1,id2 [--date YYYY-MM-DD] [--to darthstormer.ai@gmail.com]
+/* Usage: npx tsx scripts/send-sample-emails.ts --base https://dossierly-look.cosmiclan.com --ids all|film|a7|id1,id2 [--date YYYY-MM-DD] --to <address listed in SAMPLE_ADMIN_EMAILS>
    film = the six-mail demo inbox (sent oldest first, so the office mails sit on top); --date is the fingerprint day (default today, Warsaw).
    a7   = the enrolment-certificate request (deadline Wed 25 Nov).
    Reads SAMPLE_MAIL_TOKEN from the environment; the token is never printed. */
@@ -12,11 +12,11 @@ const arg = (name: string, fallback?: string) => {
 
 async function main() {
   const base = (arg("base") ?? "").replace(/\/$/, "");
-  const to = arg("to", "darthstormer.ai@gmail.com") as string;
+  const to = arg("to");
   const idsArg = arg("ids", "all") as string;
   const token = process.env.SAMPLE_MAIL_TOKEN;
-  if (!base || !token) {
-    process.stdout.write("Need --base and SAMPLE_MAIL_TOKEN in the environment\n");
+  if (!base || !token || !to) {
+    process.stdout.write("Need --base, --to and SAMPLE_MAIL_TOKEN in the environment\n");
     process.exit(2);
   }
   const date = arg("date");

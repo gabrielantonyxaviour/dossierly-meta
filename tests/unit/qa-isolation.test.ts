@@ -14,7 +14,7 @@ type Conf = {
   env?: Record<string, Conf>;
 };
 
-const conf = JSON.parse(readFileSync("wrangler.jsonc", "utf8")) as Conf;
+const conf = JSON.parse(readFileSync("wrangler.jsonc", "utf8").replace(/^\s*\/\/.*$/gm, "")) as Conf;
 const previews = ["onboarding", "app", "voice", "look"] as const;
 
 describe("dossierly-meta Cloudflare environments", () => {

@@ -16,10 +16,18 @@ description: Turn a read official letter (wezwanie, decision, card-collection no
 ## Steps
 1. Match the letter to one `letterTypes` id. If none fits, use status `check` for everything and say the type is unknown.
 2. For each ask in `letter.asks`, write one checklist item in plain English. Status: `have` if `case.documents` shows it, `missing` if the case shows it absent, else `check`.
-3. Deadline facts for the caller's code (never compute the date yourself): copy the letter's own written term first, then the hub minimum (`wezwanie-braki-formalne` 7 days, `wezwanie-dokumenty` 14 days, `fingerprint-appointment` 7 days, `decyzja` appeal 14 days, all from delivery). The date in the letter governs; the hub figure is only a minimum. If `deliveryDate` is missing, add a `check` item: "Date the letter was delivered (needed to count the term)".
+3. Three different summonses, never mixed:
+   | Summons | Basis | Minimum | If missed |
+   |---|---|---|---|
+   | Formal defect (`wezwanie-braki-formalne`) | KPA art. 64 §2 | at least 7 days | application left without consideration (pozostawienie bez rozpoznania) |
+   | Evidence documents (`wezwanie-dokumenty`) | Ustawa o cudzoziemcach art. 106f | at least 14 days from delivery | the 60-day decision period starts when the period lapses unused (art. 112a ust. 2 pkt 3); claim nothing more |
+   | Personal appearance: fingerprints, passport, signature (`fingerprint-appointment`) | art. 106e ust. 1 | at least 7 days from delivery | the proceedings are discontinued (umorzenie, art. 106i), NOT left without consideration |
+   They can arrive in one letter (art. 106e ust. 2). State the consequence of the matching row only.
+   Deadline facts for the caller's code (never compute the date yourself): copy the letter's own written term first, then the hub minimum (`wezwanie-braki-formalne` 7 days, `wezwanie-dokumenty` 14 days, `fingerprint-appointment` 7 days, `decyzja` appeal 14 days, all from delivery). The date in the letter governs; the hub figure is only a minimum. If `deliveryDate` is missing, add a `check` item: "Date the letter was delivered (needed to count the term)".
 4. Channel: for MOS cases the office works electronically. Add the item "Send by e-Doręczenia, title: case number, name" and "Do not also post the same papers" with their citations. Say that scans of paper originals must be electronically certified (notary, or an attorney-in-fact who is a lawyer) only if the letter asks for documents.
 5. Fees: if the letter asks for payment, look up `coverage.json` fees. State amount and account from the hub, flag that permit fee and card fee use different accounts, and add `check` "Confirm the amount on the letter matches the live fee page".
-6. Decision letters: say what the letter states (grant/refusal) from the letter text only. For a refusal add the item "Appeal period: 14 days from delivery, filed via the Wojewoda Mazowiecki" with citation. No advice on whether to appeal.
+6. Decision letters: say what the letter states (grant/refusal) from the letter text only. For a refusal add the item "Appeal period: 14 days from delivery, filed through the Wojewoda Mazowiecki on paper or by e-Doręczenia (never through MOS)" with citation. No advice on whether to appeal.
+6a. Delay: never present an office as "overdue" or late as a legal fact. The 60-day decision period (art. 112a) does not run until after 4 March 2027 (art. 100d of the Act of 12 March 2022, Dz.U. 2026 poz. 203). If the person asks about delay, say that and stop.
 7. Card-collection notice: item "Come on the date and place in the notice"; no collection deadline was found in the sources: mark `check`.
 8. Phrases: 4-6 from `hub/phrases/pl.json` situation `letter-wezwanie`, plus `understanding`.
 9. `changes`: hub notices newer than the letter date that concern the same topic.
@@ -36,6 +44,7 @@ Return JSON only.
 - Interpret only. No legal advice, no "you should", no predicting outcomes.
 - Cite hub passages only. Without a hub citation, status is `check`, `"citation": null`, and the item is a question for the office.
 - Never invent a deadline, fee, account number or document. Never turn "at least N days" into "exactly N days".
+- Delivery: e-Doręczenia not collected counts as delivered on the day after 14 days from arrival (art. 42 of the Act on electronic delivery); post with a notice follows KPA art. 44 (14 days' storage). Leave the arithmetic to the caller.
 - Terms count in calendar days unless the letter says otherwise (KPA art. 57). Leave arithmetic to the caller.
 
 ## Seed passages (verified 2026-10-30)

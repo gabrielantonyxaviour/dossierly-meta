@@ -128,5 +128,7 @@ npm run deploy:prod    # Cloudflare (see wrangler.jsonc and scripts/put-secrets.
 
 Environment: `MODEL_API_KEY` (Meta Model API), `ELEVENLABS_API_KEY`, `COMPOSIO_*`, `TWILIO_*`, `SESSION_SECRET`; optional `MODEL_<ROLE>_BASE_URL/_MODEL/_KEY_ENV/_EFFORT` to move a role to another OpenAI-compatible provider.
 
-## License
-MIT
+## Operator and license
+Dossierly is operated and sold by Larinova Private Limited. Production: https://dossierly.larinova.com (`npm run deploy:larinova`). It is an AI organiser, not a legal or tax adviser.
+
+MIT, copyright Larinova Private Limited (see LICENSE).

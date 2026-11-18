@@ -26,8 +26,8 @@ const extraction = extractionSchema.parse({
 
 async function setup(opts: { demo: boolean; failFirstRead?: boolean; inSetup?: boolean }) {
   const id = `acct-watch-${++n}`;
-  const email = opts.demo ? "darthstormer.ai@gmail.com" : `student${n}@example.pl`;
-  const env = freshLocalEnv({ DEMO_CALL_EMAILS: "darthstormer.ai@gmail.com" } as never) as ConnectionsEnv;
+  const email = opts.demo ? "qa+sample@larinova.com" : `student${n}@example.pl`;
+  const env = freshLocalEnv({ DEMO_CALL_EMAILS: "qa+sample@larinova.com" } as never) as ConnectionsEnv;
   await env.DB.prepare("INSERT INTO users (id, created_at) VALUES (?, 1)").bind(id).run();
   await env.DB.prepare("INSERT INTO connection_accounts (account_id, category, provider, broker_id, auth_config_id, label, scopes, connected_at) VALUES (?, 'mail', 'gmail', 'b1', 'a1', 'arjun@gmail.com', '[]', ?)").bind(id, CONNECTED).run();
   await env.DB.prepare("INSERT INTO email_identities (email, user_id, verified_at) VALUES (?, ?, 1)").bind(email, id).run();
