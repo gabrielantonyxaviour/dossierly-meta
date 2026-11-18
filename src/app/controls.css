@@ -56,8 +56,17 @@
 .ui-sheet-grip { width: 40px; height: 4px; margin: 2px auto 10px; border-radius: var(--pill); background: var(--line-strong); }
 .ui-pop-sheet .ui-listbox { max-height: none; }
 .ui-pop-sheet .ui-option { min-height: 52px; }
+/* Combobox: a search field pinned over the list */
+.ui-combo-pop { display: grid; gap: 8px; }
+.ui-combo-search { width: 100%; min-height: 44px; }
+.ui-pop-sheet.ui-combo-pop { height: 70vh; grid-template-rows: auto auto minmax(0, 1fr); }
+.ui-pop-sheet.ui-combo-pop .ui-listbox { overflow-y: auto; }
+.ui-combo-empty { color: var(--ink-3); cursor: default; }
 
 /* Calendar */
+.ui-cal-years { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 8px; }
+.ui-cal-year { min-height: 32px; padding: 0 12px; border: 0; border-radius: var(--pill); background: var(--surface-2); color: var(--ink-2); font: inherit; font-size: 0.8125rem; font-variant-numeric: tabular-nums; cursor: pointer; }
+.ui-cal-year.is-on { background: var(--ink); color: var(--bg); }
 .ui-cal { right: auto; width: 320px; max-width: calc(100vw - 32px); padding: 12px; }
 .ui-pop-sheet.ui-cal { width: auto; max-width: none; }
 .ui-cal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }

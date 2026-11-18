@@ -30,6 +30,34 @@ export const VOIVODESHIP_INFO: Record<Voivodeship, VoivodeshipInfo> = {
   zachodniopomorskie: { name: "Zachodniopomorskie", seat: "Szczecin", avgDays2026: 465, office: "Zachodniopomorski Urząd Wojewódzki" },
 };
 
+/** Larger cities per voivodeship for the city select (seat first). Names in Polish, as on letters. */
+export const CITIES: Record<Voivodeship, string[]> = {
+  dolnoslaskie: ["Wrocław", "Wałbrzych", "Legnica", "Jelenia Góra"],
+  kujawsko_pomorskie: ["Bydgoszcz", "Toruń", "Włocławek", "Grudziądz"],
+  lubelskie: ["Lublin", "Zamość", "Chełm", "Biała Podlaska"],
+  lubuskie: ["Gorzów Wielkopolski", "Zielona Góra"],
+  lodzkie: ["Łódź", "Piotrków Trybunalski", "Pabianice"],
+  malopolskie: ["Kraków", "Tarnów", "Nowy Sącz"],
+  mazowieckie: ["Warszawa", "Radom", "Płock", "Siedlce"],
+  opolskie: ["Opole", "Kędzierzyn-Koźle", "Nysa"],
+  podkarpackie: ["Rzeszów", "Przemyśl", "Stalowa Wola", "Krosno"],
+  podlaskie: ["Białystok", "Suwałki", "Łomża"],
+  pomorskie: ["Gdańsk", "Gdynia", "Sopot", "Słupsk"],
+  slaskie: ["Katowice", "Gliwice", "Częstochowa", "Sosnowiec", "Bielsko-Biała"],
+  swietokrzyskie: ["Kielce", "Ostrowiec Świętokrzyski"],
+  warminsko_mazurskie: ["Olsztyn", "Elbląg", "Ełk"],
+  wielkopolskie: ["Poznań", "Kalisz", "Konin", "Piła"],
+  zachodniopomorskie: ["Szczecin", "Koszalin", "Świnoujście"],
+};
+
+/** The voivodeship a known city belongs to (for cases that saved only a city). */
+export const voivodeshipOfCity = (city: string | null | undefined): Voivodeship | null => {
+  const c = (city ?? "").trim().toLowerCase();
+  if (!c) return null;
+  if (c === "warsaw") return "mazowieckie";
+  return (Object.keys(CITIES) as Voivodeship[]).find((v) => CITIES[v].some((x) => x.toLowerCase() === c)) ?? null;
+};
+
 export const DEFAULT_VOIVODESHIP: Voivodeship = "mazowieckie";
 
 /** The four grounds the residence flow covers, as stored permit types. */

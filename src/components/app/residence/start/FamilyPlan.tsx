@@ -1,10 +1,9 @@
 "use client";
 import { useState } from "react";
 import { Button, IconButton, OptionGrid, Pill } from "@/components/ui";
-import { Select } from "@/components/ui/Select";
+import { Checkbox } from "@/components/ui/Checkbox";
 import type { HouseholdMember, PermitType, Profile } from "@/lib/case/types";
 import { feeLines, feeTotal, familyIncomeNeeded } from "@/lib/residence/model";
-import { warsawToday } from "@/lib/case/next-step";
 import { useT } from "@/lib/i18n/client";
 import type { T } from "@/lib/i18n/translate";
 import { Fact } from "@/components/residence/parts";
@@ -13,9 +12,7 @@ import { zl } from "../format";
 
 /* Start steps 4 (family) and 5 (your plan). */
 
-export type MemberDraft = { id?: string; name: string; relation: "spouse" | "child"; birthYear: number | null; permitType: PermitType };
-
-const MEMBER_PERMITS: PermitType[] = ["temporary_residence_family", "temporary_residence_study", "temporary_residence_work"];
+export type MemberDraft = { id?: string; name: string; relation: "spouse" | "child"; birthYear: number | null; under16?: boolean; permitType: PermitType };
 
 /** "work permit", "family permit"… in the interface language. */
 export const permitShort = (t: T, p: PermitType | null | undefined) => t(`permitShort_${p ?? "other"}`);
@@ -31,62 +28,43 @@ function FamilyCheck({ profile, count }: { profile: Profile; count: number }) {
   return <div className="rp-callout"><b>{t("famCheckTitle")}</b><span>{t(key, vars)}</span></div>;
 }
 
+type Row = { id?: string; name: string; relation: "spouse" | "child"; under16: boolean; birthYear: number | null; permitType: PermitType };
+
+/** One editable row per family member: name, relation, under 16. Up to three. */
 export function FamilyStep({ profile, busy, onNext }: { profile: Profile; busy: boolean; onNext: (m: MemberDraft[]) => void }) {
   const t = useT("residence");
-  const [members, setMembers] = useState<MemberDraft[]>(() => (profile.household ?? []).map(({ id, name, relation, birthYear, permitType }) => ({ id, name, relation, birthYear, permitType })));
-  const [adding, setAdding] = useState(false);
-  const [name, setName] = useState("");
-  const [relation, setRelation] = useState<"spouse" | "child">("spouse");
-  const [year, setYear] = useState("");
-  const [permit, setPermit] = useState<PermitType>("temporary_residence_family");
-  const [error, setError] = useState("");
-  const thisYear = Number(warsawToday().slice(0, 4));
-  const needOne = profile.situation === "family" && members.length === 0;
-
-  function add() {
-    const y = year ? Number(year) : null;
-    if (name.trim().length < 2) return setError(t("memberNameError"));
-    if (relation === "child" && (!y || y < thisYear - 30 || y > thisYear)) return setError(t("birthYearError"));
-    setMembers([...members, { name: name.trim(), relation, birthYear: relation === "child" ? y : null, permitType: permit }]);
-    setName(""); setYear(""); setRelation("child"); setPermit("temporary_residence_family"); setError(""); setAdding(false);
-  }
-
+  const [rows, setRows] = useState<Row[]>(() => (profile.household ?? []).map(({ id, name, relation, birthYear, under16, permitType }) => ({ id, name, relation, birthYear, under16, permitType })));
+  const [tried, setTried] = useState(false);
+  const set = (i: number, patch: Partial<Row>) => setRows(rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
+  const add = () => setRows([...rows, { name: "", relation: rows.some((r) => r.relation === "spouse") ? "child" : "spouse", under16: false, birthYear: null, permitType: "temporary_residence_family" }]);
+  const bad = rows.map((r) => r.name.trim().length < 2);
+  const needOne = profile.situation === "family" && rows.length === 0;
+  const submit = () => {
+    setTried(true);
+    if (needOne || bad.some(Boolean)) return;
+    onNext(rows.map((r) => ({ id: r.id, name: r.name.trim(), relation: r.relation, birthYear: r.relation === "child" ? r.birthYear : null, under16: r.relation === "child" && r.under16, permitType: r.permitType })));
+  };
   return (
     <div className="ob-answer">
-      <div className="rp-stack">
-        {members.map((m, i) => (
-          <Fact key={`${m.name}-${i}`} icon="user" tone="ok" title={m.name}
-            sub={m.relation === "child" && m.birthYear ? `${memberRole(t, m)} · ${t("bornIn", { year: m.birthYear })}` : memberRole(t, m)}
-            end={<IconButton icon="close" small label={t("memberRemove", { name: m.name })} onClick={() => setMembers(members.filter((_, j) => j !== i))} />} />
-        ))}
-        {!members.length && !adding && <p className="rp-note">{t("familyEmpty")}</p>}
-      </div>
-      {adding ? (
-        <div className="rs-member-form">
-          <label className="ob-field"><span>{t("memberName")}</span>
-            <input className="input" autoFocus maxLength={120} value={name} autoComplete="off" placeholder={t("memberNamePh")} onChange={(e) => setName(e.target.value)} />
-          </label>
-          <OptionGrid<"spouse" | "child"> label={t("memberRelation")} value={relation} onChange={setRelation} options={[{ value: "spouse", label: t("relSpouse") }, { value: "child", label: t("relChild") }]} />
-          {relation === "child" && (
-            <label className="ob-field"><span>{t("birthYear")}</span>
-              <input className="input ui-num" inputMode="numeric" maxLength={4} value={year} placeholder={String(thisYear - 6)} onChange={(e) => setYear(e.target.value.replace(/\D/g, ""))} />
+      {rows.map((r, i) => (
+        <fieldset key={r.id ?? `new-${i}`} className="rs-member-form">
+          <legend className="sr-only">{t("memberN", { n: i + 1 })}</legend>
+          <div className="rs-member-top">
+            <label className="ob-field rs-grow"><span>{t("memberName")}</span>
+              <input className="input" maxLength={120} value={r.name} autoComplete="off" placeholder={t("memberNamePh")} aria-invalid={tried && bad[i]} onChange={(e) => set(i, { name: e.target.value })} />
             </label>
-          )}
-          <div className="ob-field"><span className="ob-field-label" id="rs-mperm">{t("memberPermit")}</span>
-            <Select value={permit} onChange={(v) => setPermit(v as PermitType)} labelledBy="rs-mperm" options={MEMBER_PERMITS.map((p) => ({ value: p, label: permitShort(t, p) }))} />
+            <IconButton icon="close" small label={t("memberRemove", { name: r.name || t("memberN", { n: i + 1 }) })} onClick={() => setRows(rows.filter((_, j) => j !== i))} />
           </div>
-          {error && <p className="ob-field-err" role="alert">{error}</p>}
-          <div className="rs-row-actions">
-            <Button variant="ghost" onClick={() => { setAdding(false); setError(""); }}>{t("cancel")}</Button>
-            <Button variant="secondary" icon="plus" onClick={add}>{t("memberSave")}</Button>
-          </div>
-        </div>
-      ) : members.length < 3 ? (
-        <Button variant="secondary" icon="plus" block onClick={() => setAdding(true)}>{t("addMember")}</Button>
-      ) : <p className="rp-note">{t("maxMembers")}</p>}
-      {members.length > 0 && <FamilyCheck profile={profile} count={members.length} />}
-      {needOne && !adding && <p className="rp-note">{t("familyNeedOne")}</p>}
-      <Continue busy={busy} disabled={needOne || adding} onClick={() => onNext(members)} label={members.length ? t("continue") : t("justMe")} />
+          {tried && bad[i] && <p className="ob-field-err" role="alert">{t("memberNameError")}</p>}
+          <OptionGrid<"spouse" | "child"> label={t("memberRelation")} value={r.relation} onChange={(v) => set(i, { relation: v })} options={[{ value: "spouse", label: t("relSpouse") }, { value: "child", label: t("relChild") }]} />
+          {r.relation === "child" && <Checkbox checked={r.under16} onChange={(v) => set(i, { under16: v })}>{t("under16")}</Checkbox>}
+        </fieldset>
+      ))}
+      {!rows.length && <p className="rp-note">{t("familyEmpty")}</p>}
+      {rows.length < 3 ? <Button variant="secondary" icon="plus" block onClick={add}>{t("addMember")}</Button> : <p className="rp-note">{t("maxMembers")}</p>}
+      {rows.length > 0 && <FamilyCheck profile={profile} count={rows.length} />}
+      {tried && needOne && <p className="ob-field-err" role="alert">{t("familyNeedOne")}</p>}
+      <Continue busy={busy} onClick={submit} label={rows.length ? undefined : t("justMe")} />
     </div>
   );
 }

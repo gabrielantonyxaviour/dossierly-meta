@@ -20,6 +20,8 @@ type Props = {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  /** Quick year jumps under the month header (dates that may be years away, e.g. a card's end date). */
+  yearPicks?: number[];
 };
 
 /** Month, weekday and date names in the interface language. Weeks still start on Monday. */
@@ -70,7 +72,7 @@ function monthGrid(iso: string): string[][] {
   return Array.from({ length: 6 }, (_, w) => Array.from({ length: 7 }, (_, d) => addDays(start, w * 7 + d)));
 }
 
-export function DatePicker({ value, onChange, min, max, labelledBy, ariaLabel, id, placeholder: placeholderProp, disabled, className }: Props) {
+export function DatePicker({ value, onChange, min, max, labelledBy, ariaLabel, id, placeholder: placeholderProp, disabled, className, yearPicks }: Props) {
   const t = useT("ui");
   const tag = LOCALE_TAGS[useLocale()];
   const { MONTH, FULL, heads, label } = useMemo(() => formats(tag), [tag]);
@@ -172,6 +174,14 @@ export function DatePicker({ value, onChange, min, max, labelledBy, ariaLabel, i
                 <Chevron />
               </button>
             </div>
+            {yearPicks && yearPicks.length > 0 && (
+              <div className="ui-cal-years" role="group" aria-label={t("jumpYear")}>
+                {yearPicks.map((y) => (
+                  <button key={y} type="button" className={`ui-cal-year${focus.startsWith(String(y)) ? " is-on" : ""}`} aria-pressed={focus.startsWith(String(y))}
+                    onClick={() => setFocus(clamp(`${y}${focus.slice(4, 8)}${String(Math.min(Number(focus.slice(8)), 28)).padStart(2, "0")}`, min, max))}>{y}</button>
+                ))}
+              </div>
+            )}
             <table ref={grid} className="ui-cal-grid" role="grid" aria-labelledby={headId} onKeyDown={onGridKey}>
               <thead>
                 <tr>{heads.map((w, i) => <th key={i} scope="col" abbr={w.abbr}>{w.text}</th>)}</tr>

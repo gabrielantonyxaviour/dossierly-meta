@@ -4,7 +4,8 @@ import { ApiError } from "./http";
 /**
  * Onboarding progress (D1 onboarding_progress). Only the step and completion time live here; every answer
  * is written to the server case (CaseDO profile) as it is given, so an unfinished setup resumes anywhere.
- * Steps: 1 you, 2 reason, 3 stage, 4 place, 5 inbox (connect + read), 6 phone. Completion opens the welcome call.
+ * D1 keeps steps 1..6 (CHECK constraint in 0005). The nine-step residence setup form stores its exact step in the
+ * case profile (setupStep) and records min(step, 6) here. Completion opens the case home.
  */
 export const ONBOARDING_STEPS = 6;
 export type OnboardingStatus = "new" | "in_progress" | "completed";

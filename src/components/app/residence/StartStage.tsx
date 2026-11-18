@@ -1,59 +1,34 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, useToast } from "@/components/ui";
 import type { CaseSnapshot, Profile } from "@/lib/case/types";
-import { VOIVODESHIP_INFO } from "@/lib/residence/model";
 import { useT } from "@/lib/i18n/client";
 import { useCaseData } from "../shell/case-data";
-import { Continue, DatesStep, GroundStep, SituationStep, StartStepper } from "./start/StartSteps";
-import { FamilyStep, PlanSummary } from "./start/FamilyPlan";
-import { useResidence } from "./useResidence";
+import { CASE_FLOW, SetupWizard, stepTitle } from "./start/SetupWizard";
 
-/* Stage 0 · Start inside the app: the same five questions as onboarding, for cases set up before the residence
-   flow or to change an answer. Each answer is saved before moving on, so a reload resumes with it. */
-
-const TITLES = [["sitTitle", "sitSub"], ["groundTitle", "groundSub"], ["datesTitle", "datesSub"], ["familyTitle", "familySub"], ["planTitle", ""]] as const;
+/* Stage 0 · Start inside the app: the case questions of setup, for cases set up before the residence flow or to
+   change an answer. It opens on the first unanswered question; each answer is saved before moving on. */
 
 export function StartStage({ c }: { c: CaseSnapshot }) {
   const t = useT("residence");
   const router = useRouter();
-  const { patchProfile } = useCaseData();
-  const { act, busy: acting } = useResidence();
-  const { toast } = useToast();
+  const { patchProfile, refresh } = useCaseData();
+  const [profile, setProfile] = useState<Profile>(c.profile);
+  const [error, setError] = useState<string | null>(null);
   const p = c.profile;
-  const firstGap = !p.situation ? 0 : !p.permitType || p.permitType === "other" ? 1 : !p.voivodeship ? 2 : 0;
-  const [at, setAt] = useState(firstGap);
-  const [saving, setSaving] = useState(false);
-  const busy = saving || acting;
-  const go = (n: number) => { setAt(n); window.scrollTo({ top: 0 }); };
-  async function save(patch: Partial<Profile>) {
-    setSaving(true);
-    const ok = await patchProfile(patch);
-    setSaving(false);
-    if (ok) go(at + 1);
-    else toast(t("saveFailed"), { tone: "error" });
-  }
-  const [title, sub] = TITLES[at]!;
+  const gap = [!p.situation, !p.permitType || p.permitType === "other", !p.voivodeship, !p.legalStayUntil && p.situation !== "letter", !p.employerPays].findIndex(Boolean);
+  const [at, setAt] = useState(gap < 0 ? 0 : gap);
+  const [title, sub] = stepTitle(t, CASE_FLOW[at]!, profile);
   return (
     <>
-      <StartStepper at={at} />
       <div className="rp-stack">
-        <h2 className="rp-h1">{at === 1 && p.situation === "family" ? t("groundTitleFamily") : t(title)}</h2>
-        {sub && <p className="rp-lead">{t(sub)}</p>}
+        <h2 className="rp-h1">{title}</h2>
+        {sub && <p className="rp-lead">{sub}</p>}
       </div>
-      {at === 0 ? <SituationStep profile={p} busy={busy} onNext={(situation) => void save({ situation })} />
-        : at === 1 ? <GroundStep profile={p} busy={busy} onNext={(x) => void save(x)} />
-        : at === 2 ? <DatesStep profile={p} busy={busy} onNext={(x) => void save({ ...x, ...(p.city ? {} : { city: VOIVODESHIP_INFO[x.voivodeship].seat }) })} />
-        : at === 3 ? <FamilyStep profile={p} busy={busy} onNext={(members) => void act({ action: "household", members }).then((ok) => ok && go(4))} />
-        : (
-          <div className="ob-answer">
-            <PlanSummary profile={p} />
-            <Continue busy={busy} label={t("openCase")}
-              onClick={() => void act({ action: "stage", stage: p.situation === "letter" ? "waiting" : "prepare" }).then((ok) => ok && router.push(p.situation === "letter" ? "/app/look" : "/app"))} />
-          </div>
-        )}
-      {at > 0 && <Button variant="ghost" icon="back" disabled={busy} onClick={() => go(at - 1)}>{t("back")}</Button>}
+      {error && <p className="rs-err" role="alert">{error}</p>}
+      <SetupWizard flow={CASE_FLOW} profile={profile} setProfile={setProfile} start={at} onIndex={setAt} fail={setError}
+        saveProfile={(patch) => patchProfile(patch)} finishLabel={t("openCase")}
+        onFinish={async () => { await refresh(); router.push(profile.situation === "letter" ? "/app/look" : "/app"); }} />
     </>
   );
 }

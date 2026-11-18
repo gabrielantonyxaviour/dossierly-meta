@@ -54,10 +54,14 @@ export const profileSchema = z.object({
   /** Last day of legal stay: the end date on the current card or visa. */
   legalStayUntil: isoDate.nullable().optional(),
   household: z.array(householdMemberSchema).max(3).optional(),
+  /** Whether the employer pays the permit fees: "unsure" is a real answer. */
+  employerPays: z.enum(["yes", "no", "unsure"]).nullable().optional(),
   residenceStage: z.enum(RESIDENCE_STAGES).nullable().optional(),
   /** Prepare-checklist item ids the person ticked. */
   checklistDone: z.array(z.string().regex(/^[a-z0-9_]{1,64}$/)).max(80).optional(),
   decision: decisionSchema.nullable().optional(),
+  /** Exact step of the nine-step setup form (D1 onboarding_progress only stores 1..6). */
+  setupStep: z.number().int().min(1).max(9).optional(),
 });
 export const profilePatchSchema = profileSchema.partial({ fullName: true, preferredLanguage: true, country: true, city: true, permitType: true, stage: true, organisation: true, arrivalDate: true, timezone: true }).extend({ phone: profileSchema.shape.phone.partial().optional() }).partial().strict();
 

@@ -126,7 +126,7 @@ export function LetterStage({ c }: { c: CaseSnapshot }) {
       <SummonsKinds />
       <div className="rs-actions">
         <ButtonLink href="/app/look" variant="secondary" icon="scan">{t("readAnother")}</ButtonLink>
-        <ButtonLink href="/app/letters" variant="ghost" icon="letter">{t("allLetters")}</ButtonLink>
+        <ButtonLink href="/app/case?tab=documents" variant="ghost" icon="letter">{t("allLetters")}</ButtonLink>
       </div>
     </>
   );

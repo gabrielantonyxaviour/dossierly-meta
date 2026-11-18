@@ -19,5 +19,8 @@
   "tryAgain": "Try again",
   "retry": "Retry",
   "copy": "Copy",
-  "copied": "Copied"
+  "copied": "Copied",
+  "search": "Search",
+  "noMatches": "No matches",
+  "jumpYear": "Jump to year"
 }

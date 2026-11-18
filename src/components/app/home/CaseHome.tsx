@@ -7,6 +7,7 @@ import { useUnread } from "../AppShell";
 import { firstName, greeting } from "../format";
 import { useCaseData } from "../shell/case-data";
 import { CasePathCard, ResidenceHero } from "../residence/ResidenceHome";
+import { OptionalSetup, PrepareStart } from "../residence/HomeExtras";
 import { OpenTasks, QuickActions, RecentActivity, UpcomingAppointment } from "./HomeSections";
 import { CaseStrip } from "./CaseStrip";
 import { ReadyCard } from "../ready/ReadyCard";
@@ -49,6 +50,7 @@ export function CaseHome() {
         <div className="hm-col">
           <ReadyCard c={snapshot} now={now} />
           <ResidenceHero c={snapshot} next={next} />
+          <PrepareStart c={snapshot} />
           <QuickActions />
           <ReviewEntry c={snapshot} />
           <UpcomingAppointment c={snapshot} />
@@ -58,6 +60,7 @@ export function CaseHome() {
           <OpenTasks c={snapshot} />
           <RecentActivity c={snapshot} />
           <CaseStrip c={snapshot} />
+          <OptionalSetup />
         </div>
       </div>
     </div>

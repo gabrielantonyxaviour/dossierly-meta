@@ -20,6 +20,8 @@ const memberInput = z.object({
   name: z.string().trim().min(1).max(120),
   relation: z.enum(["spouse", "child"]),
   birthYear: z.number().int().min(1920).max(2100).nullable(),
+  /** Stated directly (onboarding asks "under 16?"); otherwise worked out from the birth year. */
+  under16: z.boolean().optional(),
   permitType: z.enum(PERMIT_TYPES).optional(),
 }).strict();
 
@@ -65,7 +67,7 @@ export function planResidenceAction(c: CaseSnapshot, a: ResidenceAction, today: 
         name: m.name,
         relation: m.relation,
         birthYear: m.birthYear,
-        under16: m.relation === "child" && under16From(m.birthYear, onDate),
+        under16: m.relation === "child" && (m.under16 ?? under16From(m.birthYear, onDate)),
         permitType: m.permitType ?? "temporary_residence_family",
       }));
       const keep = new Set(members.map((m) => m.id));

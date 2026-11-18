@@ -48,3 +48,15 @@
 .rs-screen .ob-field > span, .rs-screen .ob-field-label { font-size: 14px; font-weight: 500; color: var(--ink-2); }
 .rs-screen .ob-field-label em { font-style: normal; color: var(--ink-3); font-weight: 400; }
 .rs-screen .ob-field-err { color: var(--deadline); font-size: 14px; margin: 0; }
+
+/* Setup wizard: nine numbered dots, the step name in the caption at every width */
+.rs-stepper-dense li { gap: 4px; }
+.rs-stepper-wrap .rp-stepper-caption { display: block; }
+.rs-member-top { display: flex; align-items: flex-end; gap: 10px; }
+.rs-member-top .ui-iconbtn, .rs-member-top button { flex: none; margin-bottom: 6px; }
+.rs-grow { flex: 1 1 auto; min-width: 0; }
+.rs-textarea { min-height: 112px; resize: vertical; line-height: 1.45; padding-top: 12px; }
+.rs-hint { color: var(--ink-3); font-size: 13px; line-height: 1.4; }
+fieldset.rs-member-form { border: 0; margin: 0; min-width: 0; }
+.ob-lang { justify-self: start; }
+.rs-member-form .ui-tile { min-height: 48px; padding-block: 10px; }
