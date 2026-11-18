@@ -78,7 +78,7 @@ export function SettingsScreen() {
 
       <Section title={t("app")}>
         <Card flush>
-          <Row icon="card" title={t("plan")} href="/app/plan" chevron />
+          <Row icon="card" title={t("plan")} href="/plan" chevron />
           <Row icon="bell" title={t("notifications")} href="/app/notifications" chevron />
         </Card>
       </Section>

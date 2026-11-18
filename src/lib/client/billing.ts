@@ -25,7 +25,7 @@ export const billing = {
   checkout: (plan: PaidPlan, referralCode?: string) =>
     call<Checkout>("/api/billing/checkout", {
       method: "POST",
-      body: JSON.stringify({ plan, returnPath: "/app/plan?paid=1", ...(referralCode ? { referralCode } : {}) }),
+      body: JSON.stringify({ plan, returnPath: "/plan?paid=1", ...(referralCode ? { referralCode } : {}) }),
     }),
 };
 

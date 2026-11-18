@@ -8,6 +8,7 @@ import { useLocale, useT } from "@/lib/i18n/client";
 import { LOCALE_TAGS } from "@/lib/i18n/locales";
 import { friendlyError } from "@/lib/client/api";
 import { billing, zl, type BillingStatus, type PaidPlan } from "@/lib/client/billing";
+import "@/components/ui/shell.css";
 import "./plan.css";
 
 const REF = /^[A-Za-z0-9-]{4,24}$/;
@@ -73,7 +74,7 @@ export function PlanScreen() {
 
   return (
     <div className="sh-page pl">
-      <TopBar title={t("title")} back={{ href: "/app/settings", label: t("back") }} />
+      <TopBar title={t("title")} back={{ href: "/app", label: t("back") }} />
 
       {paid && (
         <Card className={`pl-paid ${status.plan !== "free" ? "is-ok" : ""}`} role="status">

@@ -19,9 +19,9 @@ export default async function PricingPage() {
   const plans: Plan[] = [
     { id: "free", name: t("freeName"), badge: t("freeBadge"), price: t("freePrice"), note: t("freeNote"), cta: t("freeCta"), href: "/signup",
       points: [t("free1"), t("free2"), t("free3", { n: P.freeLetters }), t("free4")] },
-    { id: "case", featured: true, name: t("caseName"), badge: t("caseBadge"), price: t("casePrice", { price: P.case }), unit: t("caseUnit"), note: t("caseNote"), cta: t("caseCta"), href: "/signup?next=%2Fapp%2Fplan%3Fplan%3Dcase",
+    { id: "case", featured: true, name: t("caseName"), badge: t("caseBadge"), price: t("casePrice", { price: P.case }), unit: t("caseUnit"), note: t("caseNote"), cta: t("caseCta"), href: "/signup?next=%2Fplan%3Fplan%3Dcase",
       points: [t("case1"), t("case2"), t("case3"), t("case4"), t("case5")] },
-    { id: "household", name: t("homeName"), badge: t("homeBadge"), price: t("homePrice", { price: P.home }), unit: t("homeUnit"), note: t("homeNote", { members: P.members }), cta: t("homeCta"), href: "/signup?next=%2Fapp%2Fplan%3Fplan%3Dhousehold",
+    { id: "household", name: t("homeName"), badge: t("homeBadge"), price: t("homePrice", { price: P.home }), unit: t("homeUnit"), note: t("homeNote", { members: P.members }), cta: t("homeCta"), href: "/signup?next=%2Fplan%3Fplan%3Dhousehold",
       points: [t("home1"), t("home2"), t("home3"), t("home4")] },
   ];
   const faq = [

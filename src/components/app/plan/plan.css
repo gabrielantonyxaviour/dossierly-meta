@@ -26,3 +26,4 @@
 .pl-ref p { margin: 0; }
 .pl-ref-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface-2); }
 .pl-ref-row code { font-family: var(--mono); font-size: 1rem; letter-spacing: 0.06em; }
+.pl-root { min-height: 100dvh; background: var(--bg); padding-bottom: calc(32px + env(safe-area-inset-bottom)); }
