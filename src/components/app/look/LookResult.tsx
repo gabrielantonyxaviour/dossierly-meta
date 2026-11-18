@@ -8,13 +8,11 @@ import { LookCanvas } from "./LookCanvas";
 import { canSave, LookConfirm, LookSaved } from "./LookConfirm";
 import { LookItems } from "./LookItems";
 import type { LookState } from "./useLook";
+import { useT } from "@/lib/i18n/client";
 
-const KIND: Record<LookKind, string> = {
-  letter: "Letter from the office", decision: "Decision", mos_screen: "MOS form screen", upo: "Filing receipt (UPO)",
-  inpol_status: "inPOL status", kiosk: "Ticket kiosk", other: "Not an official document",
-};
+const KINDS: LookKind[] = ["letter", "decision", "mos_screen", "upo", "inpol_status", "kiosk", "other"];
 const secs = (ms: number | null) => (ms === null ? "" : `${(ms / 1000).toFixed(1)} s`);
-const READ_HINTS = ["Transcribing every line", "Finding the case number and dates", "Looking for what they ask you to do", "Matching it to your case"];
+const READ_HINTS = ["hintTranscribe", "hintFind", "hintAsks", "hintMatch"];
 
 function useElapsed(on: boolean): number {
   const [t, setT] = useState(0);
@@ -28,6 +26,7 @@ function useElapsed(on: boolean): number {
 }
 
 function Progress({ phase, readMs, samMs, count }: { phase: string; readMs: number | null; samMs: number | null; count: number }) {
+  const t = useT("look");
   const elapsed = useElapsed(phase === "reading");
   const step = (label: string, model: string, state: "wait" | "run" | "ok", time?: string) => (
     <li className={`lk-prog is-${state}`}>
@@ -39,8 +38,8 @@ function Progress({ phase, readMs, samMs, count }: { phase: string; readMs: numb
   const reading = phase === "reading";
   return (
     <ol className="lk-progress" aria-live="polite">
-      {step(reading ? `${READ_HINTS[Math.min(READ_HINTS.length - 1, Math.floor(elapsed / 6))]}…` : "Read and pointed", "Muse Spark 1.3", reading ? "run" : "ok", reading ? `${elapsed} s` : secs(readMs))}
-      {step(count ? `Traced ${count} exact outlines` : "Tracing exact outlines", "SAM 3.1", reading ? "wait" : samMs === null && phase !== "error" && phase !== "done" ? "run" : "ok", secs(samMs))}
+      {step(reading ? t(READ_HINTS[Math.min(READ_HINTS.length - 1, Math.floor(elapsed / 6))]) : t("readPointed"), "Muse Spark 1.3", reading ? "run" : "ok", reading ? `${elapsed} s` : secs(readMs))}
+      {step(count ? t("traced", { n: count }) : t("tracing"), "SAM 3.1", reading ? "wait" : samMs === null && phase !== "error" && phase !== "done" ? "run" : "ok", secs(samMs))}
     </ol>
   );
 }
@@ -53,6 +52,7 @@ interface Props {
 }
 
 export function LookResult({ state, phone, onRetry, onClose }: Props) {
+  const t = useT("look");
   const [active, setActive] = useState<string | null>(null);
   const [sheet, setSheet] = useState(false);
   const [saved, setSaved] = useState<CommitResult | null>(null);
@@ -79,13 +79,13 @@ export function LookResult({ state, phone, onRetry, onClose }: Props) {
         <>
           {saved && <LookSaved result={saved} />}
           <section className="stack" style={{ ["--gap" as string]: "8px" }}>
-            <div><Pill tone={read.kind === "other" ? "neutral" : "official"}>{KIND[read.kind]}</Pill></div>
+            <div><Pill tone={read.kind === "other" ? "neutral" : "official"}>{t(`kind_${KINDS.includes(read.kind) ? read.kind : "other"}`)}</Pill></div>
             <h2 className="lk-title">{read.title}</h2>
             <p className="lk-summary">{read.summary}</p>
           </section>
           {read.actions.length > 0 && (
-            <section className="lk-actions" aria-label="What to do">
-              <span className="tab-label">What to do</span>
+            <section className="lk-actions" aria-label={t("whatToDo")}>
+              <span className="tab-label">{t("whatToDo")}</span>
               <ol>{read.actions.map((a, i) => <li key={i}>{a}</li>)}</ol>
             </section>
           )}
@@ -101,7 +101,7 @@ export function LookResult({ state, phone, onRetry, onClose }: Props) {
       <div className="sh-page sh-page--wide lk-page lk-result">
         {visual}
         <div className="stack" style={{ ["--gap" as string]: "12px" }}>
-          <div><Button variant="ghost" size="sm" icon="camera" onClick={onClose}>Look at something else</Button></div>
+          <div><Button variant="ghost" size="sm" icon="camera" onClick={onClose}>{t("lookElse")}</Button></div>
           {panel}
         </div>
       </div>
@@ -109,15 +109,15 @@ export function LookResult({ state, phone, onRetry, onClose }: Props) {
   }
 
   const footer = saved ? (
-    <><Button variant="secondary" size="lg" icon="camera" onClick={onClose}>Look again</Button><ButtonLink variant="primary" size="lg" href="/app">Open my case</ButtonLink></>
+    <><Button variant="secondary" size="lg" icon="camera" onClick={onClose}>{t("lookAgain")}</Button><ButtonLink variant="primary" size="lg" href="/app">{t("openMyCase")}</ButtonLink></>
   ) : savable ? (
-    <Button variant="primary" size="lg" block onClick={() => setSheet(true)}>{read?.letter?.deadlineRule.amount ? "Work out my deadline" : "Add to my case"}</Button>
+    <Button variant="primary" size="lg" block onClick={() => setSheet(true)}>{read?.letter?.deadlineRule.amount ? t("workOut") : t("addMyCase")}</Button>
   ) : phase === "error" || phase === "done" ? (
-    <Button variant="secondary" size="lg" block icon="camera" onClick={onClose}>{phase === "error" ? "Try another photo" : "Look at something else"}</Button>
+    <Button variant="secondary" size="lg" block icon="camera" onClick={onClose}>{phase === "error" ? t("tryAnother") : t("lookElse")}</Button>
   ) : undefined;
 
   return (
-    <FullScreenFlow title="Look" onClose={onClose} footer={footer} dark>
+    <FullScreenFlow title={t("title")} onClose={onClose} footer={footer} dark>
       <div className="lk-phone stack" style={{ ["--gap" as string]: "16px" }}>
         {visual}
         {panel}

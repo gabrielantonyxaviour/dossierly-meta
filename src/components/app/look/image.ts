@@ -1,4 +1,5 @@
 /** Client-side image preparation: EXIF-correct orientation, downscale, re-encode as JPEG. */
+import { tNow } from "@/lib/i18n/current";
 
 export interface PreparedImage {
   dataUrl: string;
@@ -34,7 +35,7 @@ export async function prepareImage(blob: Blob, maxSide = MAX_SIDE): Promise<Prep
   const src = await decode(blob);
   const w0 = "naturalWidth" in src ? src.naturalWidth : src.width;
   const h0 = "naturalHeight" in src ? src.naturalHeight : src.height;
-  if (!w0 || !h0) throw new Error("That file is not an image we can open.");
+  if (!w0 || !h0) throw new Error(tNow("look")("errNotImage"));
   const scale = Math.min(1, maxSide / Math.max(w0, h0));
   const width = Math.max(64, Math.round(w0 * scale));
   const height = Math.max(64, Math.round(h0 * scale));
@@ -42,7 +43,7 @@ export async function prepareImage(blob: Blob, maxSide = MAX_SIDE): Promise<Prep
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("This browser cannot prepare images.");
+  if (!ctx) throw new Error(tNow("look")("errNoCanvas"));
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, width, height);
   ctx.drawImage(src, 0, 0, width, height);
@@ -53,14 +54,14 @@ export async function prepareImage(blob: Blob, maxSide = MAX_SIDE): Promise<Prep
 
 export async function prepareFromUrl(url: string, maxSide = MAX_SIDE): Promise<PreparedImage> {
   const res = await fetch(url);
-  if (!res.ok) throw new Error("Could not load the sample image.");
+  if (!res.ok) throw new Error(tNow("look")("errSample"));
   return prepareImage(await res.blob(), maxSide);
 }
 
 /** Page 1 of a case document's stored file (the emailed PDF or a scan), from /api/case/documents/:id/file. */
 export async function prepareFromDocument(id: string, maxSide = MAX_SIDE): Promise<PreparedImage> {
   const res = await fetch(`/api/case/documents/${encodeURIComponent(id)}/file`, { cache: "no-store" });
-  if (!res.ok) throw new Error(res.status === 404 ? "This document has no stored file to read." : "The document could not be opened.");
+  if (!res.ok) throw new Error(res.status === 404 ? tNow("look")("errNoFile") : tNow("look")("errDocOpen"));
   const blob = await res.blob();
   if (blob.type !== "application/pdf") return prepareImage(blob, maxSide);
   const pdfjs = await import("pdfjs-dist");
@@ -74,7 +75,7 @@ export async function prepareFromDocument(id: string, maxSide = MAX_SIDE): Promi
     canvas.width = Math.round(viewport.width);
     canvas.height = Math.round(viewport.height);
     await page.render({ canvas, viewport, background: "#ffffff" }).promise;
-    const png = await new Promise<Blob>((ok, fail) => canvas.toBlob((b) => (b ? ok(b) : fail(new Error("The page could not be drawn."))), "image/png"));
+    const png = await new Promise<Blob>((ok, fail) => canvas.toBlob((b) => (b ? ok(b) : fail(new Error(tNow("look")("errDraw")))), "image/png"));
     return prepareImage(png, maxSide);
   } finally {
     await doc.destroy();

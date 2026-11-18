@@ -9,14 +9,15 @@ import { Icon } from "@/components/Icon";
 import { CitedDeadline, longDate, warsawToday } from "./CitedDeadline";
 import { commitLook } from "./useLook";
 import { announceCaseChange } from "../shell/case-data";
+import { useLocale, useT } from "@/lib/i18n/client";
+import { LOCALE_TAGS } from "@/lib/i18n/locales";
+import type { T } from "@/lib/i18n/translate";
 
 type Via = "delivered" | "notice" | "electronic";
-const VIA: { value: Via; label: string; help: string }[] = [
-  { value: "delivered", label: "In hand", help: "The date the postman or office gave it to you, or you signed for it." },
-  { value: "notice", label: "Awizo slip", help: "The date on the first notice slip. Uncollected letters count as delivered 14 days later." },
-  { value: "electronic", label: "e-Doręczenia", help: "The date the message arrived in your e-Doręczenia inbox." },
-];
-const FACT_LABEL: Record<string, string> = { caseNumber: "Case number", office: "Office", filedAt: "Filed on", upoReceivedAt: "Receipt (UPO) date", mosStatus: "MOS status", inpolStatus: "inPOL status" };
+const VIA_IDS: Via[] = ["delivered", "notice", "electronic"];
+const viaOptions = (t: T) => VIA_IDS.map((value) => ({ value, label: t(`via_${value}`), help: t(`via_${value}Help`) }));
+const FACTS = ["caseNumber", "office", "filedAt", "upoReceivedAt", "mosStatus", "inpolStatus"];
+const factLabel = (t: T, k: string) => (FACTS.includes(k) ? t(`fact_${k}`) : k);
 
 /** True when there is anything worth saving from this look. */
 export const canSave = (read: LookRead) => read.readable && ((!!read.letter && (read.kind === "letter" || read.kind === "decision")) || Object.keys(read.facts).length > 0);
@@ -30,6 +31,9 @@ interface Props {
 
 /** Confirms what was read and writes it to the case: facts, the letter, its tasks, appointment and a cited deadline. */
 export function LookConfirm({ read, onDone, sheet }: Props) {
+  const t = useT("look");
+  const tag = LOCALE_TAGS[useLocale()];
+  const VIA = viaOptions(t);
   const isLetter = !!read.letter && (read.kind === "letter" || read.kind === "decision");
   const rule = read.letter?.deadlineRule;
   const needsDelivery = isLetter && !!rule?.amount && rule.from === "delivery";
@@ -51,7 +55,7 @@ export function LookConfirm({ read, onDone, sheet }: Props) {
       announceCaseChange();
       onDone(result);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not save to your case.");
+      setError(e instanceof Error ? e.message : t("saveFailed"));
     } finally {
       setBusy(false);
     }
@@ -64,11 +68,11 @@ export function LookConfirm({ read, onDone, sheet }: Props) {
         <dl className="lk-facts">
           {Object.keys(facts).map((k) => (
             <div key={k} className="lk-fact">
-              <dt>{FACT_LABEL[k] ?? k}{read.uncertain.includes(k) && <span className="ui-pill ui-pill--warn" style={{ marginLeft: 8 }}>Check this</span>}</dt>
+              <dt>{factLabel(t, k)}{read.uncertain.includes(k) && <span className="ui-pill ui-pill--warn" style={{ marginLeft: 8 }}>{t("checkThis")}</span>}</dt>
               {editing === k ? (
-                <dd><input className="ui-input" value={facts[k]} onChange={(e) => setFacts({ ...facts, [k]: e.target.value })} onBlur={() => setEditing(null)} autoFocus aria-label={FACT_LABEL[k] ?? k} /></dd>
+                <dd><input className="ui-input" value={facts[k]} onChange={(e) => setFacts({ ...facts, [k]: e.target.value })} onBlur={() => setEditing(null)} autoFocus aria-label={factLabel(t, k)} /></dd>
               ) : (
-                <dd><span className={k === "office" || k.endsWith("Status") ? undefined : "mono"}>{facts[k]}</span><Button variant="ghost" size="sm" onClick={() => setEditing(k)}>Edit</Button></dd>
+                <dd><span className={k === "office" || k.endsWith("Status") ? undefined : "mono"}>{facts[k]}</span><Button variant="ghost" size="sm" onClick={() => setEditing(k)}>{t("edit")}</Button></dd>
               )}
             </div>
           ))}
@@ -76,21 +80,21 @@ export function LookConfirm({ read, onDone, sheet }: Props) {
       )}
       {appt && (
         <div className="lk-appt">
-          <span className="tab-label">Appointment in this letter</span>
-          <b>{longDate(appt.date)}{appt.time ? `, ${appt.time}` : ""}</b>
+          <span className="tab-label">{t("apptTitle")}</span>
+          <b>{longDate(appt.date, tag)}{appt.time ? `, ${appt.time}` : ""}</b>
           {appt.place && <span>{appt.place}</span>}
-          {!appt.time && <span className="small muted">No time printed; check the letter.</span>}
+          {!appt.time && <span className="small muted">{t("noTime")}</span>}
         </div>
       )}
       {isLetter && rule?.amount && rule.from === "letter_date" && read.letter?.dateOnLetter && (
-        <p style={{ margin: 0 }}>The deadline counts from the date on the letter, {longDate(read.letter.dateOnLetter)}.</p>
+        <p style={{ margin: 0 }}>{t("fromLetterDate", { date: longDate(read.letter.dateOnLetter, tag) })}</p>
       )}
       {needsDelivery && (
         <div className="lk-via">
-          <p className="label" style={{ margin: "0 0 10px" }}>How did this letter reach you?</p>
-          <Segmented value={via} onChange={setVia} options={VIA} label="How the letter reached you" />
+          <p className="label" style={{ margin: "0 0 10px" }}>{t("viaQuestion")}</p>
+          <Segmented value={via} onChange={setVia} options={VIA} label={t("viaLabel")} />
           <p className="small muted" style={{ margin: "10px 0" }}>{VIA.find((v) => v.value === via)?.help}</p>
-          <DatePicker value={date} onChange={setDate} max={warsawToday()} ariaLabel={via === "notice" ? "Date on the first notice slip" : "Date it reached you"} />
+          <DatePicker value={date} onChange={setDate} max={warsawToday()} ariaLabel={via === "notice" ? t("dateNotice") : t("dateReached")} />
         </div>
       )}
       {error && <InlineError message={error} />}
@@ -98,18 +102,18 @@ export function LookConfirm({ read, onDone, sheet }: Props) {
   );
   const action = (
     <Button variant="primary" size="lg" block loading={busy} disabled={busy} onClick={() => void save()}>
-      {busy ? "Working out your deadline…" : needsDelivery ? "Work out my deadline" : "Save to my case"}
+      {busy ? t("working") : needsDelivery ? t("workOut") : t("saveCase")}
     </Button>
   );
 
   if (sheet) {
-    return <Sheet open={sheet.open} onClose={sheet.onClose} title="Add this to your case" footer={action}>{form}</Sheet>;
+    return <Sheet open={sheet.open} onClose={sheet.onClose} title={t("addTitle")} footer={action}>{form}</Sheet>;
   }
   return (
-    <section className="ui-card lk-confirm stack" style={{ ["--gap" as string]: "16px" }} aria-label="Add to your case">
+    <section className="ui-card lk-confirm stack" style={{ ["--gap" as string]: "16px" }} aria-label={t("addAria")}>
       <div>
-        <h3>Add this to your case</h3>
-        <p className="muted" style={{ margin: 0 }}>Check what I read. Nothing is saved until you confirm.</p>
+        <h3>{t("addTitle")}</h3>
+        <p className="muted" style={{ margin: 0 }}>{t("addSub")}</p>
       </div>
       {form}
       {action}
@@ -119,20 +123,23 @@ export function LookConfirm({ read, onDone, sheet }: Props) {
 
 /** What was written, plus the cited deadline when there is one. */
 export function LookSaved({ result }: { result: CommitResult }) {
+  const t = useT("look");
+  const en = useLocale() === "en";
+  const n = result.taskIds.length;
   const added = [
-    result.deadline && "a deadline with its working",
-    result.taskIds.length > 0 && `${result.taskIds.length} task${result.taskIds.length === 1 ? "" : "s"}`,
-    result.documentId && "this letter",
-    result.appointmentId && "the appointment",
-    result.factsWritten.length > 0 && result.factsWritten.map((k) => FACT_LABEL[k]?.toLowerCase() ?? k).join(", "),
+    result.deadline && t("addedDeadline"),
+    n > 0 && (n === 1 ? t("addedTaskOne") : t("addedTasks", { n })),
+    result.documentId && t("addedLetter"),
+    result.appointmentId && t("addedAppt"),
+    result.factsWritten.length > 0 && result.factsWritten.map((k) => (FACTS.includes(k) ? (en ? t(`fact_${k}`).toLowerCase() : t(`fact_${k}`)) : k)).join(", "),
   ].filter(Boolean) as string[];
   return (
     <div className="stack" style={{ ["--gap" as string]: "14px" }}>
       {result.deadline && <CitedDeadline deadline={result.deadline} />}
       <div className="lk-saved" role="status">
         <Icon name="check" size={18} />
-        <span className="grow">Added to your case: {added.join(" · ") || "nothing new"}.</span>
-        <Link className="ui-btn ui-btn--sm lk-desk-inline" href="/app">Open case</Link>
+        <span className="grow">{t("addedLine", { items: added.join(" · ") || t("addedNothing") })}</span>
+        <Link className="ui-btn ui-btn--sm lk-desk-inline" href="/app">{t("openCase")}</Link>
       </div>
     </div>
   );

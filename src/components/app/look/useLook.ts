@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import type { CommitRequest, CommitResult, LookEvent, LookKind, LookOutline, LookRead } from "@/lib/look/types";
 import type { PreparedImage } from "./image";
 import { errorText, readNdjson } from "./ndjson";
+import { tNow } from "@/lib/i18n/current";
 
 export type LookPhase = "idle" | "reading" | "outlining" | "done" | "error";
 
@@ -49,16 +50,16 @@ export function useLook() {
         else if (e.type === "stage" && e.stage === "outlining") setState((s) => ({ ...s, phase: "outlining" }));
         else if (e.type === "outline") setState((s) => ({ ...s, outlines: { ...s.outlines, [e.outline.id]: e.outline } }));
         else if (e.type === "outlines_done") setState((s) => ({ ...s, samMs: e.ms }));
-        else if (e.type === "stage" && e.stage === "done") setState((s) => ({ ...s, phase: s.read ? "done" : "error", error: s.read ? null : { message: "We could not read that image. Try a sharper photo.", retryable: true } }));
+        else if (e.type === "stage" && e.stage === "done") setState((s) => ({ ...s, phase: s.read ? "done" : "error", error: s.read ? null : { message: tNow("look")("errUnreadable"), retryable: true } }));
         else if (e.type === "error") {
           failed = true;
           setState((s) => ({ ...s, phase: s.read ? "done" : "error", error: { message: e.error, code: e.code, retryable: e.retryable } }));
         }
       }, ac.signal);
-      if (!failed) setState((s) => (s.phase === "reading" || s.phase === "outlining" ? { ...s, phase: s.read ? "done" : "error", error: s.read ? s.error : { message: "The connection closed before the reading finished. Try again.", retryable: true } } : s));
+      if (!failed) setState((s) => (s.phase === "reading" || s.phase === "outlining" ? { ...s, phase: s.read ? "done" : "error", error: s.read ? s.error : { message: tNow("look")("errClosed"), retryable: true } } : s));
     } catch (err) {
       if (ac.signal.aborted) return;
-      setState((s) => ({ ...s, phase: "error", error: { message: err instanceof Error && err.message ? "We lost the connection while reading. Check your network and try again." : "Something went wrong.", retryable: true } }));
+      setState((s) => ({ ...s, phase: "error", error: { message: err instanceof Error && err.message ? tNow("look")("errLost") : tNow("look")("errGeneric"), retryable: true } }));
     }
   }, []);
 
@@ -73,7 +74,7 @@ export function useLook() {
       const res = await fetch(`/api/look/${encodeURIComponent(lookId)}`, { signal: ac.signal });
       if (!res.ok) {
         setState(EMPTY);
-        return res.status === 404 ? "That look is not in your account any more." : (await errorText(res)).message;
+        return res.status === 404 ? tNow("look")("errLookGone") : (await errorText(res)).message;
       }
       const rec = (await res.json()) as SavedLook;
       const image = { dataUrl: rec.image, width: rec.size.w, height: rec.size.h, bytes: 0 };
@@ -91,7 +92,7 @@ export function useLook() {
     } catch {
       if (ac.signal.aborted) return null;
       setState(EMPTY);
-      return "Could not open that look. Check your connection.";
+      return tNow("look")("errLookOpen");
     }
   }, []);
 

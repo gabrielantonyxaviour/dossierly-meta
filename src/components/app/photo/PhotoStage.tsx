@@ -2,16 +2,18 @@
 
 import { useId } from "react";
 import type { PhotoResult } from "./types";
+import { useT } from "@/lib/i18n/client";
 
 /** The photo with SAM's head outline, the 35×45 crop frame and the 70–80% face-height band. */
 export function PhotoStage({ src, width, height, busy, result }: { src: string; width: number; height: number; busy: boolean; result: PhotoResult | null }) {
+  const t = useT("photo");
   const mask = useId().replace(/:/g, "");
   const c = result?.crop?.crop;
   const band = c ? { top: c.y + c.h * 0.08, lo: c.y + c.h * (0.08 + 0.7), hi: c.y + c.h * (0.08 + 0.8) } : null;
   return (
     <div className={`ph-stage${busy ? " is-busy" : ""}`} style={{ aspectRatio: `${width} / ${height}`, width: `min(100%, calc(var(--ph-maxh, calc(100dvh - 120px)) * ${(width / height).toFixed(4)}))` }}>
       {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
-      <img src={src} alt="Your photo" />
+      <img src={src} alt={t("photoAlt")} />
       {busy && <div className="lk-scan" aria-hidden="true" />}
       <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" aria-hidden="true">
         {c && (
