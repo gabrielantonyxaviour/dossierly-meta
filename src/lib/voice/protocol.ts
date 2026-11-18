@@ -11,7 +11,7 @@ export const VOICE_MODES = ["welcome", "agent", "counter", "rehearse", "intake"]
 export type VoiceMode = (typeof VOICE_MODES)[number];
 
 /** Languages Muse Voice Transcribe hears (no Ukrainian/Russian) that the app offers for voice. */
-export const VOICE_LANGS = ["en", "hi", "ta", "bn", "te", "mr", "kn", "tl", "vi", "tr", "ar", "es"] as const;
+export const VOICE_LANGS = ["en", "uk", "ru", "hi", "ta", "bn", "te", "mr", "kn", "tl", "vi", "tr", "ar", "es"] as const;
 export type VoiceLang = (typeof VOICE_LANGS)[number] | "pl";
 
 export const LANG_NAME: Record<string, string> = {
