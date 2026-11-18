@@ -1,4 +1,5 @@
 {
+  // DEMO_CALL_EMAILS and SAMPLE_ADMIN_EMAILS hold personal addresses: they are set as secrets (`wrangler secret put DEMO_CALL_EMAILS`), never committed. The empty values below only keep the var names.
   "$schema": "node_modules/wrangler/config-schema.json",
   "main": "worker/index.ts",
   "compatibility_date": "2026-09-01",
@@ -126,9 +127,144 @@
   "vars": {
     "APP_ENV": "production",
     "APP_URL": "https://dossierly.cosmiclan.com",
-    "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com"
+    "DEMO_CALL_EMAILS": ""
   },
   "env": {
+    "larinova": {
+      "$schema": "node_modules/wrangler/config-schema.json",
+      "main": "worker/index.ts",
+      "compatibility_date": "2026-09-01",
+      "compatibility_flags": [
+        "nodejs_compat",
+        "global_fetch_strictly_public"
+      ],
+      "observability": {
+        "enabled": true
+      },
+      "assets": {
+        "directory": ".open-next/assets",
+        "binding": "ASSETS"
+      },
+      "name": "dossierly-larinova",
+      "triggers": {
+        "crons": [
+          "*/2 * * * *",
+          "0 2 * * *"
+        ]
+      },
+      "workers_dev": false,
+      "preview_urls": false,
+      "routes": [
+        {
+          "pattern": "dossierly.larinova.com",
+          "custom_domain": true
+        }
+      ],
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "dossierly-larinova"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "dossierly-larinova-db",
+          "database_id": "TO_CREATE",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "CACHE",
+          "id": "TO_CREATE"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "BLOBS",
+          "bucket_name": "dossierly-larinova-blobs",
+          "jurisdiction": "eu"
+        }
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "USER_DO",
+            "class_name": "UserDO"
+          },
+          {
+            "name": "CASE_DO",
+            "class_name": "CaseDO"
+          },
+          {
+            "name": "VOICE_DO",
+            "class_name": "VoiceDO"
+          },
+          {
+            "name": "MODEL_RELAY",
+            "class_name": "ModelRelayDO"
+          }
+        ]
+      },
+      "migrations": [
+        {
+          "tag": "v1",
+          "new_sqlite_classes": [
+            "UserDO"
+          ]
+        },
+        {
+          "tag": "v2",
+          "new_sqlite_classes": [
+            "CaseDO"
+          ]
+        },
+        {
+          "tag": "v3",
+          "new_sqlite_classes": [
+            "VoiceDO"
+          ]
+        },
+        {
+          "tag": "v4",
+          "new_sqlite_classes": [
+            "ModelRelayDO"
+          ]
+        }
+      ],
+      "workflows": [
+        {
+          "name": "dossierly-larinova-prepare-fallback",
+          "binding": "PREPARE_FALLBACK",
+          "class_name": "PrepareFallback"
+        },
+        {
+          "name": "dossierly-larinova-letter-pipeline",
+          "binding": "LETTER_PIPELINE",
+          "class_name": "LetterPipeline"
+        }
+      ],
+      "send_email": [
+        {
+          "name": "EMAIL",
+          "allowed_sender_addresses": [
+            "alerts@larinova.com",
+            "no-reply@larinova.com",
+            "wsc@larinova.com"
+          ]
+        }
+      ],
+      "vars": {
+        "APP_ENV": "production",
+        "APP_URL": "https://dossierly.larinova.com",
+        "DEMO_CALL_EMAILS": "",
+        "OPERATOR_NAME": "Larinova Private Limited"
+      },
+      "placement": {
+        "mode": "smart"
+      }
+    },
     "onboarding": {
       "name": "dossierly-meta-onboarding",
       "triggers": {
@@ -243,7 +379,7 @@
       "vars": {
         "APP_ENV": "preview",
         "APP_URL": "https://dossierly-onboarding.cosmiclan.com",
-        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com",
+        "DEMO_CALL_EMAILS": "",
         "PREVIEW_FLOW": "onboarding"
       },
       "assets": {
@@ -365,7 +501,7 @@
       "vars": {
         "APP_ENV": "preview",
         "APP_URL": "https://dossierly-app.cosmiclan.com",
-        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com",
+        "DEMO_CALL_EMAILS": "",
         "PREVIEW_FLOW": "app"
       },
       "assets": {
@@ -487,7 +623,7 @@
       "vars": {
         "APP_ENV": "preview",
         "APP_URL": "https://dossierly-voice.cosmiclan.com",
-        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com",
+        "DEMO_CALL_EMAILS": "",
         "PREVIEW_FLOW": "voice"
       },
       "assets": {
@@ -609,7 +745,7 @@
       "vars": {
         "APP_ENV": "preview",
         "APP_URL": "https://dossierly-look.cosmiclan.com",
-        "DEMO_CALL_EMAILS": "darthstormer.ai@gmail.com,gabrielantony56@gmail.com",
+        "DEMO_CALL_EMAILS": "",
         "PREVIEW_FLOW": "look"
       },
       "assets": {

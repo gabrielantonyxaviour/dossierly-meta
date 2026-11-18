@@ -55,18 +55,20 @@ describe("sample email route", () => {
   });
   it("disables the admin path when the token is unset", async () => {
     const t = withEnv({ SAMPLE_MAIL_TOKEN: "" });
-    const res = await POST(post({ id: "wezwanie-braki", to: "darthstormer.ai@gmail.com" }, { "x-sample-token": "anything" }));
+    const res = await POST(post({ id: "wezwanie-braki", to: "qa+sample@larinova.com" }, { "x-sample-token": "anything" }));
     t.restore();
     expect(res.status).toBe(401);
     expect(t.send).not.toHaveBeenCalled();
   });
   it("rejects non-allowlisted recipients and sends to the allowlisted one", async () => {
+    process.env.SAMPLE_ADMIN_EMAILS = "qa+sample@larinova.com";
     const t = withEnv({ SAMPLE_MAIL_TOKEN: "tok-123" });
     const bad = await POST(post({ id: "wezwanie-braki", to: "someone@example.com" }, { "x-sample-token": "tok-123" }));
     expect(bad.status).toBe(400);
     expect((await bad.json()).code).toBe("recipient_not_allowed");
-    const ok = await POST(post({ id: "wezwanie-braki", to: "darthstormer.ai@gmail.com" }, { "x-sample-token": "tok-123" }));
+    const ok = await POST(post({ id: "wezwanie-braki", to: "qa+sample@larinova.com" }, { "x-sample-token": "tok-123" }));
     t.restore();
+    delete process.env.SAMPLE_ADMIN_EMAILS;
     expect(ok.status).toBe(200);
     expect(t.send).toHaveBeenCalledTimes(1);
   });
@@ -103,8 +105,10 @@ describe("film inbox mails", () => {
     const send = vi.fn(async (_m: Record<string, unknown>) => ({ messageId: "m2" }));
     const saved = { EMAIL: env.EMAIL, SAMPLE_MAIL_TOKEN: env.SAMPLE_MAIL_TOKEN };
     Object.assign(env, { EMAIL: { send }, SAMPLE_MAIL_TOKEN: "tok-9" });
-    const res = await POST(post({ id: "film-fingerprints", to: "darthstormer.ai@gmail.com", date: "2026-11-05" }, { "x-sample-token": "tok-9" }));
+    process.env.SAMPLE_ADMIN_EMAILS = "qa+sample@larinova.com";
+    const res = await POST(post({ id: "film-fingerprints", to: "qa+sample@larinova.com", date: "2026-11-05" }, { "x-sample-token": "tok-9" }));
     Object.assign(env, saved);
+    delete process.env.SAMPLE_ADMIN_EMAILS;
     expect(res.status).toBe(200);
     const msg = send.mock.calls[0][0] as { subject: string; from: { name: string } };
     expect(msg.subject).toContain("05.11.2026");

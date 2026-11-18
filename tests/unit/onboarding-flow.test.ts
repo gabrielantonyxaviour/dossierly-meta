@@ -20,11 +20,11 @@ describe("phone", () => {
     ...extra, DB: { prepare: () => ({ bind: () => ({ first: async () => (email ? { email } : null) }) }) },
   }) as never;
   it("enables calls only for the listed account and the exact demo number", async () => {
-    const vars = { DEMO_CALL_EMAILS: "darthstormer.ai@gmail.com, other@x.pl", DEMO_CALL_NUMBER: "+48 600 100 200" };
-    expect(await demoCallsAllowed(env("Darthstormer.AI@gmail.com", vars), "u1", "+48600100200")).toBe(true);
-    expect(await demoCallsAllowed(env("darthstormer.ai@gmail.com", vars), "u1", "+48600100201")).toBe(false);
+    const vars = { DEMO_CALL_EMAILS: "qa+sample@larinova.com, other@x.pl", DEMO_CALL_NUMBER: "+48 600 100 200" };
+    expect(await demoCallsAllowed(env("QA+Sample@larinova.com", vars), "u1", "+48600100200")).toBe(true);
+    expect(await demoCallsAllowed(env("qa+sample@larinova.com", vars), "u1", "+48600100201")).toBe(false);
     expect(await demoCallsAllowed(env("someone@gmail.com", vars), "u1", "+48600100200")).toBe(false);
-    expect(await demoCallsAllowed(env("darthstormer.ai@gmail.com", { DEMO_CALL_EMAILS: vars.DEMO_CALL_EMAILS }), "u1", "+48600100200")).toBe(false);
+    expect(await demoCallsAllowed(env("qa+sample@larinova.com", { DEMO_CALL_EMAILS: vars.DEMO_CALL_EMAILS }), "u1", "+48600100200")).toBe(false);
   });
 });
 

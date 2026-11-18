@@ -3,6 +3,7 @@
  * Pure and deterministic: the model reads the sentence in the letter, this code does the arithmetic.
  * Rules implemented, with the verbatim text in ./articles.ts:
  *  - art. 44 §1, §4: a letter that was not collected counts as delivered when the 14-day storage period ends;
+ *  - e-Doręczenia: not collected counts as delivered the day after 14 days from arrival (art. 42 of the e-delivery act); shown as a step, not a quote;
  *  - art. 57 §1-§3: the day of the event is not counted; weeks and months end on the matching weekday / date;
  *  - art. 57 §4: a deadline ending on a Saturday, Sunday or public holiday moves to the next day that is none;
  *  - art. 57 §5 pt 2: posting at the designated postal operator's office on the last day is on time.
@@ -71,6 +72,9 @@ function legalBasisWarnings(input: DeadlineInput): string[] {
   }
   if (/106f/i.test(basis) && days < 14) {
     out.push("Foreigners Act art. 106f says a summons to submit documents must give at least 14 days. This letter gives fewer, so check it with the office.");
+  }
+  if (/106e/i.test(basis) && days < 7) {
+    out.push("Foreigners Act art. 106e says a summons to appear in person must give at least 7 days from delivery. This letter gives fewer, so check it with the office. Missing the appearance can lead to the proceedings being discontinued (art. 106i).");
   }
   return out;
 }
@@ -153,7 +157,7 @@ export function computeKpaDeadline(input: DeadlineInput): ComputedDeadline {
   );
   citeIds.push(["kpa57", "5"]);
   if (start.kind === "electronic") {
-    steps.push("For electronic delivery the date normally counts from when the message was received in e-Doręczenia, as the system shows it. Check the date in your inbox; it can differ from the date on the letter.");
+    steps.push("For electronic delivery the date normally counts from when the message was received in e-Doręczenia, as the system shows it. If you do not open it, it counts as delivered on the day after 14 days from the day it arrived in the box (art. 42 of the Act on electronic delivery); for paper post the rule is KPA art. 44. Check the date in your inbox; it can differ from the date on the letter.");
   }
   if (/art\.?\s*64\b/i.test(input.legalBasis ?? "")) citeIds.push(["kpa64", "2"]);
 
