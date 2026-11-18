@@ -81,7 +81,7 @@ describe("grounded search", () => {
     expect(a.passages[0]).toMatchObject({ url: "https://migrant.wsc.mazowieckie.pl/oplaty" });
     expect(a.passages[0].text).toContain("440");
     const led = await env.DB.prepare("SELECT action, region FROM ledger WHERE kind = 'egress' ORDER BY seq").all<{ action: string; region: string }>();
-    expect(led.results[0]).toEqual({ action: "allowed", region: "api.meta.ai" });
+    expect(led.results[0]).toEqual({ action: "allowed", region: "web search" });
   });
 
   it("allows few live searches per user per day, then refuses without calling out", async () => {

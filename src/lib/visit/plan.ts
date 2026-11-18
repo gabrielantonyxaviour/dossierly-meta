@@ -1,5 +1,6 @@
 import { CaseClientError, type CaseClient } from "@/lib/case/client";
 import type { Appointment } from "@/lib/case/types";
+import { SEARCH_USD_PER_CALL } from "@/lib/config";
 import { costUsd, metaJson, webSearch } from "@/lib/model";
 import { compareItems, isOfficial, numberCitations, officeOf } from "./compare";
 import { buildQuery, caseSummary, purposeOf, SEARCH_SYSTEM, STRUCTURE_SYSTEM } from "./query";
@@ -60,6 +61,6 @@ export async function buildVisitPlan(client: CaseClient, req: VisitRequest, deps
   };
   if (req.save && appt) plan.savedTaskIds = await saveMissingAsTasks(client, appt, items);
   plan.ms = Date.now() - t0;
-  const usd = costUsd(found.model, found.usage) + costUsd(out.model, out.usage);
+  const usd = costUsd(found.model, found.usage) + found.searches * (found.usdPerSearch ?? SEARCH_USD_PER_CALL) + costUsd(out.model, out.usage);
   return { plan, usd };
 }

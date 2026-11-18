@@ -25,7 +25,7 @@ Meta's promotional credits let Meta use content for product improvement. Until G
 | Case review (nightly / after a new letter, tool loop) | Claude Sonnet 5.5 · high | Muse Wonder 1.0 · high |
 | Look outlines (SAM 3.1) | **skipped**: the vision model's own boxes are kept | SAM 3.1 box prompts |
 | Speech to text (file and live) | ElevenLabs Scribe v3 (clips) / Scribe v3 Live (streaming), every origin | same |
-| Grounded web search (Hub Ask, visit plan) | **unavailable** (empty result) | Meta `web_search` |
+| Grounded web search (Hub Ask, visit plan) | Claude Sonnet 5.5 with Anthropic server-side web search (`web_search_20250305`, `allowed_domains` = official Polish sources, `max_uses` 3; `src/lib/model/anthropic-search.ts`) | Meta `web_search` |
 | Text to speech | ElevenLabs `eleven_v4_turbo` (not Meta) | same |
 
 Claude Opus 5.5 (`claude-opus-5-5`) is available to any role by config.
@@ -58,7 +58,7 @@ Example, once Meta use is cleared: `META_USER_CONTENT=allow`, `MODEL_VISION_USER
 | Feature | Why | What the code does |
 |---|---|---|
 | Look outlines (SAM) | SAM 3.1 is Meta only | Not an error: the highlight uses the vision model's own box. |
-| Grounded web search (Hub Ask, visit-plan sources) | Meta `web_search` tool | The search returns no passages and the caller shows its no-source state. |
+| Grounded web search (Hub Ask, visit-plan sources) | Anthropic web search tool (user), Meta `web_search` (demo/eval; Meta stays gated for users) | The search returns no passages and the caller shows its no-source state. |
 
 Voice is no longer on this list: speech to text and text to speech are ElevenLabs only, so no real-user audio ever reaches Meta (see Voice below).
 
@@ -120,7 +120,7 @@ The rows below describe the Meta routes: demo/eval content today, and real users
 - Cap, settle, retry metering and the kill switch are pinned by `tests/unit/token-cap.test.ts`.
 - **Records**: each `runModel` call writes a `runs` row (task, model, ms, tokens, cost) and a `ledger` row (bytes sent, items masked) in D1.
 
-Prices used for metering (USD): Spark 1.2/1.3 $1.25 / M input, $0.15 / M cached, $4.25 / M output; Wonder 1.0 $4 / M input, $20 / M output (the app meters cached Wonder input at $1 / M; the eval billed it as full input because no cached rate is published); SAM 3.1 $2.50 / 1,000 images; Scribe $0.40 / hour (unverified for v3); web search $2.50 / 1,000 calls.
+Prices used for metering (USD): Spark 1.2/1.3 $1.25 / M input, $0.15 / M cached, $4.25 / M output; Wonder 1.0 $4 / M input, $20 / M output (the app meters cached Wonder input at $1 / M; the eval billed it as full input because no cached rate is published); SAM 3.1 $2.50 / 1,000 images; Scribe $0.40 / hour (unverified for v3); web search on Meta $2.50 / 1,000 calls; web search on Claude $10 / 1,000 searches plus tokens (docs, 2026-11-18). Config: `MODEL_SEARCH_*`, `SEARCH_TOOL_TYPE`, `SEARCH_MAX_USES`.
 
 ## Measured cost and latency per action
 

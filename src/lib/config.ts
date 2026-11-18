@@ -138,12 +138,24 @@ export const POLISH = { recognition: "pl-PL", speech: "pl-PL" };
 
 /** Official domains the grounded web search is told to prefer. */
 export const HUB_DOMAINS = [
-  "gov.pl",
-  "udsc.gov.pl",
+  "gov.pl", // also covers udsc.gov.pl, mos.cudzoziemcy.gov.pl, *.uw.gov.pl, isap/api.sejm.gov.pl, pacjent/podatki/biznes/zielonalinia.gov.pl
+  "sejm.gov.pl",
   "migrant.wsc.mazowieckie.pl",
-  "mazowieckie.uw.gov.pl",
-  "mos.cudzoziemcy.gov.pl",
+  "duw.pl",
+  "muw.pl",
 ];
+/** Domains passed to Anthropic's web search as allowed_domains (subdomains are included by the API). */
+export const SEARCH_ALLOWED_DOMAINS = [
+  "gov.pl", "udsc.gov.pl", "mos.cudzoziemcy.gov.pl", "uw.gov.pl", "isap.sejm.gov.pl", "api.sejm.gov.pl", "sejm.gov.pl",
+  "pacjent.gov.pl", "zielonalinia.gov.pl", "podatki.gov.pl", "biznes.gov.pl",
+  "migrant.wsc.mazowieckie.pl", "duw.pl", "muw.pl",
+];
+/** Anthropic server-side web search tool version (docs: platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool). SEARCH_TOOL_TYPE overrides. */
+/* 20250305 is the basic tool: live-checked 2026-11-18 (1 search, text-block citations). 20260318 (dynamic filtering) ran 7 searches and returned no web_search_result_location citations in that check, so it is not the default. */
+export const SEARCH_TOOL_TYPE = "web_search_20250305";
+export const SEARCH_MAX_USES = 3;
+/** Anthropic web search list price: US$10 per 1,000 searches, plus tokens (docs, checked 2026-11-18). */
+export const ANTHROPIC_SEARCH_USD_PER_CALL = 10 / 1000;
 
 export const HUB_LIMITS = {
   searchesPerDay: 10,

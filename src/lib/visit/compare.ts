@@ -1,7 +1,7 @@
 import type { CaseDocument } from "@/lib/case/types";
 import type { PlanItem, Structured } from "./types";
 
-export const OFFICIAL_HOSTS = ["gov.pl", "migrant.wsc.mazowieckie.pl", "mazowieckie.uw.gov.pl", "isap.sejm.gov.pl", "udsc.gov.pl"];
+export const OFFICIAL_HOSTS = ["gov.pl", "migrant.wsc.mazowieckie.pl", "mazowieckie.uw.gov.pl", "isap.sejm.gov.pl", "udsc.gov.pl", "sejm.gov.pl", "duw.pl", "muw.pl"];
 
 export function isOfficial(url: string): boolean {
   try {

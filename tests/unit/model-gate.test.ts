@@ -3,7 +3,8 @@ import { z } from "zod";
 import { maskerFor } from "@/lib/mask";
 import { runModel } from "@/lib/model";
 import { assertProviderAllowed, providerAllowed } from "@/lib/model/gate";
-import { metaChat, metaChatStream, samSegment, webSearch } from "@/lib/model/meta";
+import { metaChat, metaChatStream, samSegment } from "@/lib/model/meta";
+import { webSearch } from "@/lib/model/anthropic-search";
 import { resolveRole } from "@/lib/model/roles";
 import { outlineItems } from "@/lib/look/outline";
 import { ModelError, type ChatClient } from "@/lib/model/types";
@@ -81,11 +82,11 @@ describe("content-origin gate", () => {
     expect(() => assertProviderAllowed("meta", "user", { META_USER_CONTENT: "no" })).toThrow(ModelError);
   });
 
-  it("blocks the Meta-only services (SAM, grounded search) for user content, with no request", async () => {
+  it("blocks SAM, and grounded search when pointed at Meta, for user content, with no request", async () => {
     const f = spyFetch();
     const o = { env: KEYS, fetch: f.fetch };
     await expect(samSegment({ image: "data:image/png;base64,AA", boxes: [[0, 0, 1, 1]], size: { w: 10, h: 10 } }, o)).rejects.toMatchObject({ code: "provider_blocked" });
-    await expect(webSearch({ query: "pesel" }, o)).rejects.toMatchObject({ code: "provider_blocked" });
+    await expect(webSearch({ query: "pesel" }, { ...o, env: { ...KEYS, MODEL_SEARCH_USER_PROVIDER: "meta" } })).rejects.toMatchObject({ code: "provider_blocked" });
     expect(f.calls).toEqual([]);
     blocked(() => resolveRole("sam", KEYS));
     expect(resolveRole("sam", KEYS, "demo").provider).toBe("meta");
