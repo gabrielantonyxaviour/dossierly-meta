@@ -48,6 +48,15 @@ export type Env = {
   ANTHROPIC_API_KEY?: string;
   /** "allow" lets real users' content go to Meta models (src/lib/model/gate.ts). Anything else keeps it blocked. */
   META_USER_CONTENT?: string;
+  /** ElevenLabs key: speech to text (Scribe) and text to speech. Voice routing and caps: docs/models.md. */
+  ELEVENLABS_API_KEY?: string;
+  ELEVENLABS_VOICE_ID?: string;
+  ELEVENLABS_OFFICIAL_VOICE_ID?: string;
+  ELEVENLABS_TTS_MODEL?: string;
+  /** Hard daily ceiling on text-to-speech characters (default 4000). */
+  ELEVENLABS_DAILY_CHAR_CAP?: string;
+  MODEL_ASR_MODEL?: string;
+  MODEL_ASR_PROVIDER?: string;
   BRIDGE_SECRET: string;
   SESSION_SECRET: string;
   RESEND_API_KEY?: string;

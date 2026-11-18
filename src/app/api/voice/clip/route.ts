@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { TEST_LINES } from "@/lib/voice/clips";
-import { speakAll } from "@/lib/voice/server/tts";
+import { speakAll, ttsSettings } from "@/lib/voice/server/tts";
 import { getEnv } from "@/lib/server/env";
 import { ApiError, errorResponse } from "@/lib/server/http";
+import { TTS_CAP_MESSAGE, TtsCapError } from "@/lib/voice/server/tts-budget";
 import { requireUser } from "@/lib/server/session";
 import { sha256Hex } from "@/lib/server/util";
 
@@ -22,9 +23,15 @@ export async function GET(req: Request): Promise<Response> {
     const hit = await env.BLOBS.get(key).catch(() => null);
     if (hit) bytes = new Uint8Array(await hit.arrayBuffer());
     if (!bytes) {
-      const apiKey = String((env as unknown as Record<string, unknown>).ELEVENLABS_API_KEY ?? "");
-      if (!apiKey) throw new ApiError(503, "Speech output is not configured", "tts_unconfigured");
-      bytes = await speakAll(apiKey, who === "official" ? { text, lang: "pl", voice: "official", format: "pcm_16000" } : { text, lang: "en", voice: "tester", format: "pcm_16000" });
+      const tts = ttsSettings(env);
+      if (!tts.apiKey) throw new ApiError(503, "Speech output is not configured", "tts_unconfigured");
+      const common = { format: "pcm_16000" as const, model: tts.model, voices: tts.voices, reserve: tts.reserve, release: tts.release };
+      try {
+        bytes = await speakAll(tts.apiKey, who === "official" ? { text, lang: "pl", voice: "official", ...common } : { text, lang: "en", voice: "tester", ...common });
+      } catch (e) {
+        if (e instanceof TtsCapError) throw new ApiError(429, TTS_CAP_MESSAGE, "tts_cap");
+        throw e;
+      }
       await env.BLOBS.put(key, bytes).catch(() => undefined);
     }
     return new Response(bytes as unknown as BodyInit, {

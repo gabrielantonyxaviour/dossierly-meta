@@ -117,7 +117,7 @@ export class TwilioTransport implements Transport {
   }
 }
 
-/* ---------- G.711 μ-law (Twilio) → PCM16 16 kHz (Meta ASR) ---------- */
+/* ---------- G.711 μ-law (Twilio) → PCM16 16 kHz (Scribe realtime) ---------- */
 
 function ulawToLinear(u: number): number {
   u = ~u & 0xff;

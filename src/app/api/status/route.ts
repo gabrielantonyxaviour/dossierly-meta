@@ -1,4 +1,7 @@
-import { ASR_MODEL, asrOnline } from "@/lib/server/asr";
+import { asrOnline } from "@/lib/server/asr";
+import { scribeBatchModel } from "@/lib/server/scribe";
+import { ttsSettings } from "@/lib/voice/server/tts";
+import { ttsCharsToday } from "@/lib/voice/server/tts-budget";
 import { getBudgets } from "@/lib/server/budget";
 import { getEnv } from "@/lib/server/env";
 import { errorResponse } from "@/lib/server/http";
@@ -28,7 +31,8 @@ export async function GET() {
       // The sandbox bridge is retired; the field stays so older clients keep rendering.
       bridge: { online: false, lastSeen: null, sandboxes: 0 },
       budgets: await getBudgets(env),
-      asr: { online: asrOnline(env), model: ASR_MODEL },
+      asr: { online: asrOnline(env), model: describeRole("asr", env).model, batchModel: scribeBatchModel(env), provider: "elevenlabs" },
+      tts: { online: !!ttsSettings(env).apiKey, model: ttsSettings(env).model, chars: await ttsCharsToday(env).catch(() => null) },
     }, { headers: { "cache-control": "no-store" } });
   } catch (e) {
     return errorResponse(e);
