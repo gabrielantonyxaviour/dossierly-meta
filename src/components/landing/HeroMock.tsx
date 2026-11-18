@@ -1,30 +1,31 @@
 import { Icon, type IconName } from "@/components/Icon";
+import { rich } from "@/lib/i18n/rich";
+import type { T } from "@/lib/i18n/translate";
 
-const RAIL: { icon: IconName; label: string; on?: boolean }[] = [
-  { icon: "case", label: "Case" },
-  { icon: "prepare", label: "Prepare" },
-  { icon: "meet", label: "Meet" },
-  { icon: "letter", label: "Letters", on: true },
-  { icon: "calendar", label: "Deadlines" },
-  { icon: "shield", label: "Privacy ledger" },
-];
-
-const DONE = [
-  { t: "Read the wezwanie", s: "Done · 7:13 PM" },
-  { t: "Linked it to your 18 Sep visit", s: "Done · 7:13 PM" },
-  { t: "Counted the deadline", s: "Reply by Tue 10 Nov" },
-  { t: "Drafted a Polish reply", s: "Ready for you to check" },
+const RAIL: { icon: IconName; key: string; on?: boolean }[] = [
+  { icon: "case", key: "railCase" },
+  { icon: "prepare", key: "railPrepare" },
+  { icon: "meet", key: "railMeet" },
+  { icon: "letter", key: "railLetters", on: true },
+  { icon: "calendar", key: "railDeadlines" },
+  { icon: "shield", key: "railLedger" },
 ];
 
 /** The hero's one large product view: Arjun's case, a letter just read. */
-export function HeroMock() {
+export function HeroMock({ t }: { t: T }) {
+  const done = [
+    { t: t("mockDone1"), s: t("mockDoneAt", { time: "7:13 PM" }) },
+    { t: t("mockDone2"), s: t("mockDoneAt", { time: "7:13 PM" }) },
+    { t: t("mockDone3"), s: t("mockDone3s") },
+    { t: t("mockDone4"), s: t("mockDone4s") },
+  ];
   return (
-    <figure className="lp-app" aria-label="Dossierly reading a letter from the office">
+    <figure className="lp-app" aria-label={t("mockAria")}>
       <div className="lp-app-rail" aria-hidden="true">
         <span className="lp-app-mark">D</span>
         <div className="lp-app-rail-icons">
           {RAIL.map((r) => (
-            <span key={r.label} className={`lp-app-ic${r.on ? " is-on" : ""}`} title={r.label}>
+            <span key={r.key} className={`lp-app-ic${r.on ? " is-on" : ""}`} title={t(r.key)}>
               <Icon name={r.icon} size={17} />
             </span>
           ))}
@@ -33,42 +34,36 @@ export function HeroMock() {
       </div>
 
       <div className="lp-app-main">
-        <p className="lp-app-time">Tue 27 Oct at 7:12 PM</p>
+        <p className="lp-app-time">{t("mockTime")}</p>
         <div className="lp-app-file">
-          <Icon name="file" size={15} /> wezwanie.pdf <span>from e-Doręczenia</span>
+          <Icon name="file" size={15} /> wezwanie.pdf <span>{t("mockFrom")}</span>
         </div>
-        <div className="lp-app-msg">
-          This is a <b>wezwanie</b> from the Mazowiecki office. They ask for proof of health insurance covering your
-          whole stay, and give you 14 days from delivery to send it.
-        </div>
+        <div className="lp-app-msg">{rich(t("mockMsg1"), { w: <b>wezwanie</b> })}</div>
         <blockquote className="lp-app-quote" lang="pl">
           „…w terminie 14 dni od dnia doręczenia niniejszego wezwania…”
-          <span lang="en">Polish verbatim, from page 1</span>
+          <span lang={t("langTag")}>{t("mockVerbatim")}</span>
         </blockquote>
-        <div className="lp-app-msg">
-          It matches what the official said on 18 Sep: a letter would follow. Your reply is due <b>Tuesday 10 November</b>.
-          I drafted a Polish cover letter for you to check.
-        </div>
+        <div className="lp-app-msg">{rich(t("mockMsg2"), { date: <b>{t("mockDue")}</b> })}</div>
         <div className="lp-app-composer" aria-hidden="true">
           <span className="lp-app-plus">+</span>
-          <span className="lp-app-typed">Show me how you counted the 14 days</span>
+          <span className="lp-app-typed">{t("mockTyped")}</span>
           <span className="lp-app-send"><Icon name="arrow" size={14} /></span>
         </div>
-        <p className="lp-app-fine">Dossierly interprets and explains. It never gives legal advice.</p>
+        <p className="lp-app-fine">{t("mockFine")}</p>
       </div>
 
-      <aside className="lp-app-side" aria-label="Your agent">
+      <aside className="lp-app-side" aria-label={t("mockAgent")}>
         <span className="lp-app-x" aria-hidden="true">×</span>
         <span className="lp-app-avatar" aria-hidden="true"><Icon name="case" size={30} /></span>
-        <b className="lp-app-name">Your agent</b>
-        <span className="lp-app-status"><span className="lp-dot-ok" aria-hidden="true" />Private case</span>
+        <b className="lp-app-name">{t("mockAgent")}</b>
+        <span className="lp-app-status"><span className="lp-dot-ok" aria-hidden="true" />{t("mockPrivate")}</span>
         <div className="lp-app-chips">
           <span>Muse Spark 1.3</span>
-          <span>IDs masked</span>
+          <span>{t("mockMasked")}</span>
         </div>
-        <p className="lp-app-today">Today</p>
+        <p className="lp-app-today">{t("mockToday")}</p>
         <ul className="lp-app-done">
-          {DONE.map((d) => (
+          {done.map((d) => (
             <li key={d.t}>
               <span className="lp-app-check" aria-hidden="true"><Icon name="check" size={13} /></span>
               <span><b>{d.t}</b><small>{d.s}</small></span>

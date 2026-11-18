@@ -9,6 +9,7 @@ import type { Answers } from "@/components/onboarding-preview/content";
 import type { Need } from "@/lib/onboarding/schema";
 import type { OnboardingDraft, Review } from "./onboarding-state";
 import { CaseSchema } from "@/lib/schemas";
+import { tNow } from "@/lib/i18n/current";
 import { destroyVault, loadDoc, openVault, saveDoc, unlock, type VaultKind } from "@/lib/vault";
 
 export type RunLog = Run & { feature: string; ts: number };
@@ -88,7 +89,7 @@ export function CaseProvider({ children }: { children: React.ReactNode }) {
   }, [load]);
 
   const persist = useCallback(async (d: Dossier) => {
-    if (!me) throw new Error("No signed-in account");
+    if (!me) throw new Error(tNow("shell")("noAccount"));
     await saveDoc(DOC, d, me.accountId);
     ref.current = d;
     setDossier(d);
@@ -98,11 +99,11 @@ export function CaseProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<Ctx>(() => ({
     phase, vaultKind, dossier, me, status, setVaultKind,
     commitOwn: async (next) => {
-      if (!me || next.sample || /sample/i.test(next.case.id)) throw new Error("Only a confirmed own case can be saved here.");
+      if (!me || next.sample || /sample/i.test(next.case.id)) throw new Error(tNow("shell")("ownCaseOnly"));
       CaseSchema.parse(next.case);
       if (ref.current && ref.current.case.id !== next.case.id) await saveDoc(`archive:${ref.current.case.id}`, ref.current, me.accountId);
       const switched = await startSession(false);
-      if (!switched.ok) throw new Error("Could not activate your own case. Please retry.");
+      if (!switched.ok) throw new Error(tNow("shell")("activateFailed"));
       setMe(switched.data);
       await persist(next);
     },

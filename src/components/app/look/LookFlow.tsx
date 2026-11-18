@@ -10,6 +10,8 @@ import { LookResult } from "./LookResult";
 import type { SamplePick } from "./LookSamples";
 import { useIsPhone } from "./useIsPhone";
 import { useLook } from "./useLook";
+import { useT } from "@/lib/i18n/client";
+import { tNow } from "@/lib/i18n/current";
 import "./look.css";
 
 /** Spark grounding is accurate at about 1000 px on the long side and drifts above that. */
@@ -32,6 +34,7 @@ export function LookFlow({ boot = null }: { boot?: "doc" | "look" | null }) {
   const { state, run, replay, retry, reset } = useLook();
   const router = useRouter();
   const phone = useIsPhone();
+  const t = useT("look");
   const [prepError, setPrepError] = useState<string | null>(null);
   /* True while a case document's file is fetched and drawn, so the Look home never flashes in between. */
   const [opening, setOpening] = useState(boot !== null);
@@ -42,7 +45,7 @@ export function LookFlow({ boot = null }: { boot?: "doc" | "look" | null }) {
       const img = await get();
       void run(img, { question: opts.question, sample: opts.sample, hint: opts.hint });
     } catch (e) {
-      setPrepError(e instanceof Error ? e.message : "That image could not be opened.");
+      setPrepError(e instanceof Error ? e.message : tNow("look")("errImageOpen"));
     }
   }, [run]);
 
@@ -81,21 +84,21 @@ export function LookFlow({ boot = null }: { boot?: "doc" | "look" | null }) {
   if (opening && state.phase === "idle") {
     const paper = <div className="lk-visual" aria-busy="true"><Skeleton h={phone ? 460 : 640} r={20} /></div>;
     return phone
-      ? <FullScreenFlow title="Look" onClose={close} dark><div className="lk-phone stack" style={{ ["--gap" as string]: "16px" }}>{paper}<span className="ui-meta" role="status">{boot === "doc" ? "Opening the letter from your case…" : "Opening…"}</span></div></FullScreenFlow>
-      : <div className="sh-page sh-page--wide lk-page lk-result">{paper}<span className="ui-meta" role="status">{boot === "doc" ? "Opening the letter from your case…" : "Opening…"}</span></div>;
+      ? <FullScreenFlow title={t("title")} onClose={close} dark><div className="lk-phone stack" style={{ ["--gap" as string]: "16px" }}>{paper}<span className="ui-meta" role="status">{boot === "doc" ? t("openingDoc") : t("opening")}</span></div></FullScreenFlow>
+      : <div className="sh-page sh-page--wide lk-page lk-result">{paper}<span className="ui-meta" role="status">{boot === "doc" ? t("openingDoc") : t("opening")}</span></div>;
   }
   if (state.phase !== "idle" && state.image) {
     return <LookResult key={state.image.dataUrl.length + state.image.width} state={state} phone={phone} onRetry={retry} onClose={close} />;
   }
   return (
     <MobilePage actions={phone ? "double" : undefined} wide className="lk-page lk-home">
-      <ScreenTitle title="Look" sub="Show me a letter or a screen. I'll point at what matters and add it to your case." />
+      <ScreenTitle title={t("title")} sub={t("sub")} />
       <LookCapture phone={phone} onFile={onFile} onSample={onSample} error={prepError} />
-      <Section title="Paperwork tools">
+      <Section title={t("toolsTitle")}>
         <Card flush>
-          <Row href="/app/mos-sheet" icon="prepare" title="MOS sheet" sub="Every form field in order, from your case" chevron />
-          <Row href="/app/photo-check" icon="camera" title="Photo check" sub="Crop to exactly 684 × 883 px" chevron />
-          <Row href="/app/visit-plan" icon="calendar" title="Visit plan" sub="What to bring, from official pages" chevron />
+          <Row href="/app/mos-sheet" icon="prepare" title={t("toolMos")} sub={t("toolMosSub")} chevron />
+          <Row href="/app/photo-check" icon="camera" title={t("toolPhoto")} sub={t("toolPhotoSub")} chevron />
+          <Row href="/app/visit-plan" icon="calendar" title={t("toolVisit")} sub={t("toolVisitSub")} chevron />
         </Card>
       </Section>
     </MobilePage>

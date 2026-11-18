@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, EmptyState, ErrorState, Section, Skeleton, StickyActionBar, TopBar, useToast } from "@/components/ui";
 import { Icon } from "@/components/Icon";
+import { useT } from "@/lib/i18n/client";
 import { ago } from "../format";
 import { announceCaseChange, useCaseData } from "../shell/case-data";
 import { bySeverity, proposals, type StoredReview } from "./derive";
@@ -12,6 +13,7 @@ type Load = { state: "loading" } | { state: "ready"; review: StoredReview | null
 
 /** Muse Wonder's long-horizon case review: risks, dated plan, inconsistencies, questions and proposals to accept. */
 export function ReviewScreen() {
+  const t = useT("review");
   const { snapshot, status, refresh } = useCaseData();
   const { toast } = useToast();
   const [load, setLoad] = useState<Load>({ state: "loading" });
@@ -22,7 +24,7 @@ export function ReviewScreen() {
   const fetchReview = async () => {
     const res = await fetch("/api/case/review", { cache: "no-store" }).catch(() => null);
     const body = (await res?.json().catch(() => ({}))) as { review?: StoredReview | null; error?: string };
-    return res?.ok ? ({ state: "ready", review: body.review ?? null } as const) : ({ state: "error", error: body.error ?? "The review didn’t load." } as const);
+    return res?.ok ? ({ state: "ready", review: body.review ?? null } as const) : ({ state: "error", error: body.error ?? t("loadFailed") } as const);
   };
   useEffect(() => {
     let live = true;
@@ -42,32 +44,32 @@ export function ReviewScreen() {
     const res = await fetch("/api/case/review", { method: "POST" }).catch(() => null);
     const body = (await res?.json().catch(() => ({}))) as { review?: StoredReview; changed?: boolean; status?: string; error?: string };
     setRunning(false);
-    if (!res?.ok || !body.review) return toast(body.error ?? "The review couldn’t run. Try again in a minute.", { tone: "error" });
+    if (!res?.ok || !body.review) return toast(body.error ?? t("runFailed"), { tone: "error" });
     setLoad({ state: "ready", review: body.review });
     if (body.changed) { announceCaseChange(); void refresh(); }
-    toast(body.status === "unchanged" ? "Nothing changed since the last review" : "Review updated", { tone: "ok" });
+    toast(body.status === "unchanged" ? t("unchanged") : t("updated"), { tone: "ok" });
   };
 
-  const back = { href: "/app/case", label: "Case" };
+  const back = { href: "/app/case", label: t("backCase") };
   const bar = (
-    <StickyActionBar note={running ? `Muse Wonder is reading your whole case · ${elapsed}s. About a minute.` : undefined}>
+    <StickyActionBar note={running ? t("runningNote", { s: elapsed }) : undefined}>
       <Button variant="primary" icon={running ? undefined : "sparkle"} loading={running} disabled={running} onClick={() => void run()}>
-        {running ? "Reviewing with Muse Wonder…" : "Review my case now"}
+        {running ? t("running") : t("runNow")}
       </Button>
     </StickyActionBar>
   );
   if (status === "loading" || load.state === "loading") return <div className="sh-page"><div style={{ height: 56 }} /><Skeleton h={40} w="55%" /><Skeleton h={120} r={20} /><Skeleton h={260} r={20} /></div>;
-  if (!snapshot) return <div className="sh-page"><ErrorState message="Your case didn’t load." onRetry={() => void refresh()} /></div>;
-  if (load.state === "error") return <div className="sh-page"><TopBar title="Case review" back={back} /><ErrorState message={load.error} onRetry={() => void fetchReview().then(setLoad)} /></div>;
+  if (!snapshot) return <div className="sh-page"><ErrorState message={t("caseLoadFailed")} onRetry={() => void refresh()} /></div>;
+  if (load.state === "error") return <div className="sh-page"><TopBar title={t("title")} back={back} /><ErrorState message={load.error} onRetry={() => void fetchReview().then(setLoad)} /></div>;
 
   const r = load.review;
   const props = proposals(snapshot);
   if (!r) {
     return (
       <div className="sh-page sh-page--actions2">
-        <TopBar title="Case review" back={back} />
-        <EmptyState icon="sparkle" title="No review yet">
-          Muse Wonder reads your whole case, every letter, date and document, and looks for what could go wrong: risks, a dated plan, things that don’t match, and questions to answer.
+        <TopBar title={t("title")} back={back} />
+        <EmptyState icon="sparkle" title={t("noReview")}>
+          {t("noReviewBody")}
         </EmptyState>
         {bar}
       </div>
@@ -75,26 +77,26 @@ export function ReviewScreen() {
   }
   return (
     <div className="sh-page sh-page--actions2 rv">
-      <TopBar title="Case review" back={back} eyebrow={`Muse Wonder · ${r.reviewedAt ? `reviewed ${ago(r.reviewedAt).toLowerCase()}` : "latest review"}`} sub={r.summary} />
+      <TopBar title={t("title")} back={back} eyebrow={r.reviewedAt ? t("eyebrowReviewed", { ago: ago(r.reviewedAt).toLowerCase() }) : t("eyebrowLatest")} sub={r.summary} />
 
       {props.length > 0 && (
-        <Section title={`Proposed for you · ${props.length}`}>
+        <Section title={t("proposedFor", { n: props.length })}>
           <div className="rv-list">{props.map((t) => <ProposalCard key={t.id} t={t} />)}</div>
         </Section>
       )}
       {r.risks.length > 0 && (
-        <Section title={`Risks · ${r.risks.length}`}>
+        <Section title={t("risksSection", { n: r.risks.length })}>
           <div className="rv-list">{[...r.risks].sort(bySeverity).map((x, i) => <RiskCard key={i} r={x} c={snapshot} />)}</div>
         </Section>
       )}
       {r.inconsistencies.length > 0 && (
-        <Section title={`Doesn’t match · ${r.inconsistencies.length}`}>
+        <Section title={t("mismatch", { n: r.inconsistencies.length })}>
           <div className="rv-list">{r.inconsistencies.map((x, i) => <InconsistencyCard key={i} x={x} c={snapshot} />)}</div>
         </Section>
       )}
-      {r.plan.length > 0 && <Section title="The plan"><Plan steps={r.plan} /></Section>}
+      {r.plan.length > 0 && <Section title={t("plan")}><Plan steps={r.plan} /></Section>}
       {r.questions.length > 0 && (
-        <Section title="Questions to answer">
+        <Section title={t("questions")}>
           <div className="rv-questions">
             {r.questions.map((q, i) => (
               <a key={i} className="rv-q" href={`/app/chat?q=${encodeURIComponent(q)}`}><Icon name="help" size={18} /><span>{q}</span><Icon name="forward" size={16} /></a>
@@ -102,7 +104,7 @@ export function ReviewScreen() {
           </div>
         </Section>
       )}
-      <p className="ui-meta">Muse Wonder can be wrong. Proposals change nothing until you accept them, and Dossierly never files anything for you.{r.costUsd ? ` Review cost $${r.costUsd.toFixed(3)}.` : ""}</p>
+      <p className="ui-meta">{t("disclaimer")}{r.costUsd ? ` ${t("costNote", { cost: r.costUsd.toFixed(3) })}` : ""}</p>
       {bar}
     </div>
   );

@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { isIsoDate, todayIso } from "@/lib/client/format";
+import { useLocale, useT } from "@/lib/i18n/client";
+import { LOCALE_TAGS } from "@/lib/i18n/locales";
 import { Icon } from "../Icon";
 import { Chevron, usePopover } from "./usePopover";
 
@@ -20,17 +22,28 @@ type Props = {
   className?: string;
 };
 
-const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const MONTH = new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
-const SHORT = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
-const FULL = new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+/** Month, weekday and date names in the interface language. Weeks still start on Monday. */
+function formats(tag: string) {
+  const MONTH = new Intl.DateTimeFormat(tag, { month: "long", year: "numeric", timeZone: "UTC" });
+  const SHORT = new Intl.DateTimeFormat(tag, { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+  const FULL = new Intl.DateTimeFormat(tag, { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+  // 2024-01-01 was a Monday.
+  const days = Array.from({ length: 7 }, (_, i) => new Date(Date.UTC(2024, 0, 1 + i)));
+  const short = days.map((d) => new Intl.DateTimeFormat(tag, { weekday: "short", timeZone: "UTC" }).format(d));
+  const narrow = days.map((d) => new Intl.DateTimeFormat(tag, { weekday: "narrow", timeZone: "UTC" }).format(d));
+  const long = days.map((d) => new Intl.DateTimeFormat(tag, { weekday: "long", timeZone: "UTC" }).format(d));
+  // "Mo Tu …" where short names are short (English, Ukrainian); single narrow letters otherwise (Hindi, Tamil).
+  const fits = short.every((w) => [...w].length <= 3);
+  const heads = short.map((w, i) => ({ abbr: long[i], text: fits ? w.slice(0, 2) : narrow[i] }));
+  /** "Tue 10 Nov 2026" */
+  const label = (iso: string) => SHORT.formatToParts(toDate(iso)).filter((p) => p.type !== "literal").map((p) => p.value).join(" ");
+  return { MONTH, FULL, heads, label };
+}
 
 const toDate = (iso: string) => {
   const [y, m, d] = iso.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, d));
 };
-/** "Tue 10 Nov 2026" */
-const label = (iso: string) => SHORT.formatToParts(toDate(iso)).filter((p) => p.type !== "literal").map((p) => p.value).join(" ");
 const toIso = (d: Date) => d.toISOString().slice(0, 10);
 const addDays = (iso: string, n: number) => {
   const d = toDate(iso);
@@ -57,7 +70,11 @@ function monthGrid(iso: string): string[][] {
   return Array.from({ length: 6 }, (_, w) => Array.from({ length: 7 }, (_, d) => addDays(start, w * 7 + d)));
 }
 
-export function DatePicker({ value, onChange, min, max, labelledBy, ariaLabel, id, placeholder = "Choose a date", disabled, className }: Props) {
+export function DatePicker({ value, onChange, min, max, labelledBy, ariaLabel, id, placeholder: placeholderProp, disabled, className }: Props) {
+  const t = useT("ui");
+  const tag = LOCALE_TAGS[useLocale()];
+  const { MONTH, FULL, heads, label } = useMemo(() => formats(tag), [tag]);
+  const placeholder = placeholderProp ?? t("chooseDate");
   const auto = useId();
   const triggerId = id ?? `date-${auto}`;
   const headId = `${triggerId}-month`;
@@ -147,17 +164,17 @@ export function DatePicker({ value, onChange, min, max, labelledBy, ariaLabel, i
           <div ref={pop} className={`ui-pop ui-pop-${placement} ui-cal`} role="dialog" aria-modal={placement === "sheet"} aria-labelledby={headId} onKeyDown={onPopKey}>
             {placement === "sheet" && <div className="ui-sheet-grip" aria-hidden="true" />}
             <div className="ui-cal-head">
-              <button type="button" className="ui-cal-nav" onClick={() => setFocus(clamp(prevMonth, min, max))} disabled={!canPrev} aria-label="Previous month">
+              <button type="button" className="ui-cal-nav" onClick={() => setFocus(clamp(prevMonth, min, max))} disabled={!canPrev} aria-label={t("prevMonth")}>
                 <Chevron />
               </button>
               <h2 id={headId} className="ui-cal-title" aria-live="polite">{MONTH.format(toDate(focus))}</h2>
-              <button type="button" className="ui-cal-nav ui-cal-next" onClick={() => setFocus(clamp(nextMonth, min, max))} disabled={!canNext} aria-label="Next month">
+              <button type="button" className="ui-cal-nav ui-cal-next" onClick={() => setFocus(clamp(nextMonth, min, max))} disabled={!canNext} aria-label={t("nextMonth")}>
                 <Chevron />
               </button>
             </div>
             <table ref={grid} className="ui-cal-grid" role="grid" aria-labelledby={headId} onKeyDown={onGridKey}>
               <thead>
-                <tr>{WEEKDAYS.map((w) => <th key={w} scope="col" abbr={w}>{w.slice(0, 2)}</th>)}</tr>
+                <tr>{heads.map((w, i) => <th key={i} scope="col" abbr={w.abbr}>{w.text}</th>)}</tr>
               </thead>
               <tbody>
                 {monthGrid(focus).map((week) => (
@@ -178,7 +195,7 @@ export function DatePicker({ value, onChange, min, max, labelledBy, ariaLabel, i
                             data-iso={iso}
                             tabIndex={iso === focus ? 0 : -1}
                             aria-disabled={off || undefined}
-                            aria-label={`${FULL.format(toDate(iso))}${iso === today ? ", today" : ""}`}
+                            aria-label={iso === today ? t("dayToday", { date: FULL.format(toDate(iso)) }) : FULL.format(toDate(iso))}
                             aria-current={iso === today ? "date" : undefined}
                             onClick={() => (off ? setFocus(iso) : pick(iso))}
                           >
@@ -192,8 +209,8 @@ export function DatePicker({ value, onChange, min, max, labelledBy, ariaLabel, i
               </tbody>
             </table>
             <div className="ui-cal-foot">
-              <button type="button" className="btn btn-ghost btn-small" onClick={() => pick(today)} disabled={out(today)}>Today</button>
-              <button type="button" className="btn btn-ghost btn-small" onClick={() => close()}>Close</button>
+              <button type="button" className="btn btn-ghost btn-small" onClick={() => pick(today)} disabled={out(today)}>{t("today")}</button>
+              <button type="button" className="btn btn-ghost btn-small" onClick={() => close()}>{t("close")}</button>
             </div>
           </div>
         </>

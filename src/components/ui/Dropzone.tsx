@@ -1,6 +1,8 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
+import { useT } from "@/lib/i18n/client";
+import { rich } from "@/lib/i18n/rich";
 import { Icon } from "../Icon";
 
 type Props = {
@@ -28,7 +30,10 @@ export function formatBytes(n: number): string {
   return `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export function Dropzone({ accept, onFile, hint, compactLabel = "Choose a PDF or photo", kinds = "a PDF or an image", disabled, className }: Props) {
+export function Dropzone({ accept, onFile, hint, compactLabel: compactProp, kinds: kindsProp, disabled, className }: Props) {
+  const t = useT("ui");
+  const compactLabel = compactProp ?? t("dropCompact");
+  const kinds = kindsProp ?? t("dropKinds");
   const input = useRef<HTMLInputElement>(null);
   const depth = useRef(0);
   const hintId = useId();
@@ -39,7 +44,7 @@ export function Dropzone({ accept, onFile, hint, compactLabel = "Choose a PDF or
   const take = (f?: File | null) => {
     if (!f) return;
     if (!matches(f, accept)) {
-      setError(`${f.name} is not ${kinds}. Choose ${kinds} instead.`);
+      setError(t("wrongType", { name: f.name, kinds }));
       return;
     }
     setError(null);
@@ -78,7 +83,7 @@ export function Dropzone({ accept, onFile, hint, compactLabel = "Choose a PDF or
             <span className="ui-file-name">{file.name}</span>
             <span className="ui-file-size">{formatBytes(file.size)}</span>
           </span>
-          <button type="button" className="ui-file-remove" onClick={clear} disabled={disabled} aria-label={`Remove ${file.name}`}>
+          <button type="button" className="ui-file-remove" onClick={clear} disabled={disabled} aria-label={t("removeFile", { name: file.name })}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" focusable="false">
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
@@ -98,7 +103,7 @@ export function Dropzone({ accept, onFile, hint, compactLabel = "Choose a PDF or
         >
           <span className="ui-drop-icon" aria-hidden="true"><Icon name="file" size={24} /></span>
           <span className="ui-drop-title ui-drop-wide">
-            {over ? "Drop to add this letter" : <>Drop a letter here, or <u>choose a file</u></>}
+            {over ? t("dropOver") : rich(t("dropWide"), { choose: <u>{t("chooseFile")}</u> })}
           </span>
           <span className="ui-drop-title ui-drop-narrow">{compactLabel}</span>
           {hint && <span id={hintId} className="ui-drop-hint">{hint}</span>}

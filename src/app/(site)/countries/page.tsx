@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
 import { CountryCards } from "@/components/site/Coverage";
+import { getT } from "@/lib/i18n/server";
 
-export const metadata: Metadata = { title: "Countries" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT("site");
+  return { title: t("countriesMetaTitle") };
+}
 
-export default function CountriesPage() {
+export default async function CountriesPage() {
+  const t = await getT("site");
   return (
     <div className="wrap" style={{ paddingTop: 40 }}>
       <div className="section-head">
-        <span className="kicker">Countries</span>
-        <h1>Where Dossierly works</h1>
-        <p>Poland is supported today, in depth. Germany and France are next. We add a country only when its offices, letter types and deadline rules are covered from official sources.</p>
+        <span className="kicker">{t("navCountries")}</span>
+        <h1>{t("countriesTitle")}</h1>
+        <p>{t("countriesLead")}</p>
       </div>
       <CountryCards />
     </div>

@@ -5,15 +5,19 @@ import type { Appointment } from "@/lib/case/types";
 import type { VisitEvent, VisitPlan } from "@/lib/visit/types";
 import { Icon } from "@/components/Icon";
 import { Button, InlineError, MobileFlowHeader, MobilePage, OptionList, ScreenTitle, Skeleton, StickyActionBar } from "@/components/ui";
+import { LOCALE_TAGS } from "@/lib/i18n/locales";
+import { useLocale, useT } from "@/lib/i18n/client";
 import { errorText, readNdjson } from "../look/ndjson";
 import { VisitPlanView } from "./VisitPlanView";
 import "../look/look.css";
 import "./visit.css";
 
-const WHEN = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Warsaw" });
+const when = (tag: string, iso: string) => new Intl.DateTimeFormat(tag, { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Warsaw" }).format(new Date(iso));
 type Stage = "idle" | "searching" | "comparing" | "done" | "error";
 
 export function VisitPlanFlow() {
+  const t = useT("visit");
+  const tag = LOCALE_TAGS[useLocale()];
   const [appts, setAppts] = useState<Appointment[] | null>(null);
   const [pick, setPick] = useState<string>("");
   const [purpose, setPurpose] = useState("");
@@ -49,9 +53,9 @@ export function VisitPlanFlow() {
         else if (e.type === "plan") { ended = true; setPlan(e.plan); setStage("done"); }
         else if (e.type === "error") { ended = true; setError({ message: e.error, retryable: e.retryable }); setStage("error"); }
       });
-      if (!ended) { setError({ message: "The connection closed before the plan was ready. Try again.", retryable: true }); setStage("error"); }
+      if (!ended) { setError({ message: t("closedEarly"), retryable: true }); setStage("error"); }
     } catch {
-      setError({ message: "We lost the connection. Check your network and try again.", retryable: true });
+      setError({ message: t("lostConnection"), retryable: true });
       setStage("error");
     }
   };
@@ -59,31 +63,31 @@ export function VisitPlanFlow() {
   const busy = stage === "searching" || stage === "comparing";
   const canBuild = !!pick || purpose.trim().length > 2;
   const options = [
-    ...(appts ?? []).map((a) => ({ value: a.id, label: a.title, sub: `${WHEN.format(new Date(a.at))} · ${a.location.name}`, icon: "calendar" as const })),
-    { value: "", label: "Something else", icon: "help" as const },
+    ...(appts ?? []).map((a) => ({ value: a.id, label: a.title, sub: `${when(tag, a.at)} · ${a.location.name}`, icon: "calendar" as const })),
+    { value: "", label: t("somethingElse"), icon: "help" as const },
   ];
   return (
     <>
-      <MobileFlowHeader back="/app/look" backLabel="Back to Look" title="Visit plan" />
+      <MobileFlowHeader back="/app/look" backLabel={t("backToLook")} title={t("title")} />
       <MobilePage actions={plan ? "double" : true} className="lk-page vp-page">
-        <ScreenTitle title={plan ? "What to bring" : "Plan your visit"} sub={plan ? "From official pages, checked against your case." : "I search official pages live and check them against your case."} />
+        <ScreenTitle title={plan ? t("whatToBring") : t("planVisit")} sub={plan ? t("subDone") : t("subIdle")} />
         {!plan && (
           <div className="stack" style={{ ["--gap" as string]: "16px" }}>
             {appts === null && <Skeleton h={112} />}
-            {appts && appts.length > 0 && <OptionList label="Which appointment?" options={options} value={pick} onChange={setPick} />}
+            {appts && appts.length > 0 && <OptionList label={t("whichAppt")} options={options} value={pick} onChange={setPick} />}
             {(pick === "" || appts?.length === 0) && (
               <label className="ui-field">
-                <span>What is the visit for?</span>
-                <input className="ui-input" value={purpose} maxLength={200} onChange={(e) => setPurpose(e.target.value)} placeholder="Collecting my residence card in Warsaw" />
+                <span>{t("visitFor")}</span>
+                <input className="ui-input" value={purpose} maxLength={200} onChange={(e) => setPurpose(e.target.value)} placeholder={t("purposePlaceholder")} />
               </label>
             )}
             {busy && (
               <ol className="lk-progress" aria-live="polite">
-                <li className={`lk-prog is-${stage === "searching" ? "run" : "ok"}`}><span className="lk-prog-dot">{stage !== "searching" && <Icon name="check" size={13} />}</span><span className="grow">Searching official pages</span><span className="lk-model">Muse Spark · web{stage === "searching" ? ` · ${elapsed} s` : ""}</span></li>
-                <li className={`lk-prog is-${stage === "comparing" ? "run" : "wait"}`}><span className="lk-prog-dot" /><span className="grow">Comparing with your case</span><span className="lk-model">{stage === "comparing" ? `${elapsed} s` : ""}</span></li>
+                <li className={`lk-prog is-${stage === "searching" ? "run" : "ok"}`}><span className="lk-prog-dot">{stage !== "searching" && <Icon name="check" size={13} />}</span><span className="grow">{t("searching")}</span><span className="lk-model">Muse Spark · web{stage === "searching" ? ` · ${elapsed} s` : ""}</span></li>
+                <li className={`lk-prog is-${stage === "comparing" ? "run" : "wait"}`}><span className="lk-prog-dot" /><span className="grow">{t("comparing")}</span><span className="lk-model">{stage === "comparing" ? `${elapsed} s` : ""}</span></li>
               </ol>
             )}
-            {busy && elapsed > 20 && <p className="muted" style={{ margin: 0 }}>Reading several official pages usually takes about a minute.</p>}
+            {busy && elapsed > 20 && <p className="muted" style={{ margin: 0 }}>{t("slow")}</p>}
             {error && <InlineError message={error.message} onRetry={error.retryable ? () => void build() : undefined} />}
           </div>
         )}
@@ -91,7 +95,7 @@ export function VisitPlanFlow() {
       </MobilePage>
       {!plan && (
         <StickyActionBar>
-          <Button variant="primary" icon="globe" loading={busy} disabled={!canBuild || busy} onClick={() => void build()}>{busy ? "Building your plan…" : "Build my checklist"}</Button>
+          <Button variant="primary" icon="globe" loading={busy} disabled={!canBuild || busy} onClick={() => void build()}>{busy ? t("building") : t("build")}</Button>
         </StickyActionBar>
       )}
     </>

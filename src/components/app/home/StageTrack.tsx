@@ -1,15 +1,13 @@
+"use client";
 import type { Case } from "@/lib/client/types";
+import { useT } from "@/lib/i18n/client";
 
-const STAGES = [
-  { id: "apply", label: "Applied in MOS" },
-  { id: "prints", label: "Fingerprints" },
-  { id: "letters", label: "Office letters" },
-  { id: "decision", label: "Decision" },
-  { id: "card", label: "Card collection" },
-] as const;
+/** Labels are "home" message keys: track_<id>. */
+const STAGES = [{ id: "apply" }, { id: "prints" }, { id: "letters" }, { id: "decision" }, { id: "card" }] as const;
 
 /** Where the case stands, inferred from the case file. Done stages are filled; the current one is outlined. */
 export function StageTrack({ c, letters }: { c: Case; letters: number }) {
+  const t = useT("home");
   const today = new Date().toISOString().slice(0, 10);
   const text = (e: Case["events"][number]) => `${e.title} ${e.summary}`.toLowerCase();
   const has = (re: RegExp) => c.events.some((e) => re.test(text(e)));
@@ -23,15 +21,15 @@ export function StageTrack({ c, letters }: { c: Case; letters: number }) {
   const current = done.findIndex((x) => !x);
 
   return (
-    <section className="card stage" aria-label="Case stages">
+    <section className="card stage" aria-label={t("caseStages")}>
       <ol className="stage-track">
         {STAGES.map((s, i) => {
           const state = done[i] ? "done" : i === current ? "now" : "later";
           return (
             <li key={s.id} className={`st-${state}`} aria-current={state === "now" ? "step" : undefined}>
               <span className="st-dot" aria-hidden="true" />
-              <span className="st-label">{s.label}</span>
-              <span className="sr-only">{state === "done" ? "done" : state === "now" ? "current stage" : "later"}</span>
+              <span className="st-label">{t(`track_${s.id}`)}</span>
+              <span className="sr-only">{state === "done" ? t("stDone") : state === "now" ? t("stNow") : t("stLater")}</span>
             </li>
           );
         })}

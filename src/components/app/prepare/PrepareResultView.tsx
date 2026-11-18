@@ -7,21 +7,23 @@ import { LANGUAGE_NAMES } from "@/lib/client/sample";
 import { useDossier, type Appointment } from "@/lib/client/store";
 import type { AgentTask, ChecklistItem, HubChange, PrepareResult } from "@/lib/client/types";
 import { webSpeech } from "@/lib/speech/webspeech";
+import { useT } from "@/lib/i18n/client";
 import { Icon } from "../../Icon";
 
 const MARK = { have: "✓", missing: "", check: "?" } as const;
-const STATUS = { have: "You have this", missing: "Missing", check: "Check this" } as const;
+const STATUS = { have: "statusHave", missing: "statusMissing", check: "statusCheck" } as const;
 
 function Item({ it }: { it: ChecklistItem }) {
+  const t = useT("prepare");
   const [open, setOpen] = useState(false);
   return (
     <li className={`check-item ci-${it.status}`}>
       <span className="ci-mark" aria-hidden="true">{MARK[it.status]}</span>
       <div>
-        <span className="ci-status">{STATUS[it.status]}</span>
+        <span className="ci-status">{t(STATUS[it.status])}</span>
         <p style={{ margin: "2px 0 4px", fontWeight: it.status === "missing" ? 700 : 500 }}>{it.item}</p>
         <button type="button" className="cite" aria-expanded={open} onClick={() => setOpen(!open)}>
-          Source: {it.citation.title}
+          {t("source", { title: it.citation.title })}
         </button>
         {open && (
           <div className="cite-open">
@@ -39,6 +41,7 @@ function Item({ it }: { it: ChecklistItem }) {
 type Props = { result: PrepareResult; task: AgentTask<PrepareResult>; hubChanges: HubChange[]; appointment: Appointment };
 
 export function PrepareResultView({ result, hubChanges, appointment }: Props) {
+  const t = useT("prepare");
   const d = useDossier();
   const [saved, setSaved] = useState(false);
   const userLang = LANGUAGE_NAMES[d.case.profile.language];
@@ -62,15 +65,15 @@ export function PrepareResultView({ result, hubChanges, appointment }: Props) {
     <div className="stack" style={{ ["--gap" as string]: "18px" }}>
       {changes.length > 0 && (
         <section className="stack" aria-labelledby="chg-h" style={{ ["--gap" as string]: "10px" }}>
-          <h2 id="chg-h" className="h-card">Changed since you last prepared</h2>
+          <h2 id="chg-h" className="h-card">{t("changedSince")}</h2>
           {changes.map((c) => (
             <div key={c.title} className="change">
               <div className="row between">
                 <b>{c.title}</b>
-                {(!since || c.detectedAt > since) && <span className="chip chip-official">new</span>}
+                {(!since || c.detectedAt > since) && <span className="chip chip-official">{t("new")}</span>}
               </div>
               <p className="small" style={{ margin: "4px 0" }}>{c.summary}</p>
-              <a className="tiny muted" href={c.url} target="_blank" rel="noreferrer">{new URL(c.url).hostname} · detected {longDate(c.detectedAt.slice(0, 10))}</a>
+              <a className="tiny muted" href={c.url} target="_blank" rel="noreferrer">{t("detected", { host: new URL(c.url).hostname, date: longDate(c.detectedAt.slice(0, 10)) })}</a>
             </div>
           ))}
         </section>
@@ -78,16 +81,16 @@ export function PrepareResultView({ result, hubChanges, appointment }: Props) {
 
       <section className="stack" aria-labelledby="cl-h" style={{ ["--gap" as string]: "10px" }}>
         <div className="row between">
-          <h2 id="cl-h" className="h-card">Checklist for {longDate(appointment.date)}</h2>
-          {missing > 0 && <span className="chip chip-warn">{missing} missing</span>}
+          <h2 id="cl-h" className="h-card">{t("checklistFor", { date: longDate(appointment.date) })}</h2>
+          {missing > 0 && <span className="chip chip-warn">{t("missingCount", { n: missing })}</span>}
         </div>
         <ul className="checklist">{result.checklist.map((it, i) => <Item key={i} it={it} />)}</ul>
       </section>
 
       {result.phrases.length > 0 && (
         <section className="stack" aria-labelledby="ph-h" style={{ ["--gap" as string]: "10px" }}>
-          <h2 id="ph-h" className="h-card">Phrases for the desk</h2>
-          <p className="small muted" style={{ margin: 0 }}>Tap the speaker to play the Polish aloud.</p>
+          <h2 id="ph-h" className="h-card">{t("phrasesTitle")}</h2>
+          <p className="small muted" style={{ margin: 0 }}>{t("phrasesHint")}</p>
           <div className="phrases">
             {result.phrases.map((p, i) => (
               <div key={i} className="phrase">
@@ -95,26 +98,26 @@ export function PrepareResultView({ result, hubChanges, appointment }: Props) {
                   <div className="pl" lang="pl">{p.local}</div>
                   <div className="small muted" lang={d.case.profile.language}>{p.user}</div>
                 </div>
-                <button className="btn btn-small btn-ghost" aria-label={`Say in Polish: ${p.local}`} onClick={() => void webSpeech.speak(p.local, "pl-PL")}>
+                <button className="btn btn-small btn-ghost" aria-label={t("sayPolish", { text: p.local })} onClick={() => void webSpeech.speak(p.local, "pl-PL")}>
                   <Icon name="speak" />
                 </button>
               </div>
             ))}
           </div>
-          <span className="tiny muted">Polish · {userLang.label}</span>
+          <span className="tiny muted">{t("polishAnd", { lang: userLang.native })}</span>
         </section>
       )}
 
       <div className="card row between save-bar">
         {saved ? (
           <>
-            <span><Icon name="check" size={18} /> Saved: appointment and documents added to your case.</span>
-            <Link className="btn btn-primary btn-small" href="/app/meet">Open table mode for the day</Link>
+            <span><Icon name="check" size={18} /> {t("saved")}</span>
+            <Link className="btn btn-primary btn-small" href="/app/meet">{t("openCounter")}</Link>
           </>
         ) : (
           <>
-            <span className="small">Save this appointment and add the missing items to your documents list.</span>
-            <button className="btn btn-primary" onClick={() => void save()}>Save to case</button>
+            <span className="small">{t("saveHint")}</span>
+            <button className="btn btn-primary" onClick={() => void save()}>{t("saveCta")}</button>
           </>
         )}
       </div>

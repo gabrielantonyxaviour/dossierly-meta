@@ -4,6 +4,7 @@ import { NeedSchema, type Need } from "@/lib/onboarding/schema";
 import type { Answers } from "@/components/onboarding-preview/content";
 import { emptyAnswers } from "@/components/onboarding-preview/content";
 import { emptyCase, sampleCase } from "./sample";
+import { tNow } from "@/lib/i18n/current";
 import type { Dossier } from "./store";
 import type { Case, HubChange, Interpretation, Letter, LetterLink, LetterRead, PrepareResult } from "./types";
 
@@ -30,7 +31,7 @@ export function restoreDraft(value: unknown): OnboardingDraft | null {
   const parsed = z.object({ version: z.literal(1), step: z.number().int().min(1).max(6), answers: AnswersSchema, caseId: z.string().max(80), pages: z.array(z.string().max(6_000_000)).max(4), source: z.enum(["sample", "own", "mail", "empty"]).nullable(), facts: LetterSchema.nullable() }).passthrough().safeParse(value);
   if (!parsed.success) return null;
   const draft = { ...freshDraft(), ...parsed.data } as OnboardingDraft;
-  return { ...draft, pending: null, error: draft.pending && !draft.prepareTask ? "The previous request was interrupted. Your pages and answers are safe; retry when ready." : draft.error };
+  return { ...draft, pending: null, error: draft.pending && !draft.prepareTask ? tNow("onboarding")("draftInterrupted") : draft.error };
 }
 export function orderNeeds(draft: OnboardingDraft): Need[] {
   const { needs, main } = draft.answers;
@@ -50,11 +51,11 @@ export function clearDocument(draft: OnboardingDraft): OnboardingDraft {
 }
 export function confirmedDossier(draft: OnboardingDraft): Dossier {
   if (draft.source === "empty") {
-    if (!draft.answers.name.trim() || !draft.answers.reason || !draft.answers.stage || draft.answers.needs.some((need) => !draft.reviews[need])) throw new Error("Review your profile and selected priorities first.");
+    if (!draft.answers.name.trim() || !draft.answers.reason || !draft.answers.stage || draft.answers.needs.some((need) => !draft.reviews[need])) throw new Error(tNow("onboarding")("reviewProfileFirst"));
     return { case: CaseSchema.parse(draftCase(draft)), sample: false, letters: [], runs: [], onboarding: { answers: draft.answers, reviews: draft.reviews, notes: {} } };
   }
-  if (draft.source === "sample" || !draft.source || !draft.factsConfirmed || !draft.facts || !draft.delivery || !draft.answers.name.trim()) throw new Error("Review your own document and profile before saving.");
-  if (draft.answers.needs.some((need) => !draft.reviews[need])) throw new Error("Review or explicitly skip every selected priority.");
+  if (draft.source === "sample" || !draft.source || !draft.factsConfirmed || !draft.facts || !draft.delivery || !draft.answers.name.trim()) throw new Error(tNow("onboarding")("reviewDocumentFirst"));
+  if (draft.answers.needs.some((need) => !draft.reviews[need])) throw new Error(tNow("onboarding")("reviewPriorities"));
   const id = `letter-${draft.caseId}`;
   const event = reviewedLetterEvent(draft);
   const c = CaseSchema.parse({ ...draftCase(draft), events: [event], deadlines: draft.link?.deadline ? [{ id: `deadline-${draft.caseId}`, date: draft.link.deadline.date, what: draft.facts.title.slice(0, 300) || "Respond to letter", sourceEventId: id }] : [] });

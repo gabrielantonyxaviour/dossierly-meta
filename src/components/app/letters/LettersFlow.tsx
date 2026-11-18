@@ -9,8 +9,10 @@ import { ErrorNote, Loading } from "../../States";
 import { LetterPicker } from "./LetterPicker";
 import { LetterReading } from "./LetterReading";
 import { LetterLinked } from "./LetterLinked";
+import { useT } from "@/lib/i18n/client";
 
 export function LettersFlow() {
+  const t = useT("letters");
   const d = useDossier();
   const { refreshMe } = useCase();
   const [pages, setPages] = useState<string[]>([]);
@@ -59,29 +61,29 @@ export function LettersFlow() {
   return (
     <div className="page page-wide stack" style={{ ["--gap" as string]: "18px" }}>
       <div>
-        <span className="tab-label">Letters · read, link, reply</span>
-        <h1 className="page-title">Read an official letter</h1>
+        <span className="tab-label">{t("kicker")}</span>
+        <h1 className="page-title">{t("pageTitle")}</h1>
         <p className="muted" style={{ margin: 0 }}>
-          A photo or the PDF from e-Doręczenia. Pages are resized on your phone before upload. You see the exact Polish text next to the explanation.
+          {t("pageLead")}
         </p>
       </div>
 
       {!pages.length && <LetterPicker sample={d.sample} freeUsed={false} onPages={(p) => void doRead(p)} onError={(m) => setErr({ f: m })} />}
 
       {pages.length > 0 && (
-        <div className="page-thumbs" aria-label="Pages sent">
+        <div className="page-thumbs" aria-label={t("pagesSent")}>
           {pages.map((p, i) => (
             // eslint-disable-next-line @next/next/no-img-element
-            <img key={i} src={p} alt={`Letter page ${i + 1}`} />
+            <img key={i} src={p} alt={t("pageAlt", { n: i + 1 })} />
           ))}
-          <button className="btn btn-ghost btn-small" onClick={reset}>Use a different letter</button>
+          <button className="btn btn-ghost btn-small" onClick={reset}>{t("differentLetter")}</button>
         </div>
       )}
 
       {busy === "read" && (
         <div className="card working">
-          <Loading label="Muse Spark is transcribing the Polish text, then explaining it…" />
-          <p className="tiny muted" style={{ margin: "8px 0 0" }}>Usually 4 to 8 seconds per page.</p>
+          <Loading label={t("readingLabel")} />
+          <p className="tiny muted" style={{ margin: "8px 0 0" }}>{t("readingTime")}</p>
         </div>
       )}
       {err && <ErrorNote failure={err.f} onRetry={err.retry} />}
@@ -99,8 +101,8 @@ export function LettersFlow() {
 
       {busy === "link" && (
         <div className="card working">
-          <Loading label="Muse Spark is reading your whole case to see where this letter fits…" />
-          <p className="tiny muted" style={{ margin: "8px 0 0" }}>Whole-case reasoning takes 8 to 20 seconds. The deadline itself is counted in code, not by the model.</p>
+          <Loading label={t("linkingLabel")} />
+          <p className="tiny muted" style={{ margin: "8px 0 0" }}>{t("linkingTime")}</p>
         </div>
       )}
 

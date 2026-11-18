@@ -4,11 +4,14 @@ import { useEffect, useRef, useState, type ClipboardEvent, type FormEvent } from
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { verifyEmailCode } from "@/lib/client/api";
+import { useT } from "@/lib/i18n/client";
 import { emailError, emailSchema, requestEmailCode } from "@/lib/client/email-auth";
+import { rich } from "@/lib/i18n/rich";
 
 type Challenge = { id: string; email: string; expiresAt: number };
 
 export function EmailCodeForm({ heading, onVerified }: { heading: string; onVerified(): void }) {
+  const t = useT("auth");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [challenge, setChallenge] = useState<Challenge | null>(null);
@@ -33,7 +36,7 @@ export function EmailCodeForm({ heading, onVerified }: { heading: string; onVeri
   async function send() {
     if (pending.current || Date.now() < retryAt) return;
     const parsed = emailSchema.safeParse(challenge?.email ?? email);
-    if (!parsed.success) { setError("Enter a valid email address."); emailInput.current?.focus(); return; }
+    if (!parsed.success) { setError(t("errInvalidEmail")); emailInput.current?.focus(); return; }
     pending.current = true;
     setBusy("send"); setError(""); setNotice("");
     const r = await requestEmailCode(parsed.data);
@@ -47,15 +50,15 @@ export function EmailCodeForm({ heading, onVerified }: { heading: string; onVeri
     setChallenge({ id: r.data.challengeId, email: parsed.data, expiresAt: time + r.data.expiresIn * 1000 });
     setRetryAt(time + r.data.resendAfter * 1000);
     setCode(""); setSpent(false);
-    setNotice(challenge ? "Use the code from the latest email." : "");
+    setNotice(challenge ? t("useLatest") : "");
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!challenge) return send();
     if (pending.current || spent) return;
-    if (Date.now() >= challenge.expiresAt) { setNow(Date.now()); setError("That code has expired. Request a new code to continue."); return; }
-    if (!/^\d{6}$/.test(code)) { setError("Enter the six-digit code from your email."); codeInput.current?.focus(); return; }
+    if (Date.now() >= challenge.expiresAt) { setNow(Date.now()); setError(t("errExpiredCode")); return; }
+    if (!/^\d{6}$/.test(code)) { setError(t("errCodeFormat")); codeInput.current?.focus(); return; }
     pending.current = true;
     setBusy("verify"); setError(""); setNotice("");
     const r = await verifyEmailCode(challenge.id, code);
@@ -85,13 +88,13 @@ export function EmailCodeForm({ heading, onVerified }: { heading: string; onVeri
   return (
     <form className="auth-email-form" onSubmit={(event) => void submit(event)} noValidate aria-busy={busy !== null} aria-labelledby="auth-heading">
       <div className="auth-heading">
-        <h1 id="auth-heading">{challenge ? "Check your email" : heading}</h1>
-        {challenge && <p id="auth-recipient" className="small muted">We sent a code to <strong>{challenge.email}</strong></p>}
+        <h1 id="auth-heading">{challenge ? t("checkEmail") : heading}</h1>
+        {challenge && <p id="auth-recipient" className="small muted">{rich(t("sentTo"), { email: <strong>{challenge.email}</strong> })}</p>}
       </div>
       {challenge ? (
         <>
           <div className="field auth-code-field" data-invalid={!!error} data-disabled={busy !== null || spent || expired}>
-            <label htmlFor="auth-code">Six-digit code</label>
+            <label htmlFor="auth-code">{t("codeLabel")}</label>
             <InputOTP ref={codeInput} id="auth-code" name="code" inputMode="numeric"
               autoComplete="one-time-code" pattern={REGEXP_ONLY_DIGITS} maxLength={6} required value={code}
               onChange={(value) => { setCode(value); setError(""); }}
@@ -103,28 +106,28 @@ export function EmailCodeForm({ heading, onVerified }: { heading: string; onVeri
               </InputOTPGroup>
             </InputOTP>
           </div>
-          <p id="code-help" className="tiny muted">{expired ? "This code has expired. Request a new one below." : "The code expires in 10 minutes."}</p>
+          <p id="code-help" className="tiny muted">{expired ? t("codeExpiredHelp") : t("codeExpiresIn")}</p>
           <button className="btn btn-primary btn-block" type="submit" disabled={busy !== null || spent || expired}>
-            {busy === "verify" ? "Signing you in…" : "Verify and continue"}
+            {busy === "verify" ? t("verifying") : t("verify")}
           </button>
           <div className="auth-code-actions">
             <button className="btn btn-ghost btn-small" type="button" onClick={() => void send()} disabled={busy !== null || seconds > 0}>
-              {busy === "send" ? "Sending a new code…" : seconds > 0 ? `Resend code in ${seconds}s` : "Resend code"}
+              {busy === "send" ? t("resending") : seconds > 0 ? t("resendIn", { s: seconds }) : t("resend")}
             </button>
-            <button type="button" className="btn btn-ghost btn-small" onClick={changeEmail} disabled={busy !== null}>Change email</button>
+            <button type="button" className="btn btn-ghost btn-small" onClick={changeEmail} disabled={busy !== null}>{t("changeEmail")}</button>
           </div>
         </>
       ) : (
         <>
           <label className="field">
-            <span>Email address</span>
+            <span>{t("emailLabel")}</span>
             <input ref={emailInput} className="input" name="email" type="email" autoComplete="email" inputMode="email"
               autoCapitalize="none" spellCheck={false} maxLength={254} required value={email}
               onChange={(event) => { setEmail(event.target.value); setError(""); }} disabled={busy !== null}
               aria-describedby="auth-feedback" aria-invalid={!!error} />
           </label>
           <button className="btn btn-primary btn-block" type="submit" disabled={busy !== null || seconds > 0}>
-            {busy === "send" ? "Sending your code…" : seconds > 0 ? `Continue in ${seconds}s` : "Continue"}
+            {busy === "send" ? t("sending") : seconds > 0 ? t("continueIn", { s: seconds }) : t("continue")}
           </button>
         </>
       )}

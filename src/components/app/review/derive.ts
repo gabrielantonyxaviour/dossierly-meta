@@ -40,8 +40,7 @@ export function parseProposal(t: CaseTask): { title: string; detail: string; due
 
 const SEV_ORDER: Record<Severity, number> = { critical: 0, high: 1, medium: 2, low: 3 };
 export const bySeverity = (a: Risk, b: Risk) => SEV_ORDER[a.severity] - SEV_ORDER[b.severity];
-export const SEV_LABEL: Record<Severity, string> = { critical: "Critical", high: "High", medium: "Medium", low: "Low" };
-export const ACTOR_LABEL: Record<Actor, string> = { user: "You", university: "University", employer: "Employer", office: "Office" };
+/* Severity and actor labels are "review" messages: sev_<severity>, actor_<actor>. */
 
 /** Evidence ids → a label and a link into the case, when the item still exists. */
 export function evidenceRef(c: CaseSnapshot, id: string): { label: string; href: string | null } | null {

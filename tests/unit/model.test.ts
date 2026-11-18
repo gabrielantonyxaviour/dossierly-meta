@@ -79,7 +79,7 @@ describe("runModel", () => {
     expect(await checkAndSpend(env, "model_usd", GLOBAL_CAPS.model_usd)).toBe(true);
     const { client, calls } = fake('{"translation":"LIVE"}');
     await expect(runModel({ env, userId: "u1", client }, base())).rejects.toMatchObject({
-      code: "over_budget", status: 429, message: "Daily limit reached. Try again after 08:00 MYT.",
+      code: "over_budget", status: 429, message: "Daily limit reached. Try again tomorrow.",
     });
     expect(calls).toHaveLength(0);
   });

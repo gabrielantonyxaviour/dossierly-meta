@@ -9,7 +9,7 @@ import { costUsd, estimateInputTokens, priceFor } from "./cost";
 import type { ChatClient, ChatRequest } from "./types";
 import { ModelError } from "./types";
 
-export const OVER_BUDGET_MESSAGE = "Daily limit reached. Try again after 08:00 MYT.";
+export const OVER_BUDGET_MESSAGE = "Daily limit reached. Try again tomorrow.";
 export const MODELS_OFF_MESSAGE = "Model calls are switched off";
 
 /** Kill switch: MODELS_DISABLED="1" stops every model call. */

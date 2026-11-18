@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { useT } from "@/lib/i18n/client";
 import { Chevron, usePopover } from "./usePopover";
 
 export type SelectOption = { value: string; label: string; description?: string };
@@ -17,7 +18,9 @@ type Props = {
   className?: string;
 };
 
-export function Select({ value, onChange, options, labelledBy, id, placeholder = "Choose…", disabled, className }: Props) {
+export function Select({ value, onChange, options, labelledBy, id, placeholder: placeholderProp, disabled, className }: Props) {
+  const t = useT("ui");
+  const placeholder = placeholderProp ?? t("choose");
   const auto = useId();
   const triggerId = id ?? `sel-${auto}`;
   const listId = `${triggerId}-list`;

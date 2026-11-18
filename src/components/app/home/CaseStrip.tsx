@@ -1,30 +1,34 @@
 "use client";
 import { FACT_KEYS, type CaseSnapshot } from "@/lib/case/types";
 import { Card, Pill, Row, Section, useToast } from "@/components/ui";
-import { PERMIT_LABEL, STAGE_LABEL } from "../format";
+import { useT } from "@/lib/i18n/client";
+import type { T } from "@/lib/i18n/translate";
+import { permitLabel, stageLabel } from "../format";
 
-export const FACT_LABEL: Record<(typeof FACT_KEYS)[number], string> = {
-  caseNumber: "Case number", office: "Office", filedAt: "Filed", upoReceivedAt: "UPO receipt", mosStatus: "MOS status", inpolStatus: "inPOL status",
-};
-export const SOURCE_LABEL: Record<string, string> = { email: "From email", letter: "From letter", screenshot: "From screenshot", user: "You told us", call: "From call" };
+const SOURCES = ["email", "letter", "screenshot", "user", "call"];
+/** Fact name in the interface language ("home" namespace translator). */
+export const factLabel = (t: T, k: (typeof FACT_KEYS)[number]) => t(`fact_${k}`);
+/** Where a fact came from, in the interface language ("home" namespace translator). */
+export const sourceLabel = (t: T, type: string) => (SOURCES.includes(type) ? t(`source_${type}`) : "");
 
 /** Key facts with where each one came from. Case number copies on tap. */
 export function CaseStrip({ c }: { c: CaseSnapshot }) {
+  const t = useT("home");
   const { toast } = useToast();
   const facts = (["caseNumber", "office", "filedAt"] as const).flatMap((k) => (c.facts[k] ? [[k, c.facts[k]!] as const] : []));
   const copy = async (v: string) => {
-    try { await navigator.clipboard.writeText(v); toast("Case number copied", { tone: "ok" }); } catch { toast("Couldn’t copy. Long-press to select it.", { tone: "error" }); }
+    try { await navigator.clipboard.writeText(v); toast(t("caseNumberCopied"), { tone: "ok" }); } catch { toast(t("copyFailedLongPress"), { tone: "error" }); }
   };
   return (
-    <Section title="Your case" action={{ label: "Open case", href: "/app/case" }}>
+    <Section title={t("yourCase")} action={{ label: t("openCase"), href: "/app/case" }}>
       <Card flush>
-        <Row icon="case" title={c.profile.permitType ? PERMIT_LABEL[c.profile.permitType] : "Residence case"} sub={[STAGE_LABEL[c.profile.stage], c.profile.organisation].filter(Boolean).join(" · ")} />
+        <Row icon="case" title={permitLabel(c.profile.permitType)} sub={[stageLabel(c.profile.stage), c.profile.organisation].filter(Boolean).join(" · ")} />
         {facts.map(([k, f]) => (
-          <Row key={k} title={<span className={k === "caseNumber" ? "ui-num" : undefined}>{f.value}</span>} sub={FACT_LABEL[k]}
-            end={<Pill tone={f.confirmedByUser ? "ok" : "outline"}>{SOURCE_LABEL[f.source.type]}</Pill>}
+          <Row key={k} title={<span className={k === "caseNumber" ? "ui-num" : undefined}>{f.value}</span>} sub={factLabel(t, k)}
+            end={<Pill tone={f.confirmedByUser ? "ok" : "outline"}>{sourceLabel(t, f.source.type)}</Pill>}
             onClick={k === "caseNumber" ? () => void copy(f.value) : undefined} />
         ))}
-        {!facts.length && <Row title="No case number yet" sub="It arrives by email after you file in MOS. Dossierly adds it when it sees it." />}
+        {!facts.length && <Row title={t("noCaseNumber")} sub={t("noCaseNumberSub")} />}
       </Card>
     </Section>
   );

@@ -148,3 +148,5 @@
   .check-item .cite, .mos-reg .cite, .vp-sources a { min-height: 44px; display: inline-flex; align-items: center; }
   .mos-reg p, .mos-reg li { font-size: 1rem; }
 }
+/* Longer Hindi/Tamil labels: let pills drop to the next line instead of squeezing the label. */
+.lk-item-head, .lk-deadline-top { flex-wrap: wrap; }

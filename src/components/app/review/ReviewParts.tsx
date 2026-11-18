@@ -5,16 +5,17 @@ import type { CaseSnapshot, CaseTask } from "@/lib/case/types";
 import { Button, Pill, useToast, type Tone } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { announceCaseChange, useCaseData } from "../shell/case-data";
-import { ACTOR_LABEL, evidenceRef, parseProposal, SEV_LABEL, type Inconsistency, type PlanStep, type Risk, type Severity } from "./derive";
-
-const dayShort = (d: string) => new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${d}T12:00:00Z`));
+import { useT } from "@/lib/i18n/client";
+import { dayLabel as dayShort } from "../format";
+import { evidenceRef, parseProposal, type Inconsistency, type PlanStep, type Risk, type Severity } from "./derive";
 const SEV_TONE: Record<Severity, Tone> = { critical: "deadline", high: "deadline", medium: "warn", low: "neutral" };
 
 function Evidence({ c, ids }: { c: CaseSnapshot; ids: string[] }) {
+  const t = useT("review");
   const refs = ids.map((id) => evidenceRef(c, id)).filter((r): r is NonNullable<typeof r> => !!r).slice(0, 4);
   if (!refs.length) return null;
   return (
-    <div className="rv-evidence" aria-label="Evidence">
+    <div className="rv-evidence" aria-label={t("evidence")}>
       {refs.map((r, i) => r.href
         ? <Link key={i} href={r.href} className="rv-chip"><Icon name="file" size={14} />{r.label}</Link>
         : <span key={i} className="rv-chip"><Icon name="file" size={14} />{r.label}</span>)}
@@ -23,9 +24,10 @@ function Evidence({ c, ids }: { c: CaseSnapshot; ids: string[] }) {
 }
 
 export function RiskCard({ r, c }: { r: Risk; c: CaseSnapshot }) {
+  const t = useT("review");
   return (
     <article className={`rv-card rv-risk rv-risk--${r.severity}`}>
-      <div className="rv-card-top"><Pill tone={SEV_TONE[r.severity]} dot>{SEV_LABEL[r.severity]}</Pill>{r.deadlineDate && <span className="rv-date">Affects {dayShort(r.deadlineDate)}</span>}</div>
+      <div className="rv-card-top"><Pill tone={SEV_TONE[r.severity]} dot>{t(`sev_${r.severity}`)}</Pill>{r.deadlineDate && <span className="rv-date">{t("affects", { date: dayShort(r.deadlineDate) })}</span>}</div>
       <h3>{r.what}</h3>
       {r.why && <p>{r.why}</p>}
       {r.deadlineImpact && <p className="rv-impact">{r.deadlineImpact}</p>}
@@ -35,30 +37,32 @@ export function RiskCard({ r, c }: { r: Risk; c: CaseSnapshot }) {
 }
 
 export function InconsistencyCard({ x, c }: { x: Inconsistency; c: CaseSnapshot }) {
+  const t = useT("review");
   return (
     <article className="rv-card rv-incon">
       <h3>{x.what}</h3>
       {x.detail && <p>{x.detail}</p>}
       {x.legalConsequence && <p className="rv-law"><Icon name="scale" size={18} /><span>{x.legalConsequence}</span></p>}
-      {x.suggestedFix && <p className="rv-fix"><b>Fix</b>{x.suggestedFix}</p>}
+      {x.suggestedFix && <p className="rv-fix"><b>{t("fix")}</b>{x.suggestedFix}</p>}
       <Evidence c={c} ids={x.evidence} />
     </article>
   );
 }
 
 export function Plan({ steps }: { steps: PlanStep[] }) {
+  const t = useT("review");
   const sorted = [...steps].sort((a, b) => a.order - b.order);
   return (
     <ol className="rv-plan">
       {sorted.map((s) => (
         <li key={s.order}>
-          <span className="rv-plan-when">{s.date ? dayShort(s.date) : "When ready"}</span>
+          <span className="rv-plan-when">{s.date ? dayShort(s.date) : t("whenReady")}</span>
           <div className="rv-plan-main">
             <p>{s.action}</p>
             <span className="rv-plan-meta">
-              <Pill tone={s.actor === "user" ? "agent" : "outline"}>{ACTOR_LABEL[s.actor]}</Pill>
+              <Pill tone={s.actor === "user" ? "agent" : "outline"}>{t(`actor_${s.actor}`)}</Pill>
               {s.legalBasis && <span>{s.legalBasis}</span>}
-              {s.dependsOn.length > 0 && <span>After step {s.dependsOn.join(", ")}</span>}
+              {s.dependsOn.length > 0 && <span>{t("afterStep", { steps: s.dependsOn.join(", ") })}</span>}
             </span>
           </div>
         </li>
@@ -73,40 +77,41 @@ async function post(path: string, body: unknown): Promise<{ id: string } | null>
 }
 
 /** A proposal from the review: accept turns it into a real task (and a deadline when it proposes a date); dismiss hides it. */
-export function ProposalCard({ t }: { t: CaseTask }) {
+export function ProposalCard({ t: task }: { t: CaseTask }) {
+  const t = useT("review");
   const { patchItem, refresh } = useCaseData();
   const { toast } = useToast();
   const [busy, setBusy] = useState<"accept" | "dismiss" | null>(null);
-  const p = parseProposal(t);
+  const p = parseProposal(task);
   const accept = async () => {
     setBusy("accept");
-    let dueDeadlineId = t.dueDeadlineId;
+    let dueDeadlineId = task.dueDeadlineId;
     if (p.dueDate) {
-      const d = await post("/api/case/deadlines", { title: p.title, dueDate: p.dueDate, computation: { steps: ["Proposed by the case review; you accepted the date."], rule: null, legalRefUrl: null } });
-      if (!d) { setBusy(null); return toast("Couldn’t add the deadline. Try again.", { tone: "error" }); }
+      const d = await post("/api/case/deadlines", { title: p.title, dueDate: p.dueDate, computation: { steps: [t("acceptedStep")], rule: null, legalRefUrl: null } });
+      if (!d) { setBusy(null); return toast(t("deadlineAddFailed"), { tone: "error" }); }
       dueDeadlineId = d.id;
     }
-    const ok = await patchItem("tasks", t.id, { title: p.title, detail: p.detail, dueDeadlineId });
+    const ok = await patchItem("tasks", task.id, { title: p.title, detail: p.detail, dueDeadlineId });
     setBusy(null);
-    if (!ok) return toast("Couldn’t save that. Try again.", { tone: "error" });
-    toast(p.dueDate ? `Added: ${p.title}, due ${dayShort(p.dueDate)}` : `Added to your tasks: ${p.title}`, { tone: "ok" });
+    if (!ok) return toast(t("saveFailed"), { tone: "error" });
+    toast(p.dueDate ? t("addedDue", { title: p.title, date: dayShort(p.dueDate) }) : t("addedTask", { title: p.title }), { tone: "ok" });
     announceCaseChange();
     void refresh();
   };
   const dismiss = async () => {
     setBusy("dismiss");
-    const ok = await patchItem("tasks", t.id, { status: "dismissed" });
+    const ok = await patchItem("tasks", task.id, { status: "dismissed" });
     setBusy(null);
-    if (!ok) toast("Couldn’t save that. Try again.", { tone: "error" });
+    if (!ok) toast(t("saveFailed"), { tone: "error" });
   };
   return (
     <article className="rv-card rv-prop">
-      <div className="rv-card-top"><Pill tone="agent" icon="sparkle">Proposed</Pill>{p.dueDate && <span className="rv-date">Due {dayShort(p.dueDate)}</span>}</div>
+      <div className="rv-card-top"><Pill tone="agent" icon="sparkle">{t("proposed")}</Pill>{p.dueDate && <span className="rv-date">{t("dueOn", { date: dayShort(p.dueDate) })}</span>}</div>
       <h3>{p.title}</h3>
       {p.detail && <p>{p.detail}</p>}
       <div className="rv-prop-actions">
-        <Button variant="primary" icon="check" loading={busy === "accept"} disabled={!!busy} onClick={() => void accept()}>Accept</Button>
-        <Button variant="ghost" loading={busy === "dismiss"} disabled={!!busy} onClick={() => void dismiss()}>Dismiss</Button>
+        <Button variant="primary" icon="check" loading={busy === "accept"} disabled={!!busy} onClick={() => void accept()}>{t("accept")}</Button>
+        <Button variant="ghost" loading={busy === "dismiss"} disabled={!!busy} onClick={() => void dismiss()}>{t("dismiss")}</Button>
       </div>
     </article>
   );

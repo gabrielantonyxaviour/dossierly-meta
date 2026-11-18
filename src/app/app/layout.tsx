@@ -6,8 +6,12 @@ import { AppShell } from "@/components/app/AppShell";
 import { GoSignIn } from "@/components/auth/GoSignIn";
 import { currentAccount } from "@/lib/server/account";
 import { ensurePreviewCase, previewFlow } from "@/lib/dev/preview";
+import { getT } from "@/lib/i18n/server";
 
-export const metadata: Metadata = { title: "My case", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT("shell");
+  return { title: t("metaTitle"), robots: { index: false } };
+}
 export const dynamic = "force-dynamic";
 
 /** Every /app page needs an account: no valid session goes to sign-in with ?next=, before any app code runs. */

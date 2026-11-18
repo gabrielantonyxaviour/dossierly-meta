@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { ItemRole, LookItem, LookOutline } from "@/lib/look/types";
 import type { LookPhase } from "./useLook";
+import { useT } from "@/lib/i18n/client";
 
 export type Tone = "deadline" | "user" | "official";
 export const toneOf = (role: ItemRole): Tone => (role === "deadline" ? "deadline" : role === "field" || role === "button" ? "user" : "official");
@@ -26,6 +27,7 @@ interface Props {
 
 /** The photo with Spark's boxes (dashed, while SAM works) and SAM's traced outlines on top. */
 export function LookCanvas({ src, width, height, phase, items, outlines, active, onSelect }: Props) {
+  const t = useT("look");
   const maskId = useId().replace(/:/g, "");
   const pad = Math.max(4, Math.round(Math.min(width, height) * 0.006));
   const busy = phase === "reading" || phase === "outlining";
@@ -59,7 +61,7 @@ export function LookCanvas({ src, width, height, phase, items, outlines, active,
   return (
     <div ref={stage} className={`lk-stage${busy ? " is-busy" : ""}${phase === "reading" ? " is-reading" : ""}`} style={{ aspectRatio: `${width} / ${height}`, width: `min(100%, calc(var(--lk-maxh, calc(100dvh - 48px)) * ${(width / height).toFixed(4)}))`, marginInline: "auto" }}>
       {/* eslint-disable-next-line @next/next/no-img-element -- a local data URL, not an optimisable asset */}
-      <img src={src} alt="The image you showed Dossierly" width={width} height={height} draggable={false} />
+      <img src={src} alt={t("imageAlt")} width={width} height={height} draggable={false} />
       {phase === "reading" && <div className="lk-scan" aria-hidden="true" />}
       <svg className="lk-overlay" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" aria-hidden="true">
         {activeItem && (

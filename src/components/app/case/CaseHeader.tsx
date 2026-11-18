@@ -3,60 +3,64 @@ import { useState } from "react";
 import { STAGES, type CaseSnapshot } from "@/lib/case/types";
 import { Pill, Sheet, useToast } from "@/components/ui";
 import { Icon } from "@/components/Icon";
-import { STAGE_LABEL } from "../format";
-import { FACT_LABEL, SOURCE_LABEL } from "../home/CaseStrip";
+import { useT } from "@/lib/i18n/client";
+import { currentTag } from "@/lib/i18n/current";
+import { stageLabel } from "../format";
+import { factLabel, sourceLabel } from "../home/CaseStrip";
 
-const filedLabel = (d: string) => new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${d}T12:00:00Z`)).replace("Sept", "Sep");
+const filedLabel = (d: string) => new Intl.DateTimeFormat(currentTag(), { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${d}T12:00:00Z`)).replace("Sept", "Sep");
 
 /** Compact: stage track, case number (tap to copy) and a row that opens every fact with its source. */
 export function CaseHeader({ c }: { c: CaseSnapshot }) {
+  const t = useT("case");
+  const th = useT("home");
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const at = STAGES.indexOf(c.profile.stage);
   const facts = (["caseNumber", "office", "filedAt", "upoReceivedAt", "mosStatus", "inpolStatus"] as const).flatMap((k) => (c.facts[k] ? [[k, c.facts[k]!] as const] : []));
   const num = c.facts.caseNumber?.value;
   const copy = async (v: string) => {
-    try { await navigator.clipboard.writeText(v); toast("Case number copied", { tone: "ok" }); } catch { toast("Couldn’t copy", { tone: "error" }); }
+    try { await navigator.clipboard.writeText(v); toast(t("caseNumberCopied"), { tone: "ok" }); } catch { toast(t("copyFailed"), { tone: "error" }); }
   };
   const filed = c.facts.filedAt?.value;
   return (
-    <section className="cs-head ui-card" aria-label="Case summary">
+    <section className="cs-head ui-card" aria-label={t("caseSummary")}>
       <div className="cs-id">
         <div className="cs-id-top">
-          <span className="cs-copy-label">Case number</span>
-          {facts.length > 0 && <button type="button" className="ui-btn ui-btn--sm" onClick={() => setOpen(true)}>Details<Icon name="forward" size={14} /></button>}
+          <span className="cs-copy-label">{t("caseNumber")}</span>
+          {facts.length > 0 && <button type="button" className="ui-btn ui-btn--sm" onClick={() => setOpen(true)}>{t("details")}<Icon name="forward" size={14} /></button>}
         </div>
         {num ? (
-          <button type="button" className="cs-copy" onClick={() => void copy(num)} aria-label={`Copy case number ${num}`}>
+          <button type="button" className="cs-copy" onClick={() => void copy(num)} aria-label={t("copyNumber", { num })}>
             <span className="cs-num">{num}</span><Icon name="copy" size={16} />
           </button>
-        ) : <span className="ui-meta">No case number yet. It arrives by email after you file in MOS.</span>}
-        {filed && /^\d{4}-\d{2}-\d{2}$/.test(filed) && <p className="cs-filed">Filed {filedLabel(filed)}{c.facts.filedAt?.source.type === "email" ? " · from your email" : ""}</p>}
+        ) : <span className="ui-meta">{t("noNumber")}</span>}
+        {filed && /^\d{4}-\d{2}-\d{2}$/.test(filed) && <p className="cs-filed">{c.facts.filedAt?.source.type === "email" ? t("filedFromEmail", { date: filedLabel(filed) }) : t("filed", { date: filedLabel(filed) })}</p>}
       </div>
-      <ol className="cs-stages" aria-label="Case stage">
+      <ol className="cs-stages" aria-label={t("caseStage")}>
         {STAGES.map((s, i) => (
           <li key={s} className={i < at ? "is-done" : i === at ? "is-now" : undefined} aria-current={i === at ? "step" : undefined}>
             <span className="cs-stage-dot">{i < at && <Icon name="check" size={11} />}</span>
-            <span className="cs-stage-label">{STAGE_LABEL[s]}</span>
+            <span className="cs-stage-label">{stageLabel(s)}</span>
           </li>
         ))}
       </ol>
       {at >= 0 && (
         <p className="cs-stage-caption" aria-hidden="true">
-          <span>Step {at + 1} of {STAGES.length}{STAGES[at + 1] ? ` · Next: ${STAGE_LABEL[STAGES[at + 1]]}` : ""}</span>
+          <span>{STAGES[at + 1] ? t("stepOfNext", { n: at + 1, total: STAGES.length, next: stageLabel(STAGES[at + 1]) }) : t("stepOf", { n: at + 1, total: STAGES.length })}</span>
         </p>
       )}
-      <Sheet open={open} onClose={() => setOpen(false)} title="Case details">
+      <Sheet open={open} onClose={() => setOpen(false)} title={t("caseDetails")}>
         <dl className="cs-facts">
           {facts.map(([k, f]) => (
             <div key={k} className="cs-fact">
-              <dt>{FACT_LABEL[k]}</dt>
+              <dt>{factLabel(th, k)}</dt>
               <dd className={k === "caseNumber" ? "ui-num" : undefined}>{f.value}</dd>
-              <Pill tone={f.confirmedByUser ? "ok" : "outline"}>{SOURCE_LABEL[f.source.type]}{f.confirmedByUser ? " · confirmed" : ""}</Pill>
+              <Pill tone={f.confirmedByUser ? "ok" : "outline"}>{f.confirmedByUser ? t("confirmed", { source: sourceLabel(th, f.source.type) }) : sourceLabel(th, f.source.type)}</Pill>
             </div>
           ))}
         </dl>
-        <p className="ui-meta">Every fact shows where it came from. Facts you confirmed are marked.</p>
+        <p className="ui-meta">{t("factsNote")}</p>
       </Sheet>
     </section>
   );

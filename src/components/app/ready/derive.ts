@@ -57,5 +57,6 @@ export function isFresh(b: ReadyBundle, now = new Date()): boolean {
   return now.getTime() - new Date(b.arrivedAt).getTime() < 3 * 86_400_000 && (!b.deadline || b.deadline.status === "open");
 }
 
-export const LANG_LABEL: Record<string, string> = { pl: "Polish", en: "English" };
-export const CHANNEL_LABEL: Record<string, string> = { call: "Dossierly will call you", push: "Notification on your phone", in_app: "Reminder in the app", email: "Email reminder" };
+/** Draft languages and reminder channels with a "ready" message (keys lang_<code>, channel_<id>). */
+export const LANG_KEYS = ["pl", "en"];
+export const CHANNEL_KEYS = ["call", "push", "in_app", "email"];

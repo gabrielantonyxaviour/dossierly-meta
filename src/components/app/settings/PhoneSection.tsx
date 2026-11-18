@@ -2,6 +2,7 @@
 import { useState } from "react";
 import type { Profile } from "@/lib/case/types";
 import { Button, Card, Pill, Row, Section, useToast } from "@/components/ui";
+import { useT } from "@/lib/i18n/client";
 import { useCaseData } from "../shell/case-data";
 
 const E164 = /^\+[1-9]\d{6,14}$/;
@@ -9,7 +10,7 @@ const E164 = /^\+[1-9]\d{6,14}$/;
 async function phoneAction(body: { action: "phone"; number: string } | { action: "skip_phone" }) {
   const res = await fetch("/api/onboarding", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }).catch(() => null);
   const data = (await res?.json().catch(() => ({}))) as { error?: string; callsAvailable?: boolean };
-  return res?.ok ? { ok: true as const, calls: !!data.callsAvailable } : { ok: false as const, error: data.error ?? "Couldn’t save the number. Try again." };
+  return res?.ok ? { ok: true as const, calls: !!data.callsAvailable } : { ok: false as const, error: data.error };
 }
 
 /**
@@ -19,48 +20,49 @@ async function phoneAction(body: { action: "phone"; number: string } | { action:
 export function PhoneSection({ profile, eligible, loaded }: { profile: Profile; eligible: boolean; loaded: boolean }) {
   const { refresh } = useCaseData();
   const { toast } = useToast();
+  const t = useT("settings");
   const [num, setNum] = useState(profile.phone.number ?? "");
   const [saving, setSaving] = useState(false);
   const normalized = num.replace(/[\s()-]/g, "");
   const valid = E164.test(normalized);
   const dirty = normalized !== (profile.phone.number ?? "");
   const save = async () => {
-    if (!valid) return toast("Use international format, e.g. +48 512 345 678", { tone: "error" });
+    if (!valid) return toast(t("phoneFormat"), { tone: "error" });
     setSaving(true);
     const r = await phoneAction({ action: "phone", number: normalized });
     setSaving(false);
-    if (!r.ok) return toast(r.error, { tone: "error" });
+    if (!r.ok) return toast(r.error ?? t("phoneSaveFailed"), { tone: "error" });
     await refresh();
-    toast(r.calls ? "Saved. Dossierly can call this number." : "Number saved", { tone: "ok" });
+    toast(r.calls ? t("phoneSavedCalls") : t("phoneSaved"), { tone: "ok" });
   };
   const remove = async () => {
     setSaving(true);
     const r = await phoneAction({ action: "skip_phone" });
     setSaving(false);
-    if (!r.ok) return toast(r.error, { tone: "error" });
+    if (!r.ok) return toast(r.error ?? t("phoneSaveFailed"), { tone: "error" });
     setNum("");
     await refresh();
-    toast("Number removed", { tone: "ok" });
+    toast(t("phoneRemoved"), { tone: "ok" });
   };
   const on = profile.phone.callsEnabled && !!profile.phone.number;
   return (
-    <Section title="Phone calls">
+    <Section title={t("phoneTitle")}>
       <Card flush>
         <div className="st-phone">
           <label className="ui-field">
-            <span>Your phone number</span>
+            <span>{t("phoneLabel")}</span>
             <div className="st-phone-row">
               <input className="ui-input ui-num" inputMode="tel" autoComplete="tel" placeholder="+48 512 345 678" value={num} onChange={(e) => setNum(e.target.value)} aria-invalid={num ? !valid : undefined} />
-              {dirty && num && <Button variant="primary" onClick={() => void save()} loading={saving}>Save</Button>}
-              {!dirty && profile.phone.number && <Button variant="ghost" onClick={() => void remove()} disabled={saving}>Remove</Button>}
+              {dirty && num && <Button variant="primary" onClick={() => void save()} loading={saving}>{t("save")}</Button>}
+              {!dirty && profile.phone.number && <Button variant="ghost" onClick={() => void remove()} disabled={saving}>{t("remove")}</Button>}
             </div>
-            <small>{num && !valid ? "Use international format with the country code." : "Used only to call you about your case. Never shared."}</small>
+            <small>{num && !valid ? t("phoneInvalid") : t("phoneHint")}</small>
           </label>
         </div>
         <Row icon="phone" iconBg="var(--agent-soft)" iconColor="var(--agent-ink)"
-          title="Dossierly can call me"
-          sub={!loaded ? "Checking…" : on ? "When a new letter or deadline arrives, Dossierly phones you and explains it." : eligible ? "Save your number to turn calls on." : "Outbound calls are coming soon. In-app voice works now."}
-          end={on ? <Pill tone="ok" dot>On</Pill> : eligible ? <Pill tone="outline">Off</Pill> : <Pill tone="outline">Coming soon</Pill>} />
+          title={t("callsTitle")}
+          sub={!loaded ? t("checking") : on ? t("callsOn") : eligible ? t("callsEligible") : t("callsSoon")}
+          end={on ? <Pill tone="ok" dot>{t("on")}</Pill> : eligible ? <Pill tone="outline">{t("off")}</Pill> : <Pill tone="outline">{t("comingSoon")}</Pill>} />
       </Card>
     </Section>
   );

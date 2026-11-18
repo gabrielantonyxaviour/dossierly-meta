@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Avatar, Button, Card, ErrorState, Row, Section, Skeleton, TopBar, useToast } from "@/components/ui";
-import { PERMIT_LABEL, STAGE_LABEL } from "../format";
+import { LanguagePicker } from "@/components/LanguagePicker";
+import { useT } from "@/lib/i18n/client";
+import { permitLabel, stageLabel } from "../format";
 import { useCaseData } from "../shell/case-data";
 import { CHAT_KEY } from "../chat/useAgentChat";
 import { AssistantSection } from "./AssistantSection";
@@ -18,6 +20,8 @@ export const LANGS = Object.entries(LANG);
 
 export function SettingsScreen() {
   const { snapshot, status, error, refresh } = useCaseData();
+  const t = useT("settings");
+  const tc = useT("common");
   const { toast } = useToast();
   const [account, setAccount] = useState<AccountSettings | null>(null);
   const [editing, setEditing] = useState(false);
@@ -26,7 +30,7 @@ export function SettingsScreen() {
     fetch("/api/account/settings", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).then(setAccount).catch(() => setAccount(null));
   }, []);
   if (status === "loading") return <div className="sh-page"><div style={{ height: 56 }} /><Skeleton h={40} w="40%" /><Skeleton h={120} r={22} /><Skeleton h={220} r={22} /></div>;
-  if (!snapshot) return <div className="sh-page"><ErrorState message={error ?? "Settings didn’t load."} onRetry={() => void refresh()} /></div>;
+  if (!snapshot) return <div className="sh-page"><ErrorState message={error ?? t("loadFailed")} onRetry={() => void refresh()} /></div>;
   const p = snapshot.profile;
   const signOut = async () => {
     setSigningOut(true);
@@ -37,27 +41,34 @@ export function SettingsScreen() {
       window.location.assign("/");
     } catch {
       setSigningOut(false);
-      toast("Couldn’t sign out. Check your connection and retry.", { tone: "error" });
+      toast(t("signOutFailed"), { tone: "error" });
     }
   };
   return (
     <div className="sh-page st">
-      <TopBar title="Settings" back={{ href: "/app", label: "Back to home" }} />
+      <TopBar title={t("title")} back={{ href: "/app", label: t("backHome") }} />
       <Card className="st-profile">
         <Avatar name={p.fullName} size={56} />
         <div className="st-profile-main">
-          <b>{p.fullName ?? "Add your name"}</b>
+          <b>{p.fullName ?? t("addName")}</b>
           <span className="ui-meta">{account?.email ?? " "}</span>
-          <span className="ui-meta">{[p.city, p.organisation].filter(Boolean).join(" · ") || "Poland"}</span>
+          <span className="ui-meta">{[p.city, p.organisation].filter(Boolean).join(" · ") || t("poland")}</span>
         </div>
-        <Button size="sm" onClick={() => setEditing(true)}>Edit</Button>
+        <Button size="sm" onClick={() => setEditing(true)}>{t("edit")}</Button>
       </Card>
 
-      <Section title="Your case">
+      <Section title={t("yourCase")}>
         <Card flush>
-          <Row icon="case" title={p.permitType ? PERMIT_LABEL[p.permitType] : "Residence case"} sub={STAGE_LABEL[p.stage]} href="/app/case" chevron />
-          <Row icon="globe" title="Language" sub="Dossierly answers and speaks in this language" end={<span>{LANG[p.preferredLanguage] ?? p.preferredLanguage}</span>} onClick={() => setEditing(true)} />
-          <Row icon="clock" title="Time zone" end={<span>Warsaw</span>} />
+          <Row icon="case" title={permitLabel(p.permitType)} sub={stageLabel(p.stage)} href="/app/case" chevron />
+          <Row icon="globe" title={t("chatLanguage")} sub={t("chatLanguageSub")} end={<span>{LANG[p.preferredLanguage] ?? p.preferredLanguage}</span>} onClick={() => setEditing(true)} />
+          <Row icon="clock" title={t("timeZone")} end={<span>{t("warsaw")}</span>} />
+        </Card>
+      </Section>
+
+      <Section title={tc("language")}>
+        <Card className="st-lang">
+          <p className="ui-meta">{tc("languageHint")}</p>
+          <LanguagePicker />
         </Card>
       </Section>
 
@@ -65,24 +76,24 @@ export function SettingsScreen() {
       <ConnectionsSection />
       <AssistantSection />
 
-      <Section title="App">
+      <Section title={t("app")}>
         <Card flush>
-          <Row icon="bell" title="Notifications" href="/app/notifications" chevron />
+          <Row icon="bell" title={t("notifications")} href="/app/notifications" chevron />
         </Card>
       </Section>
 
-      <Section title="Privacy">
+      <Section title={t("privacy")}>
         <Card flush>
-          <Row icon="shield" title="What Dossierly never does" sub="It never files applications, signs anything or logs into MOS or inPOL for you." />
-          <Row icon="lock" title="Where your case lives" sub="On Dossierly’s servers in your private case file. Models: Meta Muse Spark, SAM 3.1, Muse Voice; speech by ElevenLabs." />
-          <Row icon="book" title="Privacy policy" href="/legal/privacy" chevron />
-          <Row icon="file" title="Terms" href="/legal/terms" chevron />
+          <Row icon="shield" title={t("neverTitle")} sub={t("neverSub")} />
+          <Row icon="lock" title={t("whereTitle")} sub={t("whereSub")} />
+          <Row icon="book" title={t("privacyPolicy")} href="/legal/privacy" chevron />
+          <Row icon="file" title={t("terms")} href="/legal/terms" chevron />
         </Card>
       </Section>
 
       {account?.previewFlow && <PreviewTools flow={account.previewFlow} />}
-      <Button variant="danger" block onClick={() => void signOut()} loading={signingOut} icon="out">Sign out</Button>
-      <p className="ui-meta st-foot">Dossierly guides you. It isn’t a law firm and doesn’t give legal advice.</p>
+      <Button variant="danger" block onClick={() => void signOut()} loading={signingOut} icon="out">{t("signOut")}</Button>
+      <p className="ui-meta st-foot">{t("foot")}</p>
       <ProfileSheet key={editing ? "open" : "closed"} open={editing} onClose={() => setEditing(false)} profile={p} />
     </div>
   );

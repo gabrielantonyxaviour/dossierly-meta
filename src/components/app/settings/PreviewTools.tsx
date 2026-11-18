@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Button, Card, Row, Section, useToast } from "@/components/ui";
+import { useT } from "@/lib/i18n/client";
 
 export type PreviewFlow = "onboarding" | "app" | "voice" | "look";
 
@@ -17,26 +18,27 @@ export async function resetPreview(reseed: boolean): Promise<boolean> {
 /** Preview deployments only: restart onboarding, or reload the labelled sample case. */
 export function PreviewTools({ flow }: { flow: PreviewFlow }) {
   const { toast } = useToast();
+  const t = useT("settings");
   const [busy, setBusy] = useState<"fresh" | "sample" | null>(null);
   const run = async (reseed: boolean) => {
     setBusy(reseed ? "sample" : "fresh");
-    if (!(await resetPreview(reseed))) { setBusy(null); toast("Reset failed. Try again.", { tone: "error" }); }
+    if (!(await resetPreview(reseed))) { setBusy(null); toast(t("resetFailed"), { tone: "error" }); }
   };
   return (
-    <Section title="Preview testing">
+    <Section title={t("previewTitle")}>
       <Card flush>
-        <Row icon="refresh" title="Start onboarding fresh" sub="Clears this account’s case and setup on this preview, then opens onboarding."
-          end={<Button size="sm" variant={flow === "onboarding" ? "primary" : "soft"} loading={busy === "fresh"} disabled={!!busy} onClick={() => void run(false)}>Start fresh</Button>} />
+        <Row icon="refresh" title={t("freshTitle")} sub={t("freshSub")}
+          end={<Button size="sm" variant={flow === "onboarding" ? "primary" : "soft"} loading={busy === "fresh"} disabled={!!busy} onClick={() => void run(false)}>{t("freshButton")}</Button>} />
         {flow !== "onboarding" && (
-          <Row icon="case" title="Reload the sample case" sub="Replaces this account’s case with Arjun’s fictional sample case."
-            end={<Button size="sm" loading={busy === "sample"} disabled={!!busy} onClick={() => void run(true)}>Reload</Button>} />
+          <Row icon="case" title={t("sampleTitle")} sub={t("sampleSub")}
+            end={<Button size="sm" loading={busy === "sample"} disabled={!!busy} onClick={() => void run(true)}>{t("sampleButton")}</Button>} />
         )}
         {flow !== "onboarding" && (
-          <Row icon="mail" title="Add the evening letter scene" sub="Writes a labelled new letter, two drafts and a 09:00 reminder, then opens Ready for you. No call is placed."
-            end={<Button size="sm" disabled={!!busy} onClick={() => window.location.assign("/api/dev/demo?scene=ready")}>Add</Button>} />
+          <Row icon="mail" title={t("sceneTitle")} sub={t("sceneSub")}
+            end={<Button size="sm" disabled={!!busy} onClick={() => window.location.assign("/api/dev/demo?scene=ready")}>{t("sceneButton")}</Button>} />
         )}
       </Card>
-      <p className="ui-meta st-note">Only on preview deployments. Production never shows this.</p>
+      <p className="ui-meta st-note">{t("previewNote")}</p>
     </Section>
   );
 }

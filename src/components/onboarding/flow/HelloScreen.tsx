@@ -4,14 +4,18 @@ import type { Profile } from "@/lib/case/types";
 import { AgentOrb, Button, StickyActionBar } from "@/components/ui";
 import { LatencyLine } from "@/components/voice/bits";
 import { useVoiceIntake } from "./useVoiceIntake";
+import { LanguagePicker } from "@/components/LanguagePicker";
+import { useT } from "@/lib/i18n/client";
 
-const STATUS = { idle: "", starting: "Opening the microphone…", listening: "Listening", thinking: "Thinking…", speaking: "Dossierly", done: "Dossierly" } as const;
+/** Message keys for the line under the orb; "speaking" and "done" show the product name. */
+const STATUS = { idle: "", starting: "statusStarting", listening: "statusListening", thinking: "statusThinking", speaking: "", done: "" } as const;
 
 /**
  * First run, voice first: the person says who they are in their own words and Dossierly answers out loud.
  * `onEmail` is the yes to "Can I look at your email?"; `onType` falls back to the one-question-per-screen setup.
  */
 export function HelloScreen({ onProfile, onEmail, onType }: { onProfile(p: Profile): void; onEmail(): void; onType(): void }) {
+  const t = useT("onboarding");
   const v = useVoiceIntake((r) => onProfile(r.profile));
   const [typing, setTyping] = useState(false);
   const [text, setText] = useState("");
@@ -20,17 +24,18 @@ export function HelloScreen({ onProfile, onEmail, onType }: { onProfile(p: Profi
 
   return (
     <div className="ob-answer ob-voice">
+      <LanguagePicker compact className="ob-lang" />
       <div className="ob-voice-orb" data-state={v.state}>
-        <button type="button" className="ob-voice-tap" disabled={busy || v.state === "done"} aria-label={v.state === "listening" ? "Stop listening" : "Tap and talk"}
+        <button type="button" className="ob-voice-tap" disabled={busy || v.state === "done"} aria-label={v.state === "listening" ? t("stopListening") : t("tapAndTalk")}
           onClick={() => void (v.state === "listening" ? v.stop() : v.start())}>
           <AgentOrb size={112} state={live ? "live" : v.state === "idle" ? "still" : "idle"} icon={v.state === "idle" || v.state === "listening" ? "mic" : undefined} />
         </button>
-        <span className="ob-voice-status" aria-live="polite">{STATUS[v.state]}</span>
+        <span className="ob-voice-status" aria-live="polite">{v.state === "speaking" || v.state === "done" ? "Dossierly" : STATUS[v.state] ? t(STATUS[v.state]) : ""}</span>
       </div>
       {(v.heard || v.state === "listening") && (
         <figure className="ob-voice-line" data-who="you">
-          <figcaption>You</figcaption>
-          <blockquote>{v.heard || <span className="ob-voice-wait">Go ahead, I’m listening…</span>}</blockquote>
+          <figcaption>{t("you")}</figcaption>
+          <blockquote>{v.heard || <span className="ob-voice-wait">{t("goAhead")}</span>}</blockquote>
         </figure>
       )}
       {v.reply && (
@@ -42,10 +47,10 @@ export function HelloScreen({ onProfile, onEmail, onType }: { onProfile(p: Profi
       {v.reply && <LatencyLine metrics={v.metrics} />}
       {typing && v.state === "idle" && (
         <form className="ob-field" onSubmit={(e) => { e.preventDefault(); if (text.trim().length > 1) void v.typed(text.trim()); }}>
-          <span>In your own words</span>
-          <textarea className="input ob-voice-text" rows={3} maxLength={600} autoFocus value={text} placeholder="I’m Arjun, I study in Warsaw, and I got a letter from the office."
+          <span>{t("ownWords")}</span>
+          <textarea className="input ob-voice-text" rows={3} maxLength={600} autoFocus value={text} placeholder={t("ownWordsPlaceholder")}
             onChange={(e) => setText(e.target.value)} />
-          <Button type="submit" variant="secondary" disabled={text.trim().length < 2}>Send</Button>
+          <Button type="submit" variant="secondary" disabled={text.trim().length < 2}>{t("send")}</Button>
         </form>
       )}
       {v.error && <div className="ob-alert" role="alert"><p>{v.error}</p></div>}
@@ -54,23 +59,23 @@ export function HelloScreen({ onProfile, onEmail, onType }: { onProfile(p: Profi
           <span className="ob-conn-mark" data-provider="gmail" aria-hidden="true">M</span>
           <div className="ob-conn-body">
             <div className="ob-conn-head"><strong>Gmail</strong></div>
-            <p>Finds letters from the office, MOS and your university</p>
-            <small>Read-only · never sends or deletes</small>
+            <p>{t("gmailWhat")}</p>
+            <small>{t("gmailScope")}</small>
           </div>
         </div>
       )}
       {v.state === "done" ? (
-        <StickyActionBar secondary={<Button variant="ghost" onClick={onType}>Not now</Button>}>
-          <Button variant="primary" size="lg" icon="mail" onClick={onEmail}>Connect Gmail</Button>
+        <StickyActionBar secondary={<Button variant="ghost" onClick={onType}>{t("notNow")}</Button>}>
+          <Button variant="primary" size="lg" icon="mail" onClick={onEmail}>{t("connectGmail")}</Button>
         </StickyActionBar>
       ) : v.state === "listening" ? (
-        <StickyActionBar secondary={<Button variant="ghost" onClick={() => v.stop()}>Cancel</Button>}>
-          <Button variant="primary" size="lg" icon="mic" disabled>Listening… just talk</Button>
+        <StickyActionBar secondary={<Button variant="ghost" onClick={() => v.stop()}>{t("cancel")}</Button>}>
+          <Button variant="primary" size="lg" icon="mic" disabled>{t("listeningJustTalk")}</Button>
         </StickyActionBar>
       ) : (
-        <StickyActionBar secondary={!busy && <Button variant="ghost" icon="keyboard" onClick={() => (typing ? onType() : setTyping(true))}>{typing ? "Answer step by step instead" : "Type instead"}</Button>}>
+        <StickyActionBar secondary={!busy && <Button variant="ghost" icon="keyboard" onClick={() => (typing ? onType() : setTyping(true))}>{typing ? t("stepByStep") : t("typeInstead")}</Button>}>
           <Button variant="primary" size="lg" icon="mic" disabled={busy} loading={busy} onClick={() => void v.start()}>
-            {v.state === "thinking" ? "Thinking…" : v.state === "speaking" ? "Speaking…" : v.state === "starting" ? "Starting…" : v.heard ? "Talk again" : "Tap and talk"}
+            {v.state === "thinking" ? t("statusThinking") : v.state === "speaking" ? t("speaking") : v.state === "starting" ? t("starting") : v.heard ? t("talkAgain") : t("tapAndTalk")}
           </Button>
         </StickyActionBar>
       )}

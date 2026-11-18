@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { signOut } from "@/lib/client/api";
 import { useCase } from "@/lib/client/store";
 import { Icon } from "../Icon";
+import { useT } from "@/lib/i18n/client";
 
 function initials(name: string): string {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("") || "D";
@@ -12,11 +13,12 @@ function initials(name: string): string {
 
 /** The one identity block: who this case is for, the plan, and the account menu. */
 export function IdentityMenu({ compact = false }: { compact?: boolean }) {
+  const t = useT("shell");
   const { dossier } = useCase();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const name = dossier?.case.profile.name ?? "Your case";
-  const sub = dossier?.sample ? "Sample case" : "Your case";
+  const name = dossier?.case.profile.name ?? t("yourCase");
+  const sub = dossier?.sample ? t("sampleCase") : t("yourCase");
 
   useEffect(() => {
     if (!open) return;
@@ -34,7 +36,7 @@ export function IdentityMenu({ compact = false }: { compact?: boolean }) {
 
   return (
     <div className={`idm${compact ? " is-compact" : ""}`} ref={ref}>
-      <button className="idm-trigger" onClick={() => setOpen((v) => !v)} aria-haspopup="menu" aria-expanded={open} aria-label="Account menu">
+      <button className="idm-trigger" onClick={() => setOpen((v) => !v)} aria-haspopup="menu" aria-expanded={open} aria-label={t("accountMenu")}>
         <span className="idm-avatar" aria-hidden="true">{initials(name)}</span>
         {!compact && (
           <>
@@ -46,10 +48,10 @@ export function IdentityMenu({ compact = false }: { compact?: boolean }) {
       {open && (
         <div className="idm-menu" role="menu">
           {compact && <div className="idm-head"><b>{name}</b><small>{sub}</small></div>}
-          <Link role="menuitem" href="/app/help" onClick={() => setOpen(false)}><Icon name="help" size={18} />Help</Link>
-          <Link role="menuitem" href="/" onClick={() => setOpen(false)}><Icon name="globe" size={18} />Website</Link>
+          <Link role="menuitem" href="/app/help" onClick={() => setOpen(false)}><Icon name="help" size={18} />{t("help")}</Link>
+          <Link role="menuitem" href="/" onClick={() => setOpen(false)}><Icon name="globe" size={18} />{t("website")}</Link>
           <hr />
-          <button role="menuitem" onClick={() => void leave()}><Icon name="out" size={18} />Sign out</button>
+          <button role="menuitem" onClick={() => void leave()}><Icon name="out" size={18} />{t("signOut")}</button>
         </div>
       )}
     </div>

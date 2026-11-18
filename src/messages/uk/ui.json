@@ -1,0 +1,23 @@
+{
+  "back": "Назад",
+  "close": "Закрити",
+  "step": "Крок {at} з {of}",
+  "choose": "Виберіть…",
+  "chooseDate": "Виберіть дату",
+  "prevMonth": "Попередній місяць",
+  "nextMonth": "Наступний місяць",
+  "today": "Сьогодні",
+  "dayToday": "{date}, сьогодні",
+  "dropWide": "Перетягніть лист сюди або {choose}",
+  "chooseFile": "виберіть файл",
+  "dropOver": "Відпустіть, щоб додати цей лист",
+  "dropCompact": "Виберіть PDF або фото",
+  "dropKinds": "PDF або зображення",
+  "wrongType": "{name} — це не {kinds}. Виберіть {kinds}.",
+  "removeFile": "Видалити {name}",
+  "errorTitle": "Не вдалося завантажити",
+  "tryAgain": "Спробувати ще раз",
+  "retry": "Повторити",
+  "copy": "Копіювати",
+  "copied": "Скопійовано"
+}

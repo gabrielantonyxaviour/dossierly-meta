@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
+import { getT } from "@/lib/i18n/server";
 import { LookFlow } from "@/components/app/look/LookFlow";
 
-export const metadata = { title: "Look" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT("look");
+  return { title: t("metaTitle") };
+}
 
 /** `?doc=<id>` and `?look=<id>` open straight into a loading state, so the Look home never paints first. */
 export default async function Page({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {

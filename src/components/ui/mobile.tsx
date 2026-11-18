@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useT } from "@/lib/i18n/client";
 import { Icon, type IconName } from "../Icon";
 import { cx, IconButton, IconLink } from "./primitives";
 
@@ -12,11 +13,12 @@ import { cx, IconButton, IconLink } from "./primitives";
 type Progress = { at: number; of: number };
 
 /** Compact 56px top bar: back (or close) on the left, short title or a thin step progress, optional action right. */
-export function MobileFlowHeader({ back, close, title, progress, action, backLabel = "Back" }: {
+export function MobileFlowHeader({ back, close, title, progress, action, backLabel }: {
   back?: string | (() => void); close?: boolean; title?: ReactNode; progress?: Progress; action?: ReactNode; backLabel?: string;
 }) {
+  const t = useT("ui");
   const icon = close ? "close" : "back";
-  const label = close ? "Close" : backLabel;
+  const label = close ? t("close") : backLabel ?? t("back");
   const lead = typeof back === "string" ? <IconLink href={back} icon={icon} label={label} /> : back ? <IconButton icon={icon} label={label} onClick={back} /> : <span />;
   const pct = progress ? Math.max(0, Math.min(1, progress.at / progress.of)) * 100 : 0;
   return (
@@ -27,7 +29,7 @@ export function MobileFlowHeader({ back, close, title, progress, action, backLab
         <div className="ui-mhead-action">{action}</div>
       </div>
       {progress && (
-        <div className="ui-mhead-progress" role="progressbar" aria-label={`Step ${progress.at} of ${progress.of}`} aria-valuemin={0} aria-valuemax={progress.of} aria-valuenow={progress.at}>
+        <div className="ui-mhead-progress" role="progressbar" aria-label={t("step", { at: progress.at, of: progress.of })} aria-valuemin={0} aria-valuemax={progress.of} aria-valuenow={progress.at}>
           <span style={{ width: `${pct}%` }} />
         </div>
       )}

@@ -36,3 +36,9 @@ export function nameParts(full: string | null): { given: string | null; surname:
   if (parts.length < 2) return { given: parts[0] ?? null, surname: null };
   return { given: parts.slice(0, -1).join(" "), surname: parts[parts.length - 1] };
 }
+
+/** Translated MOS data text (mos namespace, keyed by field/section/attachment id), else the English from the form data. */
+export const trData = (t: (k: string) => string, key: string, fallback: string): string => {
+  const v = t(key);
+  return v === key ? fallback : v;
+};

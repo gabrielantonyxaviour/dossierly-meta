@@ -12,7 +12,7 @@ import { enqueueAgentTask, getTask, taskView } from "@/lib/agent/queue";
 import { advanceTask } from "@/lib/agent/service";
 import { friendlyError } from "@/lib/client/api";
 
-const OVER = "Daily limit reached. Try again after 08:00 MYT.";
+const OVER = "Daily limit reached. Try again tomorrow.";
 const schema = z.object({ translation: z.string() });
 const call = (maxTokens = 300) => ({
   task: "interpret" as const, system: "RULES", input: "Hello", schema, maxTokens,

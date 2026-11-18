@@ -1,0 +1,8 @@
+{
+  "overBudget": "Daily limit reached. Try again tomorrow.",
+  "rateLimited": "Lots of requests just now. Wait a few seconds and try again.",
+  "needsPlan": "You have used your free letters. Choose One case or Household to continue.",
+  "offline": "You seem to be offline. Check the connection and try again.",
+  "modelUnavailable": "The model is briefly unavailable. Try again in a few minutes.",
+  "generic": "Something went wrong. Try again."
+}

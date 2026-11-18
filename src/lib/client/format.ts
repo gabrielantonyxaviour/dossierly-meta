@@ -1,3 +1,4 @@
+import { currentTag, tNow } from "@/lib/i18n/current";
 import type { Run } from "./types";
 
 const MODEL_NAMES: Record<string, string> = {
@@ -29,14 +30,14 @@ const parseIso = (iso: string) => {
 };
 export const isIsoDate = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s);
 
-/** "Tue 10 Nov 2026" (UTC so the date never shifts with the device time zone). */
+/** "Tue 10 Nov 2026" in English (UTC so the date never shifts with the device time zone). */
 export function longDate(iso: string): string {
   if (!isIsoDate(iso)) return iso;
-  return new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(parseIso(iso));
+  return new Intl.DateTimeFormat(currentTag(), { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(parseIso(iso));
 }
 export function shortDate(iso: string): string {
   if (!isIsoDate(iso)) return iso;
-  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(parseIso(iso));
+  return new Intl.DateTimeFormat(currentTag(), { day: "numeric", month: "short", timeZone: "UTC" }).format(parseIso(iso));
 }
 
 export function todayIso(): string {
@@ -51,13 +52,14 @@ export function daysUntil(iso: string): number {
 
 export function relDays(iso: string): string {
   const n = daysUntil(iso);
-  if (n === 0) return "today";
-  if (n === 1) return "tomorrow";
-  if (n === -1) return "yesterday";
-  return n > 0 ? `in ${n} days` : `${-n} days ago`;
+  const t = tNow("time");
+  if (n === 0) return t("today");
+  if (n === 1) return t("tomorrow");
+  if (n === -1) return t("yesterday");
+  return n > 0 ? t("inDays", { n }) : t("daysAgo", { n: -n });
 }
 
 export const clock = (ts: number) =>
-  new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(new Date(ts));
+  new Intl.DateTimeFormat(currentTag(), { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(new Date(ts));
 
 export const shortHash = (h: string) => (h.length > 16 ? `${h.slice(0, 8)}…${h.slice(-6)}` : h);

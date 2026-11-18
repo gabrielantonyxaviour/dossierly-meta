@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { useT } from "@/lib/i18n/client";
 import { Icon, type IconName } from "../Icon";
 import { Button } from "./primitives";
 
@@ -16,24 +17,26 @@ export function EmptyState({ icon = "sparkle", title, children, action }: { icon
 }
 
 /** Full error state with retry. Keep `message` human: what happened and what to do. */
-export function ErrorState({ title = "That didn’t load", message, onRetry }: { title?: string; message: string; onRetry?: () => void }) {
+export function ErrorState({ title, message, onRetry }: { title?: string; message: string; onRetry?: () => void }) {
+  const t = useT("ui");
   return (
     <div className="ui-state ui-state--error" role="alert">
       <span className="ui-state-icon"><Icon name="alert" size={24} /></span>
-      <h3>{title}</h3>
+      <h3>{title ?? t("errorTitle")}</h3>
       <p>{message}</p>
-      {onRetry && <Button size="sm" icon="refresh" onClick={onRetry}>Try again</Button>}
+      {onRetry && <Button size="sm" icon="refresh" onClick={onRetry}>{t("tryAgain")}</Button>}
     </div>
   );
 }
 
 /** Compact inline error for forms and cards. */
 export function InlineError({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  const t = useT("ui");
   return (
     <div className="ui-inline-error" role="alert">
       <Icon name="alert" size={18} />
       <p>{message}</p>
-      {onRetry && <button type="button" className="ui-btn ui-btn--sm ui-btn--ghost" onClick={onRetry}>Retry</button>}
+      {onRetry && <button type="button" className="ui-btn ui-btn--sm ui-btn--ghost" onClick={onRetry}>{t("retry")}</button>}
     </div>
   );
 }

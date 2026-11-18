@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { call, pollTask, type ApiResult } from "./api";
 import type { AgentTask, Case, Language } from "./types";
+import { tNow } from "@/lib/i18n/current";
 export type AskAnswer = { answer: string; citations: { title: string; url: string; quote: string }[]; notice?: string };
 export const AskAnswerSchema = z.object({ answer: z.string().min(1).max(12000), citations: z.array(z.object({ title: z.string().max(300), url: z.string().url().max(500), quote: z.string().max(600) })).max(6), notice: z.string().max(500).optional() });
 export const askAgent = (question: string, caseContext: Case, language: Language) => call<{ taskId: string }>("/api/agent/ask", { method: "POST", body: JSON.stringify({ question, case: caseContext, language }) });
@@ -12,7 +13,7 @@ export function observeAgentTask(id: string, receive: (task: AgentTask<AskAnswer
   return new Promise((resolve) => {
     let settled = false; let polling = false; let stream: EventSource | null = null;
     const done = (value: ApiResult<AgentTask<AskAnswer>>) => { if (settled) return; settled = true; stream?.close(); signal.removeEventListener("abort", abort); resolve(value); };
-    const abort = () => done({ ok: false, status: 0, code: "aborted", error: "Stopped listening to this request." });
+    const abort = () => done({ ok: false, status: 0, code: "aborted", error: tNow("onboarding")("stoppedListening") });
     const fallback = () => { if (settled || polling) return; polling = true; stream?.close(); stream = null; void pollTask<AskAnswer>(id, receive, signal).then(done); };
     signal.addEventListener("abort", abort, { once: true });
     if (signal.aborted) return abort();

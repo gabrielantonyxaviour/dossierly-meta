@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useId, useRef, type PointerEvent, type ReactNode } from "react";
+import { useT } from "@/lib/i18n/client";
 import { IconButton } from "./primitives";
 
 function useLockAndEscape(open: boolean, onClose: () => void) {
@@ -47,6 +48,7 @@ function useDragDismiss(onClose: () => void) {
  * Closes on scrim tap and Escape; focus moves into the sheet. Use for secondary choices and confirmations.
  */
 export function Sheet({ open, onClose, title, children, footer, wide }: { open: boolean; onClose: () => void; title: ReactNode; children: ReactNode; footer?: ReactNode; wide?: boolean }) {
+  const t = useT("ui");
   const id = useId();
   const { panel, handlers: drag } = useDragDismiss(onClose);
   useLockAndEscape(open, onClose);
@@ -60,7 +62,7 @@ export function Sheet({ open, onClose, title, children, footer, wide }: { open: 
           <span className="ui-sheet-grip" aria-hidden="true" />
           <header className="ui-sheet-head">
             <h2 id={id}>{title}</h2>
-            <IconButton icon="close" label="Close" small onClick={onClose} />
+            <IconButton icon="close" label={t("close")} small onClick={onClose} />
           </header>
         </div>
         <div className="ui-sheet-body">{children}</div>
@@ -78,14 +80,15 @@ export const BottomSheet = Sheet;
  * sticky footer for the primary action. Use for any flow that should hide the app's navigation.
  */
 export function FullScreenFlow({ title, onClose, children, footer, step, dark }: { title?: ReactNode; onClose: () => void; children: ReactNode; footer?: ReactNode; step?: { at: number; of: number }; dark?: boolean }) {
+  const t = useT("ui");
   useLockAndEscape(true, onClose);
   return (
     <div className={`ui-flow${dark ? " ui-flow--dark" : ""}`} role="dialog" aria-modal="true">
       <header className="ui-flow-bar">
-        <IconButton icon="close" label="Close" onClick={onClose} />
+        <IconButton icon="close" label={t("close")} onClick={onClose} />
         <div className="ui-flow-title">{title}</div>
         <span style={{ width: 44 }} />
-        {step && <div className="ui-flow-progress" aria-label={`Step ${step.at} of ${step.of}`}><span style={{ width: `${(step.at / step.of) * 100}%` }} /></div>}
+        {step && <div className="ui-flow-progress" aria-label={t("step", { at: step.at, of: step.of })}><span style={{ width: `${(step.at / step.of) * 100}%` }} /></div>}
       </header>
       <div className="ui-flow-body">{children}</div>
       {footer && <footer className="ui-flow-foot">{footer}</footer>}

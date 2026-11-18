@@ -14,23 +14,27 @@ import "./controls.css";
 
 import { STARTUP } from "./startup-images";
 import { I18nProvider } from "@/lib/i18n/client";
-import { getLocale } from "@/lib/i18n/server";
+import { getLocale, getT } from "@/lib/i18n/server";
 import { LOCALE_TAGS } from "@/lib/i18n/locales";
 
-const text = Inter({ subsets: ["latin", "latin-ext"], variable: "--font-text", display: "swap" });
+const text = Inter({ subsets: ["latin", "latin-ext", "cyrillic"], variable: "--font-text", display: "swap" });
 const mono = JetBrains_Mono({ subsets: ["latin", "latin-ext"], variable: "--font-mono", display: "swap" });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.APP_URL || "https://dossierly.larinova.com"),
-  title: { default: "Dossierly · your AI caseworker for life in Poland", template: "%s · Dossierly" },
-  description:
-    "A personal AI caseworker for newcomers with a temporary residence permit in Poland. It knows your case, explains official letters, counts deadlines the way Polish law does and helps you at the office counter.",
-  openGraph: { type: "website", siteName: "Dossierly", locale: "en_GB", title: "Dossierly — your caseworker in Poland", description: "Letters explained, deadlines counted the way Polish law does, and help at the office counter. Your own private agent for your residence case.", url: "https://dossierly.larinova.com" },
-  twitter: { card: "summary_large_image", title: "Dossierly — your caseworker in Poland", description: "Letters explained, deadlines counted the way Polish law does, and help at the office counter." },
-  applicationName: "Dossierly",
-  appleWebApp: { capable: true, title: "Dossierly", statusBarStyle: "black-translucent", startupImage: STARTUP },
-  formatDetection: { telephone: false },
-};
+const OG_LOCALE: Record<string, string> = { en: "en_GB", hi: "hi_IN", uk: "uk_UA", ta: "ta_IN" };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [t, locale] = await Promise.all([getT("site"), getLocale()]);
+  return {
+    metadataBase: new URL(process.env.APP_URL || "https://dossierly.larinova.com"),
+    title: { default: t("metaTitle"), template: "%s · Dossierly" },
+    description: t("metaDescription"),
+    openGraph: { type: "website", siteName: "Dossierly", locale: OG_LOCALE[locale], title: t("ogTitle"), description: t("ogDescription"), url: "https://dossierly.larinova.com" },
+    twitter: { card: "summary_large_image", title: t("ogTitle"), description: t("twitterDescription") },
+    applicationName: "Dossierly",
+    appleWebApp: { capable: true, title: "Dossierly", statusBarStyle: "black-translucent", startupImage: STARTUP },
+    formatDetection: { telephone: false },
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",

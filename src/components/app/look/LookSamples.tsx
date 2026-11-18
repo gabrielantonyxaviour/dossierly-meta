@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import type { LookKind } from "@/lib/look/types";
 import { Sheet, Skeleton } from "@/components/ui";
+import { useT } from "@/lib/i18n/client";
+import type { T } from "@/lib/i18n/translate";
 
 export interface SamplePick {
   id: string;
@@ -13,10 +15,11 @@ export interface SamplePick {
 
 type Catalogue = { letters?: Array<{ id: string; titleEn: string; png: string; phonePhoto: string | null; kind: LookKind }>; screens?: Array<{ id: string; titleEn: string; png: string; kind: LookKind }> };
 
-const FALLBACK: SamplePick[] = [{ id: "wezwanie-sample", title: "Summons for missing documents", src: "/sample/wezwanie-sample.png", kind: "letter" }];
+const fallback = (t: T): SamplePick[] => [{ id: "wezwanie-sample", title: t("sampleFallback"), src: "/sample/wezwanie-sample.png", kind: "letter" }];
 
 /** Test material for judges and demos, in a bottom sheet: realistic documents for a fictional applicant. */
 export function LookSamples({ open, onPick, onClose }: { open: boolean; onPick(p: SamplePick): void; onClose(): void }) {
+  const t = useT("look");
   const [picks, setPicks] = useState<SamplePick[] | null>(null);
 
   useEffect(() => {
@@ -28,19 +31,19 @@ export function LookSamples({ open, onPick, onClose }: { open: boolean; onPick(p
         if (!live) return;
         const out: SamplePick[] = [];
         for (const l of c?.letters ?? []) {
-          if (l.phonePhoto) out.push({ id: `${l.id}-phone`, title: `${l.titleEn} (phone photo)`, src: l.phonePhoto, kind: l.kind });
+          if (l.phonePhoto) out.push({ id: `${l.id}-phone`, title: t("samplePhone", { title: l.titleEn }), src: l.phonePhoto, kind: l.kind });
           out.push({ id: l.id, title: l.titleEn, src: l.png, kind: l.kind });
         }
         for (const s of c?.screens ?? []) out.push({ id: s.id, title: s.titleEn, src: s.png, kind: s.kind });
-        setPicks(out.length ? out : FALLBACK);
+        setPicks(out.length ? out : fallback(t));
       })
-      .catch(() => live && setPicks(FALLBACK));
+      .catch(() => live && setPicks(fallback(t)));
     return () => { live = false; };
-  }, [open, picks]);
+  }, [open, picks, t]);
 
   return (
-    <Sheet open={open} onClose={onClose} title="Test material" wide>
-      <p className="muted" style={{ marginTop: 0 }}>Realistic test documents for a fictional student, Arjun Raman. Case number, people and addresses are made up. They go through the same live models as your own photos.</p>
+    <Sheet open={open} onClose={onClose} title={t("samplesTitle")} wide>
+      <p className="muted" style={{ marginTop: 0 }}>{t("samplesIntro")}</p>
       <div className="lk-sample-grid">
         {!picks && [0, 1, 2, 3].map((i) => <Skeleton key={i} h={180} />)}
         {picks?.map((p) => (

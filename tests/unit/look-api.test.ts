@@ -108,7 +108,7 @@ describe("POST /api/look", () => {
     state.fail = new ModelError("The model service is busy, try again", "rate_limited", 429);
     const evs = await events(await look(post("/api/look", "u_look_a", lookBody)));
     expect(evs.at(-1)).toEqual({ type: "error", error: "The model service is busy, try again", code: "rate_limited", retryable: true });
-    state.fail = new ModelError("Daily limit reached. Try again after 08:00 MYT.", "over_budget", 429);
+    state.fail = new ModelError("Daily limit reached. Try again tomorrow.", "over_budget", 429);
     expect((await events(await look(post("/api/look", "u_look_a", lookBody)))).at(-1)).toMatchObject({ type: "error", code: "over_budget", retryable: false });
     state.fail = new Error("SQLITE_CONSTRAINT secret internals");
     const last = (await events(await look(post("/api/look", "u_look_a", lookBody)))).at(-1) as Extract<LookEvent, { type: "error" }>;

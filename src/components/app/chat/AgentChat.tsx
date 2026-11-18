@@ -3,6 +3,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AgentOrb, IconButton, IconLink, Markdown, Pill } from "@/components/ui";
 import { Icon } from "@/components/Icon";
+import { useT } from "@/lib/i18n/client";
 import { useCaseData } from "../shell/case-data";
 import { firstName } from "../format";
 import { AttachSheet, findAttachment } from "./AttachSheet";
@@ -11,15 +12,16 @@ import { useAgentChat, type Attachment, type Msg } from "./useAgentChat";
 import "./agent-chat.css";
 
 function Suggestions({ onPick }: { onPick: (q: string, a?: Attachment[]) => void }) {
+  const t = useT("chat");
   const { snapshot, next } = useCaseData();
   const list: { q: string; a?: Attachment[] }[] = [];
   if (next) {
     const nextAttach = next.id && (next.kind === "deadline" || next.kind === "task" || next.kind === "document") ? [{ kind: next.kind, id: next.id, title: next.title }] : undefined;
-    list.push({ q: `What exactly do I need to do for “${next.title}”?`, a: nextAttach });
+    list.push({ q: t("suggestNext", { title: next.title }), a: nextAttach });
   }
   const appt = snapshot?.appointments[0];
-  if (appt) list.push({ q: `What should I bring to my ${appt.title.toLowerCase()}?`, a: [{ kind: "appointment", id: appt.id, title: appt.title }] });
-  list.push({ q: "Can I travel outside Poland while I wait for my decision?" }, { q: "Explain my case status in simple words" });
+  if (appt) list.push({ q: t("suggestAppt", { title: appt.title.toLowerCase() }), a: [{ kind: "appointment", id: appt.id, title: appt.title }] });
+  list.push({ q: t("suggestTravel") }, { q: t("suggestStatus") });
   return (
     <div className="ac-suggest">
       {list.slice(0, 4).map((s) => (
@@ -30,6 +32,7 @@ function Suggestions({ onPick }: { onPick: (q: string, a?: Attachment[]) => void
 }
 
 function Bubble({ m, last, onRetry }: { m: Msg; last: boolean; onRetry: () => void }) {
+  const t = useT("chat");
   if (m.role === "user") {
     return (
       <div className="ac-user">
@@ -42,18 +45,18 @@ function Bubble({ m, last, onRetry }: { m: Msg; last: boolean; onRetry: () => vo
     <div className="ac-bot" aria-live={m.state === "streaming" ? "polite" : undefined} aria-busy={m.state === "streaming"}>
       <AgentOrb size={28} state={m.state === "streaming" ? "live" : "still"} />
       <div className="ac-bot-body">
-        {m.content ? <Markdown text={m.content} /> : m.state === "streaming" ? <p className="ac-thinking"><span /><span /><span /><em>Reading your case…</em></p> : null}
+        {m.content ? <Markdown text={m.content} /> : m.state === "streaming" ? <p className="ac-thinking"><span /><span /><span /><em>{t("reading")}</em></p> : null}
         {m.state === "streaming" && m.content && <span className="ac-caret" aria-hidden="true" />}
         {m.sources?.length ? (
           <div className="ac-sources">
-            <span className="ui-meta">Sources</span>
+            <span className="ui-meta">{t("sources")}</span>
             {m.sources.map((s, i) => s.url ? <a key={i} href={s.url} target="_blank" rel="noreferrer"><Pill icon="external" tone="info">{s.title}</Pill></a> : <Pill key={i} icon="case">{s.title}</Pill>)}
           </div>
         ) : null}
         {(m.state === "error" || m.state === "stopped") && (
           <div className={m.state === "error" ? "ac-err" : "ac-stopped"}>
-            <span>{m.state === "error" ? m.error : "Stopped."}</span>
-            {last && <button type="button" onClick={onRetry}><Icon name="refresh" size={15} />Retry</button>}
+            <span>{m.state === "error" ? m.error : t("stopped")}</span>
+            {last && <button type="button" onClick={onRetry}><Icon name="refresh" size={15} />{t("retry")}</button>}
           </div>
         )}
       </div>
@@ -62,6 +65,7 @@ function Bubble({ m, last, onRetry }: { m: Msg; last: boolean; onRetry: () => vo
 }
 
 export function AgentChat() {
+  const t = useT("chat");
   const { snapshot } = useCaseData();
   const { messages, loaded, busy, send, stop, retry, clear } = useAgentChat();
   const [draft, setDraft] = useState("");
@@ -94,11 +98,11 @@ export function AgentChat() {
   return (
     <div className="ac">
       <header className="ac-bar">
-        <IconLink href="/app" icon="back" label="Back to home" />
-        <div className="ac-bar-title"><AgentOrb size={26} state="still" /><span><b>Dossierly</b><small>Knows your case · Muse Spark</small></span></div>
+        <IconLink href="/app" icon="back" label={t("backHome")} />
+        <div className="ac-bar-title"><AgentOrb size={26} state="still" /><span><b>Dossierly</b><small>{t("barSub")}</small></span></div>
         <div className="ac-bar-actions">
-          {messages.length > 0 && <IconButton icon="plus" label="New chat" onClick={clear} disabled={busy} />}
-          <IconLink href="/app/call" icon="phone" label="Talk by voice" />
+          {messages.length > 0 && <IconButton icon="plus" label={t("newChat")} onClick={clear} disabled={busy} />}
+          <IconLink href="/app/call" icon="phone" label={t("voice")} />
         </div>
       </header>
       <div className="ac-scroll">
@@ -106,8 +110,8 @@ export function AgentChat() {
           {empty && (
             <div className="ac-empty">
               <AgentOrb size={72} />
-              <h1 className="ui-display">How can I help, {firstName(snapshot?.profile.fullName)}?</h1>
-              <p className="ui-body">I know your case: letters, dates, documents and what was said at the counter. I explain and prepare. I never file or log in for you.</p>
+              <h1 className="ui-display">{t("greeting", { name: firstName(snapshot?.profile.fullName) })}</h1>
+              <p className="ui-body">{t("intro")}</p>
               <Suggestions onPick={(q, a) => submit(q, a ?? [])} />
             </div>
           )}

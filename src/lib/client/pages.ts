@@ -1,3 +1,5 @@
+import { tNow } from "@/lib/i18n/current";
+
 /** Turns a photo or PDF into page images (JPEG data URLs) on the device, resized before upload. */
 const MAX_SIDE = 1600;
 const MAX_PAGES = 4;
@@ -42,11 +44,11 @@ async function pdfToDataUrls(file: Blob): Promise<{ pages: string[]; truncated: 
 }
 
 export async function fileToPages(file: File): Promise<{ pages: string[]; truncated: boolean }> {
-  if (file.size > 20 * 1024 * 1024) throw new Error("Choose a file smaller than 20 MB.");
+  if (file.size > 20 * 1024 * 1024) throw new Error(tNow("shell")("fileTooBig"));
   if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
     return pdfToDataUrls(file);
   }
-  if (!file.type.startsWith("image/")) throw new Error("Choose a photo (JPEG, PNG) or a PDF.");
+  if (!file.type.startsWith("image/")) throw new Error(tNow("shell")("fileType"));
   return { pages: [await imageToDataUrl(file)], truncated: false };
 }
 

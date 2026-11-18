@@ -1,19 +1,22 @@
-import { layoutReference, paperStories } from "./paper-content";
+import { useT } from "@/lib/i18n/client";
+import { rich } from "@/lib/i18n/rich";
+import { evidenceCopy, layoutReference, paperStories } from "./paper-content";
 import type { Need } from "./content";
 import type { Demo } from "./journey";
 
 export function SamplePaper({ need, demo, highlight }: { need: Need; demo: Demo; highlight(evidence: Demo["evidence"]): void }) {
+  const t = useT("tour");
   const paper = paperStories[need];
   const officialLayout = need === "letters";
   function evidence(kind: Demo["evidence"]) {
     return <button type="button" id={`source-${need}-${kind}`} className="op-paper-highlight"
       data-highlighted={demo.phase > 0 && demo.evidence === kind} aria-pressed={demo.phase > 0 && demo.evidence === kind}
-      aria-label={`Explain ${paper[kind].label.toLowerCase()}`} onClick={() => highlight(kind)}>{paper[kind].text}</button>;
+      aria-label={t("explainAria", { label: evidenceCopy(need, kind, t).label.toLocaleLowerCase() })} onClick={() => highlight(kind)}>{paper[kind].text}</button>;
   }
-  return <section className="op-document-pane" aria-label="Sample document pane">
-    <div className="op-document-toolbar"><span className="op-badge">Sample · fictional case</span><span>Arjun Mehta · November 2026</span></div>
+  return <section className="op-document-pane" aria-label={t("docPaneAria")}>
+    <div className="op-document-toolbar"><span className="op-badge">{t("badgeFictional")}</span><span>{t("toolbarCase")}</span></div>
     <div className="op-paper-stage">
-      <article className="op-paper" aria-label="Sample source" lang="pl" data-paper-kind={need}>
+      <article className="op-paper" aria-label={t("sourceAria")} lang="pl" data-paper-kind={need}>
         <div className="op-paper-top"><div className="op-paper-institution">
           <strong>{officialLayout ? "MAZOWIECKI URZĄD WOJEWÓDZKI\nW WARSZAWIE" : "TECZKA ARJUNA MEHTY"}</strong>
           <span>{officialLayout ? "Wydział Spraw Cudzoziemców · przykład" : "Materiały robocze · fikcyjny scenariusz"}</span>
@@ -36,6 +39,6 @@ export function SamplePaper({ need, demo, highlight }: { need: Need; demo: Demo;
         <footer>Materiał fikcyjny przygotowany do demonstracji Dossierly. Nie stanowi pisma urzędowego ani porady prawnej.<br />PRZYKŁAD/2026/0142 · Strona 1 z 1</footer>
       </article>
     </div>
-    <p className="op-reference-note">Select a highlighted passage to explore it. {officialLayout && <>Layout informed by a <a href={layoutReference} target="_blank" rel="noreferrer">public Mazowiecki letter</a>; all case details are fictional.</>}</p>
+    <p className="op-reference-note">{t("selectPassage")} {officialLayout && rich(t("layoutNote"), { link: <a href={layoutReference} target="_blank" rel="noreferrer">{t("layoutLink")}</a> })}</p>
   </section>;
 }

@@ -3,29 +3,27 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCase } from "@/lib/client/store";
+import { useT } from "@/lib/i18n/client";
 import { Icon } from "../../Icon";
 import { LedgerPanel } from "./LedgerPanel";
 import { RunsPanel } from "./RunsPanel";
 
 function VaultCard() {
+  const t = useT("privacy");
   return (
     <section className="card stack" aria-labelledby="vault-h" style={{ ["--gap" as string]: "10px" }}>
       <div className="row between">
-        <h2 id="vault-h" className="h-card">Your case on this device</h2>
+        <h2 id="vault-h" className="h-card">{t("vaultTitle")}</h2>
         <span className="chip"><Icon name="lock" size={14} /> AES-256-GCM</span>
       </div>
-      <p className="small" style={{ margin: 0 }}>
-        Your case is encrypted in this browser. For new cases, a non-exportable device key protects the saved data.
-        Anyone using this unlocked browser profile may be able to open it.
-      </p>
-      <p className="small muted" style={{ margin: 0 }}>
-        Email codes let you return to your account. They do not unlock older encrypted cases or recover data removed from this browser.
-      </p>
+      <p className="small" style={{ margin: 0 }}>{t("vaultBody")}</p>
+      <p className="small muted" style={{ margin: 0 }}>{t("vaultCodes")}</p>
     </section>
   );
 }
 
 function DeleteCard() {
+  const t = useT("privacy");
   const { wipe } = useCase();
   const router = useRouter();
   const [armed, setArmed] = useState(false);
@@ -37,44 +35,42 @@ function DeleteCard() {
   };
   return (
     <section className="card stack" aria-labelledby="del-h" style={{ ["--gap" as string]: "10px" }}>
-      <h2 id="del-h" className="h-card">Delete everything</h2>
-      <p className="small muted" style={{ margin: 0 }}>Destroys the encryption key and wipes the case, letters and wrap-ups from this device. This cannot be undone. To also erase the server ledger and your account, email contact@cosmiclan.com.</p>
+      <h2 id="del-h" className="h-card">{t("deleteTitle")}</h2>
+      <p className="small muted" style={{ margin: 0 }}>{t("deleteBody")}</p>
       {armed ? (
         <div className="row">
-          <button className="btn btn-danger" onClick={() => void del()} disabled={busy}>{busy ? "Deleting…" : "Yes, delete my case"}</button>
-          <button className="btn btn-ghost" onClick={() => setArmed(false)}>Keep it</button>
+          <button className="btn btn-danger" onClick={() => void del()} disabled={busy}>{busy ? t("deleting") : t("deleteConfirm")}</button>
+          <button className="btn btn-ghost" onClick={() => setArmed(false)}>{t("keepIt")}</button>
         </div>
       ) : (
-        <button className="btn btn-danger" style={{ alignSelf: "start" }} onClick={() => setArmed(true)}>Delete my case from this device</button>
+        <button className="btn btn-danger" style={{ alignSelf: "start" }} onClick={() => setArmed(true)}>{t("deleteButton")}</button>
       )}
     </section>
   );
 }
 
 export function PrivacyScreen() {
+  const t = useT("privacy");
+  const can = [t("can1"), t("can2"), t("can3"), t("can4")];
+  const cannot = [t("cannot1"), t("cannot2"), t("cannot3")];
   return (
     <div className="page page-wide stack" style={{ ["--gap" as string]: "18px" }}>
       <div>
-        <span className="tab-label">Privacy you can check</span>
-        <h1 className="page-title">What happened to your data</h1>
-        <p className="muted" style={{ margin: 0 }}>Not &quot;fully private&quot;: here is exactly what leaves your phone, where it goes, and what we keep.</p>
+        <span className="tab-label">{t("kicker")}</span>
+        <h1 className="page-title">{t("title")}</h1>
+        <p className="muted" style={{ margin: 0 }}>{t("lead")}</p>
       </div>
       <div className="can-cannot">
         <section className="card">
-          <h2 className="h-card">What we can see</h2>
+          <h2 className="h-card">{t("canTitle")}</h2>
           <ul className="small" style={{ marginTop: 8, display: "grid", gap: 6 }}>
-            <li>The text of a request while it is processed, with your name, case number and addresses replaced by placeholders before any model call.</li>
-            <li>Your private agent sees the masked case as plain text while it works, and keeps a masked copy as its memory.</li>
-            <li>The ledger: which model ran, when, how many bytes, how many IDs were masked.</li>
-            <li>Letter images, only as ciphertext if you save them.</li>
+            {can.map((x) => <li key={x}>{x}</li>)}
           </ul>
         </section>
         <section className="card">
-          <h2 className="h-card">What we cannot see</h2>
+          <h2 className="h-card">{t("cannotTitle")}</h2>
           <ul className="small" style={{ marginTop: 8, display: "grid", gap: 6 }}>
-            <li>Your saved case: it is encrypted on this device and never uploaded as a whole.</li>
-            <li>Audio: Dossierly never receives or stores it.</li>
-            <li>Model training: every call is sent with storage switched off. Check Meta&apos;s current terms for how model inputs are handled.</li>
+            {cannot.map((x) => <li key={x}>{x}</li>)}
           </ul>
         </section>
       </div>
