@@ -39,6 +39,7 @@ function Row({ c, item, onTick, busy }: { c: CaseSnapshot; item: CheckItem; onTi
         <b>{title}</b>
         <span>{item.auto ? t("autoTicked") : t(`check_${item.key}Sub`, vars)}</span>
         {item.group === "fees" && <FeeAccount c={c} item={item} />}
+        {item.group === "fees" && item.id.endsWith("_me") && c.profile.employerPays === "yes" && <span>{t("paysYesSub")}</span>}
       </span>
       <span className="rs-check-end">
         {item.href && !item.done && <ButtonLink href={item.href} size="sm" variant="secondary" icon="camera">{t("checkPhoto")}</ButtonLink>}

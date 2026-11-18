@@ -135,6 +135,11 @@ describe("residence actions", () => {
     apply(s, { action: "household", members: [] });
     expect(s.getProfile().checklistDone).toEqual([]);
     expect(residenceActionSchema.safeParse({ action: "tick", item: "drop table", done: true }).success).toBe(false);
+    // Onboarding states "under 16" directly; it wins over the birth year.
+    apply(s, { action: "household", members: [{ name: "Meera Nair", relation: "child", birthYear: null, under16: true }, { name: "Arun Menon", relation: "spouse", birthYear: null, under16: true }] });
+    expect(s.getProfile().household!.map((m) => m.under16)).toEqual([true, false]);
+    expect(profilePatchSchema.safeParse({ employerPays: "unsure", setupStep: 7 }).success).toBe(true);
+    expect(profilePatchSchema.safeParse({ setupStep: 10 }).success).toBe(false);
   });
 
   it("ticks document items from the case and filing moves to waiting", () => {

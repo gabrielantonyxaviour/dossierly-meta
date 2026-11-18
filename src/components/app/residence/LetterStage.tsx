@@ -44,7 +44,7 @@ function LetterView({ c, doc }: { c: CaseSnapshot; doc: CaseDocument }) {
       {deadline && (
         <div className="rp-deadline">
           <div><span className="ui-meta">{open ? t("lastDay") : t("deadlineClosed")}</span><b className="ui-num">{shortDate(deadline.dueDate)}</b></div>
-          {open && left !== null && <div className="rp-deadline-left"><b className="ui-num">{Math.abs(left)}</b><span>{left < 0 ? t("daysOverdue") : left === 1 ? t("dayLeft") : t("daysLeft")}</span></div>}
+          {open && left !== null && <div className="rp-deadline-left"><b className="ui-num">{Math.abs(left)}</b><span>{left < 0 ? t("daysOverdue") : left === 0 ? t("today") : left === 1 ? t("dayLeft") : t("daysLeft")}</span></div>}
         </div>
       )}
       {kind && <div className={`rp-callout${kind === "personal-appearance" ? " tone-deadline" : ""}`}><b>{t(`kind${KIND_KEY[kind]}`)} · {SUMMONS_RULES[kind].basis}</b><span>{t(`kind${KIND_KEY[kind]}Body`)}</span></div>}

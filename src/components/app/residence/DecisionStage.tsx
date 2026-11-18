@@ -41,7 +41,8 @@ function RecordDecision({ c, onDone }: { c: CaseSnapshot; onDone?: () => void })
       {outcome === "approved" && (
         <div className="ob-field">
           <span className="ob-field-label" id="rs-valid">{t("validUntil")} <em className="rs-optional">{t("optional")}</em></span>
-          <DatePicker value={until} onChange={setUntil} min={today} max="2040-12-31" labelledBy="rs-valid" placeholder={t("chooseDate")} />
+          <DatePicker value={until} onChange={setUntil} min={today} max="2040-12-31" labelledBy="rs-valid" placeholder={t("chooseDate")}
+            yearPicks={[0, 1, 2, 3].map((i) => Number(today.slice(0, 4)) + i)} />
         </div>
       )}
       {err && <p className="rs-err" role="alert">{err}</p>}
@@ -101,7 +102,9 @@ export function DecisionStage({ c }: { c: CaseSnapshot }) {
       </>
     );
   }
-  const appt = nextAppointment(c);
+  // A card-collection visit: after the decision, and not the fingerprint appointment.
+  const next = nextAppointment(c);
+  const appt = next && warsawDate(next.at) >= d.deliveredOn && !/finger|odcisk|biometr/i.test(`${next.title} ${next.purpose}`) ? next : null;
   const cardTicked = (c.profile.checklistDone ?? []).includes("fee_card_me");
   return (
     <>
