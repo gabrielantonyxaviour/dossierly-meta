@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Usage: scripts/put-secrets.sh <prod|onboarding|app|voice|look>
+# Usage: scripts/put-secrets.sh <prod|larinova|onboarding|app|voice|look>
 # Pipes vault values into `wrangler secret put` for the NEW dossierly-meta Workers only. Never echoes values.
 set -euo pipefail
-ENVNAME="${1:?usage: put-secrets.sh <prod|onboarding|app|voice|look>}"
+ENVNAME="${1:?usage: put-secrets.sh <prod|larinova|onboarding|app|voice|look>}"
 case "$ENVNAME" in
   prod) ENVFLAG=(); WORKER=dossierly-meta ;;
+  larinova) ENVFLAG=(--env larinova); WORKER=dossierly-larinova ;;
   onboarding|app|voice|look) ENVFLAG=(--env "$ENVNAME"); WORKER="dossierly-meta-$ENVNAME" ;;
   *) echo "unknown env: $ENVNAME" >&2; exit 2 ;;
 esac

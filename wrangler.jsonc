@@ -131,7 +131,6 @@
   },
   "env": {
     "larinova": {
-      "$schema": "node_modules/wrangler/config-schema.json",
       "main": "worker/index.ts",
       "compatibility_date": "2026-09-01",
       "compatibility_flags": [
@@ -170,14 +169,14 @@
         {
           "binding": "DB",
           "database_name": "dossierly-larinova-db",
-          "database_id": "TO_CREATE",
+          "database_id": "2b9edd80-7b29-4146-ae55-07b7ffb13502",
           "migrations_dir": "migrations"
         }
       ],
       "kv_namespaces": [
         {
           "binding": "CACHE",
-          "id": "TO_CREATE"
+          "id": "ba4bfca42e0443deaf9639f2a0b25823"
         }
       ],
       "r2_buckets": [
