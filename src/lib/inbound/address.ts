@@ -1,7 +1,7 @@
 import { ApiError } from "../server/http";
 import type { Env } from "../server/env";
 
-export type InboundEnv = Env & { INBOUND_MAIL_DOMAIN?: string };
+export type InboundEnv = Env & { INBOUND_MAIL_DOMAIN?: string; INBOUND_POOL?: string };
 export const DEFAULT_DOMAIN = "in.larinova.com";
 /** No 0/o/1/l/i: easy to read aloud or retype. 31^10 is about 8e14 combinations. */
 const ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789";
@@ -27,10 +27,23 @@ const view = (env: InboundEnv, r: Row) => ({
 });
 const select = (env: InboundEnv, accountId: string) => env.DB.prepare("SELECT local_part, created_at, rotated_at, confirm_code, confirm_link, confirm_at FROM inbound_addresses WHERE account_id = ?").bind(accountId).first<Row>();
 
+const pooled = (env: InboundEnv) => env.INBOUND_POOL === "on";
+
+/** Take one unclaimed pre-routed local part, atomically; none left is a clear 503 so the UI can say so. */
+async function claimFromPool(env: InboundEnv, accountId: string, now: number): Promise<string> {
+  const row = await env.DB.prepare(
+    "UPDATE inbound_pool SET claimed_by = ?, claimed_at = ? WHERE local_part = (SELECT local_part FROM inbound_pool WHERE claimed_by IS NULL ORDER BY local_part LIMIT 1) AND claimed_by IS NULL RETURNING local_part",
+  ).bind(accountId, now).first<{ local_part: string }>();
+  if (!row) throw new ApiError(503, "Forwarding addresses are not available right now. Try again later.", "address_pool_empty");
+  return row.local_part;
+}
+
+const nextLocal = (env: InboundEnv, accountId: string, now: number) => (pooled(env) ? claimFromPool(env, accountId, now) : Promise.resolve(generateLocalPart()));
+
 /** Insert a fresh unique local part; the UNIQUE index decides collisions, never a read-then-write. */
 async function insertUnique(env: InboundEnv, accountId: string, now: number): Promise<string> {
   for (let i = 0; i < 5; i++) {
-    const local = generateLocalPart();
+    const local = await nextLocal(env, accountId, now);
     const taken = await env.DB.prepare("SELECT 1 AS x FROM inbound_retired WHERE local_part = ?").bind(local).first();
     if (taken) continue;
     const r = await env.DB.prepare("INSERT OR IGNORE INTO inbound_addresses (account_id, local_part, created_at) VALUES (?, ?, ?)").bind(accountId, local, now).run();
@@ -53,7 +66,7 @@ export async function rotateAddress(env: InboundEnv, accountId: string, now = Da
   const old = await select(env, accountId);
   if (!old) return getOrCreateAddress(env, accountId, now);
   for (let i = 0; i < 5; i++) {
-    const local = generateLocalPart();
+    const local = await nextLocal(env, accountId, now);
     if (await env.DB.prepare("SELECT 1 AS x FROM inbound_retired WHERE local_part = ? UNION SELECT 1 FROM inbound_addresses WHERE local_part = ?").bind(local, local).first()) continue;
     await env.DB.batch([
       env.DB.prepare("INSERT OR IGNORE INTO inbound_retired (local_part, account_id, retired_at) VALUES (?, ?, ?)").bind(old.local_part, accountId, now),

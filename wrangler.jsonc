@@ -264,7 +264,8 @@
         "DODO_FOUNDING_CODE": "FOUNDING100",
         "DODO_PRODUCT_HOUSEHOLD_YEAR": "pdt_0NsCQ25l7GkwZPCkYeKsu",
         "COMPOSIO_AUTH_MODE": "managed",
-        "INBOUND_MAIL_DOMAIN": "in.larinova.com"
+        "INBOUND_MAIL_DOMAIN": "in.larinova.com",
+        "INBOUND_POOL": "on"
       },
       "placement": {
         "mode": "smart"
