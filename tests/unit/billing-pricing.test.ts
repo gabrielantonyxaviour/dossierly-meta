@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { addMonths, FOUNDING_CAP, MIN_CHARGE_GROSZ } from "@/lib/billing/plans";
+import { addMonths, FOUNDING_CAP, foundingDiscountGrosz, MIN_CHARGE_GROSZ } from "@/lib/billing/plans";
 import { computePrice } from "@/lib/billing/pricing";
-import { foundingClaimed } from "@/lib/billing/store";
+import { creditBalance, foundingClaimed } from "@/lib/billing/store";
 import { ApiError } from "@/lib/server/http";
 import { buy, checkout, newUser, pay, stubDodo, testEnv } from "./billing-helpers";
 
@@ -13,7 +13,7 @@ describe("computePrice", () => {
     expect(computePrice({ plan: "household_year", founding: false, referral: false, creditGrosz: 0 }).amountGrosz).toBe(39_900);
     expect(computePrice({ plan: "one_case", founding: true, referral: false, creditGrosz: 0 }).amountGrosz).toBe(9_900);
     expect(computePrice({ plan: "household_year", founding: true, referral: false, creditGrosz: 0 }).baseGrosz).toBe(39_900);
-    expect(computePrice({ plan: "one_case", founding: true, referral: true, creditGrosz: 0 }).amountGrosz).toBe(5_900);
+    expect(computePrice({ plan: "one_case", founding: true, referral: true, creditGrosz: 4_000 })).toMatchObject({ referralDiscountGrosz: 0, creditGrosz: 0, amountGrosz: 9_900 });
     expect(computePrice({ plan: "one_case", founding: false, referral: true, creditGrosz: 4_000 })).toMatchObject({ referralDiscountGrosz: 4_000, creditGrosz: 4_000, amountGrosz: 11_900 });
   });
 
@@ -23,7 +23,7 @@ describe("computePrice", () => {
         const p = computePrice({ plan: "one_case", founding: true, referral, creditGrosz: credit });
         expect(p.amountGrosz).toBeGreaterThanOrEqual(MIN_CHARGE_GROSZ);
         expect(p.creditGrosz).toBeGreaterThanOrEqual(0);
-        expect(p.baseGrosz - p.referralDiscountGrosz - p.creditGrosz).toBe(p.amountGrosz);
+        expect(p.baseGrosz - p.foundingDiscountGrosz - p.referralDiscountGrosz - p.creditGrosz).toBe(p.amountGrosz);
       }
     }
   });
@@ -84,7 +84,32 @@ describe("checkout", () => {
     await expect(checkout(env, c, "household_year", code)).rejects.toMatchObject({ code: "referral_not_eligible" });
   });
 
-  it("sends a flat PLN discount for referral plus credit and fails cleanly when Dodo is down", async () => {
+  it("founding checkout applies FOUNDING100 to the One case product, total 9900 grosz, no runtime discount", async () => {
+    const calls = stubDodo();
+    const env = testEnv();
+    const r = await checkout(env, await newUser(env, "u_f1"), "one_case");
+    expect(r.founding).toBe(true);
+    expect(r.price).toMatchObject({ baseGrosz: 19_900, foundingDiscountGrosz: 10_000, amountGrosz: 9_900 });
+    expect(foundingDiscountGrosz(19_900)).toBe(10_000); // 19900 * 0.5025 = 9999.75, rounded like Dodo
+    expect(calls.some((c) => c.path === "/discounts")).toBe(false);
+    expect(calls.filter((c) => c.path === "/checkouts").at(-1)!.body).toMatchObject({
+      billing_currency: "PLN", product_cart: [{ product_id: "pdt_one", quantity: 1 }], discount_codes: ["FOUNDING100"],
+    });
+    const row = await env.DB.prepare("SELECT amount_grosz, dodo_discount_code FROM purchases WHERE id = ?").bind(r.purchaseId).first();
+    expect(row).toMatchObject({ amount_grosz: 9_900, dodo_discount_code: "FOUNDING100" });
+  });
+
+  it("household never gets FOUNDING100", async () => {
+    const calls = stubDodo();
+    const env = testEnv();
+    const r = await checkout(env, await newUser(env, "u_f2"), "household_year");
+    expect(r.founding).toBe(false);
+    const body = calls.filter((c) => c.path === "/checkouts").at(-1)!.body;
+    expect(body.discount_codes).toBeUndefined();
+    expect(body.product_cart).toEqual([{ product_id: "pdt_house", quantity: 1 }]);
+  });
+
+  it("founding and referral do not stack, yet the referrer is still credited", async () => {
     const calls = stubDodo();
     const env = testEnv();
     const a = await newUser(env, "u_ra");
@@ -92,17 +117,42 @@ describe("checkout", () => {
     const code = (await env.DB.prepare("SELECT code FROM referral_codes WHERE user_id = ?").bind(a).first<{ code: string }>())!.code;
     const b = await newUser(env, "u_rb");
     const r = await checkout(env, b, "one_case", code.toLowerCase());
-    expect(r.price).toMatchObject({ baseGrosz: 9_900, referralDiscountGrosz: 4_000, amountGrosz: 5_900 });
+    expect(r.founding).toBe(true);
+    expect(r.price).toMatchObject({ referralDiscountGrosz: 0, creditGrosz: 0, amountGrosz: 9_900 });
+    expect(calls.filter((c) => c.path === "/checkouts").at(-1)!.body.discount_codes).toEqual(["FOUNDING100"]);
+    expect(await creditBalance(env, a)).toBe(0);
+    await pay(env, r.purchaseId, r.price.amountGrosz);
+    expect(await creditBalance(env, a)).toBe(4_000);
+  });
+
+  it("when founding seats are gone, referral falls back to a runtime single-use flat code", async () => {
+    const calls = stubDodo();
+    const env = testEnv();
+    const a = await newUser(env, "u_rfa");
+    await buy(env, a, "one_case");
+    const code = (await env.DB.prepare("SELECT code FROM referral_codes WHERE user_id = ?").bind(a).first<{ code: string }>())!.code;
+    for (let i = 0; i < FOUNDING_CAP; i++) {
+      await env.DB.prepare("INSERT INTO purchases (id, user_id, plan, base_grosz, amount_grosz, founding, status, reserved_until, created_at) VALUES (?, ?, 'one_case', 19900, 9900, 1, 'succeeded', 0, 0)").bind(`pur_fill_${i}`, `u_fill_${i}`).run();
+    }
+    const b = await newUser(env, "u_rfb");
+    const r = await checkout(env, b, "one_case", code);
+    expect(r.founding).toBe(false);
+    expect(r.price).toMatchObject({ baseGrosz: 19_900, referralDiscountGrosz: 4_000, amountGrosz: 15_900 });
     const disc = calls.find((c) => c.path === "/discounts" && (c.body.metadata as { purchase_id: string }).purchase_id === r.purchaseId)!;
     expect(disc.body).toMatchObject({ type: "flat", amount: 4_000, usage_limit: 1 });
     const session = calls.filter((c) => c.path === "/checkouts").at(-1)!;
-    expect(session.body).toMatchObject({ billing_currency: "PLN", product_cart: [{ product_id: "pdt_found", quantity: 1 }] });
+    expect(session.body).toMatchObject({ billing_currency: "PLN", product_cart: [{ product_id: "pdt_one", quantity: 1 }] });
+    expect(session.body.discount_codes).toEqual([disc.body.code]);
+  });
 
+  it("fails cleanly when Dodo is down and releases the seat", async () => {
+    const env = testEnv();
+    await checkout((stubDodo(), env), await newUser(env, "u_pre"), "one_case");
     vi.unstubAllGlobals();
     stubDodo(true);
     const d = await newUser(env, "u_rd");
     const err = await checkout(env, d, "one_case").catch((e: unknown) => e);
     expect(err).toBeInstanceOf(ApiError);
-    expect(await foundingClaimed(env)).toBe(2); // a and b; the failed attempt released its seat
+    expect(await foundingClaimed(env)).toBe(1); // the failed attempt released its seat
   });
 });

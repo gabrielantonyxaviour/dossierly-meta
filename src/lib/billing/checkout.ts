@@ -1,7 +1,7 @@
 import type { Env } from "@/lib/server/env";
 import { ApiError } from "@/lib/server/http";
 import { randomId } from "@/lib/server/util";
-import { createCheckoutSession, createDiscount, productId } from "./dodo";
+import { createCheckoutSession, createDiscount, foundingCode, productId } from "./dodo";
 import { RESERVATION_MS, FOUNDING_CAP, type PaidPlan } from "./plans";
 import { computePrice, type Price } from "./pricing";
 import { addCredit, creditBalance } from "./store";
@@ -63,7 +63,7 @@ async function spendCredit(env: Env, userId: string, purchaseId: string, grosz: 
 
 export async function createCheckout(env: Env, userId: string, input: { plan: PaidPlan; referralCode?: string; returnPath: string }): Promise<CheckoutResult> {
   const now = Date.now();
-  productId(env, input.plan, false); // fail early when billing is not configured
+  productId(env, input.plan); // fail early when billing is not configured
   const referral = await resolveReferral(env, userId, input.referralCode);
   await supersedePending(env, userId);
   const everFounding = await env.DB.prepare("SELECT 1 AS x FROM purchases WHERE user_id = ? AND founding = 1 AND status IN ('succeeded','refunded') LIMIT 1").bind(userId).first();
@@ -88,10 +88,11 @@ export async function createCheckout(env: Env, userId: string, input: { plan: Pa
   }
 
   try {
+    // One code per checkout: founding uses FOUNDING100, otherwise a runtime single-use code for referral + credit.
     const off = row.price.referralDiscountGrosz + row.price.creditGrosz;
-    const discountCode = off > 0 ? await createDiscount(env, purchaseId, off) : undefined;
+    const discountCode = row.founding ? foundingCode(env) : off > 0 ? await createDiscount(env, purchaseId, off) : undefined;
     const session = await createCheckoutSession(env, {
-      purchaseId, discountCode, productId: productId(env, row.plan, row.founding),
+      purchaseId, discountCode, productId: productId(env, row.plan),
       returnUrl: `${env.APP_URL.replace(/\/$/, "")}${input.returnPath}${input.returnPath.includes("?") ? "&" : "?"}purchase=${purchaseId}`,
     });
     await env.DB.prepare("UPDATE purchases SET dodo_session_id = ?, dodo_discount_code = ? WHERE id = ?").bind(session.sessionId, discountCode ?? null, purchaseId).run();

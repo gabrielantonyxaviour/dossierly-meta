@@ -1,6 +1,8 @@
 import { z } from "zod";
 import type { Env } from "./env";
 import { ApiError } from "./http";
+import { SENDERS } from "./senders";
+import { SUPPORT_EMAIL } from "../support";
 import { emailCodeTemplate } from "./email-code-template";
 
 export type SendCode = (email: string, code: string, challengeId: string) => Promise<void>;
@@ -10,6 +12,7 @@ type EmailBinding = {
   send(message: {
     to: string | EmailAddress;
     from: string | EmailAddress;
+    replyTo?: string;
     subject: string;
     html?: string;
     text?: string;
@@ -17,7 +20,7 @@ type EmailBinding = {
   }): Promise<{ messageId: string }>;
 };
 
-const DEFAULT_FROM = "no-reply@dossierly.cosmiclan.com";
+const DEFAULT_FROM = SENDERS.account;
 
 /** Cloudflare Email Service `send_email` binding (named EMAIL in wrangler.jsonc). */
 function emailBinding(env: Env): EmailBinding | undefined {
@@ -44,6 +47,7 @@ export async function sendEmailCode(env: Env, email: string, code: string, chall
     const result = await binding.send({
       to: email,
       from: { email: sender(env), name: "Dossierly" },
+      replyTo: SUPPORT_EMAIL,
       subject: "Your Dossierly sign-in code",
       headers: { "X-Entity-Ref-ID": `dossierly-signin/${challengeId}` },
       ...emailCodeTemplate(code),

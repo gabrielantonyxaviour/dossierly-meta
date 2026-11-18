@@ -9,7 +9,7 @@ import { ensureUser } from "@/lib/server/session";
 export const testEnv = (): Env =>
   freshLocalEnv({
     DODO_PAYMENTS_API_KEY: "test-key", DODO_WEBHOOK_KEY: "", DODO_ENV: "test_mode", APP_URL: "https://app.test",
-    DODO_PRODUCT_ONE_CASE: "pdt_one", DODO_PRODUCT_ONE_CASE_FOUNDING: "pdt_found", DODO_PRODUCT_HOUSEHOLD_YEAR: "pdt_house",
+    DODO_PRODUCT_ONE_CASE: "pdt_one", DODO_FOUNDING_CODE: "", DODO_PRODUCT_HOUSEHOLD_YEAR: "pdt_house",
   });
 
 export type DodoCall = { path: string; body: Record<string, unknown> };

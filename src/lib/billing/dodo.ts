@@ -1,7 +1,7 @@
 import type { Env } from "@/lib/server/env";
 import { ApiError } from "@/lib/server/http";
 import { fromBase64, hmacSha256, timingSafeEqual } from "@/lib/server/util";
-import { CURRENCY, type PaidPlan } from "./plans";
+import { CURRENCY, FOUNDING_CODE_DEFAULT, type PaidPlan } from "./plans";
 
 const baseUrl = (env: Env) => (env.DODO_ENV === "live_mode" ? "https://live.dodopayments.com" : "https://test.dodopayments.com");
 
@@ -21,12 +21,14 @@ async function dodo<T>(env: Env, path: string, body: unknown): Promise<T> {
   return (await res.json()) as T;
 }
 
-/** Product ids per plan; the founding price is its own PLN 99 product so the card/BLIK/P24 amount is fixed by Dodo. */
-export function productId(env: Env, plan: PaidPlan, founding: boolean): string {
-  const id = plan === "household_year" ? env.DODO_PRODUCT_HOUSEHOLD_YEAR : founding ? env.DODO_PRODUCT_ONE_CASE_FOUNDING : env.DODO_PRODUCT_ONE_CASE;
+/** Product ids per plan (set per environment; the founding price is the FOUNDING100 code on One case, not a product). */
+export function productId(env: Env, plan: PaidPlan): string {
+  const id = plan === "household_year" ? env.DODO_PRODUCT_HOUSEHOLD_YEAR : env.DODO_PRODUCT_ONE_CASE;
   if (!id) throw new ApiError(503, "Payments are not configured", "billing_unconfigured");
   return id;
 }
+
+export const foundingCode = (env: Env): string => env.DODO_FOUNDING_CODE?.trim() || FOUNDING_CODE_DEFAULT;
 
 /**
  * A single-use flat PLN discount worth exactly this checkout's referral discount plus credit.
