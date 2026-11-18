@@ -19,7 +19,7 @@ export default function PrivacyPolicy() {
       <p className="lead muted">Plainly: what we process, where it is kept and how to remove it.</p>
 
       <h2>Controller</h2>
-      <p>Gabriel Antony Xaviour (individual), <a href="mailto:contact@cosmiclan.com">contact@cosmiclan.com</a>. You are using an AI system.</p>
+      <p>Larinova Private Limited, <a href="mailto:contact@cosmiclan.com">contact@cosmiclan.com</a>. You are using an AI system.</p>
 
       <h2>What is stored where</h2>
       <table>
