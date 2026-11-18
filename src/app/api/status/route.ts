@@ -2,7 +2,7 @@ import { ASR_MODEL, asrOnline } from "@/lib/server/asr";
 import { getBudgets } from "@/lib/server/budget";
 import { getEnv } from "@/lib/server/env";
 import { errorResponse } from "@/lib/server/http";
-import { hasModelKey, resolveRole } from "@/lib/model/roles";
+import { describeRole, hasModelKey } from "@/lib/model/roles";
 
 export const dynamic = "force-dynamic";
 
@@ -18,9 +18,9 @@ export async function GET() {
   try {
     const env = getEnv();
     const ready = hasModelKey(env);
-    const models = [...new Map(ROLE_NOTES.map((r) => [resolveRole(r.role, env).model, r])).values()].map((r) => ({
-      id: resolveRole(r.role, env).model,
-      role: ROLE_NOTES.filter((n) => resolveRole(n.role, env).model === resolveRole(r.role, env).model).map((n) => n.note).join(", "),
+    const models = [...new Map(ROLE_NOTES.map((r) => [describeRole(r.role, env).model, r])).values()].map((r) => ({
+      id: describeRole(r.role, env).model,
+      role: ROLE_NOTES.filter((n) => describeRole(n.role, env).model === describeRole(r.role, env).model).map((n) => n.note).join(", "),
       ready,
     }));
     return Response.json({

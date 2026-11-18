@@ -4,7 +4,8 @@
  * (error, missing, empty, tiny or misplaced mask) degrades to a rounded rectangle around the Spark box.
  */
 import { decodeMaskToRaster, parseImageStream, recordsOfKind, type ResponsesEvent } from "@meta-sam/parser";
-import { SAM_USD_PER_IMAGE } from "../config";
+import { SAM_USD_PER_IMAGE, type ContentOrigin } from "../config";
+import { providerAllowed } from "../model/gate";
 import { meterFixed } from "../model/meter";
 import { samSegment, type FetchLike } from "../model/meta";
 import type { Env } from "../server/env";
@@ -96,15 +97,17 @@ export async function outlineItems(
   image: string,
   size: { w: number; h: number },
   items: Array<Pick<LookItem, "id" | "box">>,
-  deps: { fetch?: FetchLike } = {},
+  deps: { fetch?: FetchLike; origin?: ContentOrigin } = {},
 ): Promise<OutlineOutput> {
+  // SAM is a Meta model: a real user's image never goes to it (model/gate.ts), so those items keep the vision model's own boxes.
+  if (!providerAllowed("meta", deps.origin, env)) return { outlines: items.map((it) => outlineFor(it, undefined, size)), ms: 0, source: "fallback" };
   const t0 = Date.now();
   if (!items.length) return { outlines: [], ms: 0, source: "fallback" };
   let masks = new Map<string, SamRecord>();
   try {
     const boxes = items.map((i) => clampBox(i.box, size.w, size.h));
     const out = await meterFixed(env, SAM_USD_PER_IMAGE, async () => ({
-      value: await samSegment({ image, boxes, size }, { env, fetch: deps.fetch, timeoutMs: 30_000 }),
+      value: await samSegment({ image, boxes, size }, { env, fetch: deps.fetch, timeoutMs: 30_000, origin: deps.origin }),
       actualUsd: SAM_USD_PER_IMAGE,
     }));
     masks = await parseSamMasks(out.raw);

@@ -3,9 +3,10 @@ import { MODEL_ASR } from "../config";
 import { asrCostUsd, costUsd } from "../model/cost";
 import { meterClient, meterFixed } from "../model/meter";
 import { createMetaClient, transcribeFile, type FetchLike } from "../model/meta";
-import { hasModelKey, resolveRole } from "../model/roles";
+import { describeRole, resolveRole } from "../model/roles";
 import type { ChatClient } from "../model/types";
 import { ModelError } from "../model/types";
+import { BLOCKED_MESSAGE } from "../model/gate";
 import type { Env } from "./env";
 import { ApiError } from "./http";
 import { recordLedger } from "./ledger";
@@ -25,8 +26,14 @@ export type AsrView = { status: "done"; text: string; ms: number; model: string;
 
 const LANG_NAME: Record<string, string> = { pl: "Polish", en: "English", uk: "Ukrainian", hi: "Hindi", ta: "Tamil" };
 
-/** Speech recognition is available whenever a model key is configured. */
-export const asrOnline = (env: Env): boolean => hasModelKey(env);
+/**
+ * Speech recognition is Meta-only (Voice Transcribe), so it is available when its key is set and the content-origin
+ * gate lets a real user's audio through (META_USER_CONTENT=allow). See model/gate.ts.
+ */
+export const asrOnline = (env: Env): boolean => {
+  const d = describeRole("asr", env);
+  return d.hasKey && !d.blocked;
+};
 
 /** A WAV starts with `RIFF....WAVE`; reject anything else before it leaves the Worker. */
 export function looksLikeWav(b64: string): boolean {
@@ -53,6 +60,7 @@ export async function transcribeAudio(
 ): Promise<AsrView> {
   if (input.audio.length > ASR_MAX_AUDIO) throw new ApiError(413, "That recording is too long. Try a shorter clip.", "too_large");
   if (!looksLikeWav(input.audio)) throw new ApiError(400, "Audio must be a base64 WAV", "invalid_audio");
+  if (!deps.fetch && describeRole("asr", env).blocked) throw new ApiError(403, BLOCKED_MESSAGE, "provider_blocked");
   if (!deps.fetch && !asrOnline(env)) throw new ApiError(503, "Speech recognition is offline right now", "asr_offline");
   const wav = fromB64(input.audio);
   const seconds = wav.length / BYTES_PER_SECOND;
@@ -83,7 +91,7 @@ export async function transcribeAudio(
   } catch (err) {
     if (err instanceof ModelError) {
       if (err.code === "no_key") throw new ApiError(503, "Speech recognition is offline right now", "asr_offline");
-      throw new ApiError(err.status === 429 ? 429 : 502, err.message, err.code);
+      throw new ApiError(err.code === "provider_blocked" ? 403 : err.status === 429 ? 429 : 502, err.message, err.code);
     }
     throw err;
   }

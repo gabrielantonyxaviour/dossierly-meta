@@ -1,5 +1,5 @@
 import { extractJson } from "../model/json";
-import { estimateInputTokens } from "../model/cost";
+import { costUsd, estimateInputTokens } from "../model/cost";
 import type { CaseSnapshot } from "../case/types";
 import { caseText, makeMasker, SYSTEM } from "./prompt";
 import { runTool, TOOL_DEFS } from "./tools";
@@ -64,7 +64,7 @@ export async function runAgent(client: WonderClient, snapshot: CaseSnapshot, met
     await meter.reserve(est);
     try {
       const res = await client.complete({ messages, maxTokens: LIMITS.maxTokens, ...(withTools ? { tools: TOOL_DEFS } : {}), ...(json ? { json: reviewJsonSchema } : {}) });
-      const actual = costOf(res.usage);
+      const actual = client.model?.startsWith("claude-") ? costUsd(client.model, res.usage) : costOf(res.usage);
       usage = addU(usage, res.usage);
       cost += actual;
       await meter.settle(est, actual);
@@ -94,7 +94,7 @@ export async function runAgent(client: WonderClient, snapshot: CaseSnapshot, met
       continue;
     }
     rounds++;
-    messages.push({ role: "assistant", content: res.content, tool_calls: res.toolCalls });
+    messages.push({ role: "assistant", content: res.content, tool_calls: res.toolCalls, ...(res.raw ? { raw: res.raw } : {}) });
     for (const tc of res.toolCalls) {
       toolCalls++;
       messages.push({ role: "tool", tool_call_id: tc.id, content: runTool(tc.function.name, tc.function.arguments, ctx) });

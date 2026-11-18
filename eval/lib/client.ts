@@ -9,6 +9,8 @@ export const PRICES: Record<string, { in: number; cached: number; out: number }>
   "muse-spark-1.2": { in: 1.25, cached: 0.15, out: 4.25 },
   "muse-spark-1.3": { in: 1.25, cached: 0.15, out: 4.25 },
   "muse-wonder-1.0": { in: 4, cached: 4, out: 20 }, // no published cached rate: billed as fresh input (upper bound)
+  "claude-sonnet-5-5": { in: 2, cached: 0.2, out: 10 },
+  "claude-haiku-5-5": { in: 0.1, cached: 0.01, out: 0.5 },
 };
 export const SAM_USD = 2.5 / 1000;
 export const usd = (model: string, u: Usage): number => {
@@ -20,7 +22,7 @@ export const usd = (model: string, u: Usage): number => {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const TRANSIENT = new Set(["model_error", "rate_limited", "provider_unavailable", "model_unavailable"]);
 
-export function recordingClient(env: Record<string, string>, onCall: (c: CallRecord) => void): ChatClient {
+export function recordingClient(env: object, onCall: (c: CallRecord) => void): ChatClient {
   const inner = createMetaClient(env);
   return {
     async chat(req: ChatRequest) {

@@ -1,3 +1,4 @@
+import "./helpers/legacy-meta";
 import { describe, expect, it } from "vitest";
 import { diffLines, runNightlyWatch } from "@/lib/hub/watch";
 import { listChanges } from "@/lib/hub/store";

@@ -130,6 +130,8 @@ export function localEnv(): Env {
     BLOBS: localR2(),
     USER_DO: localDo(),
     MODEL_API_KEY: e.MODEL_API_KEY ?? "",
+    ANTHROPIC_API_KEY: e.ANTHROPIC_API_KEY ?? "",
+    META_USER_CONTENT: e.META_USER_CONTENT ?? "",
     BRIDGE_SECRET: e.BRIDGE_SECRET ?? "local-bridge-secret",
     SESSION_SECRET: e.SESSION_SECRET ?? "local-session-secret-not-for-production",
     RESEND_API_KEY: e.RESEND_API_KEY ?? "",

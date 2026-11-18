@@ -1,3 +1,4 @@
+import "./helpers/legacy-meta";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Usage } from "@/lib/model/types";
 

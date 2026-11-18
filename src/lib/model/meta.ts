@@ -4,20 +4,17 @@
  * own confidence instead. Every role can be re-pointed at another OpenAI-compatible host through env (see roles.ts).
  */
 import { estimateInputTokens } from "./cost";
-import { resolveRole, type EnvLike, type RoleConfig, type Service } from "./roles";
+import { anthropicChat, anthropicChatStream } from "./anthropic";
+import { assertProviderAllowed } from "./gate";
+import { doFetch, sseData, type FetchLike, type MetaOpts } from "./net";
+import { resolveRole, type EnvLike, type RoleConfig } from "./roles";
 import type { ChatClient, ChatMessage, ChatRequest, ChatResult, Usage } from "./types";
 import { ModelError } from "./types";
 import { relayable, relayMode, relayOf, viaRelay } from "./relay";
-import { SAM_USD_PER_IMAGE, type Role } from "../config";
+import { SAM_USD_PER_IMAGE, type ContentOrigin, type Role } from "../config";
 
-export type FetchLike = (url: string, init?: RequestInit) => Promise<Response>;
-export interface MetaOpts {
-  env?: EnvLike;
-  fetch?: FetchLike;
-  timeoutMs?: number;
-}
-
-const doFetch = (o: MetaOpts): FetchLike => o.fetch ?? ((u, i) => fetch(u, i));
+export type { FetchLike, MetaOpts };
+export { visionGround, type GroundBox } from "./ground";
 
 function mapStatus(status: number): ModelError {
   if (status === 429) return new ModelError("The model service is busy, try again", "rate_limited", 429);
@@ -28,6 +25,8 @@ function mapStatus(status: number): ModelError {
 }
 
 async function post(cfg: RoleConfig, path: string, body: BodyInit, o: MetaOpts, headers: Record<string, string> = {}): Promise<Response> {
+  // Last line of defence: every Meta request passes the content-origin gate here, before any network I/O.
+  assertProviderAllowed(cfg.provider, cfg.origin, o.env);
   if (!cfg.apiKey) throw new ModelError("The model service is not configured", "no_key", 503);
   const ctl = new AbortController();
   const timeoutMs = o.timeoutMs ?? 90_000;
@@ -79,7 +78,7 @@ const worstCase = (messages: unknown, maxTokens: number): Usage => ({ tokensIn: 
 
 function chatBody(req: ChatRequest, cfg: RoleConfig, stream: boolean): Record<string, unknown> {
   const body: Record<string, unknown> = {
-    model: req.model || cfg.model,
+    model: req.model && !/^claude-/i.test(req.model) ? req.model : cfg.model,
     messages: req.messages,
     max_tokens: req.maxTokens,
     reasoning_effort: req.reasoningEffort ?? cfg.effort,
@@ -94,9 +93,14 @@ function chatBody(req: ChatRequest, cfg: RoleConfig, stream: boolean): Record<st
   return body;
 }
 
-/** Non-streaming Chat Completions call. */
+/**
+ * Non-streaming chat call for a role. Despite the name this is the provider dispatcher: the role's route (config.ts,
+ * MODEL_<ROLE>_PROVIDER) picks Meta's Chat Completions or Anthropic's Messages API, and the content-origin gate
+ * (gate.ts) runs inside resolveRole before either.
+ */
 export async function metaChat(req: ChatRequest, o: MetaOpts = {}): Promise<ChatResult> {
-  const cfg = resolveRole(req.role ?? "agent", o.env);
+  const cfg = resolveRole(req.role ?? "agent", o.env, req.origin ?? o.origin, req.task);
+  if (cfg.provider === "anthropic") return anthropicChat(req, cfg, o);
   const res = await postJson(cfg, "/chat/completions", chatBody(req, cfg, false), o);
   let json: { choices?: Array<{ message?: { content?: string | null } }>; usage?: RawUsage };
   try {
@@ -112,9 +116,13 @@ export async function metaChat(req: ChatRequest, o: MetaOpts = {}): Promise<Chat
 
 export type StreamChunk = { type: "delta"; text: string } | { type: "usage"; usage: Usage };
 
-/** Streaming Chat Completions: yields content deltas, then one usage chunk. */
+/** Streaming chat for a role (provider dispatch like metaChat): yields content deltas, then one usage chunk. */
 export async function* metaChatStream(req: ChatRequest, o: MetaOpts = {}): AsyncGenerator<StreamChunk> {
-  const cfg = resolveRole(req.role ?? "agent", o.env);
+  const cfg = resolveRole(req.role ?? "agent", o.env, req.origin ?? o.origin, req.task);
+  if (cfg.provider === "anthropic") {
+    yield* anthropicChatStream(req, cfg, o);
+    return;
+  }
   const res = await postJson(cfg, "/chat/completions", chatBody(req, cfg, true), o);
   let usage: Usage | null = null;
   let emitted = "";
@@ -135,29 +143,6 @@ export async function* metaChatStream(req: ChatRequest, o: MetaOpts = {}): Async
   yield { type: "usage", usage: usage ?? { tokensIn: estimateInputTokens(req.messages), tokensOut: Math.ceil(emitted.length / 3), cachedTokens: 0 } };
 }
 
-async function* sseData(res: Response): AsyncGenerator<string> {
-  if (!res.body) return;
-  const reader = res.body.getReader();
-  const dec = new TextDecoder();
-  let buf = "";
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buf += dec.decode(value, { stream: true });
-    let nl: number;
-    while ((nl = buf.indexOf("\n")) !== -1) {
-      const line = buf.slice(0, nl).trim();
-      buf = buf.slice(nl + 1);
-      if (line.startsWith("data:")) {
-        const data = line.slice(5).trim();
-        if (data && data !== "[DONE]") yield data;
-      }
-    }
-  }
-  const tail = buf.trim();
-  if (tail.startsWith("data:") && tail.slice(5).trim() !== "[DONE]") yield tail.slice(5).trim();
-}
-
 /** The ChatClient the features use; role selects base URL and key per call. */
 export function createMetaClient(env?: EnvLike, fetchImpl?: FetchLike): ChatClient {
   return { chat: (req) => metaChat(req, { env, fetch: fetchImpl }) };
@@ -165,71 +150,18 @@ export function createMetaClient(env?: EnvLike, fetchImpl?: FetchLike): ChatClie
 
 /** Structured output through response_format json_schema; the reply is returned parsed. */
 export async function metaJson<T = unknown>(
-  args: { role?: Role; system: string; user: string; schema: Record<string, unknown>; maxTokens?: number },
+  args: { role?: Role; system: string; user: string; schema: Record<string, unknown>; maxTokens?: number; origin?: ContentOrigin },
   o: MetaOpts = {},
 ): Promise<{ data: T; usage: Usage; model: string }> {
-  const cfg = resolveRole(args.role ?? "agent", o.env);
+  const origin = args.origin ?? o.origin;
+  const cfg = resolveRole(args.role ?? "agent", o.env, origin);
   const messages: ChatMessage[] = [{ role: "system", content: args.system }, { role: "user", content: args.user }];
-  const out = await metaChat({ model: cfg.model, role: args.role ?? "agent", messages, maxTokens: args.maxTokens ?? 2000, json: args.schema }, o);
+  const out = await metaChat({ model: cfg.model, role: args.role ?? "agent", origin, messages, maxTokens: args.maxTokens ?? 2000, json: args.schema }, o);
   try {
     return { data: JSON.parse(out.content) as T, usage: out.usage, model: cfg.model };
   } catch {
     throw new ModelError("Model output was not valid JSON", "invalid_output");
   }
-}
-
-/* ---------- vision grounding (Spark) ---------- */
-
-export interface GroundBox { name: string; text: string; x1: number; y1: number; x2: number; y2: number }
-const GROUND_SCHEMA = {
-  type: "object",
-  properties: {
-    objects: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          object_name: { type: "string" }, text: { type: "string" },
-          bbox: { type: "object", properties: { x_min: { type: "integer" }, y_min: { type: "integer" }, x_max: { type: "integer" }, y_max: { type: "integer" } }, required: ["x_min", "y_min", "x_max", "y_max"] },
-        },
-        required: ["object_name", "text", "bbox"],
-      },
-    },
-  },
-  required: ["objects"],
-};
-const GROUND_SYSTEM =
-  "You are an object grounding expert. Return a bounding box for every requested item, in normalized 0-1000 coordinates relative to the image (0,0 top-left). Include the exact text inside each box. If you cannot find an item, omit it.";
-const clamp1000 = (n: number) => Math.max(0, Math.min(1000, Math.round(Number(n) || 0)));
-
-/** Asks Spark to box `targets` on an image. Boxes come back in the 0-1000 grid and as pixels for `size`. */
-export async function visionGround(
-  args: { image: string; targets: string[]; size: { w: number; h: number } },
-  o: MetaOpts = {},
-): Promise<{ boxes: Array<GroundBox & { px: [number, number, number, number] }>; usage: Usage; model: string }> {
-  const cfg = resolveRole("vision", o.env);
-  const messages: ChatMessage[] = [
-    { role: "system", content: GROUND_SYSTEM },
-    { role: "user", content: [{ type: "text", text: `Find: ${args.targets.join("; ")}` }, { type: "image_url", image_url: { url: args.image } }] },
-  ];
-  const out = await metaChat({ model: cfg.model, role: "vision", messages, maxTokens: 4000, reasoningEffort: "low", json: GROUND_SCHEMA }, o);
-  let parsed: { objects?: Array<{ object_name?: string; text?: string; bbox?: Record<string, number> }> };
-  try {
-    parsed = JSON.parse(out.content);
-  } catch {
-    throw new ModelError("Model output was not valid JSON", "invalid_output", 502, out.usage);
-  }
-  const boxes = (parsed.objects ?? []).flatMap((x) => {
-    const b = x.bbox;
-    if (!b) return [];
-    const [x1, y1, x2, y2] = [clamp1000(b.x_min), clamp1000(b.y_min), clamp1000(b.x_max), clamp1000(b.y_max)];
-    const px: [number, number, number, number] = [
-      Math.round((x1 / 1000) * args.size.w), Math.round((y1 / 1000) * args.size.h),
-      Math.round((x2 / 1000) * args.size.w), Math.round((y2 / 1000) * args.size.h),
-    ];
-    return [{ name: x.object_name ?? "", text: x.text ?? "", x1, y1, x2, y2, px }];
-  });
-  return { boxes, usage: out.usage, model: cfg.model };
 }
 
 /* ---------- SAM 3.1 ---------- */
@@ -253,7 +185,7 @@ export async function samSegment(
   args: { image: string; boxes: Array<[number, number, number, number]>; size: { w: number; h: number } },
   o: MetaOpts = {},
 ): Promise<{ boxes: SamBox[]; raw: string; costUsd: number; model: string }> {
-  const cfg = resolveRole("sam", o.env);
+  const cfg = resolveRole("sam", o.env, o.origin);
   const { w, h } = args.size;
   const prompt = `<0f>${args.boxes.map((b, i) => `${i + 1}<|box;x1=${b[0]};y1=${b[1]};x2=${b[2]};y2=${b[3]};w=${w};h=${h}|>`).join(",")}`;
   const res = await postJson(cfg, "/responses", {
@@ -278,7 +210,7 @@ export interface Citation { url: string; title: string; start: number; end: numb
 export interface SearchResult { text: string; citations: Citation[]; searches: number; usage: Usage; model: string }
 
 export async function webSearch(args: { query: string; system?: string; maxTokens?: number }, o: MetaOpts = {}): Promise<SearchResult> {
-  const cfg = resolveRole("search", o.env);
+  const cfg = resolveRole("search", o.env, o.origin);
   const res = await postJson(cfg, "/responses", {
     model: cfg.model,
     max_output_tokens: args.maxTokens ?? 2500,
@@ -319,7 +251,7 @@ export async function transcribeFile(
   args: { wav: Uint8Array; languageBias?: string[] },
   o: MetaOpts = {},
 ): Promise<{ text: string; model: string; raw: unknown }> {
-  const cfg = resolveRole("asr", o.env);
+  const cfg = resolveRole("asr", o.env, o.origin);
   const form = new FormData();
   form.append("request", new Blob([JSON.stringify({ model: cfg.model, mode: "PUSH_TO_TALK", audioEncoding: "WAV", languageBias: args.languageBias ?? [] })], { type: "application/json" }));
   form.append("audio", new Blob([args.wav as unknown as ArrayBuffer], { type: "audio/wav" }), "audio.wav");

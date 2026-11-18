@@ -1,3 +1,4 @@
+import "./helpers/legacy-meta";
 import { describe, expect, it, vi } from "vitest";
 import { metaChat, metaChatStream } from "@/lib/model/meta";
 import { RELAY_TARGET_HEADER, relayable } from "@/lib/model/relay";

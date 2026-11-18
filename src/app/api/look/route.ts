@@ -39,12 +39,14 @@ export async function POST(req: Request) {
           send({ type: "stage", stage: "reading" });
           const t0 = Date.now();
           const snapshot = await caseClient(userId).snapshot();
-          const base = await readLook(env, userId, body, caseContext(snapshot), { fullName: snapshot.profile.fullName });
+          // Only the public sample letters (client flag `sample`) are demo content; everything else is a real user's and may not go to Meta.
+          const origin = body.sample ? "demo" : "user";
+          const base = await readLook(env, userId, body, caseContext(snapshot), { fullName: snapshot.profile.fullName, origin });
           const read: LookRead = { lookId: newLookId(), ...base };
           const record = await saveLook(env, { userId, req: body, read, bytes, mime });
           send({ type: "read", read, ms: Date.now() - t0 });
           send({ type: "stage", stage: "outlining" });
-          const out = await outlineItems(env, userId, body.image, size, read.items);
+          const out = await outlineItems(env, userId, body.image, size, read.items, { origin });
           for (const outline of out.outlines) send({ type: "outline", outline });
           send({ type: "outlines_done", ms: out.ms, count: out.outlines.length });
           await updateLook(env, { ...record, outlines: out.outlines }).catch(() => undefined);

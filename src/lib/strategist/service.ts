@@ -66,17 +66,19 @@ async function run(env: Env, userId: string, deps: ReviewDeps): Promise<ReviewOu
   };
   const started = Date.now();
   let out;
+  const client = deps.client ?? createWonderClient(env);
+  const model = client.model ?? WONDER_MODEL;
   try {
-    out = await runAgent(deps.client ?? createWonderClient(env), snapshot, meter, deps.now?.() ?? new Date());
+    out = await runAgent(client, snapshot, meter, deps.now?.() ?? new Date());
   } catch (e) {
     if (e instanceof ModelError) throw new StrategistError(e.message, e.code === "over_budget" ? "over_budget" : "model_error", e.status);
     throw e;
   }
   const record = deps.record ?? ((r) => recordRun(env, userId, { ...r, ranOn: "cloud" }, "strategist"));
-  await record({ model: WONDER_MODEL, ms: Date.now() - started, ...out.usage, costUsd: Number(out.costUsd.toFixed(6)) }).catch(() => undefined);
+  await record({ model, ms: Date.now() - started, ...out.usage, costUsd: Number(out.costUsd.toFixed(6)) }).catch(() => undefined);
 
   const review = cleanEvidence(out.review, snapshot);
-  const meta = { revision, reviewedAt: (deps.now?.() ?? new Date()).toISOString(), model: WONDER_MODEL, costUsd: out.costUsd, rounds: out.rounds, stop: out.stop, proposals: out.proposals.length };
+  const meta = { revision, reviewedAt: (deps.now?.() ?? new Date()).toISOString(), model, costUsd: out.costUsd, rounds: out.rounds, stop: out.stop, proposals: out.proposals.length };
   try {
     await persist(c, snapshot, review, meta, out.proposals);
   } catch (e) {

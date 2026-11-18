@@ -1,4 +1,8 @@
-import { META_BASE_URL, MODEL_ASR, MODEL_SAM, ROLE_DEFAULTS, type ReasoningEffort, type Role } from "../config";
+import {
+  ANTHROPIC_BASE_URL, META_BASE_URL, MODEL_ASR, MODEL_SAM, ROLE_DEFAULTS, USER_ROLE_DEFAULTS, USER_TASK_MODEL,
+  type ContentOrigin, type ModelTask, type Provider, type ReasoningEffort, type Role, type Route,
+} from "../config";
+import { assertProviderAllowed, normaliseOrigin, providerAllowed } from "./gate";
 
 export type EnvLike = object | undefined;
 export type Service = "sam" | "asr" | "search";
@@ -6,6 +10,9 @@ export type Service = "sam" | "asr" | "search";
 export interface RoleConfig {
   /** Role or service this config was resolved for. */
   name: Role | Service;
+  provider: Provider;
+  /** Origin this config was resolved (and gated) for. */
+  origin: ContentOrigin;
   baseUrl: string;
   model: string;
   /** Empty when no key is configured. */
@@ -22,28 +29,72 @@ function read(env: EnvLike, key: string): string {
   return typeof p === "string" ? p.trim() : "";
 }
 
+/** First non-empty of MODEL_<ROLE>_<scope>_<name>, then MODEL_<ROLE>_<name>. scope is USER or DEMO. */
+function pick(env: EnvLike, up: string, scope: string, name: string): string {
+  return read(env, `MODEL_${up}_${scope}_${name}`) || read(env, `MODEL_${up}_${name}`);
+}
+
+/** claude-* ids run on Anthropic; muse-*, sam-* and anything else on the Meta-compatible API. */
+const providerOfModel = (model: string): Provider => (/^claude-/i.test(model) ? "anthropic" : "meta");
+
+function defaultsFor(role: Role | Service, origin: ContentOrigin): Route {
+  if (role === "sam") return { provider: "meta", model: MODEL_SAM, effort: "minimal" };
+  if (role === "asr") return { provider: "meta", model: MODEL_ASR, effort: "minimal" };
+  if (role === "search") return { provider: "meta", model: ROLE_DEFAULTS.agent.model, effort: "low" };
+  return origin === "user" ? USER_ROLE_DEFAULTS[role] : { provider: "meta", ...ROLE_DEFAULTS[role] };
+}
+
 /**
- * Base URL, model and key for one role. Defaults point at the Meta Model API with MODEL_API_KEY. Set
- * MODEL_<ROLE>_BASE_URL / MODEL_<ROLE>_MODEL / MODEL_<ROLE>_KEY_ENV (the NAME of the env var holding that
- * role's key) / MODEL_<ROLE>_EFFORT to move one role to any OpenAI-compatible host with no code change.
+ * Provider, base URL, model and key for one role, for one content origin. Routing is config only:
+ *   MODEL_<ROLE>_PROVIDER = meta | anthropic      (anything else is ignored; the model id's prefix decides)
+ *   MODEL_<ROLE>_MODEL, _EFFORT, _BASE_URL, _KEY_ENV (the NAME of the env var holding that role's key)
+ * Real-user calls read MODEL_<ROLE>_USER_<X> first and demo/eval calls MODEL_<ROLE>_DEMO_<X>, so the two can be
+ * routed apart. Defaults: user content to Claude, demo/eval to Meta (config.ts). The key defaults to
+ * ANTHROPIC_API_KEY for Anthropic and MODEL_API_KEY for Meta.
+ *
+ * This is also the gate: a Meta route for "user" content (the default when origin is missing) throws
+ * ModelError "provider_blocked" unless META_USER_CONTENT=allow. sam, asr and search are Meta-only services.
  */
-export function resolveRole(role: Role | Service, env?: EnvLike): RoleConfig {
+export function resolveRole(role: Role | Service, env?: EnvLike, origin?: ContentOrigin, task?: ModelTask): RoleConfig {
+  const cfg = peekRole(role, env, origin, task);
+  assertProviderAllowed(cfg.provider, cfg.origin, env);
+  return { ...cfg, apiKey: read(env, cfg.apiKey) };
+}
+
+/** The same resolution without the gate and with the key blanked: for status pages and "is a model configured" checks. Never use it to make a call. */
+export function describeRole(role: Role | Service, env?: EnvLike, origin?: ContentOrigin, task?: ModelTask): RoleConfig & { blocked: boolean; hasKey: boolean } {
+  const cfg = peekRole(role, env, origin, task);
+  return { ...cfg, apiKey: "", blocked: !providerAllowed(cfg.provider, cfg.origin, env), hasKey: !!read(env, cfg.apiKey) };
+}
+
+/** Internal: apiKey carries the NAME of the key variable until resolveRole reads it. */
+function peekRole(role: Role | Service, env: EnvLike, originIn: ContentOrigin | undefined, task: ModelTask | undefined): RoleConfig {
+  const origin = normaliseOrigin(originIn);
   const up = role.toUpperCase();
-  const defaults =
-    role === "sam" ? { model: MODEL_SAM, effort: "minimal" as const }
-    : role === "asr" ? { model: MODEL_ASR, effort: "minimal" as const }
-    : role === "search" ? { model: ROLE_DEFAULTS.agent.model, effort: "low" as const }
-    : ROLE_DEFAULTS[role];
-  const keyEnv = read(env, `MODEL_${up}_KEY_ENV`) || "MODEL_API_KEY";
-  const effort = read(env, `MODEL_${up}_EFFORT`);
+  const scope = origin === "user" ? "USER" : "DEMO";
+  const d = defaultsFor(role, origin);
+  const service = role === "sam" || role === "asr" || role === "search";
+  const modelEnv = pick(env, up, scope, "MODEL");
+  const explicit = pick(env, up, scope, "PROVIDER").toLowerCase();
+  const provider: Provider = service ? "meta"
+    : explicit === "meta" || explicit === "anthropic" ? explicit
+    : modelEnv ? providerOfModel(modelEnv)
+    : d.provider;
+  const taskModel = origin === "user" && !service && provider === "anthropic" ? USER_TASK_MODEL[task as ModelTask] : undefined;
+  // A provider chosen without a model gets that provider's default model for the role.
+  const providerDefault = provider === d.provider ? d.model : provider === "anthropic" ? USER_ROLE_DEFAULTS[role as Role].model : ROLE_DEFAULTS[role as Role].model;
+  const effort = pick(env, up, scope, "EFFORT");
+  const baseUrl = pick(env, up, scope, "BASE_URL") || (provider === "meta" ? read(env, "MODEL_BASE_URL") : "") || (provider === "anthropic" ? ANTHROPIC_BASE_URL : META_BASE_URL);
   return {
     name: role,
-    baseUrl: (read(env, `MODEL_${up}_BASE_URL`) || read(env, "MODEL_BASE_URL") || META_BASE_URL).replace(/\/+$/, ""),
-    model: read(env, `MODEL_${up}_MODEL`) || defaults.model,
-    apiKey: read(env, keyEnv),
-    effort: EFFORTS.has(effort) ? (effort as ReasoningEffort) : defaults.effort,
+    provider,
+    origin,
+    baseUrl: baseUrl.replace(/\/+$/, ""),
+    model: modelEnv || taskModel || providerDefault,
+    apiKey: pick(env, up, scope, "KEY_ENV") || (provider === "anthropic" ? "ANTHROPIC_API_KEY" : "MODEL_API_KEY"),
+    effort: EFFORTS.has(effort) ? (effort as ReasoningEffort) : d.effort,
   };
 }
 
-/** True when any model key is reachable for the default role. */
-export const hasModelKey = (env?: EnvLike): boolean => !!resolveRole("agent", env).apiKey;
+/** True when a model key is reachable for the default role, for real-user calls unless an origin is given. */
+export const hasModelKey = (env?: EnvLike, origin?: ContentOrigin): boolean => describeRole("agent", env, origin).hasKey;
