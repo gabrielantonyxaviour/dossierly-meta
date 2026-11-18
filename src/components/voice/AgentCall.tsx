@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useT } from "@/lib/i18n/client";
 import { useAgentCall } from "@/lib/voice/client/useAgentCall";
 import type { VoiceTurn } from "@/lib/voice/protocol";
 import { AgentOrb, Button, Pill } from "@/components/ui";
@@ -24,7 +25,7 @@ export interface AgentCallProps {
   onClose?: () => void;
 }
 
-const TITLE: Record<AgentCallMode, string> = { welcome: "Your welcome call", agent: "Talk to Dossierly", counter: "Counter", rehearse: "Rehearse" };
+const TITLE_KEY: Record<AgentCallMode, string> = { welcome: "titleWelcome", agent: "titleAgent", counter: "titleCounter", rehearse: "titleRehearse" };
 
 function useClock(on: boolean): string {
   const [s, setS] = useState(0);
@@ -48,6 +49,7 @@ function Line({ t, name }: { t: VoiceTurn; name: string }) {
 
 /** Voice call with the caseworker. In-app ("Talk to Dossierly") and Onboarding's welcome call. */
 export function AgentCall({ mode, script, onEnd, autoStart, immersive, onClose }: AgentCallProps) {
+  const t = useT("voice");
   const call = useAgentCall({ mode, script, onEnd });
   const [typing, setTyping] = useState(false);
   const [draft, setDraft] = useState("");
@@ -70,57 +72,58 @@ export function AgentCall({ mode, script, onEnd, autoStart, immersive, onClose }
 
   const last = call.turns[call.turns.length - 1];
   const state = useMemo(() => {
-    if (call.micWaiting) return "Allow the microphone to start";
-    if (call.status === "connecting") return "Connecting…";
-    if (call.status !== "live") return call.status === "ended" ? "Call ended" : "";
-    if (call.speaking) return "Speaking";
-    if (call.partial) return "Listening…";
-    if (last && last.who === "user") return "Thinking…";
-    return call.muted ? "Muted" : "Listening";
-  }, [call.status, call.speaking, call.partial, call.muted, call.micWaiting, last]);
+    if (call.micWaiting) return t("allowMic");
+    if (call.status === "connecting") return t("connecting");
+    if (call.status !== "live") return call.status === "ended" ? t("callEnded") : "";
+    if (call.speaking) return t("speaking");
+    if (call.partial) return t("listeningNow");
+    if (last && last.who === "user") return t("thinking");
+    return call.muted ? t("muted") : t("listening");
+  }, [t, call.status, call.speaking, call.partial, call.muted, call.micWaiting, last]);
 
-  const name = call.userName?.split(/\s+/)[0] ?? "You";
+  const name = call.userName?.split(/\s+/)[0] ?? t("you");
+  const title = t(TITLE_KEY[mode]);
 
   const idle = call.status === "idle" || ((call.status === "ended" || call.status === "error") && !call.turns.length);
-  const sub = mode === "welcome" ? "Dossierly walks you through what it found in your case." : "Ask anything about your case, out loud. Dossierly knows your letters, deadlines and documents.";
-  const fine = <p className="vc-fine">Your voice goes through our server to Meta&rsquo;s speech model, never straight from your browser. You are talking to an AI.</p>;
+  const sub = mode === "welcome" ? t("subWelcome") : t("subAgent");
+  const fine = <p className="vc-fine">{t("fine")}</p>;
   const startBtn = (
     <Button variant="agent" size="lg" block={immersive} icon="mic" onClick={() => void call.start()}>
-      {call.error ? "Try again" : mode === "welcome" ? "Start the call" : "Call Dossierly"}
+      {call.error ? t("tryAgain") : mode === "welcome" ? t("startCall") : t("callDossierly")}
     </Button>
   );
 
   const typeForm = typing && live && (
     <form className="vc-type" onSubmit={(e) => { e.preventDefault(); if (draft.trim()) { call.sendText(draft.trim()); setDraft(""); } }}>
-      <input className="input" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Type instead of speaking" aria-label="Type a message" enterKeyHint="send" autoFocus />
-      <Button type="submit" variant="primary" disabled={!draft.trim()}>Send</Button>
+      <input className="input" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={t("typePlaceholder")} aria-label={t("typeAria")} enterKeyHint="send" autoFocus />
+      <Button type="submit" variant="primary" disabled={!draft.trim()}>{t("send")}</Button>
     </form>
   );
   const controls = (
     <div className="vc-controls">
       {live ? (
         <>
-          <button className={`vc-round ${call.muted ? "is-on" : ""}`} onClick={() => call.setMuted(!call.muted)} aria-pressed={call.muted} aria-label={call.muted ? "Unmute" : "Mute"}>
-            <Icon name="mic" size={22} /><small>{call.muted ? "Unmute" : "Mute"}</small>
+          <button className={`vc-round ${call.muted ? "is-on" : ""}`} onClick={() => call.setMuted(!call.muted)} aria-pressed={call.muted} aria-label={call.muted ? t("unmute") : t("mute")}>
+            <Icon name="mic" size={22} /><small>{call.muted ? t("unmute") : t("mute")}</small>
           </button>
-          <button className={`vc-round ${typing ? "is-on" : ""}`} onClick={() => setTyping((v) => !v)} aria-pressed={typing} aria-label="Type">
-            <Icon name="keyboard" size={22} /><small>Type</small>
+          <button className={`vc-round ${typing ? "is-on" : ""}`} onClick={() => setTyping((v) => !v)} aria-pressed={typing} aria-label={t("type")}>
+            <Icon name="keyboard" size={22} /><small>{t("type")}</small>
           </button>
-          <button className="vc-round vc-end" onClick={call.stop} aria-label="End call">
-            <Icon name="phone" size={22} /><small>End</small>
+          <button className="vc-round vc-end" onClick={call.stop} aria-label={t("endCall")}>
+            <Icon name="phone" size={22} /><small>{t("end")}</small>
           </button>
         </>
       ) : call.status === "connecting" ? (
-        <Button size="lg" block disabled loading>Connecting…</Button>
+        <Button size="lg" block disabled loading>{t("connecting")}</Button>
       ) : (
-        <Button variant="agent" size="lg" block icon="phone" onClick={() => void call.start()}>Call again</Button>
+        <Button variant="agent" size="lg" block icon="phone" onClick={() => void call.start()}>{t("callAgain")}</Button>
       )}
     </div>
   );
   const body = idle ? (
     <div className="vc-idle">
       <AgentOrb size={immersive ? 112 : 76} icon="phone" />
-      <h2>{TITLE[mode]}</h2>
+      <h2>{title}</h2>
       <p className="vc-sub">{sub}</p>
       {call.error && <p className="vc-error" role="alert">{call.error}</p>}
       {!immersive && startBtn}
@@ -147,26 +150,26 @@ export function AgentCall({ mode, script, onEnd, autoStart, immersive, onClose }
   if (immersive) {
     return (
       <VoiceScreen
-        label={TITLE[mode]}
+        label={title}
         close={onClose ?? "/app"}
-        title={idle ? undefined : <>{TITLE[mode]}<small>{live ? clock : call.status === "ended" ? "Ended" : "Connecting…"}</small></>}
-        action={idle ? undefined : <Pill tone="agent">AI</Pill>}
+        title={idle ? undefined : <>{title}<small>{live ? clock : call.status === "ended" ? t("ended") : t("connecting")}</small></>}
+        action={idle ? undefined : <Pill tone="agent">{t("ai")}</Pill>}
         live={!idle}
         tall={typing && live}
         foot={idle ? startBtn : <>{typeForm}{controls}</>}
       >
-        <section className={`vc vc--immersive is-${call.status}`} aria-label={TITLE[mode]}>{body}</section>
+        <section className={`vc vc--immersive is-${call.status}`} aria-label={title}>{body}</section>
       </VoiceScreen>
     );
   }
 
   return (
-    <section className={`vc vc--card is-${call.status}`} aria-label={TITLE[mode]}>
+    <section className={`vc vc--card is-${call.status}`} aria-label={title}>
       {!idle && (
         <header className="vc-head">
-          <Pill tone={live ? "ok" : "neutral"} dot>{live ? clock : call.status === "ended" ? "Ended" : "Connecting"}</Pill>
-          <b>{TITLE[mode]}</b>
-          <Pill tone="agent">AI</Pill>
+          <Pill tone={live ? "ok" : "neutral"} dot>{live ? clock : call.status === "ended" ? t("ended") : t("connectingShort")}</Pill>
+          <b>{title}</b>
+          <Pill tone="agent">{t("ai")}</Pill>
         </header>
       )}
       {body}

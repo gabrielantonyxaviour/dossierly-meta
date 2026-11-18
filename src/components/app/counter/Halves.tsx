@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { AgentCall } from "@/lib/voice/client/useAgentCall";
-import { LANG_NAME, type CoachNote, type VoiceTurn } from "@/lib/voice/protocol";
-import { Captured } from "@/components/voice/bits";
+import type { CoachNote, VoiceTurn } from "@/lib/voice/protocol";
+import { useT } from "@/lib/i18n/client";
+import { Captured, useLangName } from "@/components/voice/bits";
 import { OfficialDoc, preloadCaseFiles } from "./OfficialDoc";
 
 function useAutoScroll(dep: unknown) {
@@ -52,9 +53,10 @@ export function OfficialHalf({ call }: { call: AgentCall }) {
 }
 
 function Coach({ n }: { n: CoachNote }) {
+  const t = useT("counter");
   return (
     <div className={`ct-coach ${n.toOfficial ? "is-asked" : ""}`}>
-      <small>{n.toOfficial ? "Dossierly asked the official instead" : "What this means for your case"}</small>
+      <small>{n.toOfficial ? t("coachAsked") : t("coachMeans")}</small>
       <p>{n.toUser}</p>
       {n.toOfficial && (
         <p className="ct-asked" lang="pl">
@@ -66,17 +68,18 @@ function Coach({ n }: { n: CoachNote }) {
 }
 
 /** One official turn for the user: what she asked, what Dossierly told her on their behalf, what to do now. */
-function Brief({ t }: { t: VoiceTurn }) {
-  const b = t.brief ?? {};
-  const ask = t.mode === "ask";
+function Brief({ turn }: { turn: VoiceTurn }) {
+  const t = useT("counter");
+  const b = turn.brief ?? {};
+  const ask = turn.mode === "ask";
   if (!b.asked && !b.told && !b.do) {
-    return <div className="ct-brief is-wait"><small>The official</small><p className="ct-wait">…</p></div>;
+    return <div className="ct-brief is-wait"><small>{t("theOfficial")}</small><p className="ct-wait">…</p></div>;
   }
   return (
     <div className={`ct-brief ${ask ? "is-ask" : ""}`}>
-      {b.asked && <div><small>{t.mode === "relay" ? "The official" : "She asked"}</small><p className="ct-asked-q">{b.asked}</p></div>}
-      {b.told && <div><small>I told her</small><p>{b.told}</p></div>}
-      {b.do && <div className={b.asked || b.told ? "ct-do" : "ct-do is-only"}><small>{ask ? "I need you" : "Dossierly, for you"}</small><p>{b.do}</p></div>}
+      {b.asked && <div><small>{turn.mode === "relay" ? t("theOfficial") : t("sheAsked")}</small><p className="ct-asked-q">{b.asked}</p></div>}
+      {b.told && <div><small>{t("iToldHer")}</small><p>{b.told}</p></div>}
+      {b.do && <div className={b.asked || b.told ? "ct-do" : "ct-do is-only"}><small>{ask ? t("iNeedYou") : t("forYouDossierly")}</small><p>{b.do}</p></div>}
     </div>
   );
 }
@@ -85,37 +88,39 @@ type Item = { kind: "turn"; t: VoiceTurn } | { kind: "coach"; n: CoachNote };
 
 /** The user's half: the official's words in their language, coaching, and what was added to the case. */
 export function UserHalf({ call }: { call: AgentCall }) {
+  const t = useT("counter");
+  const langName = useLangName();
   const [showAll, setShowAll] = useState(false);
   const items: Item[] = [];
-  for (const t of call.turns) {
-    items.push({ kind: "turn", t });
-    for (const n of call.coach.filter((c) => c.turnId === t.id)) items.push({ kind: "coach", n });
+  for (const turn of call.turns) {
+    items.push({ kind: "turn", t: turn });
+    for (const n of call.coach.filter((c) => c.turnId === turn.id)) items.push({ kind: "coach", n });
   }
   const shown = showAll ? items : items.slice(-6);
   const ref = useAutoScroll(items.length + (call.turns[call.turns.length - 1]?.translation?.length ?? 0));
-  const lang = LANG_NAME[call.lang] ?? "English";
+  const lang = langName(call.lang || "en");
   return (
-    <section className="ct-half ct-half-user" aria-label={`For you (${lang})`}>
+    <section className="ct-half ct-half-user" aria-label={t("forYouAria", { lang })}>
       <header className="ct-label">
-        <b>For you</b>
+        <b>{t("forYou")}</b>
         <span>{lang}</span>
-        {items.length > 6 && <button className="ct-more" onClick={() => setShowAll((v) => !v)}>{showAll ? "Recent" : "Whole conversation"}</button>}
+        {items.length > 6 && <button className="ct-more" onClick={() => setShowAll((v) => !v)}>{showAll ? t("recent") : t("wholeConversation")}</button>}
       </header>
       <div className="ct-turns" ref={ref}>
-        {!items.length && <p className="ct-empty">Listening. Speak when you are ready, or let the official start.</p>}
+        {!items.length && <p className="ct-empty">{t("emptyUser")}</p>}
         {shown.map((it) =>
           it.kind === "coach" ? (
             <Coach key={`${it.n.turnId}-${it.n.toUser.slice(0, 12)}`} n={it.n} />
           ) : it.t.who === "official" ? (
-            <Brief key={it.t.id} t={it.t} />
+            <Brief key={it.t.id} turn={it.t} />
           ) : (
             <div key={it.t.id} className="ct-yourturn">
-              <p className="ct-you"><span>You said</span>{it.t.text}</p>
+              <p className="ct-you"><span>{t("youSaid")}</span>{it.t.text}</p>
               {it.t.brief?.told && <p className="ct-told">{it.t.brief.told}</p>}
             </div>
           ),
         )}
-        {call.partial && <p className="ct-you is-partial"><span>Hearing</span>{call.partial}</p>}
+        {call.partial && <p className="ct-you is-partial"><span>{t("hearing")}</span>{call.partial}</p>}
       </div>
       <Captured items={call.captured.slice(-2)} />
       {call.error && <p className="vc-error ct-error" role="alert">{call.error}</p>}

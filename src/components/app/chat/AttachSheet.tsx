@@ -3,6 +3,7 @@ import type { CaseSnapshot } from "@/lib/case/types";
 import { Button, Card, CheckCircle, Row, Section, Sheet } from "@/components/ui";
 import type { IconName } from "@/components/Icon";
 import { dayLabel } from "../format";
+import { useT } from "@/lib/i18n/client";
 import type { Attachment } from "./useAgentChat";
 
 export function findAttachment(c: CaseSnapshot, kind: string, id: string): Attachment | null {
@@ -17,6 +18,7 @@ export function findAttachment(c: CaseSnapshot, kind: string, id: string): Attac
 
 /** Pick case items to give the agent full detail on (max 5). */
 export function AttachSheet({ open, onClose, c, selected, onToggle }: { open: boolean; onClose: () => void; c: CaseSnapshot; selected: Attachment[]; onToggle: (a: Attachment) => void }) {
+  const t = useT("chat");
   const on = (id: string) => selected.some((s) => s.id === id);
   const group = (title: string, icon: IconName, items: { a: Attachment; sub: string }[]) =>
     items.length ? (
@@ -24,18 +26,18 @@ export function AttachSheet({ open, onClose, c, selected, onToggle }: { open: bo
         <Card flush>
           {items.map(({ a, sub }) => (
             <Row key={a.id} icon={icon} title={a.title} sub={sub} onClick={() => onToggle(a)}
-              end={<CheckCircle checked={on(a.id)} label={`Attach ${a.title}`} onChange={() => onToggle(a)} />} />
+              end={<CheckCircle checked={on(a.id)} label={t("attachItem", { title: a.title })} onChange={() => onToggle(a)} />} />
           ))}
         </Card>
       </Section>
     ) : null;
   return (
-    <Sheet open={open} onClose={onClose} title="Attach from your case" footer={<Button variant="primary" onClick={onClose}>{selected.length ? `Attach ${selected.length}` : "Done"}</Button>}>
+    <Sheet open={open} onClose={onClose} title={t("attachTitle")} footer={<Button variant="primary" onClick={onClose}>{selected.length ? t("attachN", { n: selected.length }) : t("done")}</Button>}>
       <div style={{ display: "grid", gap: 20 }}>
-        {group("Deadlines", "clock", c.deadlines.filter((d) => d.status === "open").map((d) => ({ a: { kind: "deadline", id: d.id, title: d.title }, sub: `Due ${dayLabel(d.dueDate)}` })))}
-        {group("Documents", "file", c.documents.map((d) => ({ a: { kind: "document", id: d.id, title: d.title }, sub: d.status === "have" ? "In your case" : d.status === "requested" ? "Requested" : "Missing" })))}
-        {group("Appointments", "calendar", c.appointments.map((x) => ({ a: { kind: "appointment", id: x.id, title: x.title }, sub: x.location.name })))}
-        {group("Tasks", "task", c.tasks.filter((t) => t.status === "open").map((t) => ({ a: { kind: "task", id: t.id, title: t.title }, sub: t.detail || "Open task" })))}
+        {group(t("deadlines"), "clock", c.deadlines.filter((d) => d.status === "open").map((d) => ({ a: { kind: "deadline", id: d.id, title: d.title }, sub: t("due", { date: dayLabel(d.dueDate) }) })))}
+        {group(t("documents"), "file", c.documents.map((d) => ({ a: { kind: "document", id: d.id, title: d.title }, sub: d.status === "have" ? t("inCase") : d.status === "requested" ? t("requested") : t("missing") })))}
+        {group(t("appointments"), "calendar", c.appointments.map((x) => ({ a: { kind: "appointment", id: x.id, title: x.title }, sub: x.location.name })))}
+        {group(t("tasks"), "task", c.tasks.filter((x) => x.status === "open").map((x) => ({ a: { kind: "task", id: x.id, title: x.title }, sub: x.detail || t("openTask") })))}
       </div>
     </Sheet>
   );

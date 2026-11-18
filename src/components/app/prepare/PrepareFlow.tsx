@@ -5,6 +5,7 @@ import { api, pollTask, type ApiFailure } from "@/lib/client/api";
 import { todayIso } from "@/lib/client/format";
 import { OFFICES } from "@/lib/client/sample";
 import { useDossier } from "@/lib/client/store";
+import { useT } from "@/lib/i18n/client";
 import type { AgentTask, HubChange, PrepareResult } from "@/lib/client/types";
 import { ErrorNote } from "../../States";
 import { AgentTrace } from "./AgentTrace";
@@ -12,15 +13,15 @@ import { PrepareResultView } from "./PrepareResultView";
 import { DatePicker } from "../../ui/DatePicker";
 import { Select } from "../../ui/Select";
 
+/* The English purpose is what the agent receives; the label follows the interface language. */
 const PURPOSES = [
-  "Hand in missing documents after a wezwanie",
-  "Fingerprints (odciski palców)",
-  "Collect the residence card (odbiór karty)",
-  "Ask about the status of my case",
-];
+  { value: "Hand in missing documents after a wezwanie", key: "purposeWezwanie" },
+  { value: "Fingerprints (odciski palców)", key: "purposeFingerprints" },
+  { value: "Collect the residence card (odbiór karty)", key: "purposeCollect" },
+  { value: "Ask about the status of my case", key: "purposeStatus" },
+] as const;
 
 const OFFICE_OPTIONS = OFFICES.map((o) => ({ value: o, label: o.replace("Wydział Spraw Cudzoziemców MUW - ", "Mazowiecki · "), description: o.replace(" - ", " · ") }));
-const PURPOSE_OPTIONS = PURPOSES.map((p) => ({ value: p, label: p }));
 
 const plusDays = (n: number) => {
   const d = new Date();
@@ -29,9 +30,10 @@ const plusDays = (n: number) => {
 };
 
 export function PrepareFlow() {
+  const t = useT("prepare");
   const d = useDossier();
   const [office, setOffice] = useState(OFFICES.includes(d.case.office) ? d.case.office : OFFICES[0]);
-  const [purpose, setPurpose] = useState(d.letters.length ? PURPOSES[0] : PURPOSES[1]);
+  const [purpose, setPurpose] = useState<string>(d.letters.length ? PURPOSES[0].value : PURPOSES[1].value);
   const [date, setDate] = useState(d.nextAppointment?.date ?? plusDays(4));
   const [task, setTask] = useState<AgentTask<PrepareResult> | null>(null);
   const [started, setStarted] = useState<number | null>(null);
@@ -60,7 +62,7 @@ export function PrepareFlow() {
     const done = await pollTask<PrepareResult>(r.data.taskId, setTask, c.signal);
     setStarted(null);
     if (!done.ok) return setErr(done);
-    if (done.data.status === "failed") return setErr(done.data.error ?? "The agent could not finish this checklist.");
+    if (done.data.status === "failed") return setErr(done.data.error ?? t("failed"));
     d.logRuns("prepare", [done.data.run]);
   };
 
@@ -70,25 +72,25 @@ export function PrepareFlow() {
   return (
     <div className="page page-wide stack" style={{ ["--gap" as string]: "18px" }}>
       <div>
-        <span className="tab-label">Before · prepare</span>
-        <h1 className="page-title">Prepare for an appointment</h1>
-        <p className="muted" style={{ margin: 0 }}>Your private agent reads the official pages for your office, checks them against your case and writes a checklist. Every line cites the paragraph it came from.</p>
+        <span className="tab-label">{t("kicker")}</span>
+        <h1 className="page-title">{t("title")}</h1>
+        <p className="muted" style={{ margin: 0 }}>{t("lead")}</p>
       </div>
 
       <form className="card stack prep-form" onSubmit={(e) => void run(e)} style={{ ["--gap" as string]: "14px" }}>
         <div className="field">
-          <span id="prep-office-label">Office</span>
+          <span id="prep-office-label">{t("office")}</span>
           <Select id="prep-office" labelledBy="prep-office-label" value={office} onChange={setOffice} options={OFFICE_OPTIONS} />
         </div>
         <div className="field">
-          <span id="prep-purpose-label">What is the appointment for?</span>
-          <Select id="prep-purpose" labelledBy="prep-purpose-label" value={purpose} onChange={setPurpose} options={PURPOSE_OPTIONS} />
+          <span id="prep-purpose-label">{t("purposeLabel")}</span>
+          <Select id="prep-purpose" labelledBy="prep-purpose-label" value={purpose} onChange={setPurpose} options={PURPOSES.map((p) => ({ value: p.value, label: t(p.key) }))} />
         </div>
         <div className="field">
-          <span id="prep-date-label">Date</span>
+          <span id="prep-date-label">{t("date")}</span>
           <DatePicker id="prep-date" labelledBy="prep-date-label" value={date} min={todayIso()} onChange={setDate} />
         </div>
-        <button className="btn btn-primary" disabled={busy}>{busy ? "Your agent is working…" : result ? "Prepare again" : "Prepare my checklist"}</button>
+        <button className="btn btn-primary" disabled={busy}>{busy ? t("working") : result ? t("again") : t("cta")}</button>
       </form>
 
       {(busy || task) && <AgentTrace task={task} startedAt={started} />}

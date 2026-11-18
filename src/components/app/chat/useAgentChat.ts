@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { tNow } from "@/lib/i18n/current";
 
 export type Attachment = { kind: "deadline" | "document" | "event" | "task" | "appointment"; id: string; title: string };
 export type Source = { title: string; url: string; kind: "case" | "web" };
@@ -22,12 +23,14 @@ const load = (): Msg[] => {
 };
 const save = (m: Msg[]) => { try { localStorage.setItem(CHAT_KEY, JSON.stringify(m.slice(-60))); } catch { /* storage blocked: chat lives for this tab only */ } };
 
+/** Runs in event handlers only (browser), so tNow follows the reader's interface language. */
 function friendly(status: number, body: { error?: string; code?: string }): string {
-  if (status === 0) return "You seem to be offline. Check your connection and retry.";
-  if (body.code === "over_budget") return "Today’s usage limit is reached. Try again tomorrow.";
-  if (status === 429) return "Lots of requests just now. Wait a few seconds and retry.";
-  if (body.code === "models_disabled" || body.code === "no_key") return "Dossierly’s model is paused right now. Try again shortly.";
-  return body.error || "Something went wrong. Retry.";
+  const t = tNow("chat");
+  if (status === 0) return t("errOffline");
+  if (body.code === "over_budget") return t("errBudget");
+  if (status === 429) return t("errBusy");
+  if (body.code === "models_disabled" || body.code === "no_key") return t("errPaused");
+  return body.error || t("errGeneric");
 }
 
 /** Streaming chat with the case-grounded agent (POST /api/chat, SSE). Persists the thread on this device. */
@@ -84,9 +87,9 @@ export function useAgentChat() {
           else if (ev.type === "done") patch((m) => (m.state === "streaming" ? { state: "done" } : {}));
         }
       }
-      patch((m) => (m.state === "streaming" ? { state: m.content ? "done" : "error", error: m.content ? undefined : "The answer was empty. Retry." } : {}));
+      patch((m) => (m.state === "streaming" ? { state: m.content ? "done" : "error", error: m.content ? undefined : tNow("chat")("errEmpty") } : {}));
     } catch {
-      patch({ state: ctl.signal.aborted ? "stopped" : "error", error: ctl.signal.aborted ? undefined : "The connection dropped mid-answer. Retry." });
+      patch({ state: ctl.signal.aborted ? "stopped" : "error", error: ctl.signal.aborted ? undefined : tNow("chat")("errDropped") });
     } finally {
       if (abort.current === ctl) abort.current = null;
     }

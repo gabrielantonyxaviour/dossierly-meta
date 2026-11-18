@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { Button, ButtonLink, ScreenTitle } from "@/components/ui";
 import { useAgentCall } from "@/lib/voice/client/useAgentCall";
 import { TEST_LINES } from "@/lib/voice/clips";
-import { LANG_NAME } from "@/lib/voice/protocol";
-import { LatencyLine } from "@/components/voice/bits";
+import { useT } from "@/lib/i18n/client";
+import { LatencyLine, useLangName } from "@/components/voice/bits";
 import { VoiceScreen } from "@/components/voice/Screen";
 import { OfficialHalf, UserHalf } from "./Halves";
 import "@/components/voice/voice.css";
@@ -16,6 +16,9 @@ const kitRequested = () => typeof window !== "undefined" && new URLSearchParams(
 
 /** Counter: phone flat on the desk. Top half turned to the official (Polish), bottom half for the user. */
 export function CounterFlow() {
+  const t = useT("counter");
+  const tv = useT("voice");
+  const langName = useLangName();
   const call = useAgentCall({ mode: "counter" });
   const [kit] = useState(kitRequested);
   const [flat, setFlat] = useState(true);
@@ -42,27 +45,27 @@ export function CounterFlow() {
   if (call.status === "idle" || (call.status === "error" && !call.turns.length)) {
     return (
       <VoiceScreen
-        label="At the counter"
+        label={t("atCounter")}
         close="/app/counter"
-        foot={<Button variant="agent" size="lg" icon="mic" block onClick={() => void call.start()}>{call.error ? "Try again" : "Start"}</Button>}
+        foot={<Button variant="agent" size="lg" icon="mic" block onClick={() => void call.start()}>{call.error ? tv("tryAgain") : t("start")}</Button>}
       >
-        <ScreenTitle title="At the counter" sub="Lay the phone flat between you and the official, this end toward you." />
+        <ScreenTitle title={t("atCounter")} sub={t("intro")} />
         <ol className="vs-steps">
-          <li>The top half speaks Polish to the official. The bottom half is yours, in {LANG_NAME[call.lang] ?? "your language"}.</li>
-          <li>When they ask for a document, it opens on their half. Tasks go into your case.</li>
+          <li>{t("step1", { lang: call.lang ? langName(call.lang) : t("yourLanguage") })}</li>
+          <li>{t("step2")}</li>
         </ol>
         {call.error && <p className="vc-error" role="alert">{call.error}</p>}
-        <p className="vs-fine">Audio goes through our server to Meta&rsquo;s speech model and is not stored. Dossierly interprets and guides; it is not a lawyer and files nothing for you.</p>
+        <p className="vs-fine">{t("fine")}</p>
       </VoiceScreen>
     );
   }
 
   const hearing = call.partial !== null;
   const status =
-    call.micWaiting ? "Allow the microphone to start" : call.status === "connecting" ? "Connecting…" : call.status === "ended" ? "Conversation ended" : call.clipBusy ? "Test line playing" : call.speaking ? (call.speaking === "official" ? "Speaking to the official" : "Speaking to you") : hearing ? "Hearing…" : "Listening";
+    call.micWaiting ? tv("allowMic") : call.status === "connecting" ? tv("connecting") : call.status === "ended" ? t("statusEnded") : call.clipBusy ? t("statusClip") : call.speaking ? (call.speaking === "official" ? t("toOfficial") : t("toYou")) : hearing ? t("hearingNow") : tv("listening");
 
   return (
-    <div className={`ct ${flat ? "is-flat" : ""}`} role="application" aria-label="Counter conversation">
+    <div className={`ct ${flat ? "is-flat" : ""}`} role="application" aria-label={t("conversationAria")}>
       <div className="ct-wrap ct-wrap-official">
         <OfficialHalf call={call} />
       </div>
@@ -87,20 +90,20 @@ export function CounterFlow() {
               void call.playClip(clip);
               setClip((i) => (i + 1) % TEST_LINES.length);
             }}
-            title="Plays a synthetic voice into the real speech pipeline"
+            title={t("testHint")}
           >
-            {TEST_LINES[clip].who === "user" ? "Test reply" : "Test official"} {clip + 1}/{TEST_LINES.length}
+            {t(TEST_LINES[clip].who === "user" ? "testReply" : "testOfficial", { n: clip + 1, total: TEST_LINES.length })}
           </Button>
         )}
-        <Button className="ct-flip" variant="secondary" icon="flip" onClick={() => setFlat((f) => !f)} aria-pressed={flat} aria-label={flat ? "Official half is upside down for a flat phone; tap for upright" : "Official half upright; tap to turn it for a flat phone"}>
-          {flat ? "Flat" : "Upright"}
+        <Button className="ct-flip" variant="secondary" icon="flip" onClick={() => setFlat((f) => !f)} aria-pressed={flat} aria-label={flat ? t("flipFlatAria") : t("flipUprightAria")}>
+          {flat ? t("flat") : t("upright")}
         </Button>
         {live ? (
-          <Button variant="danger" onClick={call.stop}>End</Button>
+          <Button variant="danger" onClick={call.stop}>{tv("end")}</Button>
         ) : call.status === "ended" ? (
-          <ButtonLink variant="primary" href="/app/counter">Done</ButtonLink>
+          <ButtonLink variant="primary" href="/app/counter">{t("done")}</ButtonLink>
         ) : (
-          <ButtonLink variant="secondary" href="/app/counter">Cancel</ButtonLink>
+          <ButtonLink variant="secondary" href="/app/counter">{t("cancel")}</ButtonLink>
         )}
       </div>
     </div>

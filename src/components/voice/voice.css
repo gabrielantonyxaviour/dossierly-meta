@@ -56,3 +56,5 @@
 .vc-end { background: var(--deadline); color: var(--bg); }
 .vc-end small { color: var(--bg); }
 .vc-round:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+/* Longer translated labels wrap inside the round call buttons. */
+.vc-round small { max-width: 64px; text-align: center; line-height: 1.15; overflow-wrap: anywhere; }
