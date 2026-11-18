@@ -1,0 +1,16 @@
+/* /admin: whitelist, promo codes, audit log. */
+.ad { display: grid; gap: 24px; align-content: start; }
+.ad-form { display: grid; gap: 14px; padding: 16px; margin-bottom: 12px; }
+.ad-two { display: grid; gap: 14px; }
+@media (min-width: 720px) { .ad-two { grid-template-columns: 1fr 1fr; } }
+.ad-list { overflow: hidden; }
+.ad-empty { margin: 0; padding: 16px; color: var(--ink-3); font-size: var(--t-md); }
+.ad-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.ad-row:last-child { border-bottom: 0; }
+.ad-row--audit { grid-template-columns: 96px minmax(0, 1fr); }
+.ad-main { display: grid; gap: 2px; min-width: 0; }
+.ad-main b { font-weight: 500; overflow-wrap: anywhere; }
+.ad-main span { font-size: var(--t-sm); color: var(--ink-3); overflow-wrap: anywhere; }
+.ad-code { font-family: var(--mono); letter-spacing: 0.04em; }
+.ad-when { font-size: var(--t-xs); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+@media (max-width: 520px) { .ad-row { grid-template-columns: minmax(0, 1fr) auto; } .ad-row .ui-btn { grid-column: 1 / -1; justify-self: start; } }

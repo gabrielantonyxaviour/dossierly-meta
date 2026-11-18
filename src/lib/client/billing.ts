@@ -22,10 +22,10 @@ export type Checkout = { checkoutUrl: string; founding: boolean; price: { baseGr
 
 export const billing = {
   status: () => call<BillingStatus>("/api/billing/status"),
-  checkout: (plan: PaidPlan, referralCode?: string) =>
+  checkout: (plan: PaidPlan, code?: { promoCode?: string; referralCode?: string }) =>
     call<Checkout>("/api/billing/checkout", {
       method: "POST",
-      body: JSON.stringify({ plan, returnPath: "/plan?paid=1", ...(referralCode ? { referralCode } : {}) }),
+      body: JSON.stringify({ plan, returnPath: "/plan?paid=1", ...(code?.promoCode ? { promoCode: code.promoCode } : {}), ...(code?.referralCode ? { referralCode: code.referralCode } : {}) }),
     }),
 };
 

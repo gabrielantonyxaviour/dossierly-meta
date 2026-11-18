@@ -66,10 +66,14 @@ export function PlanScreen() {
   const pay = async () => {
     if (!validCode) return;
     setBusy(true); setPayError(null);
-    const r = await billing.checkout(choice, code.trim() || undefined);
+    const c = code.trim();
+    // One field for both: try it as a promo code, and if no promo has that code, as a friend's referral code.
+    let r = await billing.checkout(choice, c ? { promoCode: c } : undefined);
+    if (!r.ok && c && r.code === "promo_invalid") r = await billing.checkout(choice, { referralCode: c });
     if (r.ok) { window.location.assign(r.data.checkoutUrl); return; }
     setBusy(false);
-    setPayError(r.code === "referral_invalid" ? t("refInvalid") : r.code === "referral_not_eligible" ? t("refNotEligible") : friendlyError(r));
+    const msg: Record<string, string> = { referral_invalid: t("codeInvalid"), referral_not_eligible: t("refNotEligible"), promo_expired: t("promoExpired"), promo_used_up: t("promoUsedUp"), promo_not_for_plan: t("promoNotForPlan") };
+    setPayError((r.code && msg[r.code]) || friendlyError(r));
   };
 
   return (
@@ -115,7 +119,7 @@ export function PlanScreen() {
             })}
           </div>
           <label className="ui-field">
-            <span className="ui-meta">{t("refLabel")}</span>
+            <span className="ui-meta">{t("codeLabel")}</span>
             <input className="ui-input" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder={t("refPlaceholder")} autoCapitalize="characters" autoComplete="off" maxLength={24} aria-invalid={!validCode} />
             <span className="ui-meta">{founding && choice === "one_case" ? t("refNoStack") : t("refHint", { amount: zl(status.referralRewardGrosz) })}</span>
           </label>

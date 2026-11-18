@@ -19,7 +19,7 @@
   "refLabel": "Referral code (optional)",
   "refPlaceholder": "e.g. PRIYA-7K2M",
   "refHint": "A friend's code gives you {amount} off, and them too.",
-  "refNoStack": "The founding price and referral codes do not combine. Your friend still gets their reward.",
+  "refNoStack": "A code replaces the founding price. A friend’s referral code still rewards them.",
   "refFormat": "Codes use 4 to 24 letters, numbers or dashes.",
   "refInvalid": "That referral code does not exist.",
   "refNotEligible": "Referral codes work on your first payment only.",
@@ -31,5 +31,10 @@
   "yourCode": "Your referral code",
   "yourCodeHint": "When someone pays with it, you both get {amount} off.",
   "copy": "Copy",
-  "credit": "Credit for your next payment: {amount}"
+  "credit": "Credit for your next payment: {amount}",
+  "codeLabel": "Promo or referral code (optional)",
+  "codeInvalid": "That code does not exist.",
+  "promoExpired": "That promo code has expired.",
+  "promoUsedUp": "That promo code has been used up.",
+  "promoNotForPlan": "That promo code is for the other plan."
 }

@@ -26,8 +26,10 @@ export function SettingsScreen() {
   const [account, setAccount] = useState<AccountSettings | null>(null);
   const [editing, setEditing] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => {
     fetch("/api/account/settings", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).then(setAccount).catch(() => setAccount(null));
+    fetch("/api/me", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).then((m) => setIsAdmin(m?.isAdmin === true)).catch(() => setIsAdmin(false));
   }, []);
   if (status === "loading") return <div className="sh-page"><div style={{ height: 56 }} /><Skeleton h={40} w="40%" /><Skeleton h={120} r={22} /><Skeleton h={220} r={22} /></div>;
   if (!snapshot) return <div className="sh-page"><ErrorState message={error ?? t("loadFailed")} onRetry={() => void refresh()} /></div>;
@@ -79,6 +81,7 @@ export function SettingsScreen() {
       <Section title={t("app")}>
         <Card flush>
           <Row icon="card" title={t("plan")} href="/plan" chevron />
+          {isAdmin && <Row icon="shield" title="Admin" sub="Whitelist, promo codes, audit" href="/admin" chevron />}
           <Row icon="bell" title={t("notifications")} href="/app/notifications" chevron />
         </Card>
       </Section>
