@@ -1,3 +1,5 @@
+import { isAdminAccount } from "@/lib/admin/auth";
+import { getEnv } from "@/lib/server/env";
 import { errorResponse } from "@/lib/server/http";
 import { mePayload } from "@/lib/server/me";
 import { requireUserState } from "@/lib/server/session";
@@ -6,7 +8,8 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
-    return Response.json(mePayload(await requireUserState(req)), { headers: { "cache-control": "no-store" } });
+    const state = await requireUserState(req);
+    return Response.json({ ...mePayload(state), isAdmin: await isAdminAccount(getEnv(), state.accountId) }, { headers: { "cache-control": "no-store" } });
   } catch (e) {
     return errorResponse(e);
   }

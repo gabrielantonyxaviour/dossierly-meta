@@ -5,19 +5,20 @@ import { CURRENCY, FOUNDING_CODE_DEFAULT, type PaidPlan } from "./plans";
 
 const baseUrl = (env: Env) => (env.DODO_ENV === "live_mode" ? "https://live.dodopayments.com" : "https://test.dodopayments.com");
 
-async function dodo<T>(env: Env, path: string, body: unknown): Promise<T> {
+export async function dodo<T>(env: Env, path: string, body: unknown, method: "POST" | "DELETE" = "POST"): Promise<T> {
   if (!env.DODO_PAYMENTS_API_KEY) throw new ApiError(503, "Payments are not configured", "billing_unconfigured");
   let res: Response;
   try {
     res = await fetch(`${baseUrl(env)}${path}`, {
-      method: "POST",
+      method,
       headers: { authorization: `Bearer ${env.DODO_PAYMENTS_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify(body),
+      body: method === "DELETE" ? undefined : JSON.stringify(body),
     });
   } catch {
     throw new ApiError(502, "The payment provider is unreachable. Try again shortly.", "billing_unavailable");
   }
   if (!res.ok) throw new ApiError(502, "The payment provider rejected the request. Try again shortly.", "billing_unavailable");
+  if (method === "DELETE") return {} as T;
   return (await res.json()) as T;
 }
 
