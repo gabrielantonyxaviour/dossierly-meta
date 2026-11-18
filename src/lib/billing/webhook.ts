@@ -2,6 +2,7 @@ import type { Env } from "@/lib/server/env";
 import { z } from "zod";
 import { randomId } from "@/lib/server/util";
 import { CURRENCY, PLANS, REFERRAL_GROSZ, addMonths, type PaidPlan } from "./plans";
+import { recordPromoUse } from "@/lib/admin/promos";
 import { addCredit, ensureReferralCode } from "./store";
 
 const EventSchema = z.object({
@@ -68,6 +69,11 @@ async function onPaymentSucceeded(env: Env, d: DodoEvent["data"], now: number): 
   if (!moved.meta?.changes && p.status !== "succeeded") return "ignored";
   await grantEntitlement(env, p, now);
   await ensureReferralCode(env, p.user_id);
+  if (moved.meta?.changes) {
+    await recordPromoUse(env, p.id, now);
+    // A whitelisted discount used by this purchase stays spent even if its reservation had lapsed.
+    await env.DB.prepare("UPDATE account_discounts SET applied_purchase_id = ? WHERE id = (SELECT account_discount_id FROM purchases WHERE id = ?)").bind(p.id, p.id).run();
+  }
   // A purchase that expired and got its credit back but was paid anyway must pay that credit again.
   if (wasExpired && p.credit_grosz > 0) await addCredit(env, p.user_id, -p.credit_grosz, "clawback", p.id);
   const ref = await env.DB.prepare("SELECT referrer_id FROM referral_events WHERE purchase_id = ? AND status = 'pending'").bind(p.id).first<{ referrer_id: string }>();

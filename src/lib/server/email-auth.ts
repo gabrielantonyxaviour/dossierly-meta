@@ -3,6 +3,7 @@ import type { Env } from "./env";
 import { ApiError } from "./http";
 import { accountFromCookie, sessionCookie } from "./session";
 import { emailAccount } from "./email-accounts";
+import { applyWhitelist } from "@/lib/admin/whitelist";
 import { requireEmailDelivery, sendEmailCode, type SendCode } from "./email-delivery";
 import { rateLimit } from "./ratelimit";
 import { bytesToHex, hmacSha256, randomId, sha256Hex, timingSafeEqual } from "./util";
@@ -87,5 +88,7 @@ export async function verifyEmailCode(env: Env, req: Request, input: unknown, no
   const current = row.attach_user_id ? await accountFromCookie(req.headers.get("cookie"), env) : null;
   const attachId = current?.accountId === row.attach_user_id ? row.attach_user_id : null;
   const userId = await emailAccount(env, row.email, attachId, now);
+  // Sign-up and sign-in alike: a whitelist entry applies once. A failure here must never block the sign-in.
+  await applyWhitelist(env, userId, row.email, now).catch(() => false);
   return { userId, cookie: await sessionCookie(userId, env), clearChallenge: challengeCookie(env, "", 0) };
 }
