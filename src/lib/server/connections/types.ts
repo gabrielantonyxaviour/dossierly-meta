@@ -17,7 +17,7 @@ export type Category = z.infer<typeof categorySchema>;
 export type Provider = z.infer<typeof providerSchema>;
 export const toolkit = (p: Provider) => p === "microsoftcalendar" ? "outlook" : p;
 export const validPair = (c: Category, p: Provider) => c === "mail" ? ["gmail", "outlook"].includes(p) : ["googlecalendar", "microsoftcalendar"].includes(p);
-export const returnPathSchema = z.enum(["/onboarding", "/app", "/app/letters", "/app/prepare", "/app/meet"]);
+export const returnPathSchema = z.enum(["/onboarding", "/app", "/app/letters", "/app/prepare", "/app/meet", "/app/connections"]);
 export const connectSchema = z.object({ category: categorySchema, provider: providerSchema, returnPath: returnPathSchema.default("/onboarding") }).strict()
   .refine(x => validPair(x.category, x.provider));
 export const disconnectSchema = z.object({ category: categorySchema }).strict();

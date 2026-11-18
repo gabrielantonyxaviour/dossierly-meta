@@ -8,7 +8,7 @@ export type MailImport = { kind: "message"; messageId: string; subject: string; 
 const post = <T>(path: string, body: unknown) => call<T>(`/api/connections/${path}`, { method: "POST", body: JSON.stringify(body) });
 export const connectionsApi = {
   get: () => call<Connections>("/api/connections"),
-  connect: (category: Category, provider: Provider, returnPath: "/onboarding" | "/app") => post<{ redirectUrl: string }>("connect", { category, provider, returnPath }),
+  connect: (category: Category, provider: Provider, returnPath: "/onboarding" | "/app" | "/app/connections") => post<{ redirectUrl: string }>("connect", { category, provider, returnPath }),
   disconnect: (category: Category) => post<{ ok: true; providerRevocationRequired?: boolean }>("disconnect", { category }),
   mail: (q: string, cursor?: string) => call<{ messages: MailMessage[]; nextCursor: string | null; partial: boolean }>(`/api/connections/mail?${new URLSearchParams({ q, ...(cursor ? { cursor } : {}) })}`),
   importMail: (messageId: string, attachmentId?: string) => post<MailImport>("mail/import", { messageId, ...(attachmentId ? { attachmentId } : {}) }),

@@ -1,0 +1,18 @@
+/* /app/connections: mail and calendar providers, the forwarding address. */
+.cn { display: grid; gap: 20px; align-content: start; }
+.cn-card { overflow: hidden; }
+.cn-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.cn-row:last-child { border-bottom: 0; }
+.cn-logo { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--surface-2); }
+.cn-logo svg { width: 22px; height: 22px; }
+.cn-main { display: grid; gap: 2px; min-width: 0; }
+.cn-main b { font-weight: 500; font-size: 0.9375rem; }
+.cn-main span { font-size: var(--t-sm); color: var(--ink-3); overflow-wrap: anywhere; }
+.cn-end { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.cn-addr { display: grid; gap: 12px; padding: 16px; }
+.cn-addr p { margin: 0; }
+.cn-addr-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.cn-addr-row code { font-family: var(--mono); font-size: 0.9375rem; overflow-wrap: anywhere; }
+.cn-confirm { display: grid; gap: 4px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--user-soft); box-shadow: 0 0 0 1px var(--user-line); font-size: var(--t-md); color: var(--ink-2); }
+.cn-confirm b { color: var(--user); }
+.cn-steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: var(--t-md); color: var(--ink-2); line-height: 1.45; }
