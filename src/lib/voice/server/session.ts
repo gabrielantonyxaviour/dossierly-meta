@@ -18,7 +18,6 @@ import { modeHandler, type ModeHandler } from "./modes";
 import { ASR_RECONNECTING, ASR_USER_ERROR, logAsrFailure } from "./user-errors";
 
 export type VoiceEnv = Record<string, unknown> & { CASE_DO?: CaseNamespace; ELEVENLABS_API_KEY?: string; MODEL_API_KEY?: string; ELEVENLABS_DAILY_CHAR_CAP?: string };
-
 export type Via = NonNullable<VoiceTurn["via"]>;
 
 const side = (u: Utterance) => u.as ?? (looksPolish(u.text) ? "official" : "user");

@@ -16,7 +16,7 @@
   "cta": "Скласти мій список",
   "sampleAgent": "спільний демонстраційний агент",
   "privateAgent": "ваш приватний агент",
-  "cloudFallback": "хмарний резерв · Muse Spark",
+  "cloudFallback": "резервний хмарний режим",
   "waitingFor": "очікуємо: {agent}",
   "activityAria": "Дії агента",
   "traceLabel": "Кроки агента",

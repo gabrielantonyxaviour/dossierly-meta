@@ -16,7 +16,7 @@
   "cta": "मेरी चेकलिस्ट तैयार करें",
   "sampleAgent": "साझा नमूना एजेंट",
   "privateAgent": "आपका निजी एजेंट",
-  "cloudFallback": "क्लाउड बैकअप · Muse Spark",
+  "cloudFallback": "क्लाउड बैकअप",
   "waitingFor": "प्रतीक्षा: {agent}",
   "activityAria": "एजेंट की गतिविधि",
   "traceLabel": "एजेंट के कदम",

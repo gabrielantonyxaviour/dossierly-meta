@@ -193,9 +193,9 @@
   "pvFineLink": "the limits page",
   "boTitle": "And it's all one system",
   "boBody": "Claude by Anthropic reads your letters and plans with you, inside one private agent per person running on Cloudflare.",
-  "boEvery": "Every model",
-  "boSpark": "Your agent: answers, reads letters, drafts replies, guards every turn",
-  "boSam": "Outlines what it reads in your photos",
+  "boEvery": "Your agent",
+  "boSpark": "Answers, reads letters and photos, drafts replies",
+  "boSam": "Interprets at the counter and guards every turn",
   "boVoice": "Turns your speech and the official’s into text",
   "boWonder": "Reviews your whole case every night",
   "boHosting": "Hosting and your case file",
@@ -258,5 +258,7 @@
   "faq6q": "What happens to my personal data?",
   "faq6a": "Your case lives in a private case file on Cloudflare, one per account, readable only when you are signed in. It is never sold, and you can have it deleted at any time. Identifiers are masked before any model call, and every model call is listed in your privacy ledger.",
   "faq7q": "What does it cost?",
-  "faq7a": "Starting is free: your case path, the deadline calculator and 3 letters explained. One residence case is 199 zł once (18 months, nothing renews), or 399 zł a year for a household of up to four. An agency charges about 1,700 zł for the same case. See the pricing page."
+  "faq7a": "Starting is free: your case path, the deadline calculator and 3 letters explained. One residence case is 199 zł once (18 months, nothing renews), or 399 zł a year for a household of up to four. An agency charges about 1,700 zł for the same case. See the pricing page.",
+  "boSpeak": "Speaks the replies in a calm, human voice",
+  "boVoiceRole": "Speech"
 }

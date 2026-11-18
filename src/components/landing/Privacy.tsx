@@ -7,7 +7,7 @@ import { rich } from "@/lib/i18n/rich";
 export async function Privacy() {
   const t = await getT("landing");
   const ledger = [
-    { t: `Muse Spark 1.3 · ${t("pvLedgerReading")}`, s: t("pvLedgerMasked", { time: "7:13 PM" }) },
+    { t: `Claude Sonnet 5.5 · ${t("pvLedgerReading")}`, s: t("pvLedgerMasked", { time: "7:13 PM" }) },
     { t: "migrant.wsc.mazowieckie.pl", s: t("pvLedgerAllowed", { time: "7:12 PM" }) },
     { t: t("pvLedgerUnknown"), s: t("pvLedgerDenied", { time: "7:12 PM" }) },
   ];

@@ -16,7 +16,7 @@
   "cta": "என் சரிபார்ப்புப் பட்டியலைத் தயாரி",
   "sampleAgent": "பகிரப்பட்ட மாதிரி முகவர்",
   "privateAgent": "உங்கள் தனிப்பட்ட முகவர்",
-  "cloudFallback": "கிளவுட் மாற்று வழி · Muse Spark",
+  "cloudFallback": "மேகக் காப்பு வழி",
   "waitingFor": "காத்திருக்கிறது: {agent}",
   "activityAria": "முகவர் செயல்பாடு",
   "traceLabel": "முகவர் படிகள்",

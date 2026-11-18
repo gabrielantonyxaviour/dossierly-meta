@@ -58,7 +58,7 @@ export function HeroMock({ t }: { t: T }) {
         <b className="lp-app-name">{t("mockAgent")}</b>
         <span className="lp-app-status"><span className="lp-dot-ok" aria-hidden="true" />{t("mockPrivate")}</span>
         <div className="lp-app-chips">
-          <span>Muse Spark 1.3</span>
+          <span>Claude Sonnet 5.5</span>
           <span>{t("mockMasked")}</span>
         </div>
         <p className="lp-app-today">{t("mockToday")}</p>

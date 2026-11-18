@@ -83,7 +83,7 @@ export function VisitPlanFlow() {
             )}
             {busy && (
               <ol className="lk-progress" aria-live="polite">
-                <li className={`lk-prog is-${stage === "searching" ? "run" : "ok"}`}><span className="lk-prog-dot">{stage !== "searching" && <Icon name="check" size={13} />}</span><span className="grow">{t("searching")}</span><span className="lk-model">Muse Spark · web{stage === "searching" ? ` · ${elapsed} s` : ""}</span></li>
+                <li className={`lk-prog is-${stage === "searching" ? "run" : "ok"}`}><span className="lk-prog-dot">{stage !== "searching" && <Icon name="check" size={13} />}</span><span className="grow">{t("searching")}</span><span className="lk-model">Claude · web{stage === "searching" ? ` · ${elapsed} s` : ""}</span></li>
                 <li className={`lk-prog is-${stage === "comparing" ? "run" : "wait"}`}><span className="lk-prog-dot" /><span className="grow">{t("comparing")}</span><span className="lk-model">{stage === "comparing" ? `${elapsed} s` : ""}</span></li>
               </ol>
             )}

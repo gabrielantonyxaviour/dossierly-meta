@@ -16,7 +16,7 @@
   "cta": "Prepare my checklist",
   "sampleAgent": "the shared sample agent",
   "privateAgent": "your private agent",
-  "cloudFallback": "the cloud fallback · Muse Spark",
+  "cloudFallback": "the cloud fallback",
   "waitingFor": "waiting for {agent}",
   "activityAria": "Agent activity",
   "traceLabel": "Agent trace",

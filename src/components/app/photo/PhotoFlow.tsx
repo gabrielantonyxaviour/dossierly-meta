@@ -116,7 +116,7 @@ export function PhotoFlow() {
           <div className="lk-visual"><PhotoStage src={img.dataUrl} width={img.width} height={img.height} busy={busy} result={result} /></div>
           <div className="lk-panel stack" style={{ ["--gap" as string]: "16px" }}>
             <ol className="lk-progress" aria-live="polite">
-              <li className={`lk-prog is-${busy ? "run" : "ok"}`}><span className="lk-prog-dot">{!busy && <Icon name="check" size={13} />}</span><span className="grow">{t("progress")}</span><span className="lk-model">SAM 3.1 + Muse Spark{result ? ` · ${(Math.max(result.timings.samMs, result.timings.sparkMs) / 1000).toFixed(1)} s` : ""}</span></li>
+              <li className={`lk-prog is-${busy ? "run" : "ok"}`}><span className="lk-prog-dot">{!busy && <Icon name="check" size={13} />}</span><span className="grow">{t("progress")}</span><span className="lk-model">SAM 3.1 + Claude{result ? ` · ${(Math.max(result.timings.samMs, result.timings.sparkMs) / 1000).toFixed(1)} s` : ""}</span></li>
             </ol>
             {busy && <div className="skeleton" style={{ height: 120 }} />}
             {result && (
