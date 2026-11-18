@@ -6,7 +6,7 @@ import { buildFindings, findingSchema } from "../../src/lib/onboarding/findings"
 import { demoCallsAllowed, normalisePhone } from "../../src/lib/onboarding/phone";
 import { warsawIso } from "../../src/lib/onboarding/time";
 
-const msg = { id: "18f2a9c4b7d1e003", from: "Wydział Spraw Cudzoziemców (PRZYKŁAD) <wsc-przyklad@dossierly.cosmiclan.com>", subject: "Wezwanie do uzupełnienia braków", receivedAt: "2026-10-23T08:15:00.000Z", text: "", images: [], attachments: [] };
+const msg = { id: "18f2a9c4b7d1e003", from: "Wydział Spraw Cudzoziemców (PRZYKŁAD) <wsc-przyklad@larinova.com>", subject: "Wezwanie do uzupełnienia braków", receivedAt: "2026-10-23T08:15:00.000Z", text: "", images: [], attachments: [] };
 const base = extractionSchema.parse({ relevant: true, category: "summons", sender: "WSC", summary: "The office wants documents within 14 days.", facts: {}, appointment: null, deadline: null, documents: [], tasks: [] });
 
 describe("phone", () => {

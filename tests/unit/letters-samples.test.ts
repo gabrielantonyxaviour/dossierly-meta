@@ -20,7 +20,7 @@ describe("sample catalogue", () => {
     for (const s of SAMPLE_SCREENS) expect(pub(s.png), s.png).toBe(true);
   });
   it("reads like a real letter (no sample marker), from our own domain, with the case number", () => {
-    expect(SAMPLE_SENDER).toEqual({ email: "wsc@dossierly.cosmiclan.com", name: "Wydział Spraw Cudzoziemców" });
+    expect(SAMPLE_SENDER).toEqual({ email: "wsc@larinova.com", name: "Wydział Spraw Cudzoziemców" });
     for (const l of SAMPLE_LETTERS) {
       for (const part of [l.email.subject, l.email.text, l.email.html]) expect(part).not.toMatch(MARKER);
       expect(l.email.text).toContain(SAMPLE_CASE_NO);
@@ -85,7 +85,7 @@ describe("film inbox mails", () => {
     for (const id of [...FILM_SEED, "film-enrolment-request"]) {
       const m = FILM_MAILS[id]({ date: "2026-11-04" });
       for (const part of [m.from.name, m.subject, m.text, m.html]) expect(part, id).not.toMatch(MARKER);
-      expect(m.from.email, id).toMatch(/^(wsc|no-reply)@dossierly\.cosmiclan\.com$/);
+      expect(m.from.email, id).toMatch(/^(wsc|no-reply)@larinova\.com$/);
       for (const p of m.attachments) expect(pub(p), p).toBe(true);
     }
     const t = (id: string, date = "2026-11-04") => FILM_MAILS[id]({ date }).text;
@@ -112,7 +112,7 @@ describe("film inbox mails", () => {
     expect(res.status).toBe(200);
     const msg = send.mock.calls[0][0] as { subject: string; from: { name: string } };
     expect(msg.subject).toContain("05.11.2026");
-    expect(msg.from).toEqual({ email: "wsc@dossierly.cosmiclan.com", name: "Rezerwacja wizyt WSC" });
+    expect(msg.from).toEqual({ email: "wsc@larinova.com", name: "Rezerwacja wizyt WSC" });
   });
 });
 

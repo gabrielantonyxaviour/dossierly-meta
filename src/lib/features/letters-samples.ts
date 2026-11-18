@@ -1,10 +1,10 @@
 /**
  * Test letters, screens and emails for the fictional applicant Arjun Raman. The documents read like real ones (no
  * sample stamp), but the case number, people and addresses are fictional, there is no state emblem and no real
- * official is named. Sent only from dossierly.cosmiclan.com, never from a gov.pl address.
+ * official is named. Sent only from larinova.com, never from a gov.pl address.
  */
 export const SAMPLE_CASE_NO = "WSC-II-P.6151.48213.2026";
-export const SAMPLE_SENDER = { email: "wsc@dossierly.cosmiclan.com", name: "Wydział Spraw Cudzoziemców" } as const;
+export const SAMPLE_SENDER = { email: "wsc@larinova.com", name: "Wydział Spraw Cudzoziemców" } as const;
 const SAMPLE_PERSONA = "Arjun Raman";
 
 /** Parses SAMPLE_ADMIN_EMAILS (comma or space separated) into address -> demo persona. No address is stored in the repo. */

@@ -261,7 +261,7 @@
         "OPERATOR_NAME": "Larinova Private Limited",
         "DODO_ENV": "test_mode",
         "DODO_PRODUCT_ONE_CASE": "pdt_0NsCQ223SuTKG5dUbN45y",
-        "DODO_PRODUCT_ONE_CASE_FOUNDING": "pdt_0NsCQ246PkDUTV3p4gIu4",
+        "DODO_FOUNDING_CODE": "FOUNDING100",
         "DODO_PRODUCT_HOUSEHOLD_YEAR": "pdt_0NsCQ25l7GkwZPCkYeKsu",
         "COMPOSIO_AUTH_MODE": "managed",
         "INBOUND_MAIL_DOMAIN": "in.larinova.com"

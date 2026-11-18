@@ -1,7 +1,7 @@
 /*
  * The demo inbox for the film (fictional applicant Arjun Raman). The mails read like real ones, with no sample
  * marker; the case number, people and addresses are fictional, no real official is named, and every mail is
- * sent from dossierly.cosmiclan.com. Key facts sit in the body text so inbox readers can extract them.
+ * sent from larinova.com. Key facts sit in the body text so inbox readers can extract them.
  * Canonical data: case WSC-II-P.6151.48213.2026 filed in MOS 18 Sep 2026 from the dorm; lease at the new
  * flat from 1 Oct 2026; summons of 22 Oct 2026; fingerprints on the recording day at 10:40.
  */
@@ -10,8 +10,8 @@ import { SAMPLE_CASE_NO } from "./letters-samples";
 export const DORM_ADDRESS = "DS Babilon, ul. Kickiego 12, 04-369 Warszawa";
 export const FLAT_ADDRESS = "ul. Grzybowska 43A m. 12, 00-855 Warszawa";
 const OFFICE = "Mazowiecki Urząd Wojewódzki w Warszawie, Wydział Spraw Cudzoziemców";
-const OFFICE_EMAIL = "wsc@dossierly.cosmiclan.com";
-const OTHER_EMAIL = "no-reply@dossierly.cosmiclan.com";
+const OFFICE_EMAIL = "wsc@larinova.com";
+const OTHER_EMAIL = "no-reply@larinova.com";
 
 export interface FilmMailParams {
   /** YYYY-MM-DD, the recording day (fingerprint appointment). */

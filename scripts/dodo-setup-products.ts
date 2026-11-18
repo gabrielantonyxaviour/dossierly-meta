@@ -1,7 +1,8 @@
 /**
- * Creates the three PLN one-time products (VAT included) in Dodo TEST mode and prints their ids.
+ * Creates the two PLN one-time products (VAT included) in Dodo TEST mode and prints their ids.
  * Usage: DODO_PAYMENTS_API_KEY=... DODO_BRAND_ID=... npx tsx scripts/dodo-setup-products.ts
  * Refuses live mode on purpose; create the live products by hand in the dashboard with the same prices.
+ * The founding price is the FOUNDING100 discount code on One case, not a product.
  * Dodo's request shape was taken from its docs and has not been run against the API yet.
  */
 const key = process.env.DODO_PAYMENTS_API_KEY;
@@ -10,7 +11,6 @@ if (!key) throw new Error("Set DODO_PAYMENTS_API_KEY (a TEST mode key)");
 
 const products = [
   { env: "DODO_PRODUCT_ONE_CASE", name: "Dossierly — One case", grosz: 19_900 },
-  { env: "DODO_PRODUCT_ONE_CASE_FOUNDING", name: "Dossierly — One case (founding)", grosz: 9_900 },
   { env: "DODO_PRODUCT_HOUSEHOLD_YEAR", name: "Dossierly — Household year", grosz: 39_900 },
 ];
 
