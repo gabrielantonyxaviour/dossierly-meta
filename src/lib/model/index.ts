@@ -7,6 +7,6 @@ export { resolveRole, describeRole, hasModelKey, type RoleConfig } from "./roles
 export { assertProviderAllowed, normaliseOrigin, providerAllowed, metaUserContentAllowed, BLOCKED_MESSAGE, type ContentOrigin } from "./gate";
 export { anthropicChat, anthropicChatStream } from "./anthropic";
 export {
-  createMetaClient, metaChat, metaChatStream, metaJson, parseSamOutput, samSegment, transcribeFile, visionGround, webSearch,
+  createMetaClient, metaChat, metaChatStream, metaJson, parseSamOutput, samSegment, visionGround, webSearch,
   type Citation, type GroundBox, type SamBox, type SearchResult, type StreamChunk,
 } from "./meta";

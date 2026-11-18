@@ -5,7 +5,7 @@ import { maskerFor } from "../mask";
 import { runModel } from "../model";
 import { LANGUAGES, type Language } from "../schemas";
 import type { Env } from "../server/env";
-import { speak } from "../voice/server/tts";
+import { speak, ttsSettings } from "../voice/server/tts";
 import { retryTransient } from "./retry";
 
 /* Voice-first setup: the person says who they are in their own words; Spark pulls out the profile and answers out loud. */
@@ -137,8 +137,8 @@ export async function speechStream(env: Env, userId: string, id: string): Promis
   const raw = await env.CACHE.get(speechKey(userId, id));
   if (!raw) return null;
   const { text, lang } = z.object({ text: z.string().max(400), lang: z.string().max(8) }).parse(JSON.parse(raw));
-  const key = String((env as unknown as Record<string, unknown>).ELEVENLABS_API_KEY ?? "");
-  const parts = speak(key, { text, lang, voice: "dossierly", format: "pcm_16000" });
+  const tts = ttsSettings(env);
+  const parts = speak(tts.apiKey, { text, lang, voice: "dossierly", format: "pcm_16000", model: tts.model, voices: tts.voices, reserve: tts.reserve, release: tts.release });
   return new ReadableStream<Uint8Array>({
     async pull(ctrl) {
       try {

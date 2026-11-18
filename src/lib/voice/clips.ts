@@ -1,6 +1,6 @@
 /*
  * The labelled test kit for Counter: the window-7 scene (lease, address mismatch, KPA art. 41) spoken by synthetic
- * ElevenLabs voices and fed through the real pipeline (microphone path → Meta ASR → Spark), for judges without a
+ * ElevenLabs voices and fed through the real pipeline (microphone path → Scribe → reply model), for judges without a
  * Polish speaker at hand. Official lines are attributed to the official; the reply goes through as the user's speech.
  */
 export interface TestLine {

@@ -2,7 +2,7 @@
 
 /*
  * useAgentCall: one live voice session with Dossierly (welcome | agent | counter | rehearse).
- * Mic → 16 kHz PCM frames → /api/voice/ws (VoiceDO) → Meta ASR + Spark + ElevenLabs → PCM back → speakers.
+ * Mic → 16 kHz PCM frames → /api/voice/ws (VoiceDO) → Scribe realtime + reply model + ElevenLabs TTS → PCM back → speakers.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CapturedItem, CoachNote, DocCard, RehearseFeedback, ServerEvent, TurnMetric, VoiceTurn } from "../protocol";

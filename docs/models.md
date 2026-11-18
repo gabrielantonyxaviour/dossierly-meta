@@ -24,9 +24,9 @@ Meta's promotional credits let Meta use content for product improvement. Until G
 | `reason` (link letter to case, mail scan) | Claude Sonnet 5.5 · medium | Muse Spark 1.3 · medium |
 | Case review (nightly / after a new letter, tool loop) | Claude Sonnet 5.5 · high | Muse Wonder 1.0 · high |
 | Look outlines (SAM 3.1) | **skipped**: the vision model's own boxes are kept | SAM 3.1 box prompts |
-| Speech to text (file and live) | **unavailable** (`provider_blocked`) | Muse Voice Transcribe 1.0 |
+| Speech to text (file and live) | ElevenLabs Scribe v3 (clips) / Scribe v3 Live (streaming), every origin | same |
 | Grounded web search (Hub Ask, visit plan) | **unavailable** (empty result) | Meta `web_search` |
-| Text to speech | ElevenLabs (not Meta, unchanged) | ElevenLabs |
+| Text to speech | ElevenLabs `eleven_v4_turbo` (not Meta) | same |
 
 Claude Opus 5.5 (`claude-opus-5-5`) is available to any role by config.
 
@@ -44,7 +44,7 @@ Per role `<ROLE>` is `INTERPRET GUARD REASON AGENT VISION DRAFT`:
 | `STRATEGIST_MODEL` | Pins the case-review model for both origins. |
 | `META_USER_CONTENT=allow` | Lifts the gate. Then, to give users Meta again, set `MODEL_<ROLE>_USER_PROVIDER=meta` per role. |
 
-Example, once Meta use is cleared: `META_USER_CONTENT=allow`, `MODEL_VISION_USER_PROVIDER=meta`, `MODEL_INTERPRET_USER_PROVIDER=meta` (SAM, speech and search follow automatically, they are Meta-only). The Meta provider keeps its relay, `reasoning_effort` and `json_schema` behaviour; `meta.ts` `metaChat`/`metaChatStream` are the dispatchers and send a role routed to Anthropic through `anthropic.ts`.
+Example, once Meta use is cleared: `META_USER_CONTENT=allow`, `MODEL_VISION_USER_PROVIDER=meta`, `MODEL_INTERPRET_USER_PROVIDER=meta` (SAM and search follow automatically, they are Meta-only; speech is ElevenLabs regardless). The Meta provider keeps its relay, `reasoning_effort` and `json_schema` behaviour; `meta.ts` `metaChat`/`metaChatStream` are the dispatchers and send a role routed to Anthropic through `anthropic.ts`.
 
 ## Claude provider notes (`src/lib/model/anthropic.ts`, `anthropic-tools.ts`)
 
@@ -57,12 +57,28 @@ Example, once Meta use is cleared: `META_USER_CONTENT=allow`, `MODEL_VISION_USER
 
 | Feature | Why | What the code does |
 |---|---|---|
-| Voice input everywhere: Counter, Talk, rehearse, welcome call, phone call, voice onboarding | Speech to text is Meta Voice Transcribe only | The live session cannot connect recognition: it emits error code `provider_blocked` ("Voice input is not available for your account yet.") and `ready` with `asr:false`; nothing is streamed to Meta. Spoken replies (ElevenLabs) and typed turns still work. |
-| Recorded-clip transcription (`POST /api/asr`) | Same | HTTP 403 `{ error, code: "provider_blocked" }`; `/api/status` reports `asr.online: false`. |
 | Look outlines (SAM) | SAM 3.1 is Meta only | Not an error: the highlight uses the vision model's own box. |
 | Grounded web search (Hub Ask, visit-plan sources) | Meta `web_search` tool | The search returns no passages and the caller shows its no-source state. |
 
-Voice replies for the Counter and phone lanes would need a Claude path only if recognition is added; no ASR provider was built.
+Voice is no longer on this list: speech to text and text to speech are ElevenLabs only, so no real-user audio ever reaches Meta (see Voice below).
+
+## Voice: ElevenLabs only (Gabriel, 2026-11-18)
+
+The `asr` service resolves to provider `elevenlabs` for **every origin** (`roles.ts`); `MODEL_ASR_PROVIDER` and a Meta base URL or model id are ignored, so the gate (which still refuses any Meta call with user origin) is never what stands between a user and voice. Meta Voice Transcribe code is removed.
+
+| Job | Model | Where |
+|---|---|---|
+| Live speech to text (Counter, Talk, rehearse, welcome call, onboarding, Twilio phone) | `scribe_v3_live`, WebSocket `/v1/speech-to-text/realtime`, 16 kHz PCM as base64 `input_audio_chunk`, `commit_strategy=vad` (0.6 s silence) | `voice/server/asr.ts` inside VoiceDO; key in the `xi-api-key` header, never in a browser |
+| Recorded clips (`POST /api/asr`) | `scribe_v3`, `POST /v1/speech-to-text`, `language_code` pinned | `server/scribe.ts` |
+| Browser-direct streaming (optional) | single-use token, `POST /api/asr/token` mints it with `/v1/single-use-token/realtime_scribe` (15 min) | `server/scribe.ts`; the app's own client streams through VoiceDO and does not need it |
+| Spoken replies | `eleven_v4_turbo` (override `ELEVENLABS_TTS_MODEL`; `eleven_v4` is the slower highest-quality one) | `voice/server/tts.ts` |
+
+- Language: one language pins `language_code` (`pl en uk ru hi ta`, ISO 639-1); Counter and rehearse (Polish official plus the user's language) leave it to Scribe's auto-detection. Case keywords go in as `keyterms` (max 50 characters and 5 words each, no `< > { } [ ] \`).
+- Latency design is unchanged: a local energy detector (`voice/server/vad.ts`) reports speech end about 0.4 s after the last word, so the turn starts on the last partial; the committed transcript (about 0.6 s of silence) confirms or corrects it. The echo guard is untouched.
+- Voices: `ELEVENLABS_VOICE_ID` (default Sarah, `EXAVITQu4vr4xnSDxMaL`, premade "Mature, Reassuring, Confident") and `ELEVENLABS_OFFICIAL_VOICE_ID` (default Alex, `H5xTcsAIeS5RAykjz57a`, professional native Polish male) for the Counter and rehearsal official.
+- Spend: live speech is booked by seconds of audio streamed against the daily model cap (`ASR_USD_PER_HOUR`, list price unverified for v3). Text to speech reserves its characters **before** each request against `ELEVENLABS_DAILY_CHAR_CAP` (default 4000, D1 budget kind `tts_chars`) and is refused with code `tts_cap` (HTTP 429 on `/api/voice/clip`; a live session emits error code `tts_cap` and keeps showing text); a failed request gives the characters back (`voice/server/tts-budget.ts`). The plan has no headroom and may not be upgraded.
+- `/api/status` reports `asr` (`online`, `model`, `batchModel`, `provider`) and `tts` (`online`, `model`, characters used today and cap).
+- Docs: https://elevenlabs.io/docs/overview/models, https://elevenlabs.io/docs/api-reference/speech-to-text/v-1-speech-to-text-realtime, https://elevenlabs.io/docs/api-reference/speech-to-text/convert, https://elevenlabs.io/docs/eleven-api/guides/cookbooks/speech-to-text/realtime/client-side-streaming.
 
 ## Per job (demo and eval content, the Meta routes)
 
@@ -84,15 +100,15 @@ The rows below describe the Meta routes: demo/eval content today, and real users
 | Linking a letter to the case | `link` → `reason` | Spark 1.3 · high | Rare, consequential, not latency-bound. |
 | Visit plan | `webSearch` (Responses API, `web_search` tool), then `metaJson` with role `agent` | Spark 1.3 · low, twice | Checklist from today's official pages with numbered citations, compared against the user's documents (`src/lib/visit/plan.ts`). |
 | Case review | strategist tool loop | **Muse Wonder 1.0** · high | Matches Spark 1.3 on letters at 3.3× the cost, so it is kept for the long-horizon job: ≤ 8 tool rounds over `get_case_item`, `compute_deadline`, `fetch_article`. |
-| Speech to text | realtime WebSocket | Muse Voice Transcribe 1.0 | Endpointing, language bias, keywords from the case. |
-| Text to speech | — | ElevenLabs `eleven_v4_turbo` (not Meta) | Streaming: 16 kHz PCM to the browser, 8 kHz μ-law to Twilio. |
+| Speech to text | realtime WebSocket | ElevenLabs Scribe v3 Live (all origins) | VAD commits, language code, keyterms from the case. |
+| Text to speech | — | ElevenLabs `eleven_v4_turbo` (all origins) | Streaming: 16 kHz PCM to the browser, 8 kHz μ-law to Twilio. |
 
 ## API lessons encoded in the code
 
 - **Reasoning tokens count against `max_tokens`, even at `minimal`.** A low cap returns empty content, so caps sit well above the visible output: 1,200 for a two-sentence onboarding reply, 4,000–6,000 for reading a mail with attachments (`model/types.ts`, `onboarding/intake.ts`, `onboarding/extract.ts`).
 - **`logprobs` is rejected (400)**, so confidence comes from the model's own field, never from token probabilities (`model/meta.ts`).
 - **Structured output**: `response_format` `json_object` or `json_schema`; every reply is parsed with zod, and a failed parse is retried once with the validation error, then fails clearly (`model/json.ts`). `<think>` blocks and code fences are stripped before parsing (`tests/unit/json.test.ts`).
-- **Edge 404s**: the Meta API answered 404 from some Cloudflare locations (seen: HKG). A 404 is re-sent once through `ModelRelayDO` in western Europe; `MODEL_RELAY_MODE=always` routes every call there; `VoiceDO` is pinned to `weur` (`model/relay.ts`, `voice/server/route.ts`, `tests/unit/model-relay.test.ts`).
+- **Edge 404s**: the Meta API answered 404 from some Cloudflare locations (seen: HKG). A 404 is re-sent once through `ModelRelayDO` in western Europe; `MODEL_RELAY_MODE=always` routes every call there; `VoiceDO` is pinned to `weur` (kept; no longer needed for speech) (`model/relay.ts`, `voice/server/route.ts`, `tests/unit/model-relay.test.ts`).
 - **Errors** map to stable codes (`rate_limited`, `model_unavailable`, `bad_request`, `provider_unavailable`) and user-safe messages; no provider body reaches the client.
 
 ## Spend control
@@ -100,11 +116,11 @@ The rows below describe the Meta routes: demo/eval content today, and real users
 - **Reserve, then settle** (`model/meter.ts`): every `runModel` call, grounded search, SAM call and Wonder review round reserves an upper bound (estimated input + all of `max_tokens` at the output price) against a daily cap, then settles to the billed usage. A reply without usage is metered as the worst case, never zero.
 - **Caps**: US$5 of model spend per day across the app (`MODEL_DAILY_USD_CAP`), 40 grounded searches per day (5 per user), US$0.50 of Wonder review per user per day.
 - **Kill switch**: `MODELS_DISABLED=1` stops all of those paths.
-- **Live voice** (`voice/server/meter.ts`) is metered without adding latency to a turn. Before each Spark call and each Voice Transcribe connect, a synchronous gate checks the kill switch and a cached "cap reached today" flag (primed from D1 at session start). After each call, its billed usage is booked against the same daily cap, never awaited by the turn: a stream cut short by barge-in or a corrected partial is booked from an estimate, and Voice Transcribe is booked by the audio streamed. Because booking follows the call, the cap can be overshot by the calls already in flight. ElevenLabs is outside the model cap.
+- **Live voice** (`voice/server/meter.ts`) is metered without adding latency to a turn. Before each LLM call and each Scribe connect, a synchronous gate checks the kill switch and a cached "cap reached today" flag (primed from D1 at session start). After each call, its billed usage is booked against the same daily cap, never awaited by the turn: a stream cut short by barge-in or a corrected partial is booked from an estimate, and Scribe is booked by the audio streamed. Because booking follows the call, the cap can be overshot by the calls already in flight. ElevenLabs text to speech is outside the model cap and has its own hard daily character cap (Voice above).
 - Cap, settle, retry metering and the kill switch are pinned by `tests/unit/token-cap.test.ts`.
 - **Records**: each `runModel` call writes a `runs` row (task, model, ms, tokens, cost) and a `ledger` row (bytes sent, items masked) in D1.
 
-Prices used for metering (USD): Spark 1.2/1.3 $1.25 / M input, $0.15 / M cached, $4.25 / M output; Wonder 1.0 $4 / M input, $20 / M output (the app meters cached Wonder input at $1 / M; the eval billed it as full input because no cached rate is published); SAM 3.1 $2.50 / 1,000 images; Voice Transcribe $0.18 / hour; web search $2.50 / 1,000 calls.
+Prices used for metering (USD): Spark 1.2/1.3 $1.25 / M input, $0.15 / M cached, $4.25 / M output; Wonder 1.0 $4 / M input, $20 / M output (the app meters cached Wonder input at $1 / M; the eval billed it as full input because no cached rate is published); SAM 3.1 $2.50 / 1,000 images; Scribe $0.40 / hour (unverified for v3); web search $2.50 / 1,000 calls.
 
 ## Measured cost and latency per action
 

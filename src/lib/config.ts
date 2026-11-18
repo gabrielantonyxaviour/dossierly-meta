@@ -26,7 +26,7 @@ export const META_BASE_URL = "https://api.meta.ai/v1";
 export const ANTHROPIC_BASE_URL = "https://api.anthropic.com";
 
 /** Who provides a model. Routing is per role and per content origin (see resolveRole). */
-export type Provider = "meta" | "anthropic";
+export type Provider = "meta" | "anthropic" | "elevenlabs";
 /**
  * Where the content of a call came from. "user" is a real person's letters, photos, messages, voice or case data;
  * "demo" is the fictional demo persona and generated sample letters; "eval" is the evaluation harness.
@@ -84,7 +84,23 @@ export const TASK_ROLE: Record<ModelTask, Role> = {
 };
 
 export const MODEL_SAM = "sam-3.1";
-export const MODEL_ASR = "muse-voice-transcribe-1.0";
+/*
+ * Speech is ElevenLabs only (Meta never receives real-user audio). Scribe v3 Live streams (Counter, Talk, phone);
+ * Scribe v3 transcribes recorded clips (/api/asr). Override per Worker with MODEL_ASR_MODEL / MODEL_ASR_BATCH_MODEL.
+ * Ids and protocol: https://elevenlabs.io/docs/overview/models and
+ * https://elevenlabs.io/docs/api-reference/speech-to-text/v-1-speech-to-text-realtime
+ */
+export const MODEL_ASR = "scribe_v3_live";
+export const MODEL_ASR_BATCH = "scribe_v3";
+export const ELEVENLABS_BASE_URL = "https://api.elevenlabs.io";
+/** Text to speech: v4 Turbo is ElevenLabs' real-time v4 model (~100 ms); `eleven_v4` is the highest-quality, slower one. */
+export const MODEL_TTS = "eleven_v4_turbo";
+/** Premade voices. Sarah: "Mature, Reassuring, Confident", premade (so always on the account), multilingual. */
+export const VOICE_ID_DEFAULT = "EXAVITQu4vr4xnSDxMaL";
+/** The Polish official at the counter / rehearsal: Alex, a professional native Polish male voice. */
+export const VOICE_ID_OFFICIAL = "H5xTcsAIeS5RAykjz57a";
+/** Hard daily ceiling on ElevenLabs TTS characters (the plan has no headroom; ELEVENLABS_DAILY_CHAR_CAP overrides). */
+export const ELEVENLABS_DAILY_CHAR_CAP = 4000;
 
 /** List prices, USD per million tokens: input, cached input, output. Spark 1.2 and 1.3 share them. */
 export const SPARK_PRICE = { in: 1.25, cached: 0.15, out: 4.25 } as const;
@@ -100,7 +116,8 @@ export const PRICES: Record<string, { in: number; cached: number; out: number }>
 };
 /** Per-unit prices for the non-token products. */
 export const SAM_USD_PER_IMAGE = 2.5 / 1000;
-export const ASR_USD_PER_HOUR = 0.18;
+/** Scribe list price per hour of audio (ElevenLabs API pricing; UNVERIFIED for v3, used only for the model-spend cap). */
+export const ASR_USD_PER_HOUR = 0.4;
 export const SEARCH_USD_PER_CALL = 2.5 / 1000;
 
 export const LANGUAGE_META: Record<

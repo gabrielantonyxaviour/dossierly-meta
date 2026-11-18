@@ -38,9 +38,9 @@ describe("routing by role and origin", () => {
   });
 
   it("describeRole reports a blocked route without throwing or exposing a key", () => {
-    const d = describeRole("asr", KEYS);
+    const d = describeRole("sam", KEYS);
     expect(d).toMatchObject({ provider: "meta", blocked: true, hasKey: true, apiKey: "" });
-    expect(describeRole("asr", { ...KEYS, META_USER_CONTENT: "allow" }).blocked).toBe(false);
+    expect(describeRole("sam", { ...KEYS, META_USER_CONTENT: "allow" }).blocked).toBe(false);
     expect(describeRole("interpret", KEYS)).toMatchObject({ blocked: false, hasKey: true });
     expect(describeRole("interpret", {}).hasKey).toBe(false);
   });

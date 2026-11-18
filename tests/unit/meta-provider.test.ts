@@ -1,7 +1,7 @@
 import "./helpers/legacy-meta";
 import { describe, expect, it } from "vitest";
 import {
-  createMetaClient, metaChat, metaChatStream, metaJson, parseSamOutput, samSegment, transcribeFile, visionGround, webSearch,
+  createMetaClient, metaChat, metaChatStream, metaJson, parseSamOutput, samSegment, visionGround, webSearch,
 } from "@/lib/model/meta";
 import { resolveRole } from "@/lib/model/roles";
 import { ModelError } from "@/lib/model/types";
@@ -30,7 +30,7 @@ describe("roles", () => {
     expect(resolveRole("interpret", ENV)).toMatchObject({ baseUrl: "https://api.meta.ai/v1", model: "muse-spark-1.2", effort: "minimal", apiKey: "test-key" });
     expect(resolveRole("vision", ENV)).toMatchObject({ model: "muse-spark-1.3" });
     expect(resolveRole("sam", ENV).model).toBe("sam-3.1");
-    expect(resolveRole("asr", ENV).model).toBe("muse-voice-transcribe-1.0");
+    expect(resolveRole("asr", ENV)).toMatchObject({ provider: "elevenlabs", model: "scribe_v3_live", baseUrl: "https://api.elevenlabs.io" });
   });
 
   it("re-points one role at another OpenAI-compatible host without touching the others", () => {
@@ -151,19 +151,5 @@ describe("web search", () => {
     expect(r.citations).toEqual([{ url: "https://www.gov.pl/a", title: "Fees", start: 0, end: 14 }]);
     expect(r.searches).toBe(1);
     expect(r.text).toBe("Fee is 440 zł.");
-  });
-});
-
-describe("transcribeFile", () => {
-  it("posts multipart with a request part and an audio part", async () => {
-    const m = mock([Response.json({ transcript: " Dzień dobry " })]);
-    const wav = new Uint8Array([82, 73, 70, 70, 0, 0, 0, 0, 87, 65, 86, 69]);
-    const r = await transcribeFile({ wav, languageBias: ["Polish"] }, { env: ENV, fetch: m.fetch });
-    expect(r.text).toBe("Dzień dobry");
-    expect(m.seen[0].url).toBe("https://api.meta.ai/v1/asr/transcribe");
-    const form = m.seen[0].raw as FormData;
-    expect(JSON.parse(await (form.get("request") as Blob).text())).toEqual({ model: "muse-voice-transcribe-1.0", mode: "PUSH_TO_TALK", audioEncoding: "WAV", languageBias: ["Polish"] });
-    expect(((form.get("audio") as Blob).size)).toBe(12);
-    expect(m.seen[0].headers["Content-Type"]).toBeUndefined();
   });
 });

@@ -1,5 +1,5 @@
 /*
- * Meta Model API provider (OpenAI-compatible Chat Completions plus /responses and /asr). Plain fetch, no SDK.
+ * Meta Model API provider (OpenAI-compatible Chat Completions plus /responses). Plain fetch, no SDK.
  * Reasoning tokens count against max_tokens and logprobs are unsupported (400), so callers ask the model for its
  * own confidence instead. Every role can be re-pointed at another OpenAI-compatible host through env (see roles.ts).
  */
@@ -242,22 +242,4 @@ export async function webSearch(args: { query: string; system?: string; maxToken
   }
   const usage = usageOf(json.usage, () => ({ tokensIn: Math.ceil(args.query.length / 3), tokensOut: args.maxTokens ?? 2500, cachedTokens: 0 }));
   return { text, citations, searches: Math.max(searches, citations.length ? 1 : 0), usage, model: cfg.model };
-}
-
-/* ---------- speech to text (file mode) ---------- */
-
-/** WAV mono 16-bit, 16 or 24 kHz. Language is a bias hint (BCP-47 or a language name), not a limit. */
-export async function transcribeFile(
-  args: { wav: Uint8Array; languageBias?: string[] },
-  o: MetaOpts = {},
-): Promise<{ text: string; model: string; raw: unknown }> {
-  const cfg = resolveRole("asr", o.env, o.origin);
-  const form = new FormData();
-  form.append("request", new Blob([JSON.stringify({ model: cfg.model, mode: "PUSH_TO_TALK", audioEncoding: "WAV", languageBias: args.languageBias ?? [] })], { type: "application/json" }));
-  form.append("audio", new Blob([args.wav as unknown as ArrayBuffer], { type: "audio/wav" }), "audio.wav");
-  const res = await post(cfg, "/asr/transcribe", form, o);
-  const json = (await res.json().catch(() => null)) as Record<string, unknown> | null;
-  if (!json) throw new ModelError("The speech service returned an error", "model_error");
-  const t = json.transcript ?? json.text ?? (json.result as Record<string, unknown> | undefined)?.transcript;
-  return { text: typeof t === "string" ? t.trim() : "", model: cfg.model, raw: json };
 }

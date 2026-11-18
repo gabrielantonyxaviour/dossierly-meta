@@ -1,9 +1,9 @@
 /* One live call per Meta provider helper. Needs MODEL_API_KEY in the environment (never printed).
-   Run: MODEL_API_KEY=... node --import tsx scripts/meta-smoke.ts [letter.png] [speech.wav]
+   Run: MODEL_API_KEY=... node --import tsx scripts/meta-smoke.ts [letter.png]
    Without the optional files it builds a synthetic letter image and a short tone WAV. */
 import { readFileSync } from "node:fs";
 import { deflateSync } from "node:zlib";
-import { createMetaClient, metaChatStream, metaJson, samSegment, transcribeFile, visionGround, webSearch } from "../src/lib/model/meta";
+import { createMetaClient, metaChatStream, metaJson, samSegment, visionGround, webSearch } from "../src/lib/model/meta";
 
 const out = (s: string) => process.stdout.write(`${s}\n`);
 const env = { MODEL_API_KEY: process.env.MODEL_API_KEY ?? "" };
@@ -46,16 +46,6 @@ function syntheticPng(w = 640, h = 400): Buffer {
   return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk("IHDR", ihdr), chunk("IDAT", deflateSync(raw)), chunk("IEND", Buffer.alloc(0))]);
 }
 
-function toneWav(seconds = 1, rate = 16000): Uint8Array {
-  const n = seconds * rate;
-  const buf = Buffer.alloc(44 + n * 2);
-  buf.write("RIFF", 0); buf.writeUInt32LE(36 + n * 2, 4); buf.write("WAVEfmt ", 8); buf.writeUInt32LE(16, 16);
-  buf.writeUInt16LE(1, 20); buf.writeUInt16LE(1, 22); buf.writeUInt32LE(rate, 24); buf.writeUInt32LE(rate * 2, 28);
-  buf.writeUInt16LE(2, 32); buf.writeUInt16LE(16, 34); buf.write("data", 36); buf.writeUInt32LE(n * 2, 40);
-  for (let i = 0; i < n; i++) buf.writeInt16LE(Math.round(Math.sin((2 * Math.PI * 440 * i) / rate) * 8000), 44 + i * 2);
-  return buf;
-}
-
 async function main() {
   if (!env.MODEL_API_KEY) {
     out("MODEL_API_KEY is not set.");
@@ -64,7 +54,6 @@ async function main() {
   const png = process.argv[2] ? readFileSync(process.argv[2]) : syntheticPng();
   const size = pngSize(png);
   const image = `data:image/png;base64,${png.toString("base64")}`;
-  const wav = process.argv[3] ? new Uint8Array(readFileSync(process.argv[3])) : toneWav();
   const o = { env };
   const ok = [
     await step("chat", async () => {
@@ -92,10 +81,6 @@ async function main() {
     await step("webSearch", async () => {
       const r = await webSearch({ query: "What is the stamp duty fee for a temporary residence card in Poland? Use official sources.", maxTokens: 3000 }, o);
       return { text: r.text.slice(0, 120), citations: r.citations.slice(0, 2), searches: r.searches };
-    }),
-    await step("transcribeFile", async () => {
-      const r = await transcribeFile({ wav, languageBias: ["Polish"] }, o);
-      return { text: r.text, model: r.model };
     }),
   ];
   process.exit(ok.every(Boolean) ? 0 : 1);

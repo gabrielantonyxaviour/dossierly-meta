@@ -1,5 +1,5 @@
 /*
- * One live voice session (inside VoiceDO): audio in → Meta realtime ASR → mode handler (Spark) → ElevenLabs → audio out.
+ * One live voice session (inside VoiceDO): audio in → ElevenLabs Scribe realtime → mode handler (LLM) → ElevenLabs TTS → audio out.
  * Mode handlers live in ./modes; this file owns the plumbing, turn ordering, barge-in and latency metrics.
  */
 import { caseContext } from "../../case/context";
@@ -7,7 +7,8 @@ import type { CaseSnapshot } from "../../case/types";
 import { clientEventSchema, type ServerEvent, type VoiceTurn } from "../protocol";
 import type { Ticket } from "../token";
 import { ModelError } from "../../model/types";
-import { MetaAsr } from "./asr";
+import { ElevenAsr } from "./asr";
+import { ttsSettings } from "./tts";
 import { TurnClock, type Metric } from "./metrics";
 import { VoiceCase, type CaseNamespace } from "./case";
 import { Speaker } from "./speaker";
@@ -15,7 +16,7 @@ import type { Transport } from "./transport";
 import { MERGE_MS, caseKeywords, looksPolish, shortId, speechKey } from "./util";
 import { modeHandler, type ModeHandler } from "./modes";
 
-export type VoiceEnv = Record<string, unknown> & { CASE_DO?: CaseNamespace; ELEVENLABS_API_KEY?: string; MODEL_API_KEY?: string };
+export type VoiceEnv = Record<string, unknown> & { CASE_DO?: CaseNamespace; ELEVENLABS_API_KEY?: string; MODEL_API_KEY?: string; ELEVENLABS_DAILY_CHAR_CAP?: string };
 
 export type Via = NonNullable<VoiceTurn["via"]>;
 
@@ -38,7 +39,7 @@ export class VoiceSession {
   readonly lang: string;
   snapshot: CaseSnapshot | null = null;
   caseText = "";
-  private asr: MetaAsr | null = null;
+  private asr: ElevenAsr | null = null;
   private handler!: ModeHandler;
   private chain: Promise<void> = Promise.resolve();
   private turnAbort: AbortController | null = null;
@@ -53,10 +54,10 @@ export class VoiceSession {
   constructor(readonly env: VoiceEnv, readonly ticket: Ticket, readonly t: Transport, private onClose: () => void) {
     this.lang = ticket.l;
     this.case = new VoiceCase(env.CASE_DO, ticket.u);
-    this.speaker = new Speaker(String(env.ELEVENLABS_API_KEY ?? ""), t, {
+    this.speaker = new Speaker(ttsSettings(env), t, {
       onFirstAudio: (u) => this.firstAudio(u),
-      onError: (m) => this.emit({ t: "error", error: m, code: "tts" }),
-    }, typeof env.ELEVENLABS_TTS_MODEL === "string" ? env.ELEVENLABS_TTS_MODEL : undefined);
+      onError: (m, code) => this.emit({ t: "error", error: m, code: code ?? "tts" }),
+    });
   }
 
   get mode() {
@@ -81,7 +82,7 @@ export class VoiceSession {
     }
     this.handler = modeHandler(this);
     const bias = this.mode === "counter" || this.mode === "rehearse" ? ["pl", this.lang] : this.lang === "pl" ? ["pl"] : [this.lang, "pl"];
-    this.asr = new MetaAsr(this.env, { languageBias: [...new Set(bias)], keywords: caseKeywords(this.snapshot) }, {
+    this.asr = new ElevenAsr(this.env, { languageBias: [...new Set(bias)], keywords: caseKeywords(this.snapshot) }, {
       onSpeechStart: () => {
         this.speechSource = this.source;
         this.emit({ t: "asr", phase: "start" });
@@ -117,7 +118,6 @@ export class VoiceSession {
     // Previews: which Cloudflare location runs this session (provider availability differs by region).
     if (this.env.APP_ENV !== "production") void fetch("https://cloudflare.com/cdn-cgi/trace").then((r) => r.text()).then((t) => this.emit({ t: "debug", info: { colo: /colo=(\w+)/.exec(t)?.[1] ?? "?", loc: /loc=(\w+)/.exec(t)?.[1] ?? "?" } })).catch(() => undefined);
   }
-
   private reconnects = 0;
   private async reconnectAsr(): Promise<void> {
     if (this.reconnects++ > 3 || !this.asr) return;

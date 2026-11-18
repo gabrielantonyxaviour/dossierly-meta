@@ -2,7 +2,7 @@
  * Ordered speech output. Each sentence's TTS request starts the moment it is queued (prefetch), while playback to the
  * transport stays strictly in order, so sentence 2 is usually ready before sentence 1 finishes streaming.
  */
-import { speak, type VoiceName } from "./tts";
+import { speak, type TtsSettings, type VoiceName } from "./tts";
 import type { Transport } from "./transport";
 
 interface Clip {
@@ -19,7 +19,7 @@ interface Clip {
 export interface SpeakHooks {
   /** First audio byte of an utterance went out. */
   onFirstAudio?(utterance: string): void;
-  onError?(message: string): void;
+  onError?(message: string, code?: string): void;
 }
 
 export class Speaker {
@@ -32,7 +32,7 @@ export class Speaker {
   /** Utterances whose audio_end was sent; the client reports back with `played`. */
   speaking = false;
 
-  constructor(private apiKey: string, private t: Transport, private hooks: SpeakHooks = {}, private model?: string) {}
+  constructor(private tts: TtsSettings, private t: Transport, private hooks: SpeakHooks = {}) {}
 
   say(utterance: string, text: string, opts: { lang: string; voice?: VoiceName; side: "user" | "official" }): void {
     const clip: Clip = { utterance, side: opts.side, chunks: [], done: false, failed: false, wake: null, gen: this.gen };
@@ -40,14 +40,14 @@ export class Speaker {
     const signal = this.abort.signal;
     void (async () => {
       try {
-        for await (const c of speak(this.apiKey, { text, lang: opts.lang, voice: opts.voice, format: this.t.format, signal, model: this.model })) {
+        for await (const c of speak(this.tts.apiKey, { text, lang: opts.lang, voice: opts.voice, format: this.t.format, signal, model: this.tts.model, voices: this.tts.voices, reserve: this.tts.reserve, release: this.tts.release })) {
           clip.chunks.push(c);
           clip.wake?.();
         }
       } catch (e) {
         if (!signal.aborted) {
           clip.failed = true;
-          this.hooks.onError?.(e instanceof Error ? e.message : "Speech output failed");
+          this.hooks.onError?.(e instanceof Error ? e.message : "Speech output failed", (e as { code?: string }).code);
         }
       } finally {
         clip.done = true;

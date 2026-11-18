@@ -2,15 +2,17 @@ import { z } from "zod";
 import { MODEL_ASR } from "../config";
 import { asrCostUsd, costUsd } from "../model/cost";
 import { meterClient, meterFixed } from "../model/meter";
-import { createMetaClient, transcribeFile, type FetchLike } from "../model/meta";
+import { createMetaClient } from "../model/meta";
+import { scribeBatchModel, transcribeFile, type FetchLike } from "./scribe";
 import { describeRole, resolveRole } from "../model/roles";
 import type { ChatClient } from "../model/types";
 import { ModelError } from "../model/types";
-import { BLOCKED_MESSAGE } from "../model/gate";
+export { scribeBatchModel };
 import type { Env } from "./env";
 import { ApiError } from "./http";
 import { recordLedger } from "./ledger";
 
+/** The realtime model (live voice); clips use `scribeBatchModel(env)`. */
 export const ASR_MODEL = MODEL_ASR;
 export const ASR_MAX_AUDIO = 1_000_000;
 /** WAV mono 16-bit at 16 kHz, 2 bytes per sample. */
@@ -18,21 +20,19 @@ const BYTES_PER_SECOND = 32_000;
 
 export const AsrStartSchema = z.object({
   audio: z.string().min(1),
-  lang: z.enum(["pl", "en", "uk", "hi", "ta"]),
+  lang: z.enum(["pl", "en", "uk", "ru", "hi", "ta", "zh", "ja", "vi"]),
   translate: z.enum(["en", "pl"]).optional(),
 });
 
 export type AsrView = { status: "done"; text: string; ms: number; model: string; translation?: string; translationModel?: string };
 
-const LANG_NAME: Record<string, string> = { pl: "Polish", en: "English", uk: "Ukrainian", hi: "Hindi", ta: "Tamil" };
-
 /**
- * Speech recognition is Meta-only (Voice Transcribe), so it is available when its key is set and the content-origin
- * gate lets a real user's audio through (META_USER_CONTENT=allow). See model/gate.ts.
+ * Speech recognition is ElevenLabs Scribe for every origin (never Meta, so the content-origin gate does not apply),
+ * so it is online whenever ELEVENLABS_API_KEY is set.
  */
 export const asrOnline = (env: Env): boolean => {
   const d = describeRole("asr", env);
-  return d.hasKey && !d.blocked;
+  return d.provider === "elevenlabs" && d.hasKey && !d.blocked;
 };
 
 /** A WAV starts with `RIFF....WAVE`; reject anything else before it leaves the Worker. */
@@ -60,14 +60,13 @@ export async function transcribeAudio(
 ): Promise<AsrView> {
   if (input.audio.length > ASR_MAX_AUDIO) throw new ApiError(413, "That recording is too long. Try a shorter clip.", "too_large");
   if (!looksLikeWav(input.audio)) throw new ApiError(400, "Audio must be a base64 WAV", "invalid_audio");
-  if (!deps.fetch && describeRole("asr", env).blocked) throw new ApiError(403, BLOCKED_MESSAGE, "provider_blocked");
   if (!deps.fetch && !asrOnline(env)) throw new ApiError(503, "Speech recognition is offline right now", "asr_offline");
   const wav = fromB64(input.audio);
   const seconds = wav.length / BYTES_PER_SECOND;
   const t0 = Date.now();
   try {
     const out = await meterFixed(env, asrCostUsd(Math.max(seconds, 1)) + 0.0001, async () => ({
-      value: await transcribeFile({ wav, languageBias: [LANG_NAME[input.lang]] }, { env, fetch: deps.fetch }),
+      value: await transcribeFile({ wav, lang: input.lang }, { env, fetch: deps.fetch }),
       actualUsd: asrCostUsd(seconds),
     }));
     const view: AsrView = { status: "done", text: out.text, ms: Date.now() - t0, model: out.model };
@@ -91,7 +90,7 @@ export async function transcribeAudio(
   } catch (err) {
     if (err instanceof ModelError) {
       if (err.code === "no_key") throw new ApiError(503, "Speech recognition is offline right now", "asr_offline");
-      throw new ApiError(err.code === "provider_blocked" ? 403 : err.status === 429 ? 429 : 502, err.message, err.code);
+      throw new ApiError(err.status === 429 ? 429 : err.status === 503 ? 503 : 502, err.message, err.code);
     }
     throw err;
   }

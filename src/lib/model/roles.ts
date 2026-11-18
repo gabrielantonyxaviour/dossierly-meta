@@ -1,5 +1,5 @@
 import {
-  ANTHROPIC_BASE_URL, META_BASE_URL, MODEL_ASR, MODEL_SAM, ROLE_DEFAULTS, USER_ROLE_DEFAULTS, USER_TASK_MODEL,
+  ANTHROPIC_BASE_URL, ELEVENLABS_BASE_URL, META_BASE_URL, MODEL_ASR, MODEL_SAM, ROLE_DEFAULTS, USER_ROLE_DEFAULTS, USER_TASK_MODEL,
   type ContentOrigin, type ModelTask, type Provider, type ReasoningEffort, type Role, type Route,
 } from "../config";
 import { assertProviderAllowed, normaliseOrigin, providerAllowed } from "./gate";
@@ -39,7 +39,7 @@ const providerOfModel = (model: string): Provider => (/^claude-/i.test(model) ? 
 
 function defaultsFor(role: Role | Service, origin: ContentOrigin): Route {
   if (role === "sam") return { provider: "meta", model: MODEL_SAM, effort: "minimal" };
-  if (role === "asr") return { provider: "meta", model: MODEL_ASR, effort: "minimal" };
+  if (role === "asr") return { provider: "elevenlabs", model: MODEL_ASR, effort: "minimal" };
   if (role === "search") return { provider: "meta", model: ROLE_DEFAULTS.agent.model, effort: "low" };
   return origin === "user" ? USER_ROLE_DEFAULTS[role] : { provider: "meta", ...ROLE_DEFAULTS[role] };
 }
@@ -53,7 +53,8 @@ function defaultsFor(role: Role | Service, origin: ContentOrigin): Route {
  * ANTHROPIC_API_KEY for Anthropic and MODEL_API_KEY for Meta.
  *
  * This is also the gate: a Meta route for "user" content (the default when origin is missing) throws
- * ModelError "provider_blocked" unless META_USER_CONTENT=allow. sam, asr and search are Meta-only services.
+ * ModelError "provider_blocked" unless META_USER_CONTENT=allow. sam and search are Meta-only services; asr is ElevenLabs only
+ * (key ELEVENLABS_API_KEY, model MODEL_ASR_MODEL), so it is never gated.
  */
 export function resolveRole(role: Role | Service, env?: EnvLike, origin?: ContentOrigin, task?: ModelTask): RoleConfig {
   const cfg = peekRole(role, env, origin, task);
@@ -76,7 +77,8 @@ function peekRole(role: Role | Service, env: EnvLike, originIn: ContentOrigin | 
   const service = role === "sam" || role === "asr" || role === "search";
   const modelEnv = pick(env, up, scope, "MODEL");
   const explicit = pick(env, up, scope, "PROVIDER").toLowerCase();
-  const provider: Provider = service ? "meta"
+  // asr is ElevenLabs for EVERY origin and cannot be re-pointed: real-user audio never reaches Meta. sam and search stay Meta-only.
+  const provider: Provider = role === "asr" ? "elevenlabs" : service ? "meta"
     : explicit === "meta" || explicit === "anthropic" ? explicit
     : modelEnv ? providerOfModel(modelEnv)
     : d.provider;
@@ -84,6 +86,15 @@ function peekRole(role: Role | Service, env: EnvLike, originIn: ContentOrigin | 
   // A provider chosen without a model gets that provider's default model for the role.
   const providerDefault = provider === d.provider ? d.model : provider === "anthropic" ? USER_ROLE_DEFAULTS[role as Role].model : ROLE_DEFAULTS[role as Role].model;
   const effort = pick(env, up, scope, "EFFORT");
+  if (provider === "elevenlabs") {
+    return {
+      name: role, provider, origin,
+      baseUrl: (read(env, "ELEVENLABS_BASE_URL") || ELEVENLABS_BASE_URL).replace(/\/+$/, ""),
+      model: /^scribe_/.test(modelEnv) ? modelEnv : d.model, // a non-Scribe id (e.g. a Meta one) is ignored
+      apiKey: "ELEVENLABS_API_KEY",
+      effort: d.effort,
+    };
+  }
   const baseUrl = pick(env, up, scope, "BASE_URL") || (provider === "meta" ? read(env, "MODEL_BASE_URL") : "") || (provider === "anthropic" ? ANTHROPIC_BASE_URL : META_BASE_URL);
   return {
     name: role,
