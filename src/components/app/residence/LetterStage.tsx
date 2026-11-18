@@ -8,6 +8,7 @@ import { useT } from "@/lib/i18n/client";
 import { Activity, Block, Fact } from "@/components/residence/parts";
 import { useCaseData } from "../shell/case-data";
 import { HelpSheet } from "./HelpSheet";
+import { DraftReply } from "./DraftReply";
 import { shortDate } from "./format";
 
 /* Stage 4 · A letter arrived. Reads what the Look / inbox pipeline saved: the letter document, its deadline and the
@@ -74,6 +75,7 @@ function LetterView({ c, doc }: { c: CaseSnapshot; doc: CaseDocument }) {
         ]}
         foot={<><span className="ui-meta">{t("neverSends")}</span><ButtonLink size="sm" variant="secondary" icon="look" href={`/app/look?doc=${encodeURIComponent(doc.id)}`}>{t("seeOnPage")}</ButtonLink></>}
       />
+      <DraftReply documentId={doc.id} />
       {deadline && deadline.computation.steps.length > 0 && (
         <Block title={t("howCounted")}>
           <ol className="rp-count">{deadline.computation.steps.map((s) => <li key={s}>{s}</li>)}</ol>

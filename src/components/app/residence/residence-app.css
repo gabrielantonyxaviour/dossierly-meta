@@ -60,3 +60,8 @@
 fieldset.rs-member-form { border: 0; margin: 0; min-width: 0; }
 .ob-lang { justify-self: start; }
 .rs-member-form .ui-tile { min-height: 48px; padding-block: 10px; }
+.rs-draft { display: grid; gap: 6px; padding: 14px 16px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--ring); }
+.rs-draft p { margin: 0; }
+.rs-draft-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.rs-draft-subject { font-weight: 500; }
+.rs-draft-body { white-space: pre-wrap; font-size: var(--t-md); line-height: 1.5; color: var(--ink-2); }

@@ -38,8 +38,8 @@ function Progress({ phase, readMs, samMs, count }: { phase: string; readMs: numb
   const reading = phase === "reading";
   return (
     <ol className="lk-progress" aria-live="polite">
-      {step(reading ? t(READ_HINTS[Math.min(READ_HINTS.length - 1, Math.floor(elapsed / 6))]) : t("readPointed"), "Muse Spark 1.3", reading ? "run" : "ok", reading ? `${elapsed} s` : secs(readMs))}
-      {step(count ? t("traced", { n: count }) : t("tracing"), "SAM 3.1", reading ? "wait" : samMs === null && phase !== "error" && phase !== "done" ? "run" : "ok", secs(samMs))}
+      {step(reading ? t(READ_HINTS[Math.min(READ_HINTS.length - 1, Math.floor(elapsed / 6))]) : t("readPointed"), "Claude", reading ? "run" : "ok", reading ? `${elapsed} s` : secs(readMs))}
+      {step(count ? t("traced", { n: count }) : t("tracing"), "Claude", reading ? "wait" : samMs === null && phase !== "error" && phase !== "done" ? "run" : "ok", secs(samMs))}
     </ol>
   );
 }

@@ -6,6 +6,11 @@ const MODEL_NAMES: Record<string, string> = {
   "muse-spark-1.2": "Muse Spark 1.2",
   "muse-voice-transcribe-1.0": "Muse Voice Transcribe",
   "sam-3.1": "SAM 3.1",
+  "claude-sonnet-5-5": "Claude Sonnet 5.5",
+  "claude-haiku-5-5": "Claude Haiku 5.5",
+  "claude-opus-5-5": "Claude Opus 5.5",
+  "scribe_v3_live": "ElevenLabs Scribe",
+  "scribe_v3": "ElevenLabs Scribe",
 };
 
 export function modelName(id: string): string {
@@ -16,7 +21,7 @@ export function modelName(id: string): string {
 
 export const seconds = (ms: number) => `${(ms / 1000).toFixed(ms < 10_000 ? 1 : 0)} s`;
 
-/** "Muse Spark 1.3 · 0.9 s" */
+/** "Claude Sonnet 5.5 · 0.9 s" */
 export const runLabel = (r: Run) => `${modelName(r.model)} · ${seconds(r.ms)}`;
 
 export function usd(n: number): string {

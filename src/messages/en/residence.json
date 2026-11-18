@@ -492,5 +492,14 @@
   "optForward": "Your forwarding address",
   "optForwardSub": "Forward letters from any mailbox to your own Dossierly address",
   "optPhone": "Call alerts on your phone",
-  "optPhoneSub": "Dossierly calls you when a deadline is close"
+  "optPhoneSub": "Dossierly calls you when a deadline is close",
+  "draftTitle": "Your reply",
+  "draftIntro": "Dossierly can draft a short Polish cover note to send with the documents. You check it and send it yourself.",
+  "draftMake": "Draft my reply",
+  "draftReply": "Reply to the office",
+  "draftInstitution": "Request to the institution",
+  "draftTo": "To:",
+  "draftCopy": "Copy",
+  "draftNone": "This letter does not need a written reply. Send the requested documents with your case number.",
+  "draftCheck": "Check every name, number and date before you send it. Dossierly never sends anything for you."
 }
