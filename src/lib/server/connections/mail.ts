@@ -76,7 +76,7 @@ export async function importGmail(env: ConnectionsEnv, row: AccountRow, id: stri
   const body = selected?.body as Record<string, unknown> | undefined;
   return { kind: "message" as const, messageId: msg.id, subject: header(msg, "subject"), from: header(msg, "from"), text: plainText(body?.data ? textBody(body.data) : msg.snippet), attachments };
 }
-async function importOutlook(env: ConnectionsEnv, row: AccountRow, id: string, attachmentId?: string) {
+export async function importOutlook(env: ConnectionsEnv, row: AccountRow, id: string, attachmentId?: string) {
   const url = `https://graph.microsoft.com/v1.0/me/messages/${encodeURIComponent(id)}`;
   if (attachmentId) {
     const a = z.object({ name: z.string(), contentType: z.string(), contentBytes: z.string(), size: z.number().optional() }).parse(await proxy(env, row, `${url}/attachments/${encodeURIComponent(attachmentId)}`, "GET", undefined, 6_000_000));

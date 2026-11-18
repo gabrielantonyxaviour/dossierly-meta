@@ -8,6 +8,8 @@ export type ConnectionsEnv = Env & {
   COMPOSIO_MICROSOFTCALENDAR_AUTH_CONFIG_ID?: string;
   COMPOSIO_GMAIL_DISABLED_REASON?: string;
   COMPOSIO_GMAIL_TEST_USERS?: string;
+  /** "managed" (default): Composio's own OAuth apps. "custom": our app, ids from COMPOSIO_*_AUTH_CONFIG_ID. */
+  COMPOSIO_AUTH_MODE?: string;
 };
 export const categorySchema = z.enum(["mail", "calendar"]);
 export const providerSchema = z.enum(["gmail", "outlook", "googlecalendar", "microsoftcalendar"]);

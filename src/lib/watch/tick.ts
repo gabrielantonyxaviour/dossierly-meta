@@ -1,4 +1,6 @@
 import { readMessage } from "../onboarding/inbox";
+import { retryInbound } from "../inbound/handle";
+import { listOutlookIds, readOutlookMessage } from "./outlook";
 import { readMail } from "../onboarding/extract";
 import { rowFor } from "../server/connections/store";
 import type { ConnectionsEnv } from "../server/connections/types";
@@ -16,8 +18,8 @@ const PARALLEL_ACCOUNTS = 5;
 
 export const defaultDeps: Deps = {
   now: () => Date.now(),
-  listIds: listNewMailIds,
-  read: readMessage,
+  listIds: (env, row, since) => (row.provider === "outlook" ? listOutlookIds : listNewMailIds)(env, row, since),
+  read: async (env, accountId, id) => ((await rowFor(env, accountId, "mail"))?.provider === "outlook" ? readOutlookMessage : readMessage)(env, accountId, id),
   readMail,
   draft: writeDrafts,
   hasCalendar: async (env, accountId) => !!(await rowFor(env, accountId, "calendar")),
@@ -30,7 +32,7 @@ type Counts = { checked: number; found: number; processed: WatchItem[]; error?: 
 async function watchAccount(env: ConnectionsEnv, deps: Deps, accountId: string): Promise<Counts> {
   const out: Counts = { checked: 0, found: 0, processed: [] };
   const row = await rowFor(env, accountId, "mail");
-  if (!row || row.provider !== "gmail") return out;
+  if (!row || !["gmail", "outlook"].includes(row.provider)) return out;
   // While setup runs (or a review run restarts it), the onboarding import owns the inbox: never write or call twice.
   const setup = await env.DB.prepare("SELECT completed_at FROM onboarding_progress WHERE account_id = ?").bind(accountId).first<{ completed_at: number | null }>();
   if (!setup?.completed_at) return out;
@@ -74,5 +76,7 @@ export async function runWatchTick(env: ConnectionsEnv, opts: { accountId?: stri
       if (r.error) report.errors.push({ accountId: batch[j], code: r.error });
     });
   }
+  // Forwarded mail cannot be re-delivered, so a failed one is retried from its stored copy.
+  if (!opts.accountId) await retryInbound(env, deps).catch(() => undefined);
   return report;
 }

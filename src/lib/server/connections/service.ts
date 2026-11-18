@@ -3,16 +3,18 @@ import { ApiError } from "../http";
 import { sha256Hex, randomId } from "../util";
 import { broker, proxy, verifyConfig, verifyRemote, unavailable } from "./broker";
 import { budget, publicRow, rowFor, saveRow } from "./store";
-import { brokerUser, configId, connectSchema, toolkit, type AccountRow, type Category, type ConnectionsEnv, type IntentRow, type Provider } from "./types";
+import { brokerUser, connectSchema, toolkit, type AccountRow, type Category, type ConnectionsEnv, type IntentRow, type Provider } from "./types";
 import { retirePrevious } from "./retire";
 import { gmailTestingAccess } from "./testing";
+import { authMode, requireConfigId, resolveConfigId } from "./authconfig";
 
 const sessionHash = (req: Request) => sha256Hex((req.headers.get("cookie") ?? "").split(/;\s*/).find(x => x.startsWith("settla_uid=")) ?? "");
 export async function capabilities(env: ConnectionsEnv, accountId: string) {
-  const testing = await gmailTestingAccess(env, accountId);
+  // The Google Testing-client restriction only applies to our own OAuth app; Composio's managed app has no test-user list.
+  const testing = authMode(env) === "custom" ? await gmailTestingAccess(env, accountId) : { restricted: false, allowed: true };
   const providers: Provider[] = ["gmail", "outlook", "googlecalendar", "microsoftcalendar"];
   return Promise.all(providers.map(async provider => {
-    const id = configId(env, provider);
+    const id = await resolveConfigId(env, provider).catch(() => undefined);
     const unapprovedTester = provider === "gmail" && testing.restricted && !testing.allowed;
     const blocked = provider === "gmail" && (Boolean(env.COMPOSIO_GMAIL_DISABLED_REASON) || unapprovedTester);
     let available = Boolean(env.COMPOSIO_API_KEY && env.COMPOSIO_PROJECT_ID && id && !blocked);
@@ -33,11 +35,11 @@ export async function status(env: ConnectionsEnv, accountId: string) {
   return { capabilities: await capabilities(env, accountId), connections, cleanupPending, ...(cleanupPending ? { cleanupNotice: "Your previous connection is still being disconnected. Refresh connection status to retry." } : {}) };
 }
 export async function connect(env: ConnectionsEnv, accountId: string, req: Request, input: unknown) {
-  const data = connectSchema.parse(input), authId = configId(env, data.provider);
-  if (data.provider === "gmail" && !(await gmailTestingAccess(env, accountId)).allowed) throw new ApiError(503, "Gmail access is limited to approved test accounts during Google verification.", "connection_testing");
+  const data = connectSchema.parse(input);
+  if (data.provider === "gmail" && authMode(env) === "custom" && !(await gmailTestingAccess(env, accountId)).allowed) throw new ApiError(503, "Gmail access is limited to approved test accounts during Google verification.", "connection_testing");
   if (data.provider === "gmail" && env.COMPOSIO_GMAIL_DISABLED_REASON) throw new ApiError(503, "Gmail sign-in is unavailable from the connection provider. Try later.", "connection_unavailable");
-  if (!authId) throw unavailable();
-  await budget(env, accountId); await verifyConfig(env, authId, data.provider);
+  const authId = await requireConfigId(env, data.provider);
+  await budget(env, accountId);
   const state = randomId("oauth", 32), stateHash = await sha256Hex(state);
   const callbackUrl = new URL("/api/connections/callback", env.APP_URL);
   callbackUrl.searchParams.set("state", state);

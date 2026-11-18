@@ -18,7 +18,7 @@ const request = (url = "https://dossierly.pages.dev/api/connections", body?: unk
 const row = (category: "mail" | "calendar" = "mail", provider: AccountRow["provider"] = "gmail"): AccountRow => ({ account_id: "u1", category, provider, broker_id: "ca_owned", auth_config_id: provider === "googlecalendar" ? "ac_cal" : "ac_mail", label: "Owned QA", scopes: "[]", connected_at: 1 });
 let failWrite = false;
 beforeEach(() => {
-  env = Object.assign(freshLocalEnv(), { COMPOSIO_API_KEY: "test-key", COMPOSIO_PROJECT_ID: "pr_owned", COMPOSIO_GMAIL_AUTH_CONFIG_ID: "ac_mail", COMPOSIO_GOOGLECALENDAR_AUTH_CONFIG_ID: "ac_cal", APP_URL: "https://dossierly.pages.dev" });
+  env = Object.assign(freshLocalEnv(), { COMPOSIO_API_KEY: "test-key", COMPOSIO_PROJECT_ID: "pr_owned", COMPOSIO_AUTH_MODE: "custom", COMPOSIO_GMAIL_AUTH_CONFIG_ID: "ac_mail", COMPOSIO_GOOGLECALENDAR_AUTH_CONFIG_ID: "ac_cal", APP_URL: "https://dossierly.pages.dev" });
   remoteOwner = "dossierly:u1"; remoteStatus = "ACTIVE"; callbackUrl = ""; proxyCalls = []; failWrite = false;
   vi.stubGlobal("fetch", vi.fn(async (url: string, init?: RequestInit) => {
     const path = new URL(url).pathname;
