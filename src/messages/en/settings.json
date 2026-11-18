@@ -19,7 +19,7 @@
   "neverTitle": "What Dossierly never does",
   "neverSub": "It never files applications, signs anything or logs into MOS or inPOL for you.",
   "whereTitle": "Where your case lives",
-  "whereSub": "On Dossierly’s servers in your private case file. Models: Meta Muse Spark, SAM 3.1, Muse Voice; speech by ElevenLabs.",
+  "whereSub": "On Dossierly’s servers in your private case file. Models: Claude by Anthropic for your content; speech by ElevenLabs.",
   "privacyPolicy": "Privacy policy",
   "terms": "Terms",
   "signOut": "Sign out",

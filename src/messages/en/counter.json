@@ -29,7 +29,7 @@
   "step1": "The top half speaks Polish to the official. The bottom half is yours, in {lang}.",
   "yourLanguage": "your language",
   "step2": "When they ask for a document, it opens on their half. Tasks go into your case.",
-  "fine": "Audio goes through our server to Meta’s speech model and is not stored. Dossierly interprets and guides; it is not a lawyer and files nothing for you.",
+  "fine": "Audio goes through our server to ElevenLabs’ speech recognition and is not stored. Dossierly interprets and guides; it is not a lawyer and files nothing for you.",
   "statusEnded": "Conversation ended",
   "statusClip": "Test line playing",
   "toOfficial": "Speaking to the official",

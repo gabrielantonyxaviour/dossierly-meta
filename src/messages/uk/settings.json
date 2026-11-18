@@ -19,7 +19,7 @@
   "neverTitle": "Чого Dossierly ніколи не робить",
   "neverSub": "Він ніколи не подає заяв, нічого не підписує і не входить у MOS чи inPOL замість вас.",
   "whereTitle": "Де зберігається ваша справа",
-  "whereSub": "На серверах Dossierly, у вашому приватному файлі справи. Моделі: Meta Muse Spark, SAM 3.1, Muse Voice; мовлення — ElevenLabs.",
+  "whereSub": "На серверах Dossierly у вашій приватній справі. Моделі: Claude від Anthropic для вашого вмісту; голос — ElevenLabs.",
   "privacyPolicy": "Політика конфіденційності",
   "terms": "Умови",
   "signOut": "Вийти",

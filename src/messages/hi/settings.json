@@ -19,7 +19,7 @@
   "neverTitle": "Dossierly क्या कभी नहीं करता",
   "neverSub": "यह आपकी ओर से कभी आवेदन जमा नहीं करता, किसी चीज़ पर हस्ताक्षर नहीं करता, और MOS या inPOL में लॉग इन नहीं करता।",
   "whereTitle": "आपका मामला कहाँ रखा है",
-  "whereSub": "Dossierly के सर्वर पर, आपकी निजी मामला फ़ाइल में। मॉडल: Meta Muse Spark, SAM 3.1, Muse Voice; आवाज़: ElevenLabs।",
+  "whereSub": "Dossierly के सर्वर पर आपकी निजी केस फ़ाइल में। मॉडल: आपकी सामग्री के लिए Anthropic का Claude; आवाज़ ElevenLabs से।",
   "privacyPolicy": "निजता नीति",
   "terms": "शर्तें",
   "signOut": "साइन आउट",
