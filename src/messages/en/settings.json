@@ -103,5 +103,6 @@
   "revoked": "Revoked “{name}”",
   "revokeTitle": "Revoke this token?",
   "revokeBody": "“{name}” stops working immediately. Any assistant using it loses access to your case.",
-  "keepIt": "Keep it"
+  "keepIt": "Keep it",
+  "plan": "Plan and payment"
 }

@@ -1,0 +1,28 @@
+/* /app/plan: current plan, founding note, two plan options, referral code, Dodo checkout. Phone first. */
+.pl { display: grid; gap: 16px; align-content: start; }
+.pl-paid { display: flex; align-items: center; gap: 10px; padding: 14px 16px; color: var(--ink-2); }
+.pl-paid.is-ok { background: var(--ok-soft); color: var(--ok); }
+.pl-current { display: grid; gap: 6px; padding: 16px; }
+.pl-current-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pl-big { margin: 4px 0 0; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; }
+.pl-warn { margin: 0; color: var(--user); font-size: var(--t-md); }
+.pl-founding { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; padding: 14px 16px; border-radius: var(--radius); background: var(--user-soft); box-shadow: 0 0 0 1px var(--user-line); color: var(--ink-2); font-size: var(--t-md); }
+.pl-founding b { color: var(--user); }
+.pl-options { display: grid; gap: 10px; }
+@media (min-width: 720px) { .pl-options { grid-template-columns: 1fr 1fr; } }
+.pl-opt { display: grid; gap: 6px; text-align: left; padding: 16px; border: 0; border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--ring); color: var(--ink); font: inherit; cursor: pointer; transition: box-shadow var(--d-1) var(--ease), background var(--d-1) var(--ease); }
+.pl-opt.is-on { background: var(--user-soft); box-shadow: 0 0 0 1.5px var(--user); }
+.pl-opt:active { transform: scale(0.99); }
+.pl-opt-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pl-check { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+.pl-opt.is-on .pl-check { background: var(--user); color: var(--bg); box-shadow: none; }
+.pl-opt-price { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.pl-opt-price b { font-size: 1.75rem; font-weight: 400; letter-spacing: -0.02em; }
+.pl-opt-price s { color: var(--ink-3); }
+.pl-opt-price small { color: var(--ink-3); font-size: var(--t-sm); }
+.pl-opt-note { font-size: var(--t-sm); color: var(--ink-3); line-height: 1.45; }
+.pl-fine { margin: 0; font-size: var(--t-xs); color: var(--ink-3); line-height: 1.5; }
+.pl-ref { display: grid; gap: 6px; padding: 16px; }
+.pl-ref p { margin: 0; }
+.pl-ref-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.pl-ref-row code { font-family: var(--mono); font-size: 1rem; letter-spacing: 0.06em; }

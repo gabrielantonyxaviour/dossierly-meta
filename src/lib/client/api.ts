@@ -9,7 +9,7 @@ export type ApiFailure = { ok: false; status: number; error: string; code?: stri
 export type ApiResult<T> = { ok: true; data: T } | ApiFailure;
 
 /** Codes the UI reacts to: pay-walls route to pricing, rate limits get a calm retry message. */
-export const needsPlan = (f: ApiFailure) => f.status === 402 || f.status === 403;
+export const needsPlan = (f: ApiFailure) => f.status === 402 || f.code === "payment_required";
 export const isRateLimited = (f: ApiFailure) => f.status === 429 || f.code === "rate_limited";
 
 export function friendlyError(f: ApiFailure): string {
@@ -161,8 +161,6 @@ export const api = {
     post<{ status: "done"; text: string; ms: number; model: string; translation?: string; translationModel?: string }>(
       "/api/asr", translate ? { audio: audioB64, lang, translate } : { audio: audioB64, lang },
     ),
-  checkout: (product: Product, code?: string) => post<{ checkoutUrl: string }>("/api/checkout", code ? { product, code } : { product }),
-  redeem: (code: string) => post<{ plan: Plan }>("/api/redeem", { code }),
 };
 
 /** Polls an agent task until done/failed, reporting every snapshot. Stops when `signal` aborts. */
