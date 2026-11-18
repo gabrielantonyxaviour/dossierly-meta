@@ -79,20 +79,42 @@ export function anthropicBody(req: ChatRequest, cfg: RoleConfig, stream: boolean
   return body;
 }
 
+/** Out of credit or a billing block on the primary key (Anthropic answers 400/402/403 with a billing message). */
+export function isBillingError(status: number, text: string): boolean {
+  if (status === 402) return true;
+  return (status === 400 || status === 403) && /credit balance|billing|purchase credits|plans? & billing/i.test(text);
+}
+
+/** Second key used only when the primary is out of credit (ANTHROPIC_API_KEY_FALLBACK, or the var named by ANTHROPIC_FALLBACK_KEY_ENV). */
+export function fallbackKey(env: unknown): string {
+  const e = (env ?? {}) as Record<string, unknown>;
+  const p: Record<string, string | undefined> = typeof process !== "undefined" ? process.env : {};
+  const name = (typeof e.ANTHROPIC_FALLBACK_KEY_ENV === "string" && e.ANTHROPIC_FALLBACK_KEY_ENV) || p?.ANTHROPIC_FALLBACK_KEY_ENV || "ANTHROPIC_API_KEY_FALLBACK";
+  const v = e[name] ?? p?.[name];
+  return typeof v === "string" ? v.trim() : "";
+}
+
 export async function anthropicPost(cfg: RoleConfig, body: unknown, o: MetaOpts, path = "/v1/messages"): Promise<Response> {
   assertProviderAllowed(cfg.provider, cfg.origin, o.env);
   if (!cfg.apiKey) throw new ModelError("The model service is not configured", "no_key", 503);
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), o.timeoutMs ?? 90_000);
+  const send = (key: string) => doFetch(o)(`${cfg.baseUrl}${path}`, {
+    method: "POST",
+    headers: { "x-api-key": key, "anthropic-version": ANTHROPIC_VERSION, "content-type": "application/json" },
+    body: JSON.stringify(body),
+    signal: ctl.signal,
+  });
   try {
-    const res = await doFetch(o)(`${cfg.baseUrl}${path}`, {
-      method: "POST",
-      headers: { "x-api-key": cfg.apiKey, "anthropic-version": ANTHROPIC_VERSION, "content-type": "application/json" },
-      body: JSON.stringify(body),
-      signal: ctl.signal,
-    });
+    let res = await send(cfg.apiKey);
     if (!res.ok) {
-      await res.body?.cancel().catch(() => undefined);
+      const text = await res.text().catch(() => "");
+      const spare = fallbackKey(o.env);
+      if (spare && spare !== cfg.apiKey && isBillingError(res.status, text)) {
+        res = await send(spare);
+        if (res.ok) return res;
+        await res.body?.cancel().catch(() => undefined);
+      }
       throw mapStatus(res.status);
     }
     return res;
