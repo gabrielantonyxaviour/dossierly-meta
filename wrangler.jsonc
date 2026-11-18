@@ -248,9 +248,9 @@
         {
           "name": "EMAIL",
           "allowed_sender_addresses": [
-            "alerts@larinova.com",
-            "no-reply@larinova.com",
-            "wsc@larinova.com"
+            "alerts@dossierly.larinova.com",
+            "no-reply@dossierly.larinova.com",
+            "wsc@dossierly.larinova.com"
           ]
         }
       ],

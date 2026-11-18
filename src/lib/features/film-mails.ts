@@ -10,8 +10,8 @@ import { SAMPLE_CASE_NO } from "./letters-samples";
 export const DORM_ADDRESS = "DS Babilon, ul. Kickiego 12, 04-369 Warszawa";
 export const FLAT_ADDRESS = "ul. Grzybowska 43A m. 12, 00-855 Warszawa";
 const OFFICE = "Mazowiecki Urząd Wojewódzki w Warszawie, Wydział Spraw Cudzoziemców";
-const OFFICE_EMAIL = "wsc@larinova.com";
-const OTHER_EMAIL = "no-reply@larinova.com";
+const OFFICE_EMAIL = "wsc@dossierly.larinova.com";
+const OTHER_EMAIL = "no-reply@dossierly.larinova.com";
 
 export interface FilmMailParams {
   /** YYYY-MM-DD, the recording day (fingerprint appointment). */

@@ -4,7 +4,7 @@
  * official is named. Sent only from larinova.com, never from a gov.pl address.
  */
 export const SAMPLE_CASE_NO = "WSC-II-P.6151.48213.2026";
-export const SAMPLE_SENDER = { email: "wsc@larinova.com", name: "Wydział Spraw Cudzoziemców" } as const;
+export const SAMPLE_SENDER = { email: "wsc@dossierly.larinova.com", name: "Wydział Spraw Cudzoziemców" } as const;
 const SAMPLE_PERSONA = "Arjun Raman";
 
 /** Parses SAMPLE_ADMIN_EMAILS (comma or space separated) into address -> demo persona. No address is stored in the repo. */
