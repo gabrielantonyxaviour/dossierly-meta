@@ -26,3 +26,5 @@ for (const p of products) {
   const body = (await res.json()) as { product_id?: string };
   process.stdout.write(`${p.env}=${res.ok ? body.product_id : `FAILED ${res.status}`}\n`);
 }
+
+export {};
