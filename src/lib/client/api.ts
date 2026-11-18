@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { tNow } from "@/lib/i18n/current";
 import type {
   AgentTask, Case, CaseEvent, Interpretation, Intro, Language, Ledger, Letter, LetterLink, LetterRead, Me, Plan,
   Product, Status, TurnInput, WatchResult, WrapResult,
@@ -12,12 +13,13 @@ export const needsPlan = (f: ApiFailure) => f.status === 402 || f.status === 403
 export const isRateLimited = (f: ApiFailure) => f.status === 429 || f.code === "rate_limited";
 
 export function friendlyError(f: ApiFailure): string {
-  if (f.code === "over_budget") return "Daily limit reached. Try again after 08:00 MYT.";
-  if (isRateLimited(f)) return "Lots of requests just now. Wait a few seconds and try again.";
-  if (needsPlan(f)) return "You have reached the free limit. Upgrade to Dossierly Plus to continue.";
-  if (f.status === 0) return "You seem to be offline. Check the connection and try again.";
-  if (f.code === "model_unavailable") return "The model is briefly unavailable. Try again in a few minutes.";
-  return f.error || "Something went wrong. Try again.";
+  const t = tNow("errors");
+  if (f.code === "over_budget") return t("overBudget");
+  if (isRateLimited(f)) return t("rateLimited");
+  if (needsPlan(f)) return t("needsPlan");
+  if (f.status === 0) return t("offline");
+  if (f.code === "model_unavailable") return t("modelUnavailable");
+  return f.error || t("generic");
 }
 
 let sessionPromise: Promise<ApiResult<AccountMe>> | null = null;

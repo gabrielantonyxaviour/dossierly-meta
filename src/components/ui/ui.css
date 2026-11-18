@@ -132,3 +132,13 @@ a.ui-row:hover, button.ui-row:hover { background: var(--card-2); }
 
 @media (prefers-reduced-motion: reduce) { .ui-skel { animation: none; } }
 .ui-seg button[aria-checked="true"] { background: var(--card); color: var(--ink); box-shadow: var(--e-1); }
+
+/* Interface-language picker: wraps instead of scrolling so every language stays visible at 360 px. */
+.lang-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+.lang-pick button {
+  min-height: 40px; padding: 0 14px; border: 0; border-radius: var(--pill); background: var(--sunken); color: var(--ink-2);
+  font: inherit; font-size: var(--t-sm); font-weight: 600; cursor: pointer; transition: background var(--d-2), color var(--d-2);
+}
+.lang-pick button[aria-checked="true"] { background: var(--ink); color: var(--canvas); }
+.lang-pick button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.lang-pick--compact button { min-height: 32px; padding: 0 10px; font-size: var(--t-xs, 0.8125rem); }

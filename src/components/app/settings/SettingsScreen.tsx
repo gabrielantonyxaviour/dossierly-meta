@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Avatar, Button, Card, ErrorState, Row, Section, Skeleton, TopBar, useToast } from "@/components/ui";
-import { PERMIT_LABEL, STAGE_LABEL } from "../format";
+import { permitLabel, stageLabel } from "../format";
 import { useCaseData } from "../shell/case-data";
 import { CHAT_KEY } from "../chat/useAgentChat";
 import { AssistantSection } from "./AssistantSection";
@@ -55,7 +55,7 @@ export function SettingsScreen() {
 
       <Section title="Your case">
         <Card flush>
-          <Row icon="case" title={p.permitType ? PERMIT_LABEL[p.permitType] : "Residence case"} sub={STAGE_LABEL[p.stage]} href="/app/case" chevron />
+          <Row icon="case" title={permitLabel(p.permitType)} sub={stageLabel(p.stage)} href="/app/case" chevron />
           <Row icon="globe" title="Language" sub="Dossierly answers and speaks in this language" end={<span>{LANG[p.preferredLanguage] ?? p.preferredLanguage}</span>} onClick={() => setEditing(true)} />
           <Row icon="clock" title="Time zone" end={<span>Warsaw</span>} />
         </Card>

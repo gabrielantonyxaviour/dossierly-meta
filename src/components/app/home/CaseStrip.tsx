@@ -1,7 +1,7 @@
 "use client";
 import { FACT_KEYS, type CaseSnapshot } from "@/lib/case/types";
 import { Card, Pill, Row, Section, useToast } from "@/components/ui";
-import { PERMIT_LABEL, STAGE_LABEL } from "../format";
+import { permitLabel, stageLabel } from "../format";
 
 export const FACT_LABEL: Record<(typeof FACT_KEYS)[number], string> = {
   caseNumber: "Case number", office: "Office", filedAt: "Filed", upoReceivedAt: "UPO receipt", mosStatus: "MOS status", inpolStatus: "inPOL status",
@@ -18,7 +18,7 @@ export function CaseStrip({ c }: { c: CaseSnapshot }) {
   return (
     <Section title="Your case" action={{ label: "Open case", href: "/app/case" }}>
       <Card flush>
-        <Row icon="case" title={c.profile.permitType ? PERMIT_LABEL[c.profile.permitType] : "Residence case"} sub={[STAGE_LABEL[c.profile.stage], c.profile.organisation].filter(Boolean).join(" · ")} />
+        <Row icon="case" title={permitLabel(c.profile.permitType)} sub={[stageLabel(c.profile.stage), c.profile.organisation].filter(Boolean).join(" · ")} />
         {facts.map(([k, f]) => (
           <Row key={k} title={<span className={k === "caseNumber" ? "ui-num" : undefined}>{f.value}</span>} sub={FACT_LABEL[k]}
             end={<Pill tone={f.confirmedByUser ? "ok" : "outline"}>{SOURCE_LABEL[f.source.type]}</Pill>}

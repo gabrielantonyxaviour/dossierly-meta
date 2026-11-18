@@ -3,7 +3,7 @@ import { useState } from "react";
 import { STAGES, type CaseSnapshot } from "@/lib/case/types";
 import { Pill, Sheet, useToast } from "@/components/ui";
 import { Icon } from "@/components/Icon";
-import { STAGE_LABEL } from "../format";
+import { stageLabel } from "../format";
 import { FACT_LABEL, SOURCE_LABEL } from "../home/CaseStrip";
 
 const filedLabel = (d: string) => new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${d}T12:00:00Z`)).replace("Sept", "Sep");
@@ -37,13 +37,13 @@ export function CaseHeader({ c }: { c: CaseSnapshot }) {
         {STAGES.map((s, i) => (
           <li key={s} className={i < at ? "is-done" : i === at ? "is-now" : undefined} aria-current={i === at ? "step" : undefined}>
             <span className="cs-stage-dot">{i < at && <Icon name="check" size={11} />}</span>
-            <span className="cs-stage-label">{STAGE_LABEL[s]}</span>
+            <span className="cs-stage-label">{stageLabel(s)}</span>
           </li>
         ))}
       </ol>
       {at >= 0 && (
         <p className="cs-stage-caption" aria-hidden="true">
-          <span>Step {at + 1} of {STAGES.length}{STAGES[at + 1] ? ` · Next: ${STAGE_LABEL[STAGES[at + 1]]}` : ""}</span>
+          <span>Step {at + 1} of {STAGES.length}{STAGES[at + 1] ? ` · Next: ${stageLabel(STAGES[at + 1])}` : ""}</span>
         </p>
       )}
       <Sheet open={open} onClose={() => setOpen(false)} title="Case details">

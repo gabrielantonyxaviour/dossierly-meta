@@ -1,7 +1,7 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ErrorState, IconLink, Segmented, Skeleton, TopBar } from "@/components/ui";
-import { PERMIT_LABEL, STAGE_LABEL } from "../format";
+import { permitLabel, stageLabel } from "../format";
 import { useCaseData } from "../shell/case-data";
 import { CaseHeader } from "./CaseHeader";
 import { KeyCards } from "./KeyCards";
@@ -29,8 +29,8 @@ export function CaseScreen() {
     <div className="sh-page cs">
       <TopBar
         title="Your case"
-        eyebrow={c.profile.permitType ? PERMIT_LABEL[c.profile.permitType] : "Residence case"}
-        sub={STAGE_LABEL[c.profile.stage]}
+        eyebrow={permitLabel(c.profile.permitType)}
+        sub={stageLabel(c.profile.stage)}
         actions={<IconLink href={`/app/chat?q=${encodeURIComponent("Summarise where my case stands and what could go wrong next.")}`} icon="sparkle" label="Ask about your case" />}
       />
       <CaseHeader c={c} />
