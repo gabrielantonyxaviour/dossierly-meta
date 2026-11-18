@@ -37,7 +37,7 @@ export async function releaseAccount(env: Env, accountId: string, now: number): 
 /** Accounts to look at this tick: oldest last_run first (never-run first). */
 export async function dueAccounts(env: Env, limit: number): Promise<{ account_id: string; connected_at: number }[]> {
   const r = await env.DB.prepare(
-    "SELECT c.account_id AS account_id, c.connected_at AS connected_at FROM connection_accounts c LEFT JOIN watch_accounts w ON w.account_id = c.account_id WHERE c.category = 'mail' AND c.provider = 'gmail' ORDER BY COALESCE(w.last_run, 0) ASC LIMIT ?",
+    "SELECT c.account_id AS account_id, c.connected_at AS connected_at FROM connection_accounts c LEFT JOIN watch_accounts w ON w.account_id = c.account_id WHERE c.category = 'mail' AND c.provider IN ('gmail', 'outlook') ORDER BY COALESCE(w.last_run, 0) ASC LIMIT ?",
   ).bind(limit).all<{ account_id: string; connected_at: number }>();
   return r.results;
 }

@@ -4,6 +4,7 @@ import openNext from "../.open-next/worker.js";
 import { runWithCloudflareRequestContext } from "../.open-next/cloudflare/init.js";
 import { routeVoice } from "../src/lib/voice/server/route";
 import { runWatchTick } from "../src/lib/watch/tick";
+import { handleInbound, type InboundMessage } from "../src/lib/inbound/handle";
 import { runNightlyReviews } from "../src/lib/strategist";
 
 export { UserDO } from "./user-do";
@@ -32,6 +33,11 @@ export default {
   async fetch(req: Request, env: Record<string, unknown>, ctx: unknown): Promise<Response> {
     const voice = await routeVoice(req, env as never);
     return voice ?? (openNext.fetch as (r: Request, e: unknown, c: unknown) => Promise<Response>)(req, env, ctx);
+  },
+
+  /** Cloudflare Email Routing: mail sent to a user's case-<id>@<INBOUND_MAIL_DOMAIN> forwarding address. */
+  async email(message: InboundMessage, env: Record<string, unknown>, ctx: unknown): Promise<void> {
+    await withContext(env, ctx, () => handleInbound(env as never, message)).catch(() => undefined);
   },
 
   /** Every 2 minutes: the per-user inbox watcher. Daily at 02:00 UTC: start one NightlyWatch instance per day (id is duplicate-safe). */
