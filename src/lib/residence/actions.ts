@@ -88,8 +88,10 @@ export function planResidenceAction(c: CaseSnapshot, a: ResidenceAction, today: 
     }
     case "decision": {
       if (a.deliveredOn > today) throw new ResidenceActionError("The delivery date cannot be in the future.", "future_date");
-      const decision = { outcome: a.outcome, deliveredOn: a.deliveredOn, validUntil: a.outcome === "approved" ? a.validUntil : null, cardCollectedOn: null };
-      const plan: ResidencePlan = { profile: { decision, ...stagePatch("decision") } };
+      // Correcting the dates of the same outcome keeps a recorded card collection.
+      const cardCollectedOn = a.outcome === "approved" && p.decision?.outcome === "approved" ? p.decision.cardCollectedOn : null;
+      const decision = { outcome: a.outcome, deliveredOn: a.deliveredOn, validUntil: a.outcome === "approved" ? a.validUntil : null, cardCollectedOn };
+      const plan: ResidencePlan = { profile: { decision, ...stagePatch(cardCollectedOn ? "after" : "decision") } };
       if (a.outcome === "refused") {
         const d = appealDeadline(a.deliveredOn);
         plan.deadline = {

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Profile } from "@/lib/case/types";
 import type { OnboardingState } from "@/lib/server/onboarding";
 import { failure, flowApi } from "@/lib/client/onboarding-flow";
@@ -8,33 +9,35 @@ import { InboxStep, type InboxPhase } from "./InboxStep";
 import { Button, MobileFlowHeader, MobilePage, ScreenTitle } from "@/components/ui";
 import { PhoneStep } from "./PhoneStep";
 import { HelloScreen } from "./HelloScreen";
-import { CityScreen, DetailsScreen, LanguageScreen, NameScreen, ReasonScreen, StageScreen } from "./Questions";
+import { LanguageScreen, NameScreen } from "./Questions";
 import { WelcomeStep } from "./WelcomeStep";
-import { firstName, type Reason } from "./options";
+import { firstName } from "./options";
+import { START_IDS, StartScreen, startCopy, type StartId } from "./StartScreens";
+import { OLD_TO_NEW } from "@/lib/residence/stage";
 import { useT } from "@/lib/i18n/client";
 import type { T } from "@/lib/i18n/translate";
 
-/** One short question per screen. Several screens can share a server step (1: name + language, 4: city + details). */
+/**
+ * One short question per screen. Several screens share a server step: 1 name + language, 2 situation + permit,
+ * 3 dates + family, 4 the plan (stage 0 · Start of the residence case), then the optional extras: 5 mail, 6 alerts.
+ */
 const SCREENS = [
   { id: "hello", step: 1, title: "screenWelcome" }, { id: "name", step: 1, title: "screenAboutYou" }, { id: "language", step: 1, title: "screenAboutYou" },
-  { id: "reason", step: 2, title: "screenPermit" }, { id: "stage", step: 3, title: "screenPermit" },
-  { id: "city", step: 4, title: "screenWhere" }, { id: "details", step: 4, title: "screenWhere" },
+  { id: "situation", step: 2, title: "screenPermit" }, { id: "ground", step: 2, title: "screenPermit" },
+  { id: "dates", step: 3, title: "screenWhere" }, { id: "family", step: 3, title: "screenFamily" }, { id: "plan", step: 4, title: "screenPlan" },
   { id: "inbox", step: 5, title: "screenMail" }, { id: "phone", step: 6, title: "screenAlerts" },
 ] as const;
+const isStart = (id: string): id is StartId => (START_IDS as readonly string[]).includes(id);
 type ScreenId = (typeof SCREENS)[number]["id"];
 const firstOf = (step: number) => SCREENS.findIndex((s) => s.step === step);
 
-function copy(t: T, id: ScreenId | "welcome", name: string, profile: Profile, inbox: InboxPhase): [string, string] {
-  const study = profile.permitType === "temporary_residence_study", work = profile.permitType === "temporary_residence_work";
+function copy(t: T, tr: T, id: ScreenId | "welcome", name: string, profile: Profile, inbox: InboxPhase): [string, string] {
+  if (isStart(id)) return startCopy(tr, id, profile);
   switch (id) {
     case "welcome": return [name ? t("welcomeTitleNamed", { name }) : t("welcomeTitle"), t("welcomeSub")];
     case "hello": return [t("helloTitle"), t("helloSub")];
     case "name": return [t("nameTitle"), t("nameSub")];
     case "language": return [t("languageTitle"), t("languageSub")];
-    case "reason": return [name ? t("reasonTitleNamed", { name }) : t("reasonTitle"), t("reasonSub")];
-    case "stage": return [t("stageTitle"), t("stageSub")];
-    case "city": return [t("cityTitle"), t("citySub")];
-    case "details": return [study ? t("detailsStudy") : work ? t("detailsWork") : t("detailsOther"), t("detailsSub")];
     case "phone": return [t("phoneTitle"), t("phoneSub")];
     case "inbox": return inbox === "calendar" ? [t("inboxCalendarTitle"), t("inboxCalendarSub")]
       : inbox === "saved" ? [t("inboxSavedTitle"), t("inboxSavedSub")]
@@ -47,10 +50,11 @@ function copy(t: T, id: ScreenId | "welcome", name: string, profile: Profile, in
 
 export function OnboardingFlow({ initial, profile: initialProfile, returned }: { initial: OnboardingState; profile: Profile; email: string | null; returned: string | null }) {
   const t = useT("onboarding");
+  const tr = useT("residence");
+  const router = useRouter();
   const [state, setState] = useState(initial);
   const [profile, setProfile] = useState(initialProfile);
   const [screen, setScreen] = useState(Math.max(0, firstOf(initial.step)));
-  const [reason, setReason] = useState<Reason | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ text: string; retry?: () => void } | null>(null);
   const [welcome, setWelcome] = useState(initial.status === "completed");
@@ -91,6 +95,24 @@ export function OnboardingFlow({ initial, profile: initialProfile, returned }: {
     try { sessionStorage.setItem("ob-google-chain", "1"); } catch { /* private mode: one consent at a time */ }
     setAuto(true); setBusy(true); await move(SCREENS.findIndex((s) => s.id === "inbox")); setBusy(false);
   }
+  /** The residence answers that build the case: without them the plan cannot be made. */
+  const missingStart = () => !profile.situation ? "situation" : !profile.permitType || profile.permitType === "other" ? "ground" : !profile.voivodeship ? "dates" : null;
+  /** After the mail step: unanswered case questions come first (the voice path skips them), then alerts. */
+  async function afterInbox(saved?: number) {
+    if (saved !== undefined) setFound(saved);
+    const gap = missingStart();
+    setBusy(true); await move(SCREENS.findIndex((s) => s.id === (gap ?? "phone"))); setBusy(false);
+  }
+  /** After the plan: the mail step unless it was already done on the voice path. */
+  async function afterPlan() {
+    setBusy(true); await move(SCREENS.findIndex((s) => s.id === (state.step >= 5 || found > 0 ? "phone" : "inbox"))); setBusy(false);
+  }
+  async function finishNow() {
+    setError(null); setBusy(true);
+    const r = await flowApi.complete();
+    if (r.ok) router.push(profile.situation === "letter" ? "/app/look" : "/app");
+    else { setBusy(false); setError({ text: failure(r) ?? t("errorFinish"), retry: () => void finishNow() }); }
+  }
   async function back() { setBusy(true); await move(Math.max(0, screen - 1)); setBusy(false); }
   async function complete() {
     setError(null);
@@ -100,11 +122,12 @@ export function OnboardingFlow({ initial, profile: initialProfile, returned }: {
   }
 
   const id: ScreenId | "welcome" = welcome ? "welcome" : current.id;
-  const [say, sub] = copy(t, id, name, profile, inbox);
+  const [say, sub] = copy(t, tr, id, name, profile, inbox);
+  const headerTitle = current.title === "screenFamily" || current.title === "screenPlan" ? tr(current.title) : t(current.title);
   const base = { profile, busy, next };
   return (
     <main className="ob" data-screen={id}>
-      {!welcome && <MobileFlowHeader title={t(current.title)} progress={{ at: screen + 1, of: SCREENS.length }} back={screen > 0 && !busy ? () => void back() : undefined} />}
+      {!welcome && <MobileFlowHeader title={headerTitle} progress={{ at: screen + 1, of: SCREENS.length }} back={screen > 0 && !busy ? () => void back() : undefined} />}
       <div className="ob-grid">
         <MobilePage actions="double" className="ob-talk" key={id}>
           <ScreenTitle title={say} sub={sub} />
@@ -113,16 +136,14 @@ export function OnboardingFlow({ initial, profile: initialProfile, returned }: {
             : id === "hello" ? <HelloScreen onProfile={setProfile} onEmail={() => void toEmail()} onType={() => void next()} />
             : id === "name" ? <NameScreen {...base} />
             : id === "language" ? <LanguageScreen {...base} />
-            : id === "reason" ? <ReasonScreen {...base} reason={reason} setReason={setReason} />
-            : id === "stage" ? <StageScreen {...base} answered={initial.step > 3 || state.step > 3 || !!profile.city} />
-            : id === "city" ? <CityScreen {...base} />
-            : id === "details" ? <DetailsScreen {...base} reason={reason} />
+            : isStart(id) ? <StartScreen id={id} profile={profile} busy={busy} next={next} setProfile={setProfile} setBusy={setBusy}
+                fail={(text, retry) => setError({ text, retry })} onExtras={() => void afterPlan()} onFinish={() => void finishNow()} />
             : id === "inbox" ? <InboxStep returned={returned} auto={auto} stage={profile.stage} onPhase={setInbox}
-                applyStage={async (stage) => { const r = await flowApi.profile({ stage }); if (r.ok) setProfile(r.data); return r.ok; }}
-                setCalendarAdded={setCalendarAdded} onSkip={() => void next()} onDone={(saved) => { setFound(saved); void next(); }} />
+                applyStage={async (stage) => { const r = await flowApi.profile({ stage, residenceStage: OLD_TO_NEW[stage] }); if (r.ok) setProfile(r.data); return r.ok; }}
+                setCalendarAdded={setCalendarAdded} onSkip={() => void afterInbox()} onDone={(saved) => void afterInbox(saved)} />
             : <PhoneStep profile={profile} setProfile={setProfile} onDone={complete} />}
         </MobilePage>
-        {!welcome && <CaseFile profile={profile} reason={reason} step={current.step} found={found} />}
+        {!welcome && <CaseFile profile={profile} step={current.step} found={found} />}
       </div>
     </main>
   );

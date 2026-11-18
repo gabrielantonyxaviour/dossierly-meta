@@ -53,6 +53,8 @@ export function LookFlow({ boot = null }: { boot?: "doc" | "look" | null }) {
      (the emailed letter, first page); ?sample=<id> reads a test letter live. */
   const booted = useRef(false);
   const fromDoc = useRef<string | null>(null);
+  /* ?hint=upo (from the residence filing step): tells the reader what kind of paper to expect. */
+  const hint = useRef<LookKind | undefined>(undefined);
   useEffect(() => {
     if (booted.current) return;
     booted.current = true;
@@ -60,6 +62,7 @@ export function LookFlow({ boot = null }: { boot?: "doc" | "look" | null }) {
     const look = q.get("look");
     const sample = q.get("sample");
     const doc = q.get("doc");
+    if (q.get("hint") === "upo") hint.current = "upo";
     if (doc && DOC_ID.test(doc)) {
       fromDoc.current = doc;
       void Promise.resolve().then(() => start(() => prepareFromDocument(doc, LOOK_SIDE), { question: "", hint: "letter" })).finally(() => setOpening(false));
@@ -78,7 +81,7 @@ export function LookFlow({ boot = null }: { boot?: "doc" | "look" | null }) {
     setQuery(null);
   }, [reset, router]);
 
-  const onFile = useCallback((f: Blob, question: string) => void start(() => prepareImage(f, LOOK_SIDE), { question }), [start]);
+  const onFile = useCallback((f: Blob, question: string) => void start(() => prepareImage(f, LOOK_SIDE), { question, hint: hint.current }), [start]);
   const onSample = useCallback((p: SamplePick, question: string) => void start(() => prepareFromUrl(p.src, LOOK_SIDE), { question, sample: true }), [start]);
 
   if (opening && state.phase === "idle") {

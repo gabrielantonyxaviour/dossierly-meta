@@ -1,5 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { Icon, type IconName } from "@/components/Icon";
 import { cx, Pill } from "@/components/ui";
 import type { Step } from "./data";
@@ -7,18 +8,20 @@ import type { Step } from "./data";
 /* Reference A (ReUI Timeline-1, Agent Activity-1) and B (flight-status line), adapted to Dossierly's dark tokens. */
 
 /** Vertical case path: finished stages ticked, the current one open with its detail, later ones dimmed. */
-export function CasePath({ items, current }: { items: { id: string; title: string; date: string; detail?: string }[]; current: string }) {
+export type PathItem = { id: string; title: string; date: string; detail?: string; href?: string; action?: ReactNode };
+
+export function CasePath({ items, current, label = "Your case path" }: { items: PathItem[]; current: string; label?: string }) {
   const at = items.findIndex((i) => i.id === current);
   return (
-    <ol className="rp-path" aria-label="Your case path">
+    <ol className="rp-path" aria-label={label}>
       {items.map((it, i) => {
         const state = i < at ? "done" : i === at ? "now" : "next";
         return (
           <li key={it.id} className={cx("rp-path-item", `is-${state}`)} aria-current={state === "now" ? "step" : undefined}>
             <span className="rp-path-mark" aria-hidden="true">{state === "done" ? <Icon name="check" size={13} /> : state === "now" ? <span className="rp-pulse" /> : null}</span>
             <div className="rp-path-body">
-              <div className="rp-path-head"><b>{it.title}</b><span className="ui-num">{it.date}</span></div>
-              {it.detail && (state === "now" ? <div className="rp-path-card">{it.detail}</div> : <p className="rp-path-sub">{it.detail}</p>)}
+              <div className="rp-path-head">{it.href ? <Link href={it.href} className="rp-path-link"><b>{it.title}</b></Link> : <b>{it.title}</b>}<span className="ui-num">{it.date}</span></div>
+              {it.detail && (state === "now" ? <div className="rp-path-card">{it.detail}{it.action && <div className="rp-path-action">{it.action}</div>}</div> : <p className="rp-path-sub">{it.detail}</p>)}
             </div>
           </li>
         );

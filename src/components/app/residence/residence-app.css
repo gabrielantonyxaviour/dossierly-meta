@@ -1,0 +1,50 @@
+/* Residence case inside the app: the preview's parts (residence.css, rp-*) plus what the live screens add. Dark tokens only. */
+.rs-page { max-width: 640px; }
+.rs-screen { gap: 20px; }
+.rs-disclaimer { margin-top: 8px; }
+.rs-stepper-wrap { display: grid; gap: 14px; margin-bottom: 4px; }
+.rs-stepper-wrap .rp-stepper-caption { margin: 0; }
+.rs-optional { font-style: normal; color: var(--ink-3); font-weight: 400; }
+.rs-member-form { display: grid; gap: 14px; padding: 16px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--ring); }
+.rs-row-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+.rs-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.rs-actions > * { flex: 1 1 180px; }
+.rs-form { display: grid; gap: 14px; padding: 16px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--ring); }
+.rs-form .ob-field { display: grid; gap: 8px; min-width: 0; }
+.rs-form .ob-field > span, .rs-form .ob-field-label { font-size: 14px; font-weight: 500; color: var(--ink-2); }
+.rs-err { margin: 0; color: var(--deadline); font-size: 14px; }
+.rp-path-link { color: inherit; text-decoration: none; }
+.rp-path-link:hover b { text-decoration: underline; text-underline-offset: 3px; }
+.rp-path-action { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+.rp-path-head b { overflow-wrap: anywhere; }
+
+/* Checklist rows with a real tick button */
+.rs-check-row { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.rs-check-row:last-child { border-bottom: 0; }
+.rs-check-row.is-done .rp-check-main b { color: var(--ink-2); }
+.rs-check-row .rp-check-main { display: grid; gap: 2px; min-width: 0; }
+.rs-check-row .rp-check-main b { font-weight: 500; font-size: 0.9375rem; line-height: 1.35; overflow-wrap: anywhere; }
+.rs-check-row .rp-check-main span { font-size: var(--t-sm); color: var(--ink-3); line-height: 1.4; overflow-wrap: anywhere; }
+.rs-check-end { display: flex; align-items: center; gap: 6px; padding-top: 1px; }
+.rs-account { display: grid; gap: 2px; margin-top: 4px; padding: 8px 10px; border-radius: 10px; background: var(--surface-2); font-size: var(--t-sm); color: var(--ink-2); }
+.rs-account code { font-family: var(--mono); font-size: var(--t-sm); color: var(--ink); overflow-wrap: anywhere; }
+
+/* Home: the stage hero and the case path card */
+.rs-hero { display: grid; gap: 14px; }
+.rs-hero .rp-status { box-shadow: var(--e-2, var(--ring)); }
+.rs-hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.rs-hero-actions > * { flex: 1 1 160px; }
+.rs-pathcard { padding: 18px 16px 4px; border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--ring); }
+.rs-help-link { display: block; color: inherit; text-decoration: none; border-radius: var(--radius); }
+.rs-help-link:focus-visible { outline: 2px solid var(--user); outline-offset: 2px; }
+.rs-letters { display: grid; gap: 8px; }
+.rs-letter-pick { display: block; width: 100%; text-align: left; border: 0; padding: 0; background: none; color: inherit; font: inherit; cursor: pointer; border-radius: var(--radius); }
+.rs-letter-pick[aria-pressed="true"] .rp-fact { box-shadow: 0 0 0 1px var(--official-line, var(--official)); }
+.rs-kinds { display: grid; gap: 8px; }
+
+/* The Start questions reused inside the app (onboarding's flow.css is not loaded there). */
+.rs-screen .ob-answer { display: grid; gap: 16px; }
+.rs-screen .ob-field, .rs-form .ob-field { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.rs-screen .ob-field > span, .rs-screen .ob-field-label { font-size: 14px; font-weight: 500; color: var(--ink-2); }
+.rs-screen .ob-field-label em { font-style: normal; color: var(--ink-3); font-weight: 400; }
+.rs-screen .ob-field-err { color: var(--deadline); font-size: 14px; margin: 0; }

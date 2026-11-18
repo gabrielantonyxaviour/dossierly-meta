@@ -6,7 +6,7 @@ import { useLocale, useT } from "@/lib/i18n/client";
 import { useUnread } from "../AppShell";
 import { firstName, greeting } from "../format";
 import { useCaseData } from "../shell/case-data";
-import { NextStepCard } from "./NextStepCard";
+import { CasePathCard, ResidenceHero } from "../residence/ResidenceHome";
 import { OpenTasks, QuickActions, RecentActivity, UpcomingAppointment } from "./HomeSections";
 import { CaseStrip } from "./CaseStrip";
 import { ReadyCard } from "../ready/ReadyCard";
@@ -48,12 +48,13 @@ export function CaseHome() {
       <div className="hm-grid">
         <div className="hm-col">
           <ReadyCard c={snapshot} now={now} />
-          <NextStepCard next={next} snapshot={snapshot} />
+          <ResidenceHero c={snapshot} next={next} />
           <QuickActions />
           <ReviewEntry c={snapshot} />
           <UpcomingAppointment c={snapshot} />
         </div>
         <div className="hm-col">
+          <CasePathCard c={snapshot} />
           <OpenTasks c={snapshot} />
           <RecentActivity c={snapshot} />
           <CaseStrip c={snapshot} />

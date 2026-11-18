@@ -9,25 +9,25 @@ import type { HouseholdMember, PermitType, Voivodeship } from "@/lib/case/types"
  * Names stay in Polish: they are what the office and its letters use.
  */
 
-export type VoivodeshipInfo = { name: string; seat: string; avgDays2026: number };
+export type VoivodeshipInfo = { name: string; seat: string; avgDays2026: number; office: string };
 
 export const VOIVODESHIP_INFO: Record<Voivodeship, VoivodeshipInfo> = {
-  dolnoslaskie: { name: "Dolnośląskie", seat: "Wrocław", avgDays2026: 303 },
-  kujawsko_pomorskie: { name: "Kujawsko-Pomorskie", seat: "Bydgoszcz", avgDays2026: 541 },
-  lubelskie: { name: "Lubelskie", seat: "Lublin", avgDays2026: 386 },
-  lubuskie: { name: "Lubuskie", seat: "Gorzów Wielkopolski", avgDays2026: 555 },
-  lodzkie: { name: "Łódzkie", seat: "Łódź", avgDays2026: 386 },
-  malopolskie: { name: "Małopolskie", seat: "Kraków", avgDays2026: 242 },
-  mazowieckie: { name: "Mazowieckie", seat: "Warszawa", avgDays2026: 394 },
-  opolskie: { name: "Opolskie", seat: "Opole", avgDays2026: 510 },
-  podkarpackie: { name: "Podkarpackie", seat: "Rzeszów", avgDays2026: 302 },
-  podlaskie: { name: "Podlaskie", seat: "Białystok", avgDays2026: 447 },
-  pomorskie: { name: "Pomorskie", seat: "Gdańsk", avgDays2026: 598 },
-  slaskie: { name: "Śląskie", seat: "Katowice", avgDays2026: 658 },
-  swietokrzyskie: { name: "Świętokrzyskie", seat: "Kielce", avgDays2026: 325 },
-  warminsko_mazurskie: { name: "Warmińsko-Mazurskie", seat: "Olsztyn", avgDays2026: 273 },
-  wielkopolskie: { name: "Wielkopolskie", seat: "Poznań", avgDays2026: 339 },
-  zachodniopomorskie: { name: "Zachodniopomorskie", seat: "Szczecin", avgDays2026: 465 },
+  dolnoslaskie: { name: "Dolnośląskie", seat: "Wrocław", avgDays2026: 303, office: "Dolnośląski Urząd Wojewódzki" },
+  kujawsko_pomorskie: { name: "Kujawsko-Pomorskie", seat: "Bydgoszcz", avgDays2026: 541, office: "Kujawsko-Pomorski Urząd Wojewódzki" },
+  lubelskie: { name: "Lubelskie", seat: "Lublin", avgDays2026: 386, office: "Lubelski Urząd Wojewódzki" },
+  lubuskie: { name: "Lubuskie", seat: "Gorzów Wielkopolski", avgDays2026: 555, office: "Lubuski Urząd Wojewódzki" },
+  lodzkie: { name: "Łódzkie", seat: "Łódź", avgDays2026: 386, office: "Łódzki Urząd Wojewódzki" },
+  malopolskie: { name: "Małopolskie", seat: "Kraków", avgDays2026: 242, office: "Małopolski Urząd Wojewódzki" },
+  mazowieckie: { name: "Mazowieckie", seat: "Warszawa", avgDays2026: 394, office: "Mazowiecki Urząd Wojewódzki" },
+  opolskie: { name: "Opolskie", seat: "Opole", avgDays2026: 510, office: "Opolski Urząd Wojewódzki" },
+  podkarpackie: { name: "Podkarpackie", seat: "Rzeszów", avgDays2026: 302, office: "Podkarpacki Urząd Wojewódzki" },
+  podlaskie: { name: "Podlaskie", seat: "Białystok", avgDays2026: 447, office: "Podlaski Urząd Wojewódzki" },
+  pomorskie: { name: "Pomorskie", seat: "Gdańsk", avgDays2026: 598, office: "Pomorski Urząd Wojewódzki" },
+  slaskie: { name: "Śląskie", seat: "Katowice", avgDays2026: 658, office: "Śląski Urząd Wojewódzki" },
+  swietokrzyskie: { name: "Świętokrzyskie", seat: "Kielce", avgDays2026: 325, office: "Świętokrzyski Urząd Wojewódzki" },
+  warminsko_mazurskie: { name: "Warmińsko-Mazurskie", seat: "Olsztyn", avgDays2026: 273, office: "Warmińsko-Mazurski Urząd Wojewódzki" },
+  wielkopolskie: { name: "Wielkopolskie", seat: "Poznań", avgDays2026: 339, office: "Wielkopolski Urząd Wojewódzki" },
+  zachodniopomorskie: { name: "Zachodniopomorskie", seat: "Szczecin", avgDays2026: 465, office: "Zachodniopomorski Urząd Wojewódzki" },
 };
 
 export const DEFAULT_VOIVODESHIP: Voivodeship = "mazowieckie";
@@ -65,6 +65,23 @@ export function feeLines(own: { name: string; permitType: PermitType | null }, h
 }
 
 export const feeTotal = (lines: FeeLine[]): number => lines.reduce((n, l) => n + l.stamp + l.card, 0);
+
+/**
+ * Official fee accounts where the research read them on the office's own page (Mazowieckie 24 Oct 2026, Pomorskie
+ * Nov 2026). Elsewhere the app points to the office page instead of guessing.
+ */
+export const FEE_ACCOUNTS: Partial<Record<Voivodeship, { stamp: { to: string; account: string }; card: { to: string; account: string }; source: string }>> = {
+  mazowieckie: {
+    stamp: { to: "Centrum Obsługi Podatnika Urzędu m.st. Warszawy, ul. Obozowa 57", account: "21 1030 1508 0000 0005 5000 0070" },
+    card: { to: "Mazowiecki Urząd Wojewódzki, Biuro Finansów, pl. Bankowy 3/5", account: "83 1010 1010 0137 1022 3100 0000" },
+    source: "https://migrant.wsc.mazowieckie.pl/pl/wskazowki/oplaty",
+  },
+  pomorskie: {
+    stamp: { to: "Urząd Miejski w Gdańsku", account: "31 1240 1268 1111 0010 3877 3935" },
+    card: { to: "Pomorski Urząd Wojewódzki w Gdańsku", account: "07 1010 1140 0169 1322 3100 0000" },
+    source: "https://wsc.gdansk.uw.gov.pl/",
+  },
+};
 
 /** Free legal aid and a lawyer directory. Dossierly is not a law firm and never picks one for you. */
 export const LEGAL_HELP = [

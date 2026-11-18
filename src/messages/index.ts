@@ -25,6 +25,7 @@ import enPricing from "./en/pricing.json";
 import enPrivacy from "./en/privacy.json";
 import enReady from "./en/ready.json";
 import enRehearse from "./en/rehearse.json";
+import enResidence from "./en/residence.json";
 import enReview from "./en/review.json";
 import enSettings from "./en/settings.json";
 import enShell from "./en/shell.json";
@@ -57,6 +58,7 @@ import hiPricing from "./hi/pricing.json";
 import hiPrivacy from "./hi/privacy.json";
 import hiReady from "./hi/ready.json";
 import hiRehearse from "./hi/rehearse.json";
+import hiResidence from "./hi/residence.json";
 import hiReview from "./hi/review.json";
 import hiSettings from "./hi/settings.json";
 import hiShell from "./hi/shell.json";
@@ -89,6 +91,7 @@ import ukPricing from "./uk/pricing.json";
 import ukPrivacy from "./uk/privacy.json";
 import ukReady from "./uk/ready.json";
 import ukRehearse from "./uk/rehearse.json";
+import ukResidence from "./uk/residence.json";
 import ukReview from "./uk/review.json";
 import ukSettings from "./uk/settings.json";
 import ukShell from "./uk/shell.json";
@@ -121,6 +124,7 @@ import taPricing from "./ta/pricing.json";
 import taPrivacy from "./ta/privacy.json";
 import taReady from "./ta/ready.json";
 import taRehearse from "./ta/rehearse.json";
+import taResidence from "./ta/residence.json";
 import taReview from "./ta/review.json";
 import taSettings from "./ta/settings.json";
 import taShell from "./ta/shell.json";
@@ -131,13 +135,13 @@ import taUi from "./ta/ui.json";
 import taVisit from "./ta/visit.json";
 import taVoice from "./ta/voice.json";
 
-const en = { "auth": enAuth, "case": enCase, "chat": enChat, "common": enCommon, "connections": enConnections, "counter": enCounter, "errors": enErrors, "help": enHelp, "home": enHome, "landing": enLanding, "legal": enLegal, "letters": enLetters, "look": enLook, "mos": enMos, "notifications": enNotifications, "onboarding": enOnboarding, "photo": enPhoto, "plan": enPlan, "prepare": enPrepare, "pricing": enPricing, "privacy": enPrivacy, "ready": enReady, "rehearse": enRehearse, "review": enReview, "settings": enSettings, "shell": enShell, "site": enSite, "time": enTime, "tour": enTour, "ui": enUi, "visit": enVisit, "voice": enVoice } as const;
+const en = { "auth": enAuth, "case": enCase, "chat": enChat, "common": enCommon, "connections": enConnections, "counter": enCounter, "errors": enErrors, "help": enHelp, "home": enHome, "landing": enLanding, "legal": enLegal, "letters": enLetters, "look": enLook, "mos": enMos, "notifications": enNotifications, "onboarding": enOnboarding, "photo": enPhoto, "plan": enPlan, "prepare": enPrepare, "pricing": enPricing, "privacy": enPrivacy, "ready": enReady, "rehearse": enRehearse, "residence": enResidence, "review": enReview, "settings": enSettings, "shell": enShell, "site": enSite, "time": enTime, "tour": enTour, "ui": enUi, "visit": enVisit, "voice": enVoice } as const;
 export type Namespace = keyof typeof en;
 type Dict = { [N in Namespace]?: Record<string, string> };
 
 export const MESSAGES: Record<Locale, Dict> & { en: typeof en } = {
   en,
-  hi: { "auth": hiAuth, "case": hiCase, "chat": hiChat, "common": hiCommon, "connections": hiConnections, "counter": hiCounter, "errors": hiErrors, "help": hiHelp, "home": hiHome, "landing": hiLanding, "legal": hiLegal, "letters": hiLetters, "look": hiLook, "mos": hiMos, "notifications": hiNotifications, "onboarding": hiOnboarding, "photo": hiPhoto, "plan": hiPlan, "prepare": hiPrepare, "pricing": hiPricing, "privacy": hiPrivacy, "ready": hiReady, "rehearse": hiRehearse, "review": hiReview, "settings": hiSettings, "shell": hiShell, "site": hiSite, "time": hiTime, "tour": hiTour, "ui": hiUi, "visit": hiVisit, "voice": hiVoice },
-  uk: { "auth": ukAuth, "case": ukCase, "chat": ukChat, "common": ukCommon, "connections": ukConnections, "counter": ukCounter, "errors": ukErrors, "help": ukHelp, "home": ukHome, "landing": ukLanding, "legal": ukLegal, "letters": ukLetters, "look": ukLook, "mos": ukMos, "notifications": ukNotifications, "onboarding": ukOnboarding, "photo": ukPhoto, "plan": ukPlan, "prepare": ukPrepare, "pricing": ukPricing, "privacy": ukPrivacy, "ready": ukReady, "rehearse": ukRehearse, "review": ukReview, "settings": ukSettings, "shell": ukShell, "site": ukSite, "time": ukTime, "tour": ukTour, "ui": ukUi, "visit": ukVisit, "voice": ukVoice },
-  ta: { "auth": taAuth, "case": taCase, "chat": taChat, "common": taCommon, "connections": taConnections, "counter": taCounter, "errors": taErrors, "help": taHelp, "home": taHome, "landing": taLanding, "legal": taLegal, "letters": taLetters, "look": taLook, "mos": taMos, "notifications": taNotifications, "onboarding": taOnboarding, "photo": taPhoto, "plan": taPlan, "prepare": taPrepare, "pricing": taPricing, "privacy": taPrivacy, "ready": taReady, "rehearse": taRehearse, "review": taReview, "settings": taSettings, "shell": taShell, "site": taSite, "time": taTime, "tour": taTour, "ui": taUi, "visit": taVisit, "voice": taVoice },
+  hi: { "auth": hiAuth, "case": hiCase, "chat": hiChat, "common": hiCommon, "connections": hiConnections, "counter": hiCounter, "errors": hiErrors, "help": hiHelp, "home": hiHome, "landing": hiLanding, "legal": hiLegal, "letters": hiLetters, "look": hiLook, "mos": hiMos, "notifications": hiNotifications, "onboarding": hiOnboarding, "photo": hiPhoto, "plan": hiPlan, "prepare": hiPrepare, "pricing": hiPricing, "privacy": hiPrivacy, "ready": hiReady, "rehearse": hiRehearse, "residence": hiResidence, "review": hiReview, "settings": hiSettings, "shell": hiShell, "site": hiSite, "time": hiTime, "tour": hiTour, "ui": hiUi, "visit": hiVisit, "voice": hiVoice },
+  uk: { "auth": ukAuth, "case": ukCase, "chat": ukChat, "common": ukCommon, "connections": ukConnections, "counter": ukCounter, "errors": ukErrors, "help": ukHelp, "home": ukHome, "landing": ukLanding, "legal": ukLegal, "letters": ukLetters, "look": ukLook, "mos": ukMos, "notifications": ukNotifications, "onboarding": ukOnboarding, "photo": ukPhoto, "plan": ukPlan, "prepare": ukPrepare, "pricing": ukPricing, "privacy": ukPrivacy, "ready": ukReady, "rehearse": ukRehearse, "residence": ukResidence, "review": ukReview, "settings": ukSettings, "shell": ukShell, "site": ukSite, "time": ukTime, "tour": ukTour, "ui": ukUi, "visit": ukVisit, "voice": ukVoice },
+  ta: { "auth": taAuth, "case": taCase, "chat": taChat, "common": taCommon, "connections": taConnections, "counter": taCounter, "errors": taErrors, "help": taHelp, "home": taHome, "landing": taLanding, "legal": taLegal, "letters": taLetters, "look": taLook, "mos": taMos, "notifications": taNotifications, "onboarding": taOnboarding, "photo": taPhoto, "plan": taPlan, "prepare": taPrepare, "pricing": taPricing, "privacy": taPrivacy, "ready": taReady, "rehearse": taRehearse, "residence": taResidence, "review": taReview, "settings": taSettings, "shell": taShell, "site": taSite, "time": taTime, "tour": taTour, "ui": taUi, "visit": taVisit, "voice": taVoice },
 };

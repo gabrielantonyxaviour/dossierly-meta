@@ -16,6 +16,8 @@ type CaseData = {
   refresh: () => Promise<void>;
   patchItem: <K extends Collection>(kind: K, id: string, patch: Partial<CaseItemMap[K]>) => Promise<boolean>;
   patchProfile: (patch: Record<string, unknown>) => Promise<Profile | null>;
+  /** Replaces the snapshot with one a write returned (residence actions answer with the whole case). */
+  replace: (s: CaseSnapshot) => void;
 };
 
 const Ctx = createContext<CaseData | null>(null);
@@ -74,8 +76,9 @@ export function CaseDataProvider({ children }: { children: ReactNode }) {
     } catch { return null; }
   }, []);
 
+  const replace = useCallback((s: CaseSnapshot) => { setSnapshot(s); setStatus("ready"); setError(null); }, []);
   const next = useMemo(() => (snapshot ? nextStep(snapshot) : null), [snapshot]);
-  const value = useMemo(() => ({ status, error, snapshot, next, refresh, patchItem, patchProfile }), [status, error, snapshot, next, refresh, patchItem, patchProfile]);
+  const value = useMemo(() => ({ status, error, snapshot, next, refresh, patchItem, patchProfile, replace }), [status, error, snapshot, next, refresh, patchItem, patchProfile, replace]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
@@ -92,7 +95,7 @@ export const announceCaseChange = () => window.dispatchEvent(new Event("dossierl
 export function StaticCaseData({ snapshot, children }: { snapshot: CaseSnapshot; children: ReactNode }) {
   const value = useMemo<CaseData>(() => ({
     status: "ready", error: null, snapshot, next: nextStep(snapshot),
-    refresh: async () => {}, patchItem: async () => false, patchProfile: async () => null,
+    refresh: async () => {}, patchItem: async () => false, patchProfile: async () => null, replace: () => {},
   }), [snapshot]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
