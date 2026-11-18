@@ -27,6 +27,7 @@ export function StartScreen({ onDone }: { onDone: () => void }) {
           </li>
         ))}
       </ol>
+      <p className="rp-stepper-caption">Step {step + 1} of {STEPS.length} · {STEPS[step]}</p>
 
       {step === 0 && (
         <>

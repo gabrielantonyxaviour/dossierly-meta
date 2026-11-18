@@ -2,7 +2,7 @@
 
 Dossierly is a specialist caseworker for newcomers with a Polish temporary-residence case. A general-purpose agent cannot safely do this bureaucracy on its own: deadline arithmetic, KPA citations and official-letter reading need verified tooling. This server exposes those tools over the [Model Context Protocol](https://modelcontextprotocol.io) so any agent (Claude, ChatGPT, Muse when it reaches Europe, your own) can call them for the signed-in user.
 
-- Endpoint: `POST https://dossierly.cosmiclan.com/api/mcp`
+- Endpoint: `POST https://dossierly.larinova.com/api/mcp`
 - Transport: Streamable HTTP, JSON-RPC 2.0, JSON responses (no SSE stream; `GET` returns 405, which the spec allows)
 - Protocol versions: 2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05
 
@@ -12,11 +12,11 @@ Dossierly is a specialist caseworker for newcomers with a Polish temporary-resid
 2. Add the server:
 
 ```bash
-claude mcp add --transport http dossierly https://dossierly.cosmiclan.com/api/mcp \
+claude mcp add --transport http dossierly https://dossierly.larinova.com/api/mcp \
   --header "Authorization: Bearer dsl_..."
 ```
 
-Any other client: HTTP transport, URL above, header `Authorization: Bearer dsl_...`. For clients that only speak stdio, bridge with `npx mcp-remote https://dossierly.cosmiclan.com/api/mcp --header "Authorization: Bearer dsl_..."`.
+Any other client: HTTP transport, URL above, header `Authorization: Bearer dsl_...`. For clients that only speak stdio, bridge with `npx mcp-remote https://dossierly.larinova.com/api/mcp --header "Authorization: Bearer dsl_..."`.
 
 Manage tokens: `GET /api/mcp/tokens` lists active tokens (never secrets); `DELETE /api/mcp/tokens` with `{ "id": "mt_..." }` revokes one. Up to 10 active tokens per account.
 

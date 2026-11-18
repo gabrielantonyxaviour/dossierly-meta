@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Icon } from "@/components/Icon";
 import { BottomSheet, Button, Pill } from "@/components/ui";
-import { HELP, LETTER, PATH, PERSON } from "./data";
+import { HELP, LETTER, PERSON, WAIT_PATH } from "./data";
 import { Activity, Block, CasePath, Fact, StatusLine } from "./parts";
 
 /* Stage 3 · Waiting (reference B's status line over reference A's timeline) and stage 4 · Letter arrives
@@ -12,7 +12,7 @@ export function WaitingScreen() {
   return (
     <div className="rp-screen">
       <p className="rp-eyebrow">Stage 3 of 7 · Waiting</p>
-      <StatusLine word="Waiting" sub="Nothing for you to do. Dossierly reads every letter and email the day it arrives." pct={(146 / 394) * 100} left="Day 146" right="Average: 394 days" />
+      <StatusLine word="Waiting" sub="Nothing for you to do. Dossierly reads every letter and email the day it arrives." pct={(55 / 394) * 100} left="Day 55" right="Average: 394 days" />
       <Block title="What you can do now">
         <div className="rp-stack">
           <Fact icon="shield" tone="ok" title="Stay and work in Poland" sub="Your certificate of legal stay (zaświadczenie, 21 Dec) covers you until the decision" />
@@ -21,7 +21,7 @@ export function WaitingScreen() {
         </div>
       </Block>
       <Block title="Your case" aside={<span className="ui-meta">{PERSON.caseNo}</span>}>
-        <CasePath items={PATH} current="decision" />
+        <CasePath items={WAIT_PATH} current="review" />
       </Block>
       <p className="rp-note">Mazowieckie decided 89% of cases in more than 6 months and 41% in more than 12 (MSWiA, July 2026). A long wait is normal and does not mean something is wrong.</p>
     </div>

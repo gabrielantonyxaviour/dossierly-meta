@@ -22,9 +22,9 @@
 .rp-note { margin: 0; font-size: var(--t-sm); line-height: 1.5; color: var(--ink-3); }
 .rp-stack { display: grid; gap: 8px; }
 .rp-link { border: 0; background: none; padding: 6px 0; font: inherit; font-size: var(--t-sm); color: var(--official); cursor: pointer; }
-.rp-pager { position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; display: flex; justify-content: space-between; gap: 12px; padding: 14px max(16px, env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); background: linear-gradient(to top, var(--bg) 70%, transparent); }
+.rp-pager { position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px max(16px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); background: var(--glass); backdrop-filter: saturate(1.6) blur(18px); -webkit-backdrop-filter: saturate(1.6) blur(18px); border-top: 1px solid var(--line); }
 .rp-pager .ui-btn--primary { margin-left: auto; }
-@media (min-width: 600px) { .rp-pager { left: 50%; right: auto; width: 560px; transform: translateX(-50%); } }
+@media (min-width: 600px) { .rp-pager { padding-inline: max(16px, calc(50% - 264px)); } }
 .rp-foot { max-width: 560px; margin: 28px auto 0; padding: 0 16px; font-size: var(--t-xs); color: var(--ink-3); line-height: 1.5; }
 
 /* Blocks and facts */
@@ -111,8 +111,8 @@
 .rp-stepper li.is-now { color: var(--ink); }
 .rp-stepper li.is-now .rp-stepper-n { background: var(--user-soft); color: var(--user); box-shadow: inset 0 0 0 1px var(--user); }
 .rp-stepper-label { display: none; white-space: nowrap; }
-.rp-stepper li.is-now .rp-stepper-label { display: inline; }
-@media (min-width: 480px) { .rp-stepper-label { display: inline; } }
+.rp-stepper-caption { margin: -8px 0 0; font-size: var(--t-xs); color: var(--ink-3); }
+@media (min-width: 520px) { .rp-stepper-label { display: inline; } .rp-stepper-caption { display: none; } }
 .rp-wizard-foot { display: flex; justify-content: space-between; gap: 12px; padding-top: 4px; }
 .rp-wizard-foot .ui-btn--primary { margin-left: auto; min-width: 150px; }
 .rp-fields { display: grid; gap: 14px; }

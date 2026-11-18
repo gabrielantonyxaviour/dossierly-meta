@@ -23,7 +23,7 @@ type RunWithContext = (req: Request, env: unknown, ctx: unknown, fn: () => Promi
  * as a read-only getter over AsyncLocalStorage, so scheduled work runs inside its own request-context helper.
  */
 function withContext(env: unknown, ctx: unknown, fn: () => Promise<unknown>): Promise<unknown> {
-  const url = String((env as { APP_URL?: string }).APP_URL || "https://dossierly.cosmiclan.com");
+  const url = String((env as { APP_URL?: string }).APP_URL || "https://dossierly.larinova.com");
   return (runWithCloudflareRequestContext as RunWithContext)(new Request(`${url}/__scheduled`), env, ctx, fn);
 }
 type Bindings = { NIGHTLY_WATCH?: WorkflowBinding };

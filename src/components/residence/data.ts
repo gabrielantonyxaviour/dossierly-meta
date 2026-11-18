@@ -11,7 +11,7 @@ export const STAGES: { id: StageId; n: number; name: string; short: string; when
   { id: "start", n: 0, name: "Start", short: "Start", when: "Wed 18 Nov 2026" },
   { id: "prepare", n: 1, name: "Prepare", short: "Prepare", when: "Thu 19 Nov 2026" },
   { id: "file", n: 2, name: "File in MOS", short: "File", when: "Tue 8 Dec 2026" },
-  { id: "waiting", n: 3, name: "Waiting", short: "Waiting", when: "Mon 3 May 2027" },
+  { id: "waiting", n: 3, name: "Waiting", short: "Waiting", when: "Mon 1 Feb 2027" },
   { id: "letter", n: 4, name: "Letter arrives", short: "Letter", when: "Tue 16 Feb 2027" },
   { id: "visit", n: 5, name: "Fingerprint visit", short: "Visit", when: "Thu 18 Mar 2027" },
   { id: "decision", n: 6, name: "Decision", short: "Decision", when: "Fri 12 Nov 2027" },
@@ -50,6 +50,17 @@ export const PATH: { id: StageId; title: string; date: string; detail?: string }
   { id: "visit", title: "Fingerprints given", date: "18 Mar 2027", detail: "Passport shown, signature taken" },
   { id: "decision", title: "Decision", date: "expected Jun 2027 – Jun 2028", detail: "Mazowieckie average in 2026: 394 days" },
   { id: "after", title: "Card collected", date: "after the decision", detail: "One visit, about 3–4 weeks after the decision" },
+];
+
+/** The same path as seen while waiting (1 Feb 2027): what is done, and what usually comes next. */
+export const WAIT_PATH: { id: string; title: string; date: string; detail?: string }[] = [
+  { id: "prepare", title: "Documents ready", date: "4 Dec 2026", detail: "11 of 11 items, both fees paid" },
+  { id: "file", title: "Filed in MOS", date: "8 Dec 2026", detail: "UPO receipt saved" },
+  { id: "cert", title: "Certificate of legal stay", date: "21 Dec 2026", detail: "You may stay and work while the case runs" },
+  { id: "review", title: "Office reviews your file", date: "now", detail: "It may send a letter asking for documents (wezwanie). Dossierly reads it the day it arrives." },
+  { id: "visit", title: "Fingerprint visit", date: "the office sets the date", detail: "At least 7 days' notice" },
+  { id: "decision", title: "Decision", date: "expected Jun 2027 – Jun 2028", detail: "Mazowieckie average in 2026: 394 days" },
+  { id: "after", title: "Card collected", date: "after the decision" },
 ];
 
 export const CHECKLIST: { group: string; items: { title: string; sub: string; state: "done" | "todo" | "warn"; who?: string }[] }[] = [
