@@ -61,8 +61,10 @@ describe("speech never reaches Meta, for any origin", () => {
     expect(hosts(seen)).toEqual(["api.elevenlabs.io"]);
   });
 
-  it("the gate itself still refuses a Meta provider for user content (sam and search stay blocked)", () => {
-    for (const role of ["sam", "search"] as const) expect(() => resolveRole(role, EL)).toThrow(ModelError);
+  it("the gate itself still refuses a Meta provider for user content (sam is blocked; search is Claude for users)", () => {
+    expect(() => resolveRole("sam", EL)).toThrow(ModelError);
+    expect(resolveRole("search", EL).provider).toBe("anthropic");
+    expect(() => resolveRole("search", { ...EL, MODEL_SEARCH_USER_PROVIDER: "meta" })).toThrow(ModelError);
     expect(() => resolveRole("asr", EL)).not.toThrow();
   });
 });

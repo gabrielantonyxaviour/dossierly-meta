@@ -1,8 +1,9 @@
 import "./helpers/legacy-meta";
 import { describe, expect, it } from "vitest";
 import {
-  createMetaClient, metaChat, metaChatStream, metaJson, parseSamOutput, samSegment, visionGround, webSearch,
+  createMetaClient, metaChat, metaChatStream, metaJson, parseSamOutput, samSegment, visionGround,
 } from "@/lib/model/meta";
+import { webSearch } from "@/lib/model/anthropic-search";
 import { resolveRole } from "@/lib/model/roles";
 import { ModelError } from "@/lib/model/types";
 

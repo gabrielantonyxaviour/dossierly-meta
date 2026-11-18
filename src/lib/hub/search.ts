@@ -3,10 +3,12 @@
  * checked word for word) and cached in KV; the Meta grounded web search (Responses API, web_search tool) covers a
  * cold hub with no stored or bundled pages. Both are budgeted and written to the ledger. Never call on page load.
  */
-import { HUB_DOMAINS, HUB_LIMITS, SEARCH_USD_PER_CALL } from "../config";
+import type { ContentOrigin } from "../config";
+import { ANTHROPIC_SEARCH_USD_PER_CALL, HUB_DOMAINS, HUB_LIMITS } from "../config";
 import { Masker } from "../mask";
 import { meterFixed } from "../model/meter";
-import { webSearch, type Citation } from "../model/meta";
+import { webSearch } from "../model/anthropic-search";
+import type { Citation } from "../model/meta";
 import { costUsd } from "../model/cost";
 import type { Env } from "../server/env";
 import { checkAndSpend } from "../server/budget";
@@ -28,6 +30,8 @@ export interface CacheOpts {
   userId?: string | null;
   /** Demo-set entries never expire; everything else keeps for 7 days. */
   demo?: boolean;
+  /** Content origin for the model gate; absent means a real user (Claude). */
+  origin?: ContentOrigin;
 }
 
 const putCache = (env: Env, key: string, value: unknown, demo?: boolean) =>
@@ -126,21 +130,21 @@ export async function groundedSearch(
   }
   const userId = opts.userId ?? null;
   if (!(await checkAndSpend(env, "search_calls", 1, { userId: userId ?? undefined }))) {
-    await ledger(env, userId, "grounded web search", "api.meta.ai", "denied", q.length, masker.count);
+    await ledger(env, userId, "grounded web search", "web search", "denied", q.length, masker.count);
     return { passages: [], citations: [], origin: "budget" };
   }
   let result;
   try {
-    result = await meterFixed(env, 0.02 + SEARCH_USD_PER_CALL, async () => {
-      const r = await webSearch({ query: q, system: SEARCH_SYSTEM }, { env });
-      return { value: r, actualUsd: costUsd(r.model, r.usage) + r.searches * SEARCH_USD_PER_CALL };
+    result = await meterFixed(env, 0.02 + ANTHROPIC_SEARCH_USD_PER_CALL, async () => {
+      const r = await webSearch({ query: q, system: SEARCH_SYSTEM }, { env, origin: opts.origin });
+      return { value: r, actualUsd: costUsd(r.model, r.usage) + r.searches * (r.usdPerSearch ?? 0.01) };
     });
   } catch (err) {
-    // provider_blocked: the grounded search is Meta-only and a real user's query may not go there (model/gate.ts).
+    // provider_blocked: a real user's query may not go to Meta (model/gate.ts); search routes to Claude for user content.
     if (["no_key", "provider_blocked"].includes((err as { code?: string }).code ?? "")) return { passages: [], citations: [], origin: "no_key" };
     return { passages: [], citations: [], origin: "budget" };
   }
-  await ledger(env, userId, "grounded web search", "api.meta.ai", "allowed", q.length, masker.count);
+  await ledger(env, userId, "grounded web search", "web search", "allowed", q.length, masker.count);
   const official = result.citations.filter((c) => HOST_OK(c.url));
   const passages: SearchPassage[] = official.map((c) => ({
     url: c.url,

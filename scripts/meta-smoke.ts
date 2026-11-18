@@ -3,7 +3,8 @@
    Without the optional files it builds a synthetic letter image and a short tone WAV. */
 import { readFileSync } from "node:fs";
 import { deflateSync } from "node:zlib";
-import { createMetaClient, metaChatStream, metaJson, samSegment, visionGround, webSearch } from "../src/lib/model/meta";
+import { createMetaClient, metaChatStream, metaJson, samSegment, visionGround } from "../src/lib/model/meta";
+import { webSearch } from "../src/lib/model/anthropic-search";
 
 const out = (s: string) => process.stdout.write(`${s}\n`);
 const env = { MODEL_API_KEY: process.env.MODEL_API_KEY ?? "" };

@@ -5,4 +5,4 @@
  * themselves are tested in model-gate.test.ts and model-routing.test.ts, which do not import this.
  */
 process.env.META_USER_CONTENT = "allow";
-for (const role of ["INTERPRET", "GUARD", "REASON", "AGENT", "VISION", "DRAFT"]) process.env[`MODEL_${role}_USER_PROVIDER`] = "meta";
+for (const role of ["INTERPRET", "GUARD", "REASON", "AGENT", "VISION", "DRAFT", "SEARCH"]) process.env[`MODEL_${role}_USER_PROVIDER`] = "meta";

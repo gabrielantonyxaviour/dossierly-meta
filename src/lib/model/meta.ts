@@ -11,7 +11,7 @@ import { resolveRole, type EnvLike, type RoleConfig } from "./roles";
 import type { ChatClient, ChatMessage, ChatRequest, ChatResult, Usage } from "./types";
 import { ModelError } from "./types";
 import { relayable, relayMode, relayOf, viaRelay } from "./relay";
-import { SAM_USD_PER_IMAGE, type ContentOrigin, type Role } from "../config";
+import { SAM_USD_PER_IMAGE, SEARCH_USD_PER_CALL, type ContentOrigin, type Role } from "../config";
 
 export type { FetchLike, MetaOpts };
 export { visionGround, type GroundBox } from "./ground";
@@ -207,9 +207,12 @@ export async function samSegment(
 /* ---------- grounded web search (Responses API) ---------- */
 
 export interface Citation { url: string; title: string; start: number; end: number }
-export interface SearchResult { text: string; citations: Citation[]; searches: number; usage: Usage; model: string }
+export interface SearchResult { text: string; citations: Citation[]; searches: number; usage: Usage; model: string; /** Price of one search on the provider that answered. */ usdPerSearch?: number }
 
-export async function webSearch(args: { query: string; system?: string; maxTokens?: number }, o: MetaOpts = {}): Promise<SearchResult> {
+export type SearchArgs = { query: string; system?: string; maxTokens?: number };
+
+/** Meta Responses-API web search. Callers use webSearch (anthropic-search.ts), which routes by origin. */
+export async function metaWebSearch(args: SearchArgs, o: MetaOpts = {}): Promise<SearchResult> {
   const cfg = resolveRole("search", o.env, o.origin);
   const res = await postJson(cfg, "/responses", {
     model: cfg.model,
@@ -241,5 +244,5 @@ export async function webSearch(args: { query: string; system?: string; maxToken
     }
   }
   const usage = usageOf(json.usage, () => ({ tokensIn: Math.ceil(args.query.length / 3), tokensOut: args.maxTokens ?? 2500, cachedTokens: 0 }));
-  return { text, citations, searches: Math.max(searches, citations.length ? 1 : 0), usage, model: cfg.model };
+  return { text, citations, searches: Math.max(searches, citations.length ? 1 : 0), usage, model: cfg.model, usdPerSearch: SEARCH_USD_PER_CALL };
 }
