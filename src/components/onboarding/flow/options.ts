@@ -1,28 +1,31 @@
 import type { Profile } from "@/lib/case/types";
+import type { T } from "@/lib/i18n/translate";
 
+/** `id`/`permit` are stored values sent to the API; `title`/`hint` are message keys in the "onboarding" namespace. */
 export type Reason = "study" | "work" | "family" | "other";
 export const REASONS: { id: Reason; title: string; hint: string; permit: NonNullable<Profile["permitType"]> }[] = [
-  { id: "study", title: "I'm studying", hint: "Temporary residence for studies", permit: "temporary_residence_study" },
-  { id: "work", title: "I'm working", hint: "Temporary residence and work", permit: "temporary_residence_work" },
-  { id: "family", title: "I'm joining family", hint: "Family reunification", permit: "other" },
-  { id: "other", title: "Something else", hint: "Research, business, other grounds", permit: "other" },
+  { id: "study", title: "reasonStudy", hint: "reasonStudyHint", permit: "temporary_residence_study" },
+  { id: "work", title: "reasonWork", hint: "reasonWorkHint", permit: "temporary_residence_work" },
+  { id: "family", title: "reasonFamily", hint: "reasonFamilyHint", permit: "other" },
+  { id: "other", title: "reasonOther", hint: "reasonOtherHint", permit: "other" },
 ];
 
 export const STAGES: { id: Profile["stage"]; title: string; hint: string }[] = [
-  { id: "just_arrived", title: "I just landed", hint: "Haven't started the application yet" },
-  { id: "preparing_application", title: "Preparing my application", hint: "Gathering documents for MOS" },
-  { id: "filed", title: "I've filed it", hint: "Submitted in MOS, have or await the UPO" },
-  { id: "waiting_decision", title: "Waiting for a decision", hint: "Fingerprints given or letters arriving" },
-  { id: "decision_received", title: "I got a decision", hint: "Positive, negative or a card to collect" },
+  { id: "just_arrived", title: "stageJustArrived", hint: "stageJustArrivedHint" },
+  { id: "preparing_application", title: "stagePreparing", hint: "stagePreparingHint" },
+  { id: "filed", title: "stageFiled", hint: "stageFiledHint" },
+  { id: "waiting_decision", title: "stageWaiting", hint: "stageWaitingHint" },
+  { id: "decision_received", title: "stageDecision", hint: "stageDecisionHint" },
 ];
 
+/** City names stay in Polish: they are what the office and the letters use. */
 export const CITIES = ["Warszawa", "Kraków", "Wrocław", "Poznań", "Gdańsk", "Łódź", "Lublin", "Katowice", "Szczecin"];
 
 /** "Studying" vs "Working" changes what we ask for and what the agent prepares. */
-export const orgLabel = (permit: Profile["permitType"], reason: Reason | null) =>
-  permit === "temporary_residence_study" ? { label: "Your university", placeholder: "University of Warsaw" }
-  : permit === "temporary_residence_work" ? { label: "Your employer", placeholder: "Company name as on your contract" }
-  : reason === "family" ? { label: "Who you're joining (optional)", placeholder: "Spouse, parent…" }
-  : { label: "Organisation (optional)", placeholder: "University, employer or sponsor" };
+export const orgLabel = (permit: Profile["permitType"], reason: Reason | null, t: T) =>
+  permit === "temporary_residence_study" ? { label: t("orgUniversity"), placeholder: t("orgUniversityPlaceholder") }
+  : permit === "temporary_residence_work" ? { label: t("orgEmployer"), placeholder: t("orgEmployerPlaceholder") }
+  : reason === "family" ? { label: t("orgFamily"), placeholder: t("orgFamilyPlaceholder") }
+  : { label: t("orgOther"), placeholder: t("orgOtherPlaceholder") };
 
 export const firstName = (full: string | null | undefined) => (full ?? "").trim().split(/\s+/)[0] ?? "";

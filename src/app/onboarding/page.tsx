@@ -6,10 +6,14 @@ import { getEnv } from "@/lib/server/env";
 import { freshFirstRun } from "@/lib/dev/fresh";
 import { getOnboarding, restartOnboarding } from "@/lib/server/onboarding";
 import { OnboardingFlow } from "@/components/onboarding/flow/OnboardingFlow";
+import { getT } from "@/lib/i18n/server";
 import "./flow.css";
 import "./inbox.css";
 
-export const metadata: Metadata = { title: "Set up your case", robots: { index: false, follow: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT("onboarding");
+  return { title: t("metaTitle"), robots: { index: false, follow: false } };
+}
 export const dynamic = "force-dynamic";
 
 /** New accounts onboard, unfinished setups resume at their step, completed ones go to their case. */

@@ -4,6 +4,7 @@ import { failure, flowApi } from "@/lib/client/onboarding-flow";
 import type { Profile } from "@/lib/case/types";
 import { Player } from "@/lib/voice/client/audio";
 import { useAgentCall } from "@/lib/voice/client/useAgentCall";
+import { useT } from "@/lib/i18n/client";
 
 export type IntakeState = "idle" | "starting" | "listening" | "thinking" | "speaking" | "done";
 type Result = { reply: string; profile: Profile; firstName: string | null };
@@ -34,6 +35,7 @@ async function playStream(ctx: AudioContext, url: string, done: () => void) {
  * Typing uses one request and the same spoken answer.
  */
 export function useVoiceIntake(onResult: (r: Result) => void) {
+  const t = useT("onboarding");
   const call = useAgentCall({ mode: "intake" });
   const [typed, setTyped] = useState<{ state: IntakeState; heard: string; reply: string; error: string } | null>(null);
   const ctx = useRef<AudioContext | null>(null);
@@ -63,7 +65,7 @@ export function useVoiceIntake(onResult: (r: Result) => void) {
   const sendTyped = useCallback(async (text: string) => {
     setTyped({ state: "thinking", heard: text, reply: "", error: "" });
     const r = await flowApi.intake(text);
-    if (!r.ok) { setTyped({ state: "idle", heard: text, reply: "", error: failure(r) ?? "That didn’t go through. Try again." }); return; }
+    if (!r.ok) { setTyped({ state: "idle", heard: text, reply: "", error: failure(r) ?? t("intakeError") }); return; }
     const finish = () => { setTyped((t) => t && { ...t, state: "done" }); result.current(r.data); };
     setTyped({ state: "speaking", heard: text, reply: r.data.reply, error: "" });
     try {
@@ -74,7 +76,7 @@ export function useVoiceIntake(onResult: (r: Result) => void) {
     } catch {
       finish(); // the reply stays on screen as text
     }
-  }, []);
+  }, [t]);
 
   if (typed) return { state: typed.state, heard: typed.heard, reply: typed.reply, error: typed.error, metrics: [], start, stop: call.stop, typed: sendTyped };
   const ended = call.status === "ended" && !call.intake;
@@ -82,7 +84,7 @@ export function useVoiceIntake(onResult: (r: Result) => void) {
     state: voiceState,
     heard: call.partial || userTurn?.text || "",
     reply: agentTurn?.text ?? "",
-    error: call.error ?? (ended ? "I didn’t catch that. Tap the microphone and try again, or type instead." : ""),
+    error: call.error ?? (ended ? t("intakeMissed") : ""),
     metrics: call.metrics,
     start, stop: call.stop, typed: sendTyped,
   };

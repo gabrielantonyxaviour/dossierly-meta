@@ -10,6 +10,8 @@ import { StageHint, suggestedStage } from "./StageHint";
 import { mergeDocuments } from "@/lib/onboarding/merge";
 import { HowCounted, rowFor } from "./FoundRow";
 import type { Dated } from "./CalendarStep";
+import { useLocale, useT } from "@/lib/i18n/client";
+import { LOCALE_TAGS } from "@/lib/i18n/locales";
 
 const keyOf = (f: Finding) =>
   f.kind === "fact" ? `fact:${f.key}` : f.kind === "appointment" ? `apt:${f.date}:${f.time}` : f.kind === "deadline" ? `ddl:${f.dueDate}:${f.title.toLowerCase()}`
@@ -39,6 +41,8 @@ function split(findings: Finding[]) {
 }
 
 export function Review({ readings, rows, onSaved, onShowResult, stage, applyStage }: { onShowResult(): void; readings: MailReading[]; rows: InboxMessage[]; onSaved(saved: number, dated: Dated[]): void; stage: Profile["stage"]; applyStage(s: Profile["stage"]): Promise<boolean> }) {
+  const t = useT("onboarding");
+  const tag = LOCALE_TAGS[useLocale()];
   const findings = useMemo(() => merge(readings), [readings]);
   const [off, setOff] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
@@ -56,8 +60,8 @@ export function Review({ readings, rows, onSaved, onShowResult, stage, applyStag
     // Calendar is its own step afterwards (separate consent), so this save only writes the case.
     const r = await flowApi.commit({ findings: chosen, summaries, addToCalendar: false });
     setBusy(false);
-    if (!r.ok) { setError(failure(r) ?? "Could not save."); return; }
-    const next = suggestedStage(chosen, stage);
+    if (!r.ok) { setError(failure(r) ?? t("saveError")); return; }
+    const next = suggestedStage(chosen, stage, t);
     if (!next) { onSaved(chosen.length, dated); return; }
     setHint(next); setSaved(true); onShowResult();
   }
@@ -65,19 +69,19 @@ export function Review({ readings, rows, onSaved, onShowResult, stage, applyStag
   if (saved) {
     return (
       <div className="ob-answer">
-        <div className="ob-note ob-note-ok"><strong>Saved to your case.</strong><p>{chosen.length} {chosen.length === 1 ? "item" : "items"}, each linked to the email it came from.</p></div>
+        <div className="ob-note ob-note-ok"><strong>{t("savedTitle")}</strong><p>{chosen.length === 1 ? t("savedOne") : t("savedMany", { n: chosen.length })}</p></div>
         {hint && <StageHint hint={hint} apply={applyStage} auto={stage === "just_arrived"} />}
-        <StickyActionBar><Button variant="primary" size="lg" onClick={() => onSaved(chosen.length, dated)}>Continue</Button></StickyActionBar>
+        <StickyActionBar><Button variant="primary" size="lg" onClick={() => onSaved(chosen.length, dated)}>{t("continue")}</Button></StickyActionBar>
       </div>
     );
   }
   const { main, more } = split(findings);
   const list = (items: Finding[], small = false) => (
     <ul className="ob-found" data-small={small || undefined}>{items.map((f) => {
-      const r = rowFor(f);
+      const r = rowFor(f, t, tag);
       return (
         <li key={f.id} className="ob-find" data-off={off.has(f.id)} onClick={(e) => { if (!(e.target as HTMLElement).closest("details, a, button")) toggle(f.id, off.has(f.id)); }}>
-          <CheckCircle checked={!off.has(f.id)} onChange={(on) => toggle(f.id, on)} label={`Keep ${r.label}`} />
+          <CheckCircle checked={!off.has(f.id)} onChange={(on) => toggle(f.id, on)} label={t("keep", { item: r.label })} />
           <div className="ob-find-body">
             <div className="ob-find-head"><strong>{r.label}</strong>{r.tag && <span className="ob-tag" data-tone={r.tag.tone}>{r.tag.text}</span>}</div>
             {r.value && <span className="ob-find-value">{r.value}</span>}
@@ -90,11 +94,11 @@ export function Review({ readings, rows, onSaved, onShowResult, stage, applyStag
   return (
     <div className="ob-answer">
       {list(main)}
-      {more.length > 0 && <section className="ob-find-group"><h2>Also saved</h2>{list(more, true)}</section>}
-      {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void save()}>Try again</button></div>}
+      {more.length > 0 && <section className="ob-find-group"><h2>{t("alsoSaved")}</h2>{list(more, true)}</section>}
+      {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void save()}>{t("tryAgain")}</button></div>}
       <StickyActionBar>
         <Button variant="primary" size="lg" disabled={busy || !chosen.length} loading={busy} onClick={() => void save()}>
-          {busy ? "Saving to your case…" : `Save ${chosen.length} ${chosen.length === 1 ? "item" : "items"} to my case`}
+          {busy ? t("savingCase") : chosen.length === 1 ? t("saveOne") : t("saveMany", { n: chosen.length })}
         </Button>
       </StickyActionBar>
     </div>

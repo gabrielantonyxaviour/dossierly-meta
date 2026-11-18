@@ -11,39 +11,42 @@ import { HelloScreen } from "./HelloScreen";
 import { CityScreen, DetailsScreen, LanguageScreen, NameScreen, ReasonScreen, StageScreen } from "./Questions";
 import { WelcomeStep } from "./WelcomeStep";
 import { firstName, type Reason } from "./options";
+import { useT } from "@/lib/i18n/client";
+import type { T } from "@/lib/i18n/translate";
 
 /** One short question per screen. Several screens can share a server step (1: name + language, 4: city + details). */
 const SCREENS = [
-  { id: "hello", step: 1, title: "Welcome" }, { id: "name", step: 1, title: "About you" }, { id: "language", step: 1, title: "About you" },
-  { id: "reason", step: 2, title: "Your permit" }, { id: "stage", step: 3, title: "Your permit" },
-  { id: "city", step: 4, title: "Where you live" }, { id: "details", step: 4, title: "Where you live" },
-  { id: "inbox", step: 5, title: "Official mail" }, { id: "phone", step: 6, title: "Alerts" },
+  { id: "hello", step: 1, title: "screenWelcome" }, { id: "name", step: 1, title: "screenAboutYou" }, { id: "language", step: 1, title: "screenAboutYou" },
+  { id: "reason", step: 2, title: "screenPermit" }, { id: "stage", step: 3, title: "screenPermit" },
+  { id: "city", step: 4, title: "screenWhere" }, { id: "details", step: 4, title: "screenWhere" },
+  { id: "inbox", step: 5, title: "screenMail" }, { id: "phone", step: 6, title: "screenAlerts" },
 ] as const;
 type ScreenId = (typeof SCREENS)[number]["id"];
 const firstOf = (step: number) => SCREENS.findIndex((s) => s.step === step);
 
-function copy(id: ScreenId | "welcome", name: string, profile: Profile, inbox: InboxPhase): [string, string] {
+function copy(t: T, id: ScreenId | "welcome", name: string, profile: Profile, inbox: InboxPhase): [string, string] {
   const study = profile.permitType === "temporary_residence_study", work = profile.permitType === "temporary_residence_work";
   switch (id) {
-    case "welcome": return [`Your case is ready${name ? `, ${name}` : ""}`, "Let me tell you what I found. It takes a minute."];
-    case "hello": return ["Hi, I’m Dossierly", "Tell me who you are and what’s going on. Just talk."];
-    case "name": return ["What should I call you?", "I’m Dossierly, your caseworker for life in Poland."];
-    case "language": return ["Which language should I speak?", "I’ll write and call you in it."];
-    case "reason": return [`What brings you to Poland${name ? `, ${name}` : ""}?`, "It decides which residence rules apply to you."];
-    case "stage": return ["Where is your permit now?", "I’ll start from where you are."];
-    case "city": return ["Which city are you in?", "It tells me which office handles your case."];
-    case "details": return [study ? "Which university?" : work ? "Who do you work for?" : "A few more details", "And when you arrived, if you know."];
-    case "phone": return ["Can I call you when it’s urgent?", "Like a summons with a 14-day deadline."];
-    case "inbox": return inbox === "calendar" ? ["Add these dates to your calendar", "You’ll get a reminder before each one."]
-      : inbox === "saved" ? ["Saved to your case", "Everything you ticked is in your case now."]
-      : inbox === "review" ? ["Found in your inbox", "Untick anything that’s wrong. Only ticked items are saved."]
-      : inbox === "reading" ? ["Reading your inbox…", "Muse Spark reads each official email and notes where every fact came from."]
-      : inbox === "empty" ? ["Nothing official yet", "I’ll read new letters when they arrive."]
-      : ["Connect your Gmail", "Read-only. I look for letters from the office, MOS and your university."];
+    case "welcome": return [name ? t("welcomeTitleNamed", { name }) : t("welcomeTitle"), t("welcomeSub")];
+    case "hello": return [t("helloTitle"), t("helloSub")];
+    case "name": return [t("nameTitle"), t("nameSub")];
+    case "language": return [t("languageTitle"), t("languageSub")];
+    case "reason": return [name ? t("reasonTitleNamed", { name }) : t("reasonTitle"), t("reasonSub")];
+    case "stage": return [t("stageTitle"), t("stageSub")];
+    case "city": return [t("cityTitle"), t("citySub")];
+    case "details": return [study ? t("detailsStudy") : work ? t("detailsWork") : t("detailsOther"), t("detailsSub")];
+    case "phone": return [t("phoneTitle"), t("phoneSub")];
+    case "inbox": return inbox === "calendar" ? [t("inboxCalendarTitle"), t("inboxCalendarSub")]
+      : inbox === "saved" ? [t("inboxSavedTitle"), t("inboxSavedSub")]
+      : inbox === "review" ? [t("inboxReviewTitle"), t("inboxReviewSub")]
+      : inbox === "reading" ? [t("inboxReadingTitle"), t("inboxReadingSub")]
+      : inbox === "empty" ? [t("inboxEmptyTitle"), t("inboxEmptySub")]
+      : [t("inboxConnectTitle"), t("inboxConnectSub")];
   }
 }
 
 export function OnboardingFlow({ initial, profile: initialProfile, returned }: { initial: OnboardingState; profile: Profile; email: string | null; returned: string | null }) {
+  const t = useT("onboarding");
   const [state, setState] = useState(initial);
   const [profile, setProfile] = useState(initialProfile);
   const [screen, setScreen] = useState(Math.max(0, firstOf(initial.step)));
@@ -68,7 +71,7 @@ export function OnboardingFlow({ initial, profile: initialProfile, returned }: {
     const target = SCREENS[to];
     if (target.step !== SCREENS[screen].step || target.step !== state.step) {
       const r = await flowApi.step(target.step);
-      if (!r.ok) { if (r.status === 401) signIn(); else setError({ text: failure(r) ?? "Could not save your progress.", retry: () => void move(to) }); return; }
+      if (!r.ok) { if (r.status === 401) signIn(); else setError({ text: failure(r) ?? t("errorProgress"), retry: () => void move(to) }); return; }
       setState(r.data.onboarding);
     }
     setError(null); setScreen(to);
@@ -77,7 +80,7 @@ export function OnboardingFlow({ initial, profile: initialProfile, returned }: {
     setBusy(true); setError(null);
     if (patch) {
       const r = await flowApi.profile(patch);
-      if (!r.ok) { setBusy(false); if (r.status === 401) signIn(); else setError({ text: failure(r) ?? "Could not save that answer.", retry: () => void next(patch) }); return; }
+      if (!r.ok) { setBusy(false); if (r.status === 401) signIn(); else setError({ text: failure(r) ?? t("errorAnswer"), retry: () => void next(patch) }); return; }
       setProfile(r.data);
     }
     await move(Math.min(screen + 1, SCREENS.length - 1));
@@ -93,19 +96,19 @@ export function OnboardingFlow({ initial, profile: initialProfile, returned }: {
     setError(null);
     const r = await flowApi.complete();
     if (r.ok) { setState(r.data.onboarding); setWelcome(true); }
-    else setError({ text: failure(r) ?? "Could not finish setup.", retry: () => void complete() });
+    else setError({ text: failure(r) ?? t("errorFinish"), retry: () => void complete() });
   }
 
   const id: ScreenId | "welcome" = welcome ? "welcome" : current.id;
-  const [say, sub] = copy(id, name, profile, inbox);
+  const [say, sub] = copy(t, id, name, profile, inbox);
   const base = { profile, busy, next };
   return (
     <main className="ob" data-screen={id}>
-      {!welcome && <MobileFlowHeader title={current.title} progress={{ at: screen + 1, of: SCREENS.length }} back={screen > 0 && !busy ? () => void back() : undefined} />}
+      {!welcome && <MobileFlowHeader title={t(current.title)} progress={{ at: screen + 1, of: SCREENS.length }} back={screen > 0 && !busy ? () => void back() : undefined} />}
       <div className="ob-grid">
         <MobilePage actions="double" className="ob-talk" key={id}>
           <ScreenTitle title={say} sub={sub} />
-          {error && <div className="ob-alert" role="alert"><p>{error.text}</p>{error.retry && <Button size="sm" onClick={error.retry}>Try again</Button>}</div>}
+          {error && <div className="ob-alert" role="alert"><p>{error.text}</p>{error.retry && <Button size="sm" onClick={error.retry}>{t("tryAgain")}</Button>}</div>}
           {id === "welcome" ? <WelcomeStep firstName={name} calendarAdded={calendarAdded} />
             : id === "hello" ? <HelloScreen onProfile={setProfile} onEmail={() => void toEmail()} onType={() => void next()} />
             : id === "name" ? <NameScreen {...base} />

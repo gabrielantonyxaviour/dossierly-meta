@@ -7,7 +7,7 @@
 .op-layout { display: grid; grid-template-columns: minmax(260px, .8fr) minmax(0, 1fr); gap: clamp(48px, 7vw, 110px); max-width: 1120px; margin-inline: auto; align-items: start; }
 .op-context { min-width: 0; }
 .op-progress { display: grid; gap: 10px; margin-bottom: 32px; max-width: 380px; }
-.op-progress > div { display: flex; justify-content: space-between; gap: 12px; font-size: .75rem; color: var(--ink-2); }
+.op-progress > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; font-size: .75rem; color: var(--ink-2); }
 .op-progress ol { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
 .op-progress li { height: 3px; border-radius: 3px; background: var(--line); }
 .op-progress li[data-reached="true"] { background: var(--ink); }
@@ -38,7 +38,7 @@
 .op-reasons { display: flex; flex-wrap: wrap; gap: 8px; }
 .op-radio { flex: 1 1 80px; cursor: pointer; position: relative; }
 .op-radio input { position: absolute; width: 1px; height: 1px; opacity: 0; }
-.op-radio span { display: grid; place-items: center; min-height: 44px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line-strong); font-size: .875rem; }
+.op-radio span { display: grid; place-items: center; text-align: center; overflow-wrap: anywhere; min-height: 44px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line-strong); font-size: .875rem; }
 .op-radio input:checked + span { color: var(--brand-ink); border-color: var(--brand); background: var(--brand); }
 .op-radio input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
 .op-needs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }

@@ -8,6 +8,7 @@ import { ConnectCards } from "./ConnectCards";
 import { Button, StickyActionBar } from "@/components/ui";
 import { Review } from "./Review";
 import { CalendarStep, pendingDates, type Dated } from "./CalendarStep";
+import { useT } from "@/lib/i18n/client";
 
 type Row = { msg: InboxMessage; state: "queued" | "reading" | "done" | "error"; reading?: MailReading; error?: string };
 export type InboxPhase = "connect" | "listing" | "reading" | "review" | "empty" | "saved" | "calendar";
@@ -18,6 +19,7 @@ const chained = () => { try { return sessionStorage.getItem(CHAIN) === "1"; } ca
 const chain = (on: boolean) => { try { if (on) sessionStorage.setItem(CHAIN, "1"); else sessionStorage.removeItem(CHAIN); } catch { /* private mode */ } };
 
 export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, applyStage, onPhase, auto }: { auto: boolean; onPhase(p: InboxPhase): void; returned: string | null; stage: Profile["stage"]; applyStage(s: Profile["stage"]): Promise<boolean>; onDone(saved: number): void; onSkip(): void; setCalendarAdded(v: boolean): void }) {
+  const t = useT("onboarding");
   // Back from the Google Calendar consent: straight to the calendar step, which adds the dates.
   const [dates, setDates] = useState<Dated[]>([]);
   const [saved, setSaved] = useState(0);
@@ -49,7 +51,7 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
     patch(msg.id, { state: "reading", error: undefined });
     const r = await flowApi.read(msg.id, fresh);
     if (r.ok) patch(msg.id, { state: "done", reading: r.data });
-    else patch(msg.id, { state: "error", error: failure(r) ?? "Could not read this email." });
+    else patch(msg.id, { state: "error", error: failure(r) ?? t("readError") });
   }
   async function scan() {
     setError(""); setPhase("listing");
@@ -68,7 +70,7 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
     setOpening(category); setError("");
     const r = await flowApi.connect(category, "gmail");
     if (r.ok) { window.location.assign(r.data.redirectUrl); return; }
-    chain(false); setOpening(""); setError(failure(r) ?? "Could not open Google.");
+    chain(false); setOpening(""); setError(failure(r) ?? t("openGoogleError"));
   }
 
   const gmail = status?.connections.mail?.provider === "gmail" && status.connections.mail.status === "connected";
@@ -106,17 +108,17 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
   if (phase === "connect" || phase === "listing") {
     return (
       <div className="ob-answer">
-        {statusError && <div className="ob-alert" role="alert"><p>{statusError}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void load()}>Try again</button></div>}
+        {statusError && <div className="ob-alert" role="alert"><p>{statusError}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void load()}>{t("tryAgain")}</button></div>}
         <ConnectCards status={status} gmail={gmail} calendar={calendar} returned={returned} only="mail" />
-        {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void scan()}>Try again</button></div>}
-        <StickyActionBar secondary={<Button variant="ghost" onClick={() => { chain(false); onSkip(); }}>Skip for now</Button>}>
+        {error && <div className="ob-alert" role="alert"><p>{error}</p><button type="button" className="ui-btn ui-btn--sm" onClick={() => void scan()}>{t("tryAgain")}</button></div>}
+        <StickyActionBar secondary={<Button variant="ghost" onClick={() => { chain(false); onSkip(); }}>{t("skipForNow")}</Button>}>
           {gmail ? (
             <Button variant="primary" size="lg" disabled={phase === "listing" || !!opening} loading={phase === "listing" || !!opening} onClick={() => { started.current = true; void scan(); }}>
-              {phase === "listing" ? "Looking for official emails…" : "Read my official emails"}
+              {phase === "listing" ? t("lookingEmails") : t("readEmails")}
             </Button>
           ) : (
             <Button variant="primary" size="lg" disabled={!status || !!opening} loading={!!opening} onClick={() => { chain(true); started.current = true; void google("mail"); }}>
-              {opening ? "Opening Google…" : "Connect Gmail"}
+              {opening ? t("openingGoogle") : t("connectGmail")}
             </Button>
           )}
         </StickyActionBar>
@@ -126,9 +128,9 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
   if (phase === "empty") {
     return (
       <div className="ob-answer">
-        <div className="ob-note"><strong>No official emails in {account || "your inbox"} from the last 120 days.</strong><p>You can add a photo of a letter any time in Look.</p></div>
-        <StickyActionBar secondary={<Button variant="ghost" onClick={() => void scan()}>Check again</Button>}>
-          <Button variant="primary" size="lg" onClick={onSkip}>Continue</Button>
+        <div className="ob-note"><strong>{t("noOfficialEmails", { account: account || t("yourInbox") })}</strong><p>{t("addPhotoLook")}</p></div>
+        <StickyActionBar secondary={<Button variant="ghost" onClick={() => void scan()}>{t("checkAgain")}</Button>}>
+          <Button variant="primary" size="lg" onClick={onSkip}>{t("continue")}</Button>
         </StickyActionBar>
       </div>
     );
@@ -141,25 +143,25 @@ export function InboxStep({ onDone, onSkip, setCalendarAdded, returned, stage, a
   const relevant = rows.filter((r) => r.reading?.relevant).length;
   return (
     <div className="ob-answer">
-      <p className="ob-progress-line" aria-live="polite">{finished ? `Read ${rows.length} emails · ${relevant} about your case` : `Reading ${Math.min(done + 1, rows.length)} of ${rows.length}…`}</p>
+      <p className="ob-progress-line" aria-live="polite">{finished ? t("readSummary", { n: rows.length, relevant }) : t("readingOf", { i: Math.min(done + 1, rows.length), n: rows.length })}</p>
       <ol className="ob-mail">
         {rows.map((r) => (
           <li key={r.msg.id} className="ob-mail-row" data-state={r.state} data-relevant={r.reading?.relevant ? "yes" : r.state === "done" ? "no" : undefined}>
             <span className="ob-mail-icon" aria-hidden="true" />
             <span className="ob-mail-text">
               <strong>{r.msg.subject}</strong>
-              <span>{r.reading?.relevant ? r.reading.summary : r.state === "done" ? "Not about your case" : r.state === "error" ? r.error : sender(r.msg.from)}</span>
+              <span>{r.reading?.relevant ? r.reading.summary : r.state === "done" ? t("notAboutCase") : r.state === "error" ? r.error : sender(r.msg.from)}</span>
             </span>
-            {r.state === "error" ? <button type="button" className="ui-btn ui-btn--sm" onClick={() => void readOne(r.msg, true)}>Retry</button>
-              : <span className="ob-mail-state">{r.state === "reading" ? "Reading" : r.state === "queued" ? "Waiting" : r.reading?.relevant ? `${r.reading.findings.length} found` : "Skipped"}</span>}
+            {r.state === "error" ? <button type="button" className="ui-btn ui-btn--sm" onClick={() => void readOne(r.msg, true)}>{t("retry")}</button>
+              : <span className="ob-mail-state">{r.state === "reading" ? t("stateReading") : r.state === "queued" ? t("stateWaiting") : r.reading?.relevant ? t("stateFound", { n: r.reading.findings.length }) : t("stateSkipped")}</span>}
           </li>
         ))}
       </ol>
-      {finished && !relevant && <div className="ob-note"><strong>None of these are about your residence case.</strong><p>I’ll keep an eye out for new official mail.</p></div>}
+      {finished && !relevant && <div className="ob-note"><strong>{t("noneRelevant")}</strong><p>{t("keepEye")}</p></div>}
       <StickyActionBar>
         {finished && !relevant
-          ? <Button variant="primary" size="lg" onClick={onSkip}>Continue</Button>
-          : <Button variant="primary" size="lg" disabled={!finished} loading={!finished} onClick={() => setPhase("review")}>{finished ? "Review what I found" : `Reading ${Math.min(done + 1, rows.length)} of ${rows.length}…`}</Button>}
+          ? <Button variant="primary" size="lg" onClick={onSkip}>{t("continue")}</Button>
+          : <Button variant="primary" size="lg" disabled={!finished} loading={!finished} onClick={() => setPhase("review")}>{finished ? t("reviewFound") : t("readingOf", { i: Math.min(done + 1, rows.length), n: rows.length })}</Button>}
       </StickyActionBar>
     </div>
   );
