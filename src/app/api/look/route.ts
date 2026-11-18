@@ -39,8 +39,9 @@ export async function POST(req: Request) {
           send({ type: "stage", stage: "reading" });
           const t0 = Date.now();
           const snapshot = await caseClient(userId).snapshot();
-          // Only the public sample letters (client flag `sample`) are demo content; everything else is a real user's and may not go to Meta.
-          const origin = body.sample ? "demo" : "user";
+          // The client's `sample` flag is not proof of origin (any client can set it), so every upload is a real user's
+          // content and never reaches Meta. Server-side demo content (the shared sample user) is marked in runModel.
+          const origin = "user" as const;
           const base = await readLook(env, userId, body, caseContext(snapshot), { fullName: snapshot.profile.fullName, origin });
           const read: LookRead = { lookId: newLookId(), ...base };
           const record = await saveLook(env, { userId, req: body, read, bytes, mime });
