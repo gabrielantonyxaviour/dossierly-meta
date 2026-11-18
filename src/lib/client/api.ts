@@ -14,7 +14,7 @@ export const isRateLimited = (f: ApiFailure) => f.status === 429 || f.code === "
 export function friendlyError(f: ApiFailure): string {
   if (f.code === "over_budget") return "Daily limit reached. Try again after 08:00 MYT.";
   if (isRateLimited(f)) return "Lots of requests just now. Wait a few seconds and try again.";
-  if (needsPlan(f)) return "You have reached the free limit. Upgrade to Dossierly Plus to continue.";
+  if (needsPlan(f)) return "You have reached the free limit. Choose One case or Household year to continue.";
   if (f.status === 0) return "You seem to be offline. Check the connection and try again.";
   if (f.code === "model_unavailable") return "The model is briefly unavailable. Try again in a few minutes.";
   return f.error || "Something went wrong. Try again.";
@@ -104,7 +104,7 @@ export async function verifyEmailCode(challengeId: string, code: string): Promis
     activeCase: z.enum(["own", "sample"]), planChosen: z.boolean(),
     lettersUsed: z.number().int().nonnegative(), freeLetters: z.number().int().nonnegative(),
     plan: z.object({
-      kind: z.enum(["free", "case_pass", "judge"]), creditsLeft: z.number(),
+      kind: z.enum(["free", "one_case", "household_year", "judge"]), creditsLeft: z.number(),
       expiresAt: z.string().nullable().optional(), family: z.boolean().optional(),
     }),
   }).safeParse(r.data);
