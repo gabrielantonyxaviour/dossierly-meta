@@ -7,7 +7,7 @@ import { useT } from "@/lib/i18n/client";
 
 /* Earlier on-device flows (letters, meet, prepare, privacy, connections) still read the encrypted local
    dossier. They keep working inside this boundary until their owning panes move them to the server case. */
-export const LEGACY_ROUTES = ["/app/letters", "/app/meet", "/app/prepare", "/app/privacy", "/app/connections"];
+export const LEGACY_ROUTES = ["/app/letters", "/app/meet", "/app/prepare", "/app/privacy"];
 export const isLegacyRoute = (path: string) => LEGACY_ROUTES.some((r) => path === r || path.startsWith(`${r}/`));
 
 function Gate({ children }: { children: React.ReactNode }) {
