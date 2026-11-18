@@ -110,7 +110,7 @@ Dossierly started as a version built during the Nebius × NVIDIA Global AI Hacka
 - Phone calls go only to the verified demo number (Twilio trial); everyone else gets "calls coming soon".
 - Test letters and the demo persona are generated; no real personal data is used.
 - Muse Voice Transcribe doesn't support Ukrainian or Russian yet; those users get text.
-- Live voice sessions need a signed-in user and a voice ticket that expires after 2 minutes, but they are not yet metered against the daily model spend cap or stopped by the `MODELS_DISABLED` kill switch; every other model path is ([docs/models.md](docs/models.md#spend-control)).
+- Live voice is metered after each call, so that a turn never waits on the budget: the call that crosses the daily cap still completes, and the gate closes from the next call ([docs/models.md](docs/models.md#spend-control)).
 - Guidance, not legal advice. Real cases differ; for a decision that matters, talk to a lawyer or a migrant legal-aid organisation.
 
 ## Run it
