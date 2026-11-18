@@ -1,3 +1,4 @@
+import "./helpers/legacy-meta";
 import { describe, expect, it } from "vitest";
 import {
   createMetaClient, metaChat, metaChatStream, metaJson, parseSamOutput, samSegment, transcribeFile, visionGround, webSearch,

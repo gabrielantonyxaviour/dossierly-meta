@@ -1,3 +1,4 @@
+import "./helpers/legacy-meta";
 import { describe, expect, it } from "vitest";
 import { lowConfidenceFields } from "@/lib/features/confidence";
 import { interpret } from "@/lib/features/interpret";

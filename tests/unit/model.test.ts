@@ -1,3 +1,4 @@
+import "./helpers/legacy-meta";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { ROLE_DEFAULTS, TASK_ROLE } from "@/lib/config";

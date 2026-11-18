@@ -6,6 +6,7 @@ import { caseContext } from "../../case/context";
 import type { CaseSnapshot } from "../../case/types";
 import { clientEventSchema, type ServerEvent, type VoiceTurn } from "../protocol";
 import type { Ticket } from "../token";
+import { ModelError } from "../../model/types";
 import { MetaAsr } from "./asr";
 import { TurnClock, type Metric } from "./metrics";
 import { VoiceCase, type CaseNamespace } from "./case";
@@ -108,7 +109,7 @@ export class VoiceSession {
       await this.asr.connect();
     } catch (e) {
       asrOk = false;
-      this.emit({ t: "error", error: e instanceof Error ? e.message : "Speech recognition unavailable", code: "asr_unavailable" });
+      this.emit({ t: "error", error: e instanceof Error ? e.message : "Speech recognition unavailable", code: e instanceof ModelError ? e.code : "asr_unavailable" });
     }
     const name = this.snapshot?.profile.fullName ?? null;
     this.emit({ t: "ready", sessionId: this.ticket.s, mode: this.mode === "phone" ? "agent" : this.mode, userName: name, lang: this.lang, asr: asrOk });

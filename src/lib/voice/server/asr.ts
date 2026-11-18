@@ -3,6 +3,7 @@
  * ever runs server-side (inside VoiceDO). Audio in: 16-bit LE mono PCM at 16 kHz, paced ~real time by the caller.
  */
 import { resolveRole, type EnvLike } from "../../model/roles";
+import { ModelError } from "../../model/types";
 import { assertVoiceAllowed, bookAsrAudio, primeVoiceBudget } from "./meter";
 
 export interface AsrHandlers {
@@ -45,7 +46,14 @@ export class MetaAsr {
   }
 
   async connect(): Promise<void> {
-    const cfg = resolveRole("asr", this.env);
+    let cfg;
+    try {
+      cfg = resolveRole("asr", this.env);
+    } catch (e) {
+      // Meta-only service: real users' audio may not go there (model/gate.ts). Fail closed with a code the UI can show.
+      if (e instanceof ModelError && e.code === "provider_blocked") throw new ModelError("Voice input is not available for your account yet.", "provider_blocked", 403);
+      throw e;
+    }
     if (!cfg.apiKey) throw new Error("Speech recognition is not configured");
     assertVoiceAllowed(this.env);
     void primeVoiceBudget(this.env);

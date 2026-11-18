@@ -1,3 +1,4 @@
+import "./helpers/legacy-meta";
 import { describe, expect, it, vi } from "vitest";
 import { FALLBACK_AFTER_MS, STALE_CLAIM_MS, claimForCloud, enqueueAgentTask, getTask, taskView } from "@/lib/agent/queue";
 import { advanceTask } from "@/lib/agent/service";

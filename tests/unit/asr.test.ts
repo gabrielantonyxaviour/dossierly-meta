@@ -1,3 +1,4 @@
+import "./helpers/legacy-meta";
 import { describe, expect, it } from "vitest";
 import { ASR_MAX_AUDIO, asrOnline, looksLikeWav, transcribeAudio } from "@/lib/server/asr";
 import { ApiError } from "@/lib/server/http";

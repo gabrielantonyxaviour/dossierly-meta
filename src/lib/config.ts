@@ -23,6 +23,17 @@ export const ROLES: readonly Role[] = ["interpret", "guard", "reason", "agent", 
 export type ReasoningEffort = "minimal" | "low" | "medium" | "high";
 
 export const META_BASE_URL = "https://api.meta.ai/v1";
+export const ANTHROPIC_BASE_URL = "https://api.anthropic.com";
+
+/** Who provides a model. Routing is per role and per content origin (see resolveRole). */
+export type Provider = "meta" | "anthropic";
+/**
+ * Where the content of a call came from. "user" is a real person's letters, photos, messages, voice or case data;
+ * "demo" is the fictional demo persona and generated sample letters; "eval" is the evaluation harness.
+ * Anything not explicitly demo or eval is "user" (fail closed).
+ */
+export type ContentOrigin = "user" | "demo" | "eval";
+export interface Route { provider: Provider; model: string; effort: ReasoningEffort }
 
 /** Default model and reasoning effort per role. Override per role with MODEL_<ROLE>_MODEL / _BASE_URL / _KEY_ENV. */
 export const ROLE_DEFAULTS: Record<Role, { model: string; effort: ReasoningEffort }> = {
@@ -32,6 +43,26 @@ export const ROLE_DEFAULTS: Record<Role, { model: string; effort: ReasoningEffor
   agent: { model: "muse-spark-1.3", effort: "low" },
   vision: { model: "muse-spark-1.3", effort: "low" },
   draft: { model: "muse-spark-1.3", effort: "low" },
+};
+
+/**
+ * Defaults for REAL users' content. Meta's promotional credits let Meta use content for product improvement, so
+ * nothing a real user provides goes to Meta until META_USER_CONTENT=allow (src/lib/model/gate.ts). Switch any role
+ * back with MODEL_<ROLE>_USER_PROVIDER / _USER_MODEL, no code change.
+ */
+export const USER_ROLE_DEFAULTS: Record<Role, Route> = {
+  interpret: { provider: "anthropic", model: "claude-haiku-5-5", effort: "minimal" },
+  guard: { provider: "anthropic", model: "claude-haiku-5-5", effort: "minimal" },
+  reason: { provider: "anthropic", model: "claude-sonnet-5-5", effort: "medium" },
+  agent: { provider: "anthropic", model: "claude-sonnet-5-5", effort: "low" },
+  vision: { provider: "anthropic", model: "claude-sonnet-5-5", effort: "low" },
+  draft: { provider: "anthropic", model: "claude-sonnet-5-5", effort: "low" },
+};
+
+/** Tasks that route to a different role's user default (watch/triage classification is Haiku work). */
+export const USER_TASK_MODEL: Partial<Record<ModelTask, string>> = {
+  hub_summary: "claude-haiku-5-5",
+  watch: "claude-haiku-5-5",
 };
 
 export const TASK_ROLE: Record<ModelTask, Role> = {
@@ -60,6 +91,12 @@ export const SPARK_PRICE = { in: 1.25, cached: 0.15, out: 4.25 } as const;
 export const PRICES: Record<string, { in: number; cached: number; out: number }> = {
   "muse-spark-1.3": SPARK_PRICE,
   "muse-spark-1.2": SPARK_PRICE,
+  /* Anthropic list prices from the pinned claude-api skill (2026-11-18); cached = cache-read rate (0.1x input for
+     Haiku is assumed, UNVERIFIED; Sonnet and Opus cache reads are listed). Haiku 5.5 over 100K prompt tokens bills
+     $0.50 / $2.50, not modelled (no prompt here comes near it). */
+  "claude-haiku-5-5": { in: 0.1, cached: 0.01, out: 0.5 },
+  "claude-sonnet-5-5": { in: 2, cached: 0.2, out: 10 },
+  "claude-opus-5-5": { in: 4, cached: 0.2, out: 20 },
 };
 /** Per-unit prices for the non-token products. */
 export const SAM_USD_PER_IMAGE = 2.5 / 1000;

@@ -44,6 +44,10 @@ export type Env = {
   /* secrets (empty string when unset) */
   /** Meta Model API key; per-role overrides name another env var through MODEL_<ROLE>_KEY_ENV. */
   MODEL_API_KEY: string;
+  /** Anthropic API key (the default for roles routed to Claude; MODEL_<ROLE>_KEY_ENV can name another variable). */
+  ANTHROPIC_API_KEY?: string;
+  /** "allow" lets real users' content go to Meta models (src/lib/model/gate.ts). Anything else keeps it blocked. */
+  META_USER_CONTENT?: string;
   BRIDGE_SECRET: string;
   SESSION_SECRET: string;
   RESEND_API_KEY?: string;
@@ -76,7 +80,7 @@ export type Env = {
 };
 
 const STRING_KEYS = [
-  "MODEL_API_KEY", "BRIDGE_SECRET", "SESSION_SECRET",
+  "MODEL_API_KEY", "ANTHROPIC_API_KEY", "BRIDGE_SECRET", "SESSION_SECRET",
   "DODO_PAYMENTS_API_KEY", "DODO_WEBHOOK_KEY", "JUDGE_CODE", "DODO_PRODUCT_CASE_PASS",
   "DODO_PRODUCT_CREDITS_10", "DODO_PRODUCT_CREDITS_25", "DODO_PRODUCT_FAMILY", "DODO_PRODUCT_ONE_CASE", "DODO_PRODUCT_ONE_CASE_FOUNDING", "DODO_PRODUCT_HOUSEHOLD_YEAR", "APP_URL",
   "RESEND_API_KEY", "EMAIL_FROM",

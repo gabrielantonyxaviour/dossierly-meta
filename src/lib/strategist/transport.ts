@@ -1,3 +1,7 @@
+import type { ContentOrigin } from "../config";
+import { anthropicToolChat } from "../model/anthropic-tools";
+import { normaliseOrigin } from "../model/gate";
+import { ModelError } from "../model/types";
 import { resolveRole } from "../model/roles";
 import { StrategistError, LIMITS, WONDER_MODEL, type Usage } from "./types";
 
@@ -7,13 +11,15 @@ import { StrategistError, LIMITS, WONDER_MODEL, type Usage } from "./types";
 export type ToolCall = { id: string; type: "function"; function: { name: string; arguments: string } };
 export type WMessage =
   | { role: "system" | "user"; content: string }
-  | { role: "assistant"; content: string | null; tool_calls?: ToolCall[] }
+  | { role: "assistant"; content: string | null; tool_calls?: ToolCall[]; raw?: unknown[] }
   | { role: "tool"; tool_call_id: string; content: string };
 export type ToolDef = { type: "function"; function: { name: string; description: string; parameters: Record<string, unknown> } };
 
 export type WonderRequest = { messages: WMessage[]; tools?: ToolDef[]; json?: Record<string, unknown>; maxTokens: number };
-export type WonderReply = { content: string | null; toolCalls: ToolCall[]; usage: Usage };
+export type WonderReply = { content: string | null; toolCalls: ToolCall[]; usage: Usage; raw?: unknown[] };
 export interface WonderClient {
+  /** Model that answers; absent on test doubles (priced as Wonder). */
+  model?: string;
   complete(req: WonderRequest): Promise<WonderReply>;
 }
 
@@ -27,10 +33,33 @@ function mapStatus(status: number): StrategistError {
   return new StrategistError("The model service returned an error", "model_error");
 }
 
-export function createWonderClient(env: object | undefined, fetchImpl?: FetchLike): WonderClient {
+/**
+ * The review model. Real users' cases (origin "user", the default) follow the reason role's user route, Claude
+ * Sonnet 5.5 unless configured otherwise; demo/eval cases keep Muse Wonder. STRATEGIST_MODEL overrides both, and a
+ * Meta model for a user case is refused by the content-origin gate (model/gate.ts) until META_USER_CONTENT=allow.
+ */
+export function createWonderClient(env: object | undefined, fetchImpl?: FetchLike, originIn?: ContentOrigin): WonderClient {
+  const origin = normaliseOrigin(originIn);
   const model = (env as Record<string, unknown> | undefined)?.STRATEGIST_MODEL;
-  const cfg = resolveRole("reason", { ...(env ?? {}), MODEL_REASON_MODEL: typeof model === "string" && model ? model : WONDER_MODEL, MODEL_REASON_EFFORT: "high" });
+  const pinned = typeof model === "string" && model ? model : "";
+  const scope = origin === "user" ? "USER" : "DEMO";
+  const cfg = resolveRole("reason", { ...(env ?? {}), MODEL_REASON_EFFORT: "high", ...(pinned || origin !== "user" ? { [`MODEL_REASON_${scope}_MODEL`]: pinned || WONDER_MODEL } : {}) }, origin);
+  if (cfg.provider === "anthropic") {
+    const c = cfg;
+    return {
+      model: c.model,
+      async complete(req) {
+        try {
+          return await anthropicToolChat(c, req, { env, fetch: fetchImpl, timeoutMs: LIMITS.callTimeoutMs });
+        } catch (err) {
+          if (!(err instanceof ModelError)) throw err;
+          throw new StrategistError(err.message, err.code === "rate_limited" ? "rate_limited" : err.code === "no_key" ? "no_key" : err.code === "provider_unavailable" ? "provider_unavailable" : "model_error", err.status);
+        }
+      },
+    };
+  }
   return {
+    model: cfg.model,
     async complete(req) {
       if (!cfg.apiKey) throw new StrategistError("The model service is not configured", "no_key", 503);
       const body: Record<string, unknown> = { model: cfg.model, messages: req.messages, max_tokens: req.maxTokens, reasoning_effort: "high" };

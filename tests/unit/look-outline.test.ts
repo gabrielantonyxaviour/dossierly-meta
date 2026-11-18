@@ -1,3 +1,4 @@
+import "./helpers/legacy-meta";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { outlineFor, outlineItems, parseSamMasks, type SamRecord } from "@/lib/look/outline";

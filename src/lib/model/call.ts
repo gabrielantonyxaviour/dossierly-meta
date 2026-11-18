@@ -1,10 +1,12 @@
 import type { ZodType } from "zod";
-import { TASK_ROLE, type ModelTask, type ReasoningEffort } from "../config";
+import { TASK_ROLE, type ContentOrigin, type ModelTask, type ReasoningEffort } from "../config";
+import { SAMPLE_USER_ID } from "../agent/schemas";
 import type { Masker } from "../mask";
 import type { Env } from "../server/env";
 import { recordLedger } from "../server/ledger";
 import { recordRun, type Run } from "../server/runs";
 import { makeRun } from "./cost";
+import { normaliseOrigin } from "./gate";
 import { callJson } from "./json";
 import { assertModelsEnabled, meterClient } from "./meter";
 import { createMetaClient } from "./meta";
@@ -17,6 +19,11 @@ export interface Ctx {
   userId: string | null;
   /** Test double; production builds the Meta client from env (MODEL_API_KEY and the per-role overrides). */
   client?: ChatClient;
+  /**
+   * Where the content came from. Absent means "user" (fail closed), except the shared sample user, whose case is
+   * fictional. Only "demo" and "eval" may reach Meta models while META_USER_CONTENT is not "allow" (gate.ts).
+   */
+  origin?: ContentOrigin;
 }
 
 export interface ModelCall<T> {
@@ -72,7 +79,8 @@ const fixtureMode = (env: Env) => env.APP_ENV === "local" && process.env.DEMO_FI
 export async function runModel<T>(ctx: Ctx, call: ModelCall<T>): Promise<ModelOut<T>> {
   assertModelsEnabled(ctx.env);
   const role = TASK_ROLE[call.task];
-  const cfg = resolveRole(role, ctx.env);
+  const origin = normaliseOrigin(ctx.origin ?? (ctx.userId === SAMPLE_USER_ID ? "demo" : undefined));
+  const cfg = resolveRole(role, ctx.env, origin, call.task);
   const model = cfg.model;
   const context = call.context ? call.masker.mask(call.context) : undefined;
   const input = call.masker.mask(call.input);
@@ -98,7 +106,7 @@ export async function runModel<T>(ctx: Ctx, call: ModelCall<T>): Promise<ModelOu
   const t0 = Date.now();
   const res = await callJson(
     client,
-    { model, role, messages, maxTokens: call.maxTokens, reasoningEffort: call.effort ?? cfg.effort, json: call.json ?? "json_object" },
+    { model, role, origin, task: call.task, messages, maxTokens: call.maxTokens, reasoningEffort: call.effort ?? cfg.effort, json: call.json ?? "json_object" },
     call.schema,
   );
   const run = makeRun(model, Date.now() - t0, res.usage, "cloud");

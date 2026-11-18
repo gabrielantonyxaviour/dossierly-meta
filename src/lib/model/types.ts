@@ -12,6 +12,10 @@ export interface ChatRequest {
   model: string;
   /** Selects base URL and key at call time; absent means the default role. */
   role?: import("../config").Role;
+  /** Where the content came from. Absent means "user" (fail closed): see gate.ts. */
+  origin?: import("../config").ContentOrigin;
+  /** The task, when known: lets a task use a cheaper user-route model (config USER_TASK_MODEL). */
+  task?: import("../config").ModelTask;
   messages: ChatMessage[];
   /** Reasoning tokens count against this cap, so keep it generous (>=1500; >=4000 for vision). */
   maxTokens: number;
@@ -46,7 +50,9 @@ export type ModelErrorCode =
   | "invalid_output"
   | "over_budget"
   | "models_disabled"
-  | "bad_request";
+  | "bad_request"
+  /** The content-origin gate refused: real user content may not go to this provider (see gate.ts). */
+  | "provider_blocked";
 
 export class ModelError extends Error {
   constructor(

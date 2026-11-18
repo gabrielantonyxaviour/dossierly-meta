@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { FACT_KEYS } from "../case/types";
+import type { ContentOrigin } from "../config";
 import { maskerFor } from "../mask";
 import { runModel } from "../model";
 import type { ChatClient } from "../model/types";
@@ -190,7 +191,7 @@ export async function readLook(
   userId: string | null,
   req: LookRequest,
   caseCtx: string,
-  opts: { fullName?: string | null; effort?: "low" | "medium" | "high"; groundEffort?: "low" | "medium" | "high"; client?: ChatClient } = {},
+  opts: { fullName?: string | null; effort?: "low" | "medium" | "high"; groundEffort?: "low" | "medium" | "high"; client?: ChatClient; origin?: ContentOrigin } = {},
 ): Promise<Omit<LookRead, "lookId">> {
   const size = { w: req.width, h: req.height };
   const masker = () => maskerFor({ name: opts.fullName ?? undefined });
@@ -198,7 +199,7 @@ export async function readLook(
   const parts = (opts.fullName ?? "").trim().split(/\s+/).filter(Boolean);
   const ctx = parts.length > 1 ? `${caseCtx}\nName parts for form fields: given name ${parts[0]}, surname ${parts.slice(1).join(" ")}` : caseCtx;
   const grounding = runModel(
-    { env, userId, client: opts.client },
+    { env, userId, client: opts.client, origin: opts.origin },
     {
       task: "read",
       system: LINES_SYSTEM,
@@ -218,7 +219,7 @@ export async function readLook(
     "Read the image, classify it, and fill the schema.",
   ].filter(Boolean).join("\n");
   const reading = runModel(
-    { env, userId, client: opts.client },
+    { env, userId, client: opts.client, origin: opts.origin },
     {
       task: "read",
       system: READ_SYSTEM,

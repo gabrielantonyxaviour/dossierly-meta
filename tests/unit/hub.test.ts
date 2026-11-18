@@ -1,3 +1,4 @@
+import "./helpers/legacy-meta";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { lexicalRank } from "@/lib/hub/rank";
 import { cachedExtract, groundedSearch, htmlToText } from "@/lib/hub/search";

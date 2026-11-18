@@ -136,7 +136,8 @@ export async function groundedSearch(
       return { value: r, actualUsd: costUsd(r.model, r.usage) + r.searches * SEARCH_USD_PER_CALL };
     });
   } catch (err) {
-    if ((err as { code?: string }).code === "no_key") return { passages: [], citations: [], origin: "no_key" };
+    // provider_blocked: the grounded search is Meta-only and a real user's query may not go there (model/gate.ts).
+    if (["no_key", "provider_blocked"].includes((err as { code?: string }).code ?? "")) return { passages: [], citations: [], origin: "no_key" };
     return { passages: [], citations: [], origin: "budget" };
   }
   await ledger(env, userId, "grounded web search", "api.meta.ai", "allowed", q.length, masker.count);

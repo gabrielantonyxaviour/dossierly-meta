@@ -1,7 +1,7 @@
 /*
  * Muse evaluation harness. Runs the product's own Look pipeline (readLook: Spark grounding call + reading call,
  * then SAM box refinement via the product's outlineFor) over eval/data, once per model configuration.
- * Usage: MODEL_API_KEY=... npx tsx eval/run.ts [--configs a,b] [--limit N] [--variants clean,photoA,photoB] [--budget 15] [--tag name]
+ * Usage: MODEL_API_KEY=... [ANTHROPIC_API_KEY=... for claude-* configs] npx tsx eval/run.ts [--configs a,b] [--limit N] [--variants clean,photoA,photoB] [--budget 15] [--tag name]
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -25,14 +25,19 @@ const CONFIGS: Array<{ id: string; model: string; effort: Effort }> = [
   { id: "spark-1.3-low", model: "muse-spark-1.3", effort: "low" },
   { id: "spark-1.3-high", model: "muse-spark-1.3", effort: "high" },
   { id: "wonder-1.0-low", model: "muse-wonder-1.0", effort: "low" },
+  // Claude (Anthropic Messages API, ANTHROPIC_API_KEY): the routes real users' content takes (the content-origin gate keeps it off Meta).
+  { id: "claude-sonnet-5-5-low", model: "claude-sonnet-5-5", effort: "low" },
+  { id: "claude-haiku-5-5-low", model: "claude-haiku-5-5", effort: "low" },
 ];
 
 const arg = (n: string) => { const i = process.argv.indexOf(`--${n}`); return i > 0 ? process.argv[i + 1] : undefined; };
 const KEY = process.env.MODEL_API_KEY ?? "";
-if (!KEY) { process.stderr.write("MODEL_API_KEY is not set\n"); process.exit(2); }
+const AKEY = process.env.ANTHROPIC_API_KEY ?? "";
+const isClaude = (model: string) => model.startsWith("claude-");
 const BUDGET = Number(arg("budget") ?? 15);
 const HEADROOM = 0.8; // stop starting jobs this far below the hard cap, so in-flight work cannot cross it
-const SAM_ON = arg("sam") !== "off";
+// SAM is Meta's model: it needs the Meta key (eval origin may use it). Without MODEL_API_KEY the Claude runs keep their own boxes.
+const SAM_ON = arg("sam") !== "off" && !!KEY;
 const variants = (arg("variants") ?? "clean,photoA,photoB").split(",");
 const limit = Number(arg("limit") ?? 1e9);
 const wanted = (arg("configs") ?? CONFIGS.map((c) => c.id).join(",")).split(",");
@@ -41,14 +46,14 @@ let spent = 0;
 const log = (s: string) => process.stdout.write(`${s}\n`);
 
 const stubDb = { prepare: () => { const s = { bind: () => s, run: async () => ({ meta: { changes: 1 } }), first: async () => null, all: async () => ({ results: [] }) }; return s; }, batch: async () => [] };
-const envFor = (model: string) => ({ DB: stubDb, MODEL_API_KEY: KEY, MODEL_VISION_MODEL: model, APP_ENV: "eval", MODEL_DAILY_USD_CAP: "1000" }) as unknown as Env;
+const envFor = (model: string) => ({ DB: stubDb, MODEL_API_KEY: KEY, ANTHROPIC_API_KEY: AKEY, MODEL_VISION_MODEL: model, APP_ENV: "eval", MODEL_DAILY_USD_CAP: "1000" }) as unknown as Env;
 
 const labels = JSON.parse(readFileSync(join(here, "data/labels.json"), "utf8")) as Array<Truth & { images: Array<{ file: string; variant: string; size: [number, number]; box: number[] }> }>;
 
 async function sam(image: string, size: { w: number; h: number }, box: [number, number, number, number], model: string) {
   for (let a = 1; a <= 4; a++) {
     try {
-      const out = await samSegment({ image, boxes: [box], size }, { env: envFor(model), timeoutMs: 45_000 });
+      const out = await samSegment({ image, boxes: [box], size }, { env: envFor(model), timeoutMs: 45_000, origin: "eval" });
       const rec = (await parseSamMasks(out.raw)).get("1");
       return { outline: outlineFor({ id: "i1", box }, rec, size), source: rec ? "sam" : "fallback" };
     } catch (e) {
@@ -69,7 +74,7 @@ async function job(cfg: (typeof CONFIGS)[number], lab: (typeof labels)[number], 
   let read = null as Awaited<ReturnType<typeof readLook>> | null;
   let error: string | undefined;
   try {
-    read = await readLook(envFor(cfg.model), null, { image, width: w, height: h }, "", { effort: cfg.effort as "low", client: recordingClient({ MODEL_API_KEY: KEY }, (c) => calls.push(c)) });
+    read = await readLook(envFor(cfg.model), null, { image, width: w, height: h }, "", { effort: cfg.effort as "low", client: recordingClient(envFor(cfg.model), (c) => calls.push(c)), origin: "eval" });
   } catch (e) {
     error = e instanceof Error ? `${e.name}:${e.message}`.slice(0, 160) : "error";
   }
@@ -105,6 +110,9 @@ async function main() {
   mkdirSync(join(here, "results"), { recursive: true });
   const out = join(here, "results", `${stamp}${tag === "full" ? "" : `-${tag}`}.json`);
   const configs = CONFIGS.filter((c) => wanted.includes(c.id));
+  for (const c of configs) {
+    if (isClaude(c.model) ? !AKEY : !KEY) { process.stderr.write(`${isClaude(c.model) ? "ANTHROPIC_API_KEY" : "MODEL_API_KEY"} is not set (needed for ${c.id})\n`); process.exit(2); }
+  }
   const items = labels.slice(0, limit).flatMap((l) => l.images.filter((i) => variants.includes(i.variant)).map((i) => [l, i] as const));
   const all: Record<string, JobResult[]> = {};
   for (const cfg of configs) {
