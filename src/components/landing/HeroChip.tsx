@@ -2,16 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { Icon, type IconName } from "@/components/Icon";
+import { useT } from "@/lib/i18n/client";
 
-const JOBS: { icon: IconName; text: string }[] = [
-  { icon: "prepare", text: "Prepares you for the office" },
-  { icon: "meet", text: "Interprets at the counter" },
-  { icon: "letter", text: "Reads the letters" },
-  { icon: "calendar", text: "Counts the deadlines" },
+const JOBS: { icon: IconName; key: string }[] = [
+  { icon: "prepare", key: "chipPrepares" },
+  { icon: "meet", key: "chipInterprets" },
+  { icon: "letter", key: "chipReads" },
+  { icon: "calendar", key: "chipCounts" },
 ];
 
 /** The small rotating chip above the headline. Holds still for reduced motion. */
 export function HeroChip() {
+  const t = useT("landing");
   const [i, setI] = useState(0);
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -20,10 +22,10 @@ export function HeroChip() {
   }, []);
   const job = JOBS[i];
   return (
-    <p className="lp-hero-chip" aria-label="What your agent does: prepares, interprets, reads letters, counts deadlines">
-      <span key={job.text} className="lp-hero-chip-in" aria-hidden="true">
+    <p className="lp-hero-chip" aria-label={t("chipAria")}>
+      <span key={job.key} className="lp-hero-chip-in" aria-hidden="true">
         <Icon name={job.icon} size={13} />
-        {job.text}
+        {t(job.key)}
       </span>
     </p>
   );

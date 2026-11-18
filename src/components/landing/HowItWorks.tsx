@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { Icon, type IconName } from "@/components/Icon";
+import { getT } from "@/lib/i18n/server";
+import type { T } from "@/lib/i18n/translate";
 import { LetterMock, MeetMock, PrepareMock, WrapUpMock } from "./HiwMocks";
 
 type Step = {
@@ -7,64 +9,66 @@ type Step = {
   features: { icon: IconName; name: string; desc: string }[]; caption: string; visual: ReactNode;
 };
 
-const STEPS: Step[] = [
+const steps = (t: T): Step[] => [
   {
-    id: "prepare", tab: "Before", icon: "prepare", eyebrow: "Before · Prepare",
-    title: "Walk in knowing what to bring",
-    body: "A checklist for your next appointment, built from today's official pages. Every line cites the exact paragraph and is ticked against what your case already holds.",
+    id: "prepare", tab: t("tabBefore"), icon: "prepare", eyebrow: t("prepEyebrow"),
+    title: t("prepTitle"),
+    body: t("prepBody"),
     features: [
-      { icon: "link", name: "Cited checklists", desc: "Each line links to its paragraph on the official page." },
-      { icon: "speak", name: "Polish phrases", desc: "The ones you will need at that counter, ready to say." },
+      { icon: "link", name: t("prepF1"), desc: t("prepF1d") },
+      { icon: "speak", name: t("prepF2"), desc: t("prepF2d") },
     ],
-    caption: "Prepare: Arjun's next visit, three of four items already in his case.",
-    visual: <PrepareMock />,
+    caption: t("prepCaption"),
+    visual: <PrepareMock t={t} />,
   },
   {
-    id: "meet", tab: "During", icon: "meet", eyebrow: "During · Meet",
-    title: "Two-way interpreting at the counter",
-    body: "Show an introduction card, then lay the phone flat in table mode: the official's half faces them, yours faces you. A watcher speaks up when a date, amount or document could be misunderstood.",
+    id: "meet", tab: t("tabDuring"), icon: "meet", eyebrow: t("meetEyebrow"),
+    title: t("meetTitle"),
+    body: t("meetBody"),
     features: [
-      { icon: "mic", name: "Table mode", desc: "English, Ukrainian, Hindi or Tamil, to Polish and back." },
-      { icon: "shield", name: "The watcher", desc: "Flags the dates, amounts and documents worth checking." },
+      { icon: "mic", name: t("meetF1"), desc: t("meetF1d") },
+      { icon: "shield", name: t("meetF2"), desc: t("meetF2d") },
     ],
-    caption: "Meet: the official's line, interpreted, and the watcher's question.",
-    visual: <MeetMock />,
+    caption: t("meetCaption"),
+    visual: <MeetMock t={t} />,
   },
   {
-    id: "wrap", tab: "After", icon: "check", eyebrow: "After · Wrap-up",
-    title: "Leave with what was agreed, in writing",
-    body: "What was agreed, what to bring and which dates were named, written up the moment you step away from the counter.",
+    id: "wrap", tab: t("tabAfter"), icon: "check", eyebrow: t("wrapEyebrow"),
+    title: t("wrapTitle"),
+    body: t("wrapBody"),
     features: [
-      { icon: "calendar", name: "Calendar", desc: "Every date named goes straight into your calendar." },
-      { icon: "case", name: "Case memory", desc: "Filed into your agent's memory for the next letter." },
+      { icon: "calendar", name: t("wrapF1"), desc: t("wrapF1d") },
+      { icon: "case", name: t("wrapF2"), desc: t("wrapF2d") },
     ],
-    caption: "Wrap-up: Arjun's fingerprint appointment on 18 September.",
-    visual: <WrapUpMock />,
+    caption: t("wrapCaption"),
+    visual: <WrapUpMock t={t} />,
   },
   {
-    id: "letters", tab: "Letters", icon: "letter", eyebrow: "Letters · Read, link, reply",
-    title: "Every letter read, linked and answered on time",
-    body: "Photograph a letter or upload the e-Doręczenia PDF. See the verbatim Polish beside the explanation, linked to everything said before. The deadline is computed in code with every step shown.",
+    id: "letters", tab: t("tabLetters"), icon: "letter", eyebrow: t("letEyebrow"),
+    title: t("letTitle"),
+    body: t("letBody"),
     features: [
-      { icon: "camera", name: "Read", desc: "Photo or PDF. Dates the model is unsure of are flagged." },
-      { icon: "link", name: "Link", desc: "Connected to your earlier visits and letters." },
-      { icon: "file", name: "Reply", desc: "A Polish cover letter, drafted for you to check." },
+      { icon: "camera", name: t("letF1"), desc: t("letF1d") },
+      { icon: "link", name: t("letF2"), desc: t("letF2d") },
+      { icon: "file", name: t("letF3"), desc: t("letF3d") },
     ],
-    caption: "Letters: a wezwanie, linked to the visit, with its deadline counted.",
-    visual: <LetterMock />,
+    caption: t("letCaption"),
+    visual: <LetterMock t={t} />,
   },
 ];
 
 /** How it works: sticky tabs, steps on the left, one sticky visual on the right that follows the step. */
-export function HowItWorks() {
+export async function HowItWorks() {
+  const t = await getT("landing");
+  const STEPS = steps(t);
   return (
     <section className="lp-sec" id="how" aria-labelledby="how-h">
       <div className="lp-wrap">
         <header className="lp-head-c">
-          <h2 id="how-h" className="lp-h2" data-sweep>Built for how a residence case actually runs</h2>
-          <p className="lp-body">One private agent for the office visit, the conversation at the counter and every letter that follows.</p>
+          <h2 id="how-h" className="lp-h2" data-sweep>{t("howTitle")}</h2>
+          <p className="lp-body">{t("howBody")}</p>
         </header>
-        <nav className="lp-tabs" aria-label="Steps">
+        <nav className="lp-tabs" aria-label={t("howSteps")}>
           {STEPS.map((s, i) => (
             <a key={s.id} href={`#step-${s.id}`} data-step-link={s.id} className={`lp-tab${i === 0 ? " is-active" : ""}`}>
               <Icon name={s.icon} size={14} />{s.tab}

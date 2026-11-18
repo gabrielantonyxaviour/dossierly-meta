@@ -143,3 +143,10 @@
   .lp-hero-ctas > * { width: 100%; min-height: 52px; justify-content: center; }
   .lp-hero-proof, .lp-hero-link { font-size: 15px; line-height: 22px; }
 }
+
+/* Longer languages (Hindi, Tamil, Ukrainian): let labels wrap instead of overflowing at 360 px. */
+.lp-btn { white-space: normal; text-align: center; max-width: 100%; }
+.lp-tag { white-space: normal; max-width: 100%; }
+.lp-hero-chip { max-width: 100%; }
+.lp-ph-tabs .lp-tab { white-space: normal; height: auto; min-height: 32px; padding: 6px 14px; }
+.lp :is(h1, h2, h3, p, li, dd, td, th) { overflow-wrap: break-word; }

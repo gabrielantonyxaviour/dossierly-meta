@@ -1,10 +1,7 @@
-const ROWS = [
-  { k: "Your case", us: "Remembered from the first visit to the last letter", them: "Forgotten after each sentence" },
-  { k: "At the counter", us: "Both ways, with a watcher for dates and amounts", them: "One sentence at a time" },
-  { k: "Letters", us: "Read, linked to what was said, reply drafted", them: "Translated, then you are on your own" },
-  { k: "Deadlines", us: "Counted in code, every step shown", them: "Not counted" },
-  { k: "Sources", us: "Each line cites the official paragraph", them: "None" },
-];
+import { getT } from "@/lib/i18n/server";
+
+/* Row n reads cmp{n}, cmp{n}Us and cmp{n}Them from the landing messages. */
+const ROWS = [1, 2, 3, 4, 5];
 
 function Yes() {
   return (
@@ -24,30 +21,28 @@ function No() {
 }
 
 /** Why Dossierly: copy on the left, a quiet comparison table on the right. */
-export function Compare() {
+export async function Compare() {
+  const t = await getT("landing");
   return (
     <section className="lp-sec lp-sec-lg" aria-labelledby="why-h">
       <div className="lp-wrap lp-why">
         <div>
-          <p className="lp-eyebrow">Why Dossierly</p>
-          <h2 id="why-h" className="lp-h2" data-sweep>Translation apps give you words. Dossierly carries the case.</h2>
-          <p className="lp-body">
-            Translation apps work one sentence at a time and forget everything. Agencies remember the case but cost
-            thousands of złoty. Dossierly remembers the whole case, for a fraction of that.
-          </p>
+          <p className="lp-eyebrow">{t("whyEyebrow")}</p>
+          <h2 id="why-h" className="lp-h2" data-sweep>{t("whyTitle")}</h2>
+          <p className="lp-body">{t("whyBody")}</p>
         </div>
         <div className="lp-cmp" data-reveal>
           <table>
-            <caption className="sr-only">Dossierly compared with translation apps</caption>
+            <caption className="sr-only">{t("cmpCaption")}</caption>
             <thead>
-              <tr><td /><th scope="col">Dossierly</th><th scope="col" className="lp-cmp-them">Translation apps</th></tr>
+              <tr><td /><th scope="col">Dossierly</th><th scope="col" className="lp-cmp-them">{t("cmpThem")}</th></tr>
             </thead>
             <tbody>
-              {ROWS.map((r) => (
-                <tr key={r.k}>
-                  <th scope="row">{r.k}</th>
-                  <td><span><Yes />{r.us}</span></td>
-                  <td className="lp-cmp-them"><span><No />{r.them}</span></td>
+              {ROWS.map((n) => (
+                <tr key={n}>
+                  <th scope="row">{t(`cmp${n}`)}</th>
+                  <td><span><Yes />{t(`cmp${n}Us`)}</span></td>
+                  <td className="lp-cmp-them"><span><No />{t(`cmp${n}Them`)}</span></td>
                 </tr>
               ))}
             </tbody>

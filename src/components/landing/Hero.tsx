@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getT } from "@/lib/i18n/server";
 import { HeroChip } from "./HeroChip";
 import { HeroMock } from "./HeroMock";
 
@@ -43,28 +44,26 @@ function Dial() {
 }
 
 /** Hero: centred promise, the two ways in, then one large view of Arjun's case. */
-export function Hero() {
+export async function Hero() {
+  const t = await getT("landing");
   return (
     <section className="lp-hero" aria-labelledby="hero-h">
       <Dial />
       <div className="lp-wrap lp-hero-in">
         <HeroChip />
-        <h1 id="hero-h" className="lp-hero-title">A caseworker for your life abroad</h1>
-        <p className="lp-hero-sub">
-          Your own private AI agent remembers your whole residence case. It prepares you for the office, interprets at
-          the counter, reads the letters that follow and counts every deadline.
-        </p>
+        <h1 id="hero-h" className="lp-hero-title">{t("heroTitle")}</h1>
+        <p className="lp-hero-sub">{t("heroSub")}</p>
         <div className="lp-hero-ctas">
-          <Link className="lp-btn lp-btn-dark" href="/signup">Start your case</Link>
-          <Link className="lp-btn lp-btn-soft" href="/pricing">Free during the beta</Link>
+          <Link className="lp-btn lp-btn-dark" href="/signup">{t("startCase")}</Link>
+          <Link className="lp-btn lp-btn-soft" href="/pricing">{t("heroFree")}</Link>
         </div>
         <p className="lp-hero-link">
-          <Link href="/countries" className="lp-ulink">Which offices are covered?</Link>
+          <Link href="/countries" className="lp-ulink">{t("heroCovered")}</Link>
         </p>
       </div>
       <div className="lp-wrap lp-hero-stage">
-        <HeroMock />
-        <p className="lp-hero-proof">Poland first · the Mazowiecki office in Warsaw · interprets and explains, never legal advice</p>
+        <HeroMock t={t} />
+        <p className="lp-hero-proof">{t("heroProof")}</p>
       </div>
     </section>
   );

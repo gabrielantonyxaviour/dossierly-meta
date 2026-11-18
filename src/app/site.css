@@ -120,3 +120,10 @@
 @keyframes otp-blink { 50% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .otp-caret { animation: none; } }
 #auth-feedback:empty { display: none; }
+
+/* Language picker in the footer and on sign-in; long labels wrap in the narrow header. */
+.footer-lang { margin-top: 6px; }
+.auth-lang { justify-content: center; }
+.site-actions { min-width: 0; }
+.site-actions .btn { white-space: normal; text-align: center; line-height: 1.15; }
+@media (max-width: 419px) { .site-bar { gap: 10px; } .nav-pricing-sm { padding: 6px 4px; } }
