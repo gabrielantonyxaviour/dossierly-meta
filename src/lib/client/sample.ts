@@ -1,4 +1,5 @@
 import type { Case, Language } from "./types";
+import { tNow } from "@/lib/i18n/current";
 
 export const MAZOWIECKI = "Wydział Spraw Cudzoziemców MUW - Marszałkowska";
 
@@ -62,13 +63,20 @@ export function emptyCase(name: string, language: Language, office: string): Cas
   };
 }
 
+const lang = (code: Language, native: string, speech: string) => ({
+  /** The language's name in the interface language, read at use time. */
+  get label() { return tNow("shell")(`lang_${code}`); },
+  native,
+  speech,
+});
+
 export const LANGUAGE_NAMES: Record<Language, { label: string; native: string; speech: string }> = {
-  en: { label: "English", native: "English", speech: "en-GB" },
-  ru: { label: "Russian", native: "Русский", speech: "ru-RU" },
-  zh: { label: "Chinese", native: "中文", speech: "zh-CN" },
-  ja: { label: "Japanese", native: "日本語", speech: "ja-JP" },
-  vi: { label: "Vietnamese", native: "Tiếng Việt", speech: "vi-VN" },
-  uk: { label: "Ukrainian", native: "Українська", speech: "uk-UA" },
-  hi: { label: "Hindi", native: "हिन्दी", speech: "hi-IN" },
-  ta: { label: "Tamil", native: "தமிழ்", speech: "ta-IN" },
+  en: lang("en", "English", "en-GB"),
+  ru: lang("ru", "Русский", "ru-RU"),
+  zh: lang("zh", "中文", "zh-CN"),
+  ja: lang("ja", "日本語", "ja-JP"),
+  vi: lang("vi", "Tiếng Việt", "vi-VN"),
+  uk: lang("uk", "Українська", "uk-UA"),
+  hi: lang("hi", "हिन्दी", "hi-IN"),
+  ta: lang("ta", "தமிழ்", "ta-IN"),
 };

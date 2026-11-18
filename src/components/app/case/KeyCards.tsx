@@ -3,9 +3,9 @@ import Link from "next/link";
 import { daysBetween, warsawDate, warsawToday } from "@/lib/case/next-step";
 import type { CaseSnapshot } from "@/lib/case/types";
 import { Icon } from "@/components/Icon";
-import { timeLabel } from "../format";
-
-const dayShort = (d: string) => new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${d}T12:00:00Z`));
+import { useT } from "@/lib/i18n/client";
+import type { T } from "@/lib/i18n/translate";
+import { dayLabel as dayShort, timeLabel } from "../format";
 
 /** "Reply to summons: submit missing…" → "Reply to summons"; "Fingerprints (odciski palców)" → "Fingerprints". */
 export const shortTitle = (t: string) => t.split(/\s*[:(–—]\s*/)[0].trim() || t;
@@ -14,8 +14,8 @@ export const shortAddress = (a: string) => a.split(",")[0].replace(/^(ul\.|al\.|
 /** "KPA art. 64 § 2" → "KPA 64 §2". */
 export const shortRule = (r: string) => r.replace(/\bart\.\s*/i, "").replace(/§\s+/g, "§").trim();
 
-function whenLabel(days: number, date: string) {
-  return days === 0 ? "Today" : days === 1 ? "Tomorrow" : dayShort(date);
+function whenLabel(t: T, days: number, date: string) {
+  return days === 0 ? t("today") : days === 1 ? t("tomorrow") : dayShort(date);
 }
 
 /**
@@ -23,6 +23,7 @@ function whenLabel(days: number, date: string) {
  * the next appointment and the nearest open deadlines.
  */
 export function KeyCards({ c, now = new Date() }: { c: CaseSnapshot; now?: Date }) {
+  const t = useT("case");
   const today = warsawToday(now);
   const appt = [...c.appointments]
     .filter((a) => new Date(a.at).getTime() > now.getTime() - 3 * 3600_000 && daysBetween(today, warsawDate(a.at)) <= 30)
@@ -30,13 +31,13 @@ export function KeyCards({ c, now = new Date() }: { c: CaseSnapshot; now?: Date 
   const deadlines = c.deadlines.filter((d) => d.status === "open").sort((a, b) => a.dueDate.localeCompare(b.dueDate)).slice(0, appt ? 2 : 3);
   if (!appt && !deadlines.length) return null;
   return (
-    <section className="kc" aria-label="Coming up in your case">
+    <section className="kc" aria-label={t("comingUpAria")}>
       {appt && (() => {
         const days = daysBetween(today, warsawDate(appt.at));
         return (
           <Link href="/app/case?tab=dates" className="kc-card kc-card--appt">
             <span className="kc-label"><Icon name="calendar" size={18} />{shortTitle(appt.title)}</span>
-            <span className="kc-big">{whenLabel(days, warsawDate(appt.at))} {timeLabel(appt.at)}</span>
+            <span className="kc-big">{whenLabel(t, days, warsawDate(appt.at))} {timeLabel(appt.at)}</span>
             <span className="kc-sub">{shortAddress(appt.location.address || appt.location.name)}</span>
           </Link>
         );
@@ -46,10 +47,10 @@ export function KeyCards({ c, now = new Date() }: { c: CaseSnapshot; now?: Date 
         return (
           <Link key={d.id} href={`/app/case/deadlines/${d.id}`} className={`kc-card kc-card--deadline${left <= 7 ? " is-urgent" : ""}`}>
             <span className="kc-label"><Icon name="clock" size={18} />{shortTitle(d.title)}</span>
-            <span className="kc-big">by {dayShort(d.dueDate)}</span>
+            <span className="kc-big">{t("byDate", { date: dayShort(d.dueDate) })}</span>
             <span className="kc-sub">
               {d.computation.rule && <b>{shortRule(d.computation.rule)}</b>}
-              {left < 0 ? `${-left} days overdue` : left === 0 ? "due today" : `${left} day${left === 1 ? "" : "s"} left`}
+              {left < 0 ? t("daysOverdue", { n: -left }) : left === 0 ? t("dueTodayLower") : left === 1 ? t("dayLeft") : t("daysLeft", { n: left })}
             </span>
           </Link>
         );

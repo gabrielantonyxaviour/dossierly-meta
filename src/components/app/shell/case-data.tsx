@@ -2,6 +2,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { nextStep, type NextStep } from "@/lib/case/next-step";
 import type { CaseItemMap, CaseSnapshot, Collection, Profile } from "@/lib/case/types";
+import { tNow } from "@/lib/i18n/current";
 
 /* Client view of the server case (/api/case). One fetch shared by the whole shell; refreshes on focus and
    every 45 s so writes from other flows (letters, counter, calls) appear without a reload. */
@@ -22,8 +23,8 @@ const Ctx = createContext<CaseData | null>(null);
 async function json<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, { credentials: "same-origin", cache: "no-store", ...init, headers: init?.body ? { "content-type": "application/json" } : undefined });
   const body = (await res.json().catch(() => ({}))) as { error?: string };
-  if (res.status === 401) { window.location.href = `/signin?next=${encodeURIComponent(location.pathname)}`; throw new Error("Signed out"); }
-  if (!res.ok) throw new Error(body.error || `Request failed (${res.status})`);
+  if (res.status === 401) { window.location.href = `/signin?next=${encodeURIComponent(location.pathname)}`; throw new Error(tNow("shell")("signedOut")); }
+  if (!res.ok) throw new Error(body.error || tNow("shell")("requestFailed", { status: res.status }));
   return body as T;
 }
 
@@ -37,7 +38,7 @@ export function CaseDataProvider({ children }: { children: ReactNode }) {
     if (inflight.current) return inflight.current;
     const p = json<CaseSnapshot>("/api/case")
       .then((s) => { setSnapshot(s); setStatus("ready"); setError(null); })
-      .catch((e: Error) => { setError(navigator.onLine ? e.message : "You’re offline. Your case will refresh when you reconnect."); setStatus((old) => (old === "ready" ? "ready" : "error")); })
+      .catch((e: Error) => { setError(navigator.onLine ? e.message : tNow("shell")("offline")); setStatus((old) => (old === "ready" ? "ready" : "error")); })
       .finally(() => { inflight.current = null; });
     inflight.current = p;
     return p;

@@ -181,3 +181,7 @@
 .plan-status > div { display: grid; gap: 2px; }
 .plan-status b { font-weight: 500; font-size: 1.1rem; }
 .plan-status small { color: var(--ink-3); font-size: 0.875rem; }
+
+/* i18n: bottom tab labels in Hindi/Tamil/Ukrainian wrap to two short lines instead of overflowing at 360 px. */
+.sh-tab { min-width: 0; padding: 0 2px; }
+.sh-tab > span { max-width: 100%; text-align: center; line-height: 1.15; overflow-wrap: anywhere; }

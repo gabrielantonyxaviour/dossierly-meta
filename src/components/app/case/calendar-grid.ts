@@ -1,5 +1,7 @@
 import { warsawDate } from "@/lib/case/next-step";
 import type { CaseSnapshot } from "@/lib/case/types";
+import { currentTag, tNow } from "@/lib/i18n/current";
+import type { T } from "@/lib/i18n/translate";
 import { timeLabel } from "../format";
 
 /* Pure helpers for the case calendar: the dated items of a case, and a Monday-first month grid. */
@@ -16,9 +18,10 @@ export type DateItem = {
   time?: string;
 };
 
-export function caseDates(c: CaseSnapshot): DateItem[] {
+/** `t` is the "case" translator (fallback label for a deadline without a rule). */
+export function caseDates(c: CaseSnapshot, t: T = tNow("case")): DateItem[] {
   return [
-    ...c.deadlines.map((d) => ({ key: d.id, date: d.dueDate, kind: "deadline" as const, title: d.title, sub: d.computation.rule ?? "Deadline", href: `/app/case/deadlines/${d.id}`, status: d.status })),
+    ...c.deadlines.map((d) => ({ key: d.id, date: d.dueDate, kind: "deadline" as const, title: d.title, sub: d.computation.rule ?? t("deadline"), href: `/app/case/deadlines/${d.id}`, status: d.status })),
     ...c.appointments.map((a) => ({ key: a.id, date: warsawDate(a.at), kind: "appointment" as const, title: a.title, sub: `${a.location.name}${a.location.address ? ` · ${a.location.address}` : ""}`, time: timeLabel(a.at) })),
   ];
 }
@@ -52,5 +55,11 @@ export function deadlineWindow(items: DateItem[], today: string): { from: string
   return next ? { from: today, to: next.date } : null;
 }
 
-export const monthLabel = (month: string) =>
-  new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${month}-15T12:00:00Z`));
+export const monthLabel = (month: string, tag: string = currentTag()) =>
+  new Intl.DateTimeFormat(tag, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${month}-15T12:00:00Z`));
+
+/** Monday-first weekday names in the interface language: narrow for phones, short for wider screens. */
+export function weekdays(tag: string = currentTag()): { short: string; narrow: string }[] {
+  const f = (weekday: "short" | "narrow", i: number) => new Intl.DateTimeFormat(tag, { weekday, timeZone: "UTC" }).format(new Date(Date.UTC(2026, 10, 2 + i, 12)));
+  return Array.from({ length: 7 }, (_, i) => ({ short: f("short", i), narrow: f("narrow", i) }));
+}

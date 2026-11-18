@@ -5,28 +5,33 @@ import { EmptyState, Pill } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { eventIcon } from "../home/HomeSections";
 import { eventTitle } from "../notifications/derive";
+import { LOCALE_TAGS } from "@/lib/i18n/locales";
+import { useLocale, useT } from "@/lib/i18n/client";
 import { timeLabel } from "../format";
 
 const TONE: Record<string, string> = { call: "agent", email_received: "official", letter_read: "official", deadline_created: "deadline", counter_session: "user" };
 
-function monthKey(iso: string) {
-  return new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "Europe/Warsaw" }).format(new Date(iso));
+function monthKey(iso: string, tag: string) {
+  return new Intl.DateTimeFormat(tag, { month: "long", year: "numeric", timeZone: "Europe/Warsaw" }).format(new Date(iso));
 }
-function dayKey(iso: string) {
-  return new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "Europe/Warsaw" }).format(new Date(iso));
+function dayKey(iso: string, tag: string) {
+  return new Intl.DateTimeFormat(tag, { weekday: "short", day: "numeric", month: "short", timeZone: "Europe/Warsaw" }).format(new Date(iso));
 }
 
 /** Everything that happened in the case, newest first, grouped by month. Refs link to documents/deadlines. */
 export function TimelineTab({ c }: { c: CaseSnapshot }) {
+  const t = useT("case");
+  const tn = useT("notifications");
+  const tag = LOCALE_TAGS[useLocale()];
   useEffect(() => {
     const id = location.hash.slice(1);
     if (id) document.getElementById(id)?.scrollIntoView({ block: "center", behavior: "smooth" });
   }, []);
-  if (!c.events.length) return <EmptyState icon="clock" title="Your timeline starts here">Emails, letters, calls and counter sessions appear here as they happen.</EmptyState>;
+  if (!c.events.length) return <EmptyState icon="clock" title={t("timelineEmpty")}>{t("timelineEmptyBody")}</EmptyState>;
   const events = [...c.events].sort((a, b) => b.at.localeCompare(a.at));
   const groups: { month: string; items: typeof events }[] = [];
   for (const e of events) {
-    const m = monthKey(e.at);
+    const m = monthKey(e.at, tag);
     if (groups.at(-1)?.month !== m) groups.push({ month: m, items: [] });
     groups.at(-1)!.items.push(e);
   }
@@ -42,7 +47,7 @@ export function TimelineTab({ c }: { c: CaseSnapshot }) {
               <li key={e.id} id={e.id} className={`tl-item tl--${TONE[e.type] ?? "neutral"}`}>
                 <span className="tl-icon"><Icon name={eventIcon(e.type)} size={16} /></span>
                 <div className="tl-body">
-                  <div className="tl-meta"><b>{eventTitle(e.type)}</b><span className="ui-num">{dayKey(e.at)} · {timeLabel(e.at)}</span></div>
+                  <div className="tl-meta"><b>{eventTitle(e.type, tn)}</b><span className="ui-num">{dayKey(e.at, tag)} · {timeLabel(e.at)}</span></div>
                   <p>{e.summary}</p>
                   {e.refs.length > 0 && (
                     <div className="tl-refs">

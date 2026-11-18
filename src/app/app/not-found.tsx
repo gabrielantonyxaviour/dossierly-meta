@@ -1,11 +1,13 @@
 import { ButtonLink, EmptyState } from "@/components/ui";
+import { getT } from "@/lib/i18n/server";
 
-export default function NotFound() {
+export default async function NotFound() {
+  const t = await getT("shell");
   return (
     <div className="sh-page">
       <div style={{ height: 56 }} />
-      <EmptyState icon="info" title="This part isn’t here yet" action={<ButtonLink href="/app" size="sm" icon="home">Back to home</ButtonLink>}>
-        It may still be on its way to this preview. Everything in your case is safe.
+      <EmptyState icon="info" title={t("notFoundTitle")} action={<ButtonLink href="/app" size="sm" icon="home">{t("backHome")}</ButtonLink>}>
+        {t("notFoundBody")}
       </EmptyState>
     </div>
   );

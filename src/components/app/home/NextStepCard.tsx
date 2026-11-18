@@ -2,9 +2,8 @@
 import type { NextStep } from "@/lib/case/next-step";
 import type { CaseSnapshot } from "@/lib/case/types";
 import { ButtonLink, Pill } from "@/components/ui";
+import { useT } from "@/lib/i18n/client";
 import { longDay, timeLabel } from "../format";
-
-const KIND_LABEL: Record<NextStep["kind"], string> = { deadline: "Deadline", appointment: "Appointment", task: "To do", document: "Document", stage: "Next step" };
 
 function href(n: NextStep): string {
   if (n.kind === "deadline" && n.id) return `/app/case/deadlines/${n.id}`;
@@ -16,12 +15,13 @@ function href(n: NextStep): string {
 
 /** The single most urgent thing, with a countdown when it is dated. */
 export function NextStepCard({ next, snapshot }: { next: NextStep | null; snapshot: CaseSnapshot }) {
+  const t = useT("home");
   if (!next) {
     return (
       <section className="hm-next hm-next--calm" aria-labelledby="next-title">
-        <span className="ui-eyebrow">Your next step</span>
-        <h2 id="next-title" className="hm-next-title">Nothing urgent right now</h2>
-        <p className="ui-body">Dossierly is watching your mail and calendar. When a letter or date arrives, it shows up here first.</p>
+        <span className="ui-eyebrow">{t("yourNextStep")}</span>
+        <h2 id="next-title" className="hm-next-title">{t("nothingUrgent")}</h2>
+        <p className="ui-body">{t("nothingUrgentBody")}</p>
       </section>
     );
   }
@@ -31,38 +31,38 @@ export function NextStepCard({ next, snapshot }: { next: NextStep | null; snapsh
   const task = next.kind === "task" ? snapshot.tasks.find((t) => t.id === next.id) : undefined;
   const appt = next.kind === "appointment" ? snapshot.appointments.find((a) => a.id === next.id) : undefined;
   const apptToday = !!appt && next.daysLeft === 0;
-  const ask = encodeURIComponent(`Walk me through my next step: ${next.title}`);
+  const ask = encodeURIComponent(t("askNext", { title: next.title }));
   const attach = next.kind === "deadline" || next.kind === "task" || next.kind === "document" ? `&attach=${next.kind}:${next.id}` : "";
   return (
     <section className={`hm-next${urgent && next.kind !== "appointment" ? " hm-next--urgent" : ""}`} aria-labelledby="next-title">
       <div className="hm-next-top">
-        <span className="ui-eyebrow">Your next step</span>
+        <span className="ui-eyebrow">{t("yourNextStep")}</span>
         <Pill tone={next.kind === "deadline" ? (urgent ? "deadline" : "warn") : next.kind === "appointment" ? "official" : "neutral"} dot>
-          {KIND_LABEL[next.kind]}{deadline?.computation.rule ? ` · ${deadline.computation.rule}` : ""}
+          {t(`kind_${next.kind}`)}{deadline?.computation.rule ? ` · ${deadline.computation.rule}` : ""}
         </Pill>
       </div>
       <div className="hm-next-body">
         {apptToday && (
-          <div className="hm-count" aria-label={`Today at ${timeLabel(appt!.at)}`}>
+          <div className="hm-count" aria-label={t("todayAt", { time: timeLabel(appt!.at) })}>
             <span className="hm-count-n ui-display ui-num">{timeLabel(appt!.at)}</span>
-            <span className="hm-count-u">today</span>
+            <span className="hm-count-u">{t("todayUnit")}</span>
           </div>
         )}
         {dated && !apptToday && (
-          <div className="hm-count" aria-label={next.overdue ? `${-next.daysLeft!} days overdue` : `${next.daysLeft} days left`}>
+          <div className="hm-count" aria-label={next.overdue ? t("daysOverdueAria", { n: -next.daysLeft! }) : t("daysLeftAria", { n: next.daysLeft! })}>
             <span className="hm-count-n ui-display ui-num">{next.overdue ? -next.daysLeft! : next.daysLeft}</span>
-            <span className="hm-count-u">{next.overdue ? "days overdue" : next.daysLeft === 1 ? "day left" : next.daysLeft === 0 ? "due today" : "days left"}</span>
+            <span className="hm-count-u">{next.overdue ? t("unitDaysOverdue") : next.daysLeft === 1 ? t("unitDayLeft") : next.daysLeft === 0 ? t("unitDueToday") : t("unitDaysLeft")}</span>
           </div>
         )}
         <div className="hm-next-text">
           <h2 id="next-title" className="hm-next-title">{next.title}</h2>
-          {dated && <p className="hm-next-date">{appt ? `${apptToday ? "Today" : longDay(next.date!)} · ${appt.location.address || appt.location.name}` : `Due ${longDay(next.date!)}`}</p>}
+          {dated && <p className="hm-next-date">{appt ? `${apptToday ? t("today") : longDay(next.date!)} · ${appt.location.address || appt.location.name}` : t("dueOn", { date: longDay(next.date!) })}</p>}
           <p className="ui-body">{task?.detail || next.reason}</p>
         </div>
       </div>
       <div className="hm-next-actions">
-        <ButtonLink href={href(next)} variant="primary" iconEnd="forward">{next.kind === "deadline" ? "How it’s counted" : "Open"}</ButtonLink>
-        <ButtonLink href={`/app/chat?q=${ask}${attach}`} variant="secondary" icon="sparkle">Ask</ButtonLink>
+        <ButtonLink href={href(next)} variant="primary" iconEnd="forward">{next.kind === "deadline" ? t("howCounted") : t("open")}</ButtonLink>
+        <ButtonLink href={`/app/chat?q=${ask}${attach}`} variant="secondary" icon="sparkle">{t("ask")}</ButtonLink>
       </div>
     </section>
   );

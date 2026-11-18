@@ -9,22 +9,25 @@ import { eventTitle } from "../notifications/derive";
 import { useCaseData } from "../shell/case-data";
 import { isPhotoTask, photoCheckHref } from "../photo-link";
 import { isProposal } from "../review/derive";
+import { useT } from "@/lib/i18n/client";
 
-const ACTIONS: { href: string; icon: IconName; title: string; sub: string }[] = [
-  { href: "/app/look", icon: "scan", title: "Look", sub: "Photo of a letter or screen" },
-  { href: "/app/counter", icon: "counter", title: "Counter", sub: "Live help at the office" },
-  { href: "/app/rehearse", icon: "mic", title: "Rehearse", sub: "Practise your appointment" },
-  { href: "/app/call", icon: "phone", title: "Talk", sub: "Voice call with Dossierly" },
+/** title/sub are "home" message keys; the sub key is the title key + "Sub". */
+const ACTIONS: { href: string; icon: IconName; key: string }[] = [
+  { href: "/app/look", icon: "scan", key: "actLook" },
+  { href: "/app/counter", icon: "counter", key: "actCounter" },
+  { href: "/app/rehearse", icon: "mic", key: "actRehearse" },
+  { href: "/app/call", icon: "phone", key: "actTalk" },
 ];
 
 export function QuickActions() {
+  const t = useT("home");
   return (
-    <nav className="hm-actions" aria-label="Quick actions">
+    <nav className="hm-actions" aria-label={t("quickActions")}>
       {ACTIONS.map((a) => (
         <Link key={a.href} href={a.href} className="hm-action">
           <span className="hm-action-icon"><Icon name={a.icon} size={22} /></span>
-          <b>{a.title}</b>
-          <small>{a.sub}</small>
+          <b>{t(a.key)}</b>
+          <small>{t(`${a.key}Sub`)}</small>
         </Link>
       ))}
     </nav>
@@ -32,6 +35,7 @@ export function QuickActions() {
 }
 
 export function UpcomingAppointment({ c }: { c: CaseSnapshot }) {
+  const t = useT("home");
   const today = warsawToday();
   const a = [...c.appointments].filter((x) => warsawDate(x.at) >= today).sort((x, y) => x.at.localeCompare(y.at))[0];
   if (!a) return null;
@@ -39,7 +43,7 @@ export function UpcomingAppointment({ c }: { c: CaseSnapshot }) {
   const left = daysBetween(today, warsawDate(a.at));
   const prep = c.tasks.filter((t) => a.prepTaskIds.includes(t.id) && t.status === "open").length;
   return (
-    <Section title="Coming up" action={{ label: "All dates", href: "/app/case?tab=dates" }}>
+    <Section title={t("comingUp")} action={{ label: t("allDates"), href: "/app/case?tab=dates" }}>
       <Card className="hm-appt">
         <div className="hm-date-tile" aria-hidden="true"><small>{p.month}</small><b>{p.day}</b><small>{p.dow}</small></div>
         <div className="hm-appt-main">
@@ -47,7 +51,7 @@ export function UpcomingAppointment({ c }: { c: CaseSnapshot }) {
           <h3 className="ui-title">{a.title}</h3>
           <p className="ui-meta"><Icon name="pin" size={14} /> {a.location.name}{a.location.address ? `, ${a.location.address}` : ""}</p>
           {a.purpose && <p className="ui-body">{a.purpose}</p>}
-          {prep > 0 && <p className="ui-meta">{prep} thing{prep === 1 ? "" : "s"} to prepare</p>}
+          {prep > 0 && <p className="ui-meta">{prep === 1 ? t("prepOne") : t("prepMany", { n: prep })}</p>}
         </div>
       </Card>
     </Section>
@@ -55,28 +59,29 @@ export function UpcomingAppointment({ c }: { c: CaseSnapshot }) {
 }
 
 export function OpenTasks({ c }: { c: CaseSnapshot }) {
+  const t = useT("home");
   const { patchItem } = useCaseData();
   const { toast } = useToast();
   const open = c.tasks.filter((t) => t.status === "open" && !isProposal(t)).slice(0, 4);
   if (!open.length) return null;
   const done = async (id: string, title: string) => {
     const ok = await patchItem("tasks", id, { status: "done" });
-    toast(ok ? `Done: ${title}` : "Couldn’t save that. Try again.", { tone: ok ? "ok" : "error", action: ok ? { label: "Undo", onClick: () => void patchItem("tasks", id, { status: "open" }) } : undefined });
+    toast(ok ? t("toastDone", { title }) : t("saveFailed"), { tone: ok ? "ok" : "error", action: ok ? { label: t("undo"), onClick: () => void patchItem("tasks", id, { status: "open" }) } : undefined });
   };
   const dl = new Map(c.deadlines.map((d) => [d.id, d]));
   return (
-    <Section title="To do" action={{ label: "All tasks", href: "/app/case?tab=tasks" }}>
+    <Section title={t("toDo")} action={{ label: t("allTasks"), href: "/app/case?tab=tasks" }}>
       <Card flush>
-        {open.map((t) => {
-          const d = t.dueDeadlineId ? dl.get(t.dueDeadlineId) : undefined;
+        {open.map((task) => {
+          const d = task.dueDeadlineId ? dl.get(task.dueDeadlineId) : undefined;
           const left = d ? daysBetween(warsawToday(), d.dueDate) : null;
           return (
-            <Row key={t.id} icon={<CheckCircle checked={false} label={`Mark “${t.title}” done`} onChange={() => void done(t.id, t.title)} />} title={t.title}
+            <Row key={task.id} icon={<CheckCircle checked={false} label={t("markDone", { title: task.title })} onChange={() => void done(task.id, task.title)} />} title={task.title}
               sub={<>
-                {d ? `For: ${d.title}` : t.detail || null}
-                {isPhotoTask(t) && <span className="ui-row-action"><ButtonLink href={photoCheckHref(t.id)} size="sm" variant="primary" icon="camera">Check photo</ButtonLink></span>}
+                {d ? t("forDeadline", { title: d.title }) : task.detail || null}
+                {isPhotoTask(task) && <span className="ui-row-action"><ButtonLink href={photoCheckHref(task.id)} size="sm" variant="primary" icon="camera">{t("checkPhoto")}</ButtonLink></span>}
               </>}
-              end={left !== null ? <Pill tone={left <= 7 ? "deadline" : "neutral"}>{left < 0 ? "Overdue" : `${left}d`}</Pill> : undefined} />
+              end={left !== null ? <Pill tone={left <= 7 ? "deadline" : "neutral"}>{left < 0 ? t("overdue") : t("daysShort", { n: left })}</Pill> : undefined} />
           );
         })}
       </Card>
@@ -88,14 +93,16 @@ const EV_ICON: Record<string, IconName> = { email_received: "mail", letter_read:
 export const eventIcon = (t: string): IconName => EV_ICON[t] ?? "info";
 
 export function RecentActivity({ c }: { c: CaseSnapshot }) {
+  const t = useT("home");
+  const tn = useT("notifications");
   const items = c.events.slice(0, 4);
   if (!items.length) return null;
   return (
-    <Section title="Recent activity" action={{ label: "Timeline", href: "/app/case?tab=timeline" }}>
+    <Section title={t("recentActivity")} action={{ label: t("timeline"), href: "/app/case?tab=timeline" }}>
       <Card flush>
         {items.map((e) => (
           <Row key={e.id} icon={eventIcon(e.type)} iconBg={e.type === "call" ? "var(--agent-soft)" : undefined} iconColor={e.type === "call" ? "var(--agent-a)" : undefined}
-            title={eventTitle(e.type)} sub={e.summary} end={<span className="ui-num">{ago(e.at)}</span>} href={`/app/case?tab=timeline#${e.id}`} />
+            title={eventTitle(e.type, tn)} sub={e.summary} end={<span className="ui-num">{ago(e.at)}</span>} href={`/app/case?tab=timeline#${e.id}`} />
         ))}
       </Card>
     </Section>
