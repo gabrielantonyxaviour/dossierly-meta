@@ -1,1 +1,23 @@
-{}
+{
+  "back": "वापस",
+  "close": "बंद करें",
+  "step": "चरण {at} / {of}",
+  "choose": "चुनें…",
+  "chooseDate": "तारीख़ चुनें",
+  "prevMonth": "पिछला महीना",
+  "nextMonth": "अगला महीना",
+  "today": "आज",
+  "dayToday": "{date}, आज",
+  "dropWide": "पत्र यहाँ छोड़ें, या {choose}",
+  "chooseFile": "फ़ाइल चुनें",
+  "dropOver": "यह पत्र जोड़ने के लिए छोड़ें",
+  "dropCompact": "PDF या फ़ोटो चुनें",
+  "dropKinds": "PDF या इमेज",
+  "wrongType": "{name} {kinds} नहीं है। इसकी जगह {kinds} चुनें।",
+  "removeFile": "{name} हटाएँ",
+  "errorTitle": "यह लोड नहीं हुआ",
+  "tryAgain": "फिर से कोशिश करें",
+  "retry": "फिर से",
+  "copy": "कॉपी करें",
+  "copied": "कॉपी हो गया"
+}

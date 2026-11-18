@@ -1,1 +1,23 @@
-{}
+{
+  "back": "Back",
+  "close": "Close",
+  "step": "Step {at} of {of}",
+  "choose": "Choose…",
+  "chooseDate": "Choose a date",
+  "prevMonth": "Previous month",
+  "nextMonth": "Next month",
+  "today": "Today",
+  "dayToday": "{date}, today",
+  "dropWide": "Drop a letter here, or {choose}",
+  "chooseFile": "choose a file",
+  "dropOver": "Drop to add this letter",
+  "dropCompact": "Choose a PDF or photo",
+  "dropKinds": "a PDF or an image",
+  "wrongType": "{name} is not {kinds}. Choose {kinds} instead.",
+  "removeFile": "Remove {name}",
+  "errorTitle": "That didn’t load",
+  "tryAgain": "Try again",
+  "retry": "Retry",
+  "copy": "Copy",
+  "copied": "Copied"
+}

@@ -15,3 +15,5 @@
 .st-copy-label { grid-column: 1 / -1; font-size: var(--t-sm); font-weight: 500; color: var(--ink-3); }
 .st-copy code { font-family: var(--mono); font-size: 0.875rem; line-height: 1.5; color: var(--ink); overflow-wrap: anywhere; word-break: break-all; user-select: all; }
 .st-copy .ui-btn { align-self: start; }
+.st-lang { display: grid; gap: var(--s-3, 12px); }
+.st-lang p { margin: 0; }

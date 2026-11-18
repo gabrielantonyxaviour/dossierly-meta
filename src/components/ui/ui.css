@@ -142,3 +142,6 @@ a.ui-row:hover, button.ui-row:hover { background: var(--card-2); }
 .lang-pick button[aria-checked="true"] { background: var(--ink); color: var(--canvas); }
 .lang-pick button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .lang-pick--compact button { min-height: 32px; padding: 0 10px; font-size: var(--t-xs, 0.8125rem); }
+
+/* Hindi, Tamil and Ukrainian labels run longer: let button text wrap at 360px instead of overflowing. */
+:lang(hi) .ui-btn, :lang(ta) .ui-btn, :lang(uk) .ui-btn { white-space: normal; text-align: center; padding-block: 6px; line-height: 1.25; }

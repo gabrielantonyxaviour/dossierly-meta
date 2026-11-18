@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useT } from "@/lib/i18n/client";
 import { Icon } from "./Icon";
 
-export function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) {
+export function CopyButton({ text, label }: { text: string; label?: string }) {
+  const t = useT("ui");
   const [done, setDone] = useState(false);
   const copy = async () => {
     try {
@@ -17,7 +19,7 @@ export function CopyButton({ text, label = "Copy" }: { text: string; label?: str
   return (
     <button type="button" className="btn btn-small" onClick={() => void copy()} aria-live="polite">
       <Icon name={done ? "check" : "copy"} size={18} />
-      {done ? "Copied" : label}
+      {done ? t("copied") : label ?? t("copy")}
     </button>
   );
 }
