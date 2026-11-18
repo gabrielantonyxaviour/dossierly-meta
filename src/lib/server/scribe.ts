@@ -1,3 +1,4 @@
+import { scribeKeyterms } from "../voice/server/asr";
 /*
  * ElevenLabs Scribe, recorded clips (POST /v1/speech-to-text, model scribe_v3), and the single-use token that lets a
  * browser stream to the realtime endpoint without ever holding the API key.
@@ -38,7 +39,7 @@ export async function transcribeFile(
   form.append("file", new Blob([args.wav as unknown as ArrayBuffer], { type: "audio/wav" }), "audio.wav");
   if (args.lang) form.append("language_code", args.lang);
   form.append("tag_audio_events", "false");
-  for (const k of args.keyterms ?? []) form.append("keyterms", k);
+  for (const k of scribeKeyterms(args.keyterms ?? [])) form.append("keyterms", k);
   const res = await (o.fetch ?? fetch)(`${cfg.baseUrl}/v1/speech-to-text`, { method: "POST", headers: { "xi-api-key": cfg.apiKey }, body: form });
   if (!res.ok) {
     await res.body?.cancel().catch(() => undefined);

@@ -15,6 +15,7 @@ import { Speaker } from "./speaker";
 import type { Transport } from "./transport";
 import { MERGE_MS, caseKeywords, looksPolish, shortId, speechKey } from "./util";
 import { modeHandler, type ModeHandler } from "./modes";
+import { ASR_RECONNECTING, ASR_USER_ERROR } from "./user-errors";
 
 export type VoiceEnv = Record<string, unknown> & { CASE_DO?: CaseNamespace; ELEVENLABS_API_KEY?: string; MODEL_API_KEY?: string; ELEVENLABS_DAILY_CHAR_CAP?: string };
 
@@ -97,9 +98,13 @@ export class VoiceSession {
         this.speculate();
       },
       onFinal: (text) => this.onFinal(text),
-      onError: (m) => this.emit({ t: "error", error: m, code: "asr" }),
+      onError: (m) => {
+        // Provider detail stays in the server log; the person sees a plain message they can act on.
+        console.warn(JSON.stringify({ at: "voice.asr", detail: String(m).slice(0, 300) }));
+        this.emit({ t: "error", error: ASR_USER_ERROR, code: "asr" });
+      },
       onClose: () => {
-        if (!this.closed) this.emit({ t: "error", error: `Speech recognition reconnecting (${this.asr?.stats.last ?? ""})`, code: "asr_closed" });
+        if (!this.closed) this.emit({ t: "error", error: ASR_RECONNECTING, code: "asr_closed" });
         if (!this.closed) void this.reconnectAsr();
       },
     });

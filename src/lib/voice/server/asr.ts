@@ -37,9 +37,13 @@ export function scribeLanguage(bias: string[]): string | null {
 }
 
 /** Keyterms: at most 50 characters and 5 words, none of < > { } [ ] \ (ElevenLabs rejects them). */
+/** ElevenLabs Scribe rejects any keyterm over 20 characters and the whole session with it, so a longer phrase is split into its words. */
+export const KEYTERM_MAX = 20;
 export function scribeKeyterms(keywords: string[]): string[] {
-  const ok = (k: string) => k.length >= 2 && k.length <= 50 && k.split(/\s+/).length <= 5 && !/[<>{}[\]\\]/.test(k);
-  return [...new Set(keywords.map((k) => k.trim()).filter(ok))].slice(0, 40);
+  const clean = (k: string) => k.trim().replace(/\s+/g, " ");
+  const ok = (k: string) => k.length >= 2 && k.length <= KEYTERM_MAX && k.split(" ").length <= 5 && !/[<>{}[\]\\]/.test(k);
+  const parts = keywords.map(clean).flatMap((k) => (k.length > KEYTERM_MAX ? k.split(" ") : [k]));
+  return [...new Set(parts.filter(ok))].slice(0, 40);
 }
 
 export function realtimeUrl(base: string, model: string, opts: AsrOptions): string {
